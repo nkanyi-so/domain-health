@@ -10,7 +10,7 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
-| 2: the model and the evals (checkpoint) | building | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
+| 2: the model and the evals (checkpoint) | waiting on you | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
@@ -37,7 +37,31 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 2 is back with you, as you asked: the one further attempt missed, and nothing more was tried.** The pull request is [#6](https://github.com/nkanyi-so/domain-health/pull/6). You can merge it as it stands. The challenger read the new result and again says a change is needed; none of what it asks for has been done, because that is yours to decide. Six short questions follow, each with a recommendation, and none needs a paid call.
+
+**The result.** Three runs of the forty-eight cases on `gpt-6.1-terra`:
+
+| Attempt | Prompt | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
+|---|---|---|---|---|---|
+| 4 | version 3 | 0.896 | 0.962 | 9 in 144 | 0.979 |
+| 5 | version 4 | 0.881 | 0.940 | **12 in 144** | **0.812** |
+
+Version 4 did what it was written for: no merely-acceptable risk came back, and harmful on the open cases fell from 9 to 2. But it began raising a complaint-rate risk at random, about one call in seven, on table cases whose complaint rate is a fifth of the level that matters: ten harmful answers on the table cases, where version 3 had none, and nine cases that differ between runs. The cause is not established. No attempt of the five met all four bars; the rules-only table meets them all. `docs/SPEC.md` now says so under "The Phase 2 result", `make eval STRICT=1` exits 2, and CI's `eval` job is red on #6. Spend is $1.85 of the $10 cap. The old branch `phase-1-checks-and-rules` is deleted.
+
+**Questions.** "Recommended for all" is enough.
+
+1. **Version 4's wording goes past your ruling on version 3.** It has no figure, but it pins the rubric's lines at their exact boundaries: 90 days through the name of the field `listings_90d`; 30 days as "exactly a third" of that; 365 as "the number of days in an ordinary year"; the low-volume line as "has not reached the thousands"; the new-domain volume line as the count by which the bulk-sender guidelines define a bulk sender. I let it stand before the paid run and recorded that as a decision; the reviewer says it should have come to you first. It is listed in `evals/results.json` (42 sentences).
+   - **A (recommended). Attempt 5 counts as the final attempt, with this wording disclosed** boundary by boundary in the decision entry and the README. It missed, so nothing is gained by it.
+   - **B. Rule attempt 5 out.** The phase then stands on attempt 4 (harmful 9 in 144, the other three bars met), and version 4 is reported as an attempt that did not count.
+2. **Which prompt is in use from here on.** Today the newest file wins, so version 4, the worse one, drives the results file, the README table and Phase 4's recordings for the seeded clients.
+   - **A (recommended, and the challenger's). Version 3 is the prompt in use**, named by a `prompt` line in `evals/settings.toml` with a test that the results file matches it. The results file and the README table then show version 3 (one bar missed), with version 4 reported beside it as the final attempt that did worse. Phase 4 records with version 3.
+   - **B. Version 4 stays in use.** Its random complaint answers would probably trip Phase 4's check that no recording names a wrong type, and cost paid re-recordings.
+3. **Confirm the lines I added to the checklists of Phases 5 and 6** (the limit beside the claim sentence; what the README must say). They follow from your answers and only add duties, but checklist lines are yours. Recommended: confirm.
+4. **The limit sentence beside the claim.** I wrote "a table of rules does as well on the risk list as the model does". The challenger says that is now too soft. Recommended: "on this project's evals a table of rules does better on the risk list than the model: it meets all four bars, and no prompt version did", with the caveat that on the thirty table cases the labels are that table's own output.
+5. **Corrections to what the README will say and to my own records** (recommended: yes to all): drop "a narrow change" (version 4 rewrote seven checklists and is 457 words longer); say the cause of the complaint fault is not known; say the wording shown to a reader was false in all twelve harmful answers ("above the recommended level" on a rate a fifth of it) and that no check reads wording; name the coverage drop's own cause; fix two stale entries in `docs/DECISIONS_TO_REVIEW.md`.
+6. **The Phase 6 gate says `make eval STRICT=1` exits 0, and no version can meet that.** Gate lines are yours. Recommended: I put a reworded line in #6 for you to read, "`make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed". Also recommended, for Phase 4: a seeded client's recording is kept only when three calls agree on its first five, and `make eval` prints how many returned types the bands call wrong. Not recommended: a filter that drops such types from the model's list, which would make the model the table outright.
+
+**What I will do once you answer.** For "recommended for all": the edits above on #6's branch (a settings line, a test, wording in the spec, the plan and the decision entries; no paid call), one reviewer pass over that diff, and #6 is yours to merge. If you would rather merge #6 now, do: I then carry the same edits into Phase 3's first commit, and you merge Phase 3 as well, since it would touch the spec and a gate line. The case-level detail behind the open-set numbers is in a file for you only, which I have not opened: `~/.config/domain-health/challenger-phase2-detail.md`.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -1835,11 +1859,81 @@ Its findings, as reported, and what was done:
 
 1. **Blocking.** The decision entry and the log said version 4's field-name wording "is in the list `make eval` counts and `evals/results.json` holds", but the list split sentences at a colon, so the sentence that takes the day count from a field name ("The name of `listings_90d` gives its length in days.") was not in it, nor "Recall the cap." and "Recall that count." **Fixed:** the list no longer splits at a colon and also matches "name of", "gives its length" and "recall"; a test holds version 4 to listing that sentence. The count is now 42 for version 4 (it read 38 in the output pasted above, which is left as it was printed).
 2. The printed line called every listed sentence "allowed", when the field-name sentences are past the owner's ruling. **Fixed:** the line now reads "relative to a figure, a field's name or a span of time (listed in the results file)".
-3. Letting the field-name wording stand before a paid run would normally have been a stop; in practice it is one, since the pull request goes back to the owner. **For the owner:** it is question 1 of the block under "Waiting on you".
+3. Letting the field-name wording stand before a paid run would normally have been a stop; in practice it is one, since the pull request goes back to the owner. **For the owner:** it is question 1 of the block written under "Waiting on you" when this phase stops again at its checkpoint (the entry "the second checkpoint stop" below).
 4. A comma group with leading zeros passed (`0,900`, `000,900`). **Fixed:** a grouped number starts with a digit from 1 to 9; both texts are in the test.
 5. "Runs that agreed on N" took N from stability, which compares the first five, while harmful counts up to eight. **Fixed in wording:** "3 runs whose first five agreed on N", in the output and in the spec.
 6. A docstring said that where the kept-only line equals the baseline, everything the model added was a merely-acceptable type; attempt 5 added ten wrong ones. **Fixed.**
-7. The lines added to the checklists of Phases 5 and 6 need the owner's confirmation at the merge. **For the owner:** question 3 of the block.
+7. The lines added to the checklists of Phases 5 and 6 need the owner's confirmation at the merge. **For the owner:** question 3 of that same block.
+
+### 2026-11-20: review, tenth run, on c6f7f0e (the fix commit only)
+
+Verdict: **blocking findings** (one, and it is in this plan's wording, not in the code). It ran `make check` in a fresh clone (exit 0, 753 backend tests), `make eval STRICT=1` (exit 2, attempt 5's numbers, the wording count 42, the results file unchanged), broke each fix to see its test fail (the old comma pattern, the removed words, the colon split: each caught), and found findings 1, 2, 4, 5 and 6 of the ninth run dealt with as logged. Its blocking finding: the ninth-run entry said findings 3 and 7 were "question 1" and "question 3 of the block under 'Waiting on you'", and no such block existed yet. **Done:** the two lines now say the block is the one written at this phase's second checkpoint stop, below, and that block carries both. Non-blocking: `docs/SPEC.md` is edited again (the "first five agreed" wording), which the owner sees in the pull request.
+
+Not run an eleventh time: the only change after c6f7f0e is to this file, and the owner asked for the rounds to be kept short.
+
+### 2026-11-20: verifier, on c6f7f0e
+
+Verdict: **pass**. In a fresh clone:
+
+| Step | Observed | Result |
+|---|---|---|
+| `make setup`, `make check` | exit 0; backend 753 passed, the emulator test passed, the frontend's test passed | pass |
+| `make eval` | header `risks-v4 (e052ad673a40)`; the new per-set lines and the wording count (42) printed; coverage 0.881, precision 0.940, harmful 12 in 144 (3, 4, 5), stability 0.812 (39 of 48); the results file unchanged afterwards | pass |
+| `make eval STRICT=1` | exit 2 | pass (the expected, honest result) |
+| `make eval TABLE=1` | the thirty table cases, none numbered 31 to 48 | pass |
+| version 3 scored from its recordings | 0.896, 0.962, 9 in 144, 0.979; the results file untouched | pass |
+| `make eval-live` with no key | "OPENAI_API_KEY is not set", exit 1, the ledger unchanged | pass |
+| validation by hand on case 06 | `20,48`, `0,900` and `4,0000` dropped; `2,048`, `40,000`, `42,000 and 900` accepted | pass |
+
+Not exercised, by its own list: the "already run" refusal (the missing key fired first), and number formats beyond those above. One slip in its report, corrected here: it wrote that four table cases show a wrong `complaint_rate_elevated`; the output it ran shows eight, as this log says.
+
+### 2026-11-20: challenger, second run on this phase, on c6f7f0e
+
+Verdict: **change needed**. Nothing below has been acted on: it is the owner's, in the block under "Waiting on you". In its words.
+
+**The bars.** "My `make eval` output matches the pasted attempt-5 output except for one no-bar line: the wording count now reads 42 under a new label, where the paste says 38. That change was made in the ninth review and is disclosed. `evals/results.json` came out byte-identical to the committed file." Coverage 0.881, met. Precision 0.940, met. Harmful 12 in 144 (3 / 4 / 5), "**missed**". Stability 0.812 (39 of 48), "**missed**". `make eval STRICT=1` exits 2, "**missed**". Spend $1.8521 of $10, met. "The gate is correctly not ticked."
+
+**(a) Is the miss stated plainly and accurately?** "Mostly yes. Every number in SPEC.md ('The Phase 2 result') and in the README entry matches the recordings." Four problems:
+
+1. "'Version 4 was a narrow change' overstates how small it was. Version 4 is 457 words longer than version 3. It adds an opening paragraph and a block of definitions, rewrites seven of the thirteen checklists, and adds two new not-raised lines to `dmarc_policy_none`. The lesson 'a change that fixes one line can unsettle another' is drawn from a change that was not one line."
+2. "The limit sentence is now softer than the evidence. SPEC.md and the Phase 5 checklist line say 'a table of rules does as well on the risk list as the model does'. On this evidence the table does better: it meets all four bars, every model attempt missed at least one, and the final version misses two."
+3. "The README entry leaves out that the risk wording a reader sees was false. All twelve harmful answers pooled are `complaint_rate_elevated` on a rate of 0.02, with text like 'The complaint rate is above the level mailbox providers recommend'. That rate is a fifth of the level the rubric uses. The text holds no digit, so the number rule cannot see it."
+4. "'A table of rules meets all four bars' needs its caveat beside it. On the 30 table cases the labels are that table's output by construction."
+
+**(b) Is the account of why version 4 did worse supported?** "Partly." Supported: "All eight cases named have a rate of 0.02 at volumes in the thousands, version 3 never raised it on any of them in any run, and version 4 raised it in one or two runs of three. The eight unstable table cases are exactly these." Not shown: "that the reorder caused it. The same edit was made to the bounce and engagement checklists, and neither produced a wrong answer. The opening paragraph, the definitions block and the longer prompt are equally possible causes." And: "The 'eight cases' are probably not special. 23 table cases have a rate under 0.05, volume in the thousands and no complaint fix. A flat chance of about 14% per call across all 23 predicts about 8.6 cases hit and about 10 harmful answers; observed: 8 and 10. Better wording: 'about one call in seven, on any case with a low complaint rate'." The coverage loss has another cause the log did not name: one expected item per run, on the open set, matching `blocklist_recent` 15/15 to 12/15: "Version 4's new blocklist line follows the bands, and that loses an item where an open call raises a band-acceptable state to expected. That is the brief working as intended." And: "'Worse on harmful' (12 against 9) is within noise. What is solid: stability (39 against 47 cases), table-set harmful (10 against 0), and the kind of error (random, on cases the bands settle)."
+
+**(c) Is version 4's wording disclosed well enough for the owner to rule?** "It is disclosed, but framed too narrowly." (1) "It restates more than 'three day counts'. Version 4 restates, at the exact boundaries, the bands of `dmarc_policy_none` (90), `blocklist_recent` (30, with 'that exact count of days still fits'), `new_domain_volume` (30, plus 'equals the bulk-sender count or is below it' against the rubric's 'over 5,000'), `volume_spike` (365), and the rubric's low-volume line (under 1,000), as 'has not reached the thousands'." (2) "It reframes the owner's ruling. The entry's 'Why' says the ruling's test was that nothing is hidden. The ruling rested on the figures being public; a field name and an exact boundary rule are neither." (3) "Its 'To undo' does not undo anything in practice": version 4 stays the newest file, so `make eval` and the results file still report it.
+
+**(d) Which prompt is in use for later phases?** "Nothing in the repository names a prompt in use. Everything follows the newest prompt file, so version 4 drives the results file, CI's eval job, the README table that Phase 6 generates, and by default Phase 4's `make record`." Its recommendation, "the owner's to decide: treat version 3 as the version in use for recordings. It is stable (0.979), returns no type the bands call wrong on the table set, and missed one bar against version 4's two. Version 4's random complaint error would also likely trip Phase 4's test that a recording names no band-wrong type, which would force paid re-records. Pin the choice explicitly (for example a `prompt =` line in evals/settings.toml) instead of 'newest file wins', and keep version 4 reported as the final attempt." Misleading now: the entry in `docs/DECISIONS_TO_REVIEW.md` that says the results file shows attempt 4 (it shows attempt 5); the entry whose undo is to "write `prompts/risks-v4.md`", which now exists; "the Phase 6 gate still requires `make eval STRICT=1` to exit 0. No version can, and nothing flags the clash"; and the earlier failure story ("all thirty table cases then came back as labelled") is true of version 3 only.
+
+**1. Is the claim true as an absolute?** "Only literally. The widest reading is that the model makes good judgment calls and the evals show it. On this evidence that is false." The final version misses two bars; with only the band-expected types kept its runs equal the baseline on both sets; "every one of its harmful answers is on a type the bands settle by code." What the check cannot see: the risk text, "which was false in all twelve harmful answers"; numbers written as words; anything outside the 48 cases; "that the prompt now restates the bands nearly exactly, so the table-set results measure the prompt's restatement, not judgment." Wording that would be true: keep the sentence and set beside it "on this project's evals a table of rules does better on the risk list than the model: it meets all four bars, and no prompt version did".
+
+**2. Is the measurement too noisy?** "Not for these verdicts." Coverage is the same in all three runs; precision's worst run is 0.925; stability is 39 of 48 against the 44 needed and a repeat "would land at roughly 36 to 42 stable cases. Still a miss"; the chance of harmful 0 "is negligible". The comparison between versions on harmful (12 against 9) is within noise. "More runs buy nothing for the pass/fail verdicts."
+
+**3. Could what reviewers caught be checked in code?** The twelve harmful answers: "Yes. Each is a type that the rubric's bands, already in code, call wrong for that input. A post-filter that drops band-wrong types would have removed all twelve. It conflicts with decision 0010 and makes the model even more the table, so it is the owner's call"; the same check could run over the eval recordings as a report line. Instability: "`make record` could accept a seeded-client recording only when three calls agree on the first five." The wording list: flag prompt sentences that pin which side a boundary value falls on. Pasted output drifting from the code (38 against 42): a script could compare them at the gate commit. Stale lines naming the version in the results: "a single `prompt =` setting that the docs refer to, plus a test that results.json's `prompt_version` equals it."
+
+It appended case-level detail on the open set, for the owner only, to `~/.config/domain-health/challenger-phase2-detail.md` under "2026-11-20: challenger, Phase 2, on c6f7f0e". The build has not opened that file.
+
+**Its changes, "for the owner to decide":** (1) the missed bars: harmful, stability, `make eval STRICT=1`. (2) The limit sentence should say the table does better. (3) The README entry: drop "a narrow change"; say the cause of the complaint fault is not established; say the shown risk text was false; put the by-construction caveat beside "a table of rules meets all four bars"; name the coverage drop's cause. (4) The version 4 wording disclosure: list every boundary it pins, correct the reading of the ruling's ground, fix "To undo". (5) Pin the prompt in use; recommended, version 3 for recordings with version 4 reported as the final attempt. (6) The stale lines in `docs/DECISIONS_TO_REVIEW.md` and the Phase 6 gate's "exits 0". (7) Optional: a band-wrong report line or filter over the eval recordings, and three-way agreement for seeded recordings in Phase 4.
+
+### 2026-11-20: gate evidence, on c6f7f0e
+
+The gate is **not ticked**: three of its parts are not met, and by the owner's limit there is no further attempt.
+
+1. `make check` exits 0 on c6f7f0e: the pre-commit hook at the commit, the reviewer and the verifier each in a fresh clone (753 backend tests, the emulator test, the frontend).
+2. The eval output, pasted under "attempt 5" (the paid run; `make eval` prints the same from the recordings): coverage 0.881, met; precision 0.940, met; **harmful 12 in 144, missed**; **stability 0.812, missed**; dropped 0 of 144; coverage per type and the baseline for each set printed. One run of the final prompt version; all five attempts are in this log. The challenger's reading of the bars is the same.
+3. Better than the baseline on the open cases: no, in the output and here.
+4. **`make eval STRICT=1` exits 2, not 0.**
+5. Recorded spend $1.8521 of the $10 cap (`evals/ledger.jsonl`, 721 lines; summed by the reviewer and the challenger).
+6. The "too easy" stop does not apply.
+
+### 2026-11-20: the second checkpoint stop
+
+The phase is at its checkpoint again, with the challenger's `change needed` on c6f7f0e. The block is under "Waiting on you"; findings 3 and 7 of the ninth review are its questions 1 and 3.
+
+reviewer-verdict: blocking findings, one, in the plan's wording and corrected there @ c6f7f0e
+verifier-verdict: pass @ c6f7f0e
+challenger-verdict: change needed @ c6f7f0e
 
 ---
 

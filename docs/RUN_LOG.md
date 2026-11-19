@@ -64,3 +64,7 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T20:11:45Z	2	stop-opened	issue=#7 questions=6 asked: Phase 2 checkpoint: one bar missed, the challenger asks for a change; six questions	0.99
 2026-11-19T21:33:51Z	2	stop-closed	issue=#7 opened=2026-11-19T20:11:45Z	0.99
 2026-11-19T21:53:11Z	2	review	blocking findings @ 5f674cf	1.85
+2026-11-19T21:56:19Z	2	review	blocking findings (one, in the plan's wording) @ c6f7f0e	1.85
+2026-11-19T21:57:54Z	2	verify	pass @ c6f7f0e	1.85
+2026-11-19T22:03:55Z	2	challenge	change needed @ c6f7f0e	1.85
+2026-11-19T22:03:55Z	2	checkpoint	Phase 2, second time, after the owner's one further attempt, pr=#6	1.85
