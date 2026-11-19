@@ -17,7 +17,9 @@ SHINGLE = 6  # words in a row
 
 
 def words(text: str) -> list[str]:
-    return re.findall(r"[a-z0-9_.%]+", text.lower())
+    """Words in lower case. A dot inside a word is part of it (`checks.spf.valid`, `0.10`);
+    punctuation by itself is not a word."""
+    return re.findall(r"[a-z0-9_%]+(?:\.[a-z0-9_%]+)*", text.lower())
 
 
 def shingles(text: str) -> set[tuple[str, ...]]:

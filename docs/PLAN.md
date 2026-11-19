@@ -1377,6 +1377,19 @@ no bar:
 
 Coverage and precision now meet their bars; harmful went from 2 to 24 and stability fell. Read from the table cases only: the model swung from too restrained to too eager. It raises a bounce rate that is low, names an SPF risk on a record that already has an SPF fix, and still does not raise an SPF record that sits at its lookup limit or a complaint rate just under the hard limit. With no figure in the prompt, a small model with no reasoning step does not place a value on the right side of a line it has to recall for itself: told to hold back it holds back everywhere, told to raise it raises everywhere.
 
+### 2026-11-19: correction to the entry above: version 2 did not break the rule; the test did
+
+Looking at exactly which words the test had matched showed that the fault was in the test the build had written an hour earlier, not in version 2. Its word splitter treated a full stop standing by itself as a word, so "grade is low or bad." (five words and a full stop) and "policy is quarantine or reject." counted as six words in a row shared with a band line. The rule, as the spec and the prompt writers' brief state it, is six words in a row. Version 2's writer had checked it under four ways of splitting words and found no such run, and was right. With punctuation no longer counted as a word, both versions are clean:
+
+```text
+prompts/risks-v1.md []
+prompts/risks-v2.md []
+```
+
+So: version 2 is a legitimate attempt and is back in `prompts/` under its own name; `make eval` and the results file are now version 2's, as the newest version's should be; the folder `evals/attempts/` is gone. The word splitter is fixed in `backend/src/domain_health/risks/prompt_rules.py`, and a test pins what a word is (a dot inside `checks.spf.valid` or `0.10` belongs to the word; a full stop does not), that five shared words and a full stop are not a quote, and that six are. This corrects a test to the rule it was written to hold; it loosens nothing the spec asks for, and it changes no attempt's numbers.
+
+Two things in the entry above still stand. The paid run did go ahead past a failing test, which is a fault in how the build ran it whatever the test's worth, and the paid command now refuses a prompt that fails the check before its first call. And attempt 2's numbers are what they are: two bars met, harmful 24, stability 0.667.
+
 ---
 
 ## Phase 3: snapshots and the handled loop

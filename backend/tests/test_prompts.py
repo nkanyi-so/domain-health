@@ -56,6 +56,20 @@ def test_the_check_catches_each_kind_of_leak() -> None:
     assert moved[0].startswith("numbers from the rubric")
 
 
+def test_quoting_means_six_words_in_a_row_and_a_full_stop_is_not_a_word() -> None:
+    line = "- **Expected:** `grade` is `low` or `bad`."
+    assert line in band_lines()
+    assert prompt_rules.words(line) == ["expected", "grade", "is", "low", "or", "bad"]
+    assert prompt_rules.words("checks.spf.valid is 0.10, e.g. this.") == [
+        "checks.spf.valid", "is", "0.10", "e.g", "this",
+    ]  # fmt: skip
+
+    # Five words the line also uses, then a full stop: not a quote.
+    assert problems_with("Raise it when the grade is low or bad. Otherwise do not.") == []
+    # Six of the line's words in a row: a quote.
+    assert problems_with("Expected: grade is low or bad.") != []
+
+
 def test_the_prompts_folder_holds_only_version_files() -> None:
     assert unversioned(PROMPTS) == []
 
