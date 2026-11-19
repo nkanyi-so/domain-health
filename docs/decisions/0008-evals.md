@@ -1,0 +1,9 @@
+# 0008: evals scored in code against four bars; labels signed off in Phase 0
+
+**Status:** accepted by the owner, 2026-11-19 (intake)
+
+**Context.** The brief names four scores (coverage, precision, harmful, stability over three runs) and fixes two bars. Labels are meant to be what a specialist would flag; the owner is the specialist. Under the harness, a phase that touches the cases, the labels or the bars is merged by the owner, and the owner wants to be needed once.
+
+**Decision.** Because risk types are a closed list (0001), all four scores are computed in code from IDs; there is no judge. The bars, chosen by the owner: coverage at least 0.80, precision at least 0.80, harmful exactly 0, stability at least 18 of 20 cases with the same five IDs in all three runs. The exact definitions are in `docs/SPEC.md`. The rubric, all twenty labelled cases, the bars and the claim pin are written in Phase 0, second-read by a separate agent, and signed off by the owner when they merge it. `make check` tests the eval code and runs the plumbing on fixtures with no threshold; `make eval` scores committed recordings for free; `make eval-live` is the paid run; CI runs `make eval STRICT=1` in its own job, which is not a required check.
+
+**Consequence.** The measure is fixed before any prompt exists, so no prompt is written to fit it and no later phase needs the owner for it. One known exception: if the first live run scores full marks everywhere, the profile requires harder cases, and that phase is the owner's. The README says the labels were drafted against a written rubric and reviewed by the owner. Twenty cases is a small set: one case is five points of stability, and the README says so.
