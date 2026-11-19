@@ -111,6 +111,9 @@ def parse(record: str) -> Record:
             raise SpfSyntaxError("cannot read one of the terms")
         qualifier, name, value, cidr = mechanism.groups()
         name = name.lower()
+        # A receiver never reaches a term behind `all`. It still has to parse, but it costs no
+        # lookup and nothing it names is followed.
+        reached = all_qualifier is None
         if name == "all":
             if value is not None or cidr:
                 raise SpfSyntaxError("all takes no value")
@@ -122,7 +125,7 @@ def parse(record: str) -> Record:
             if cidr:
                 raise SpfSyntaxError(f"{name} needs a domain")
             target = _target(name, value)
-            if name == "include":
+            if name == "include" and reached:
                 includes.append(target)
         elif name in ("a", "mx", "ptr"):
             if not _CIDR.match(cidr or "") or (name == "ptr" and cidr):
@@ -131,7 +134,7 @@ def parse(record: str) -> Record:
                 _target(name, value)
         else:
             raise SpfSyntaxError(f"unknown mechanism {name!r}")
-        if name in _COSTS_A_LOOKUP:
+        if name in _COSTS_A_LOOKUP and reached:
             lookups += 1
     # A redirect is only followed when no `all` ends the record first.
     if all_qualifier is not None:

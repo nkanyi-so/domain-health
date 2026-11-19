@@ -279,3 +279,49 @@ def test_no_problem_line_repeats_text_from_a_record_that_does_not_parse() -> Non
 
         assert found.check.valid is False
         assert all("\x1b" not in problem and len(problem) < 100 for problem in found.problems)
+
+
+def test_terms_behind_all_cost_nothing_and_are_never_followed() -> None:
+    resolver = FixtureResolver(
+        {D: ["v=spf1 ip4:192.0.2.0/24 -all include:gone.example.org a mx exists:x.example.org"]}
+    )
+
+    found = run(check_spf(resolver, D))
+
+    assert found.check.valid is True
+    assert found.check.lookup_count == 0
+    assert found.check.all_qualifier == "-all"
+    assert found.problems == ()
+    assert resolver.asked == [D]
+
+
+def test_eleven_includes_behind_all_are_not_over_the_limit() -> None:
+    includes = " ".join(f"include:hop{n}.example.org" for n in range(11))
+
+    found = spf({D: [f"v=spf1 mx -all {includes}"]})
+
+    assert found.check.lookup_count == 1
+    assert found.problems == ()
+
+
+def test_an_include_behind_all_that_does_not_answer_does_not_stop_the_check() -> None:
+    found = spf({D: ["v=spf1 -all include:slow.example.org"]}, timeouts=["slow.example.org"])
+
+    assert found.check.valid is True
+
+
+def test_a_term_behind_all_still_has_to_parse() -> None:
+    assert spf({D: ["v=spf1 -all include:bad..name.example.org"]}).check.valid is False
+    assert spf({D: ["v=spf1 -all bogus"]}).check.valid is False
+
+
+def test_terms_behind_all_in_an_included_record_cost_nothing_either() -> None:
+    zone = {
+        D: ["v=spf1 include:one.example -all"],
+        "one.example": ["v=spf1 ip4:192.0.2.2 -all include:gone.example mx"],
+    }
+
+    found = spf(zone)
+
+    assert found.check.valid is True
+    assert found.check.lookup_count == 1

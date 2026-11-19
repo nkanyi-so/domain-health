@@ -1000,6 +1000,157 @@ Verdict as reported: "changes needed. There is one blocking finding: the DMARC c
 
 Tests: 430 in the backend outside the emulator.
 
+### 2026-11-19: review, sixth run, on 36b32f0
+
+Verdict as reported: "changes needed. There is one blocking finding." The fifth round's fixes hold: with the old DMARC version check put back three tests fail, with the DKIM version check removed one fails, and with every non-RSA key type counted again one fails. Its search of every added line for names outside the documentation domains found only package hosts, the code host, and one ending used as a word in prose. `make check` (430 and 1 passed), `make eval`, the seeded listing twice, the guards, the measure files, rules 1, 2, 5, 6 and 7, and the decisions file ("No entry should have been a stop") all held.
+
+1. Blocking. "SPF counts and follows terms after `all`, so valid records get false fixes": the standard says mechanisms after `all` must be ignored, but an include behind `-all` was still counted and looked up, so `v=spf1 ip4:192.0.2.0/24 -all include:gone.example.org` gave `spf_invalid`, eleven includes behind `-all` gave `spf_too_many_lookups`, and one that timed out made the check unavailable. "The live check would tell a visitor to fix a record that is fine."
+   - Done: once a record's `all` is read, later terms are still parsed (a syntax error anywhere still breaks the record) but cost no lookup and are not followed, in the record itself and in any record it includes. Five tests: nothing behind `all` is looked up; eleven includes behind `all` are not over the limit; a slow include behind `all` does not stop the check; a term behind `all` still has to parse; the same inside an included record. The decisions entry on SPF gained the point.
+
+Its note: the gate evidence, which an entry above refers to, is not in the log yet. It follows the verifier, below.
+
+Its note on method, kept for whoever repeats a mutation run in a copy: a copied `.venv` imports the repository's `src`, not the copy's, unless `PYTHONPATH` points at the copy.
+
+Tests: 435 in the backend outside the emulator.
+
+### 2026-11-19: gate evidence
+
+Run on the code as it stands after the sixth review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+
+1. `make check` exits 0 (lines kept; the rest is tool chatter):
+
+```text
+$ make check
+44 files already formatted
+All checks passed!
+Success: no issues found in 44 source files
+435 passed, 1 deselected in 2.09s
+1 passed, 435 deselected in 0.19s
+✔  Script exited successfully (code 0)
+All matched files use Prettier code style!
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+✓ Compiled successfully in 202ms
+make check exit=0
+```
+
+2. Every fix type has a fixture case that produces it and one that does not. The test names them; 12 of 12:
+
+```text
+$ cd backend && uv run pytest tests/test_seeded.py -k every_fix_type_has -vv
+[spf_missing: driftwood-coffee day 0 has it, driftwood-coffee day 1 does not] PASSED
+[spf_multiple: inkwell-and-vine day 0 has it, harbourlight-books day 0 does not] PASSED
+[spf_invalid: tamberline-travel day 0 has it, tamberline-travel day 1 does not] PASSED
+[spf_too_many_lookups: brindle-and-oak day 0 has it, willowmere-pets day 0 does not] PASSED
+[spf_plus_all: copperkettle-kitchen day 0 has it, oakhaven-outfitters day 0 does not] PASSED
+[dkim_missing: northwind-cycles day 0 has it, northwind-cycles day 1 does not] PASSED
+[dkim_weak_key: copperkettle-kitchen day 0 has it, oakhaven-outfitters day 0 does not] PASSED
+[dmarc_missing: northwind-cycles day 0 has it, fernhollow-garden day 0 does not] PASSED
+[dmarc_invalid: fernhollow-garden day 0 has it, harbourlight-books day 0 does not] PASSED
+[blocklist_listed: silverbrook-dental day 0 has it, silverbrook-dental day 1 does not] PASSED
+[complaint_rate_over_limit: emberglow-events day 0 has it, emberglow-events day 1 does not] PASSED
+[bounce_rate_over_limit: emberglow-events day 0 has it, emberglow-events day 1 does not] PASSED
+12 passed
+```
+
+3. An SPF chain of eleven lookups and an include loop are both reported as over the limit:
+
+```text
+$ uv run pytest tests/test_spf.py -k "chain_of_eleven or include_loop_is_over or includes_itself" -vv
+test_a_chain_of_eleven_lookups_is_over_the_limit PASSED
+test_an_include_loop_is_over_the_limit PASSED
+test_a_record_that_includes_itself_is_a_loop PASSED
+3 passed
+```
+
+`test_a_chain_of_eleven_lookups_is_over_the_limit` asserts `lookup_count == 11` and the problem "more than 10 DNS lookups"; `test_an_include_loop_is_over_the_limit` asserts `lookup_count == 11` and the loop's path; the chain of ten beside them asserts 10 and no problem. On the seeded data, `brindle-and-oak` costs 11 and gets `spf_too_many_lookups`; `willowmere-pets` costs 9 and does not.
+
+4. All twelve seeded clients produce the same output on two runs. Each line is a client, a day of its cycle, the first sixteen characters of its input's SHA-256, and its fixes; then the SHA-256 of each run's whole output:
+
+```text
+$ uv run python -m domain_health.seeded > run1.txt; uv run python -m domain_health.seeded > run2.txt
+$ cat run1.txt
+brindle-and-oak day 0 e2c022ffe33e3881 spf_too_many_lookups
+brindle-and-oak day 1 86d598b5e3f349e6 spf_too_many_lookups
+copperkettle-kitchen day 0 04185e6480a376a3 spf_plus_all, dkim_weak_key
+copperkettle-kitchen day 1 1aa323c58a2d85e4 spf_plus_all, dkim_weak_key
+driftwood-coffee day 0 ebfe6e44461a877c spf_missing
+driftwood-coffee day 1 c0fe77d035dd183f no fix
+emberglow-events day 0 57401bfeef86a80c complaint_rate_over_limit, bounce_rate_over_limit
+emberglow-events day 1 8b90471fd69a313d no fix
+fernhollow-garden day 0 52c5bb261eb8b832 dmarc_invalid
+fernhollow-garden day 1 d097cacd5426376d dmarc_invalid
+harbourlight-books day 0 b75305c4e844e21e no fix
+harbourlight-books day 1 0d1eaf4e7e66db66 no fix
+inkwell-and-vine day 0 aac86a6ec7d6986f spf_multiple
+inkwell-and-vine day 1 0254c957b441308e spf_multiple
+northwind-cycles day 0 5c2d471ad9729fcd dkim_missing, dmarc_missing
+northwind-cycles day 1 3291cfcf15749db0 dmarc_missing
+oakhaven-outfitters day 0 2a4f745b25bb62e1 no fix
+oakhaven-outfitters day 1 b5535faecd5bb2dd no fix
+oakhaven-outfitters day 2 249b09dc3c63562d no fix
+silverbrook-dental day 0 1504120f27af9f2b blocklist_listed
+silverbrook-dental day 1 b6e5141108c1721e no fix
+silverbrook-dental day 2 a2a258673e579f3f no fix
+tamberline-travel day 0 d43f7ccfd79ce876 spf_invalid
+tamberline-travel day 1 b2b8aa9f2a947c47 no fix
+willowmere-pets day 0 ec65c70d60b6435a no fix
+willowmere-pets day 1 4513bdf54b357947 no fix
+$ shasum -a 256 run1.txt run2.txt; cmp run1.txt run2.txt
+f1d6ef439b563cfe477008d802753b434a5d44282cad67fd86f3ec622bd51b86
+f1d6ef439b563cfe477008d802753b434a5d44282cad67fd86f3ec622bd51b86
+identical: 26 lines
+```
+
+5. `make check-domain DOMAIN=example.com` returns real results (real DNS, 14 TXT lookups, no key and no model):
+
+```text
+$ make check-domain DOMAIN=example.com
+example.com: live DNS checks (14 TXT lookups)
+
+SPF
+  one record, parses, 0 of 10 DNS lookups, ends in -all
+  v=spf1 -all
+
+DKIM
+  no key at any of the 12 common selectors probed
+  problem: every selector probed answers with a revoked (empty) key
+
+DMARC
+  policy reject, subdomains reject, 100% of mail
+  found at _dmarc.example.com
+  v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s
+
+Fixes (1)
+  dkim_missing [dns] Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors.
+
+No risks for a typed domain: it has no reputation or sending data.
+exit=0
+```
+
+6. Each of the eight refusals of the live-check input has a passing test; 8 of 8:
+
+```text
+$ uv run pytest tests/test_domain_name.py -k the_eight_refusals -vv
+[1 an IP address] PASSED
+[2 a single label] PASSED
+[3 over 253 characters] PASSED
+[4 a reserved name] PASSED
+[5 an internal name] PASSED
+[6 a scheme] PASSED
+[7 a path] PASSED
+[8 a port] PASSED
+8 passed
+```
+
+Also asked for by the fifth review: a search of the new code, tests and fixtures for a name ending in `.com`, `.net`, `.org` or `.uk` that is not under a documentation domain. Its two hits are the endings in the code comment that names the three documentation domains ("example.com, .net, .org"):
+
+```text
+$ grep -rnoE '[A-Za-z0-9._%{}\\-]*\.(com|net|org|uk)\b' tests src fixtures | grep -vE 'example\.(com|net|org)$'
+src/domain_health/domain_name.py:19:.net
+src/domain_health/domain_name.py:19:.org
+```
+
 ---
 
 ## Phase 2: the model and the evals
