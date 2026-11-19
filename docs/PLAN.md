@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -37,21 +37,7 @@ Estimated total: under $6 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 0 is stopped for you a second time, for one reason.** The challenger read the measure as rebuilt from your answers and again says a change is needed before you sign it off. Everything else is done: the review (eighth run) found nothing blocking, the verifier passed every command, CI is green, and the preflight ends with `preflight: ready`. You asked not to be asked anything more unless the stop list requires it. It does: a change to how the claim is measured is yours.
-
-**What it found.** You chose A1 so that the ten open cases would show "what the model does that rules cannot". As drafted, they cannot show that. The rules-only baseline misses five expected items on the open cases, and all five are signals the rubric's bands already call "acceptable" which the open label raises to "expected". So a table with one threshold moved (complaints flagged from 0.08% instead of 0.10%) finds 10 of 14, exactly the pass mark, with nothing harmful. I reproduced that. Of the other open cases, four can never change a score (the call is "acceptable" either way) and three can only count against the model. Passing Phase 2 would show that the model raises a few optional signals, not that it judges. Its full report is in the Phase 0 log ("challenger, second run, on 71d51ff").
-
-**1. Which way? One of these.**
-
-- **A. Add open cases that a looser table cannot pass, and keep the claim (the challenger's recommendation and mine).** A fresh agent that never sees the prompt drafts six to ten more open cases of two kinds: ones where the right call is a risk the bands call wrong or do not list at all, so no loosening reaches it; and ones where a signal the bands call acceptable is wrong to raise in context, so loosening is punished. A new test proves the point in code: no table made by also returning any set of "acceptable" bands may pass the comparison. The gain over the baseline must come from at least two different open cases and hold in at least two of the three runs, so one lucky run of one case cannot meet it. Costs you about fifteen minutes more of reading at the merge; costs the build about half a day and another review round; under $0.05 more per paid run (worst case for the build stays under $7, cap $10).
-- **B. Compare the model against the strongest loosened table.** No build cost, but as the cases stand that table scores 14 of 14, so the model cannot beat it and this ends at the weaker claim wording anyway.
-- **C. Leave the cases as they are and say what they show.** Take the weaker wording now ("judgment-call risks picked by a model from a closed list and scored against a written rubric"), and drop the sentence that the open cases show judgment. Nothing more to build; Phase 0 can merge after one review round. The reader's question "why is this not just rules?" stays unanswered by the evals.
-
-**2. Two open calls the challenger finds arguable (cases 34 and 38).** In 34 one expected type does not meet its own definition in the rubric; in 38 a mention that only states a fact from the input is scored as harmful, and harmful has zero tolerance. Recommended: with A, the fresh agent redrafts both; with C, you look at these two in the pull request's table and correct them by hand or say they stand.
-
-**3. One sentence in `docs/CLAIM.md` promises more than its test does.** It says the test fails if a file states the claim "in other words"; the test checks only that the exact sentence is present. Recommended: reword that line to say what the test does. Yes or no.
-
-**What happens once you answer.** For A: the cases, the test and the reworded rule go onto this branch with a short addition to decision 0010 and the spec; the reviewer, the verifier and the challenger run again; the pull request's table grows by the new cases; then I tell you #1 is ready. For C: I make the wording changes (the claim sentence changes in `docs/CLAIM.md`, `docs/SPEC.md` and the page together, which the claim test enforces), run the three checks again, and tell you. If you would rather merge #1 exactly as it is, you can: the challenger's verdict line stays as it gave it, and Phase 1 starts after the merge.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -654,6 +640,35 @@ secrets	completed	success
 reviewer-verdict: no blocking findings @ 71d51ff
 verifier-verdict: pass @ 71d51ff
 challenger-verdict: change needed @ 71d51ff
+
+### 2026-11-19: the second stop (issue #3) and the owner's answers
+
+The block as it was asked:
+
+> **Phase 0 is stopped for you a second time, for one reason.** The challenger read the measure as rebuilt from your answers and again says a change is needed before you sign it off. Everything else is done: the review (eighth run) found nothing blocking, the verifier passed every command, CI is green, and the preflight ends with `preflight: ready`. You asked not to be asked anything more unless the stop list requires it. It does: a change to how the claim is measured is yours.
+>
+> **What it found.** You chose A1 so that the ten open cases would show "what the model does that rules cannot". As drafted, they cannot show that. The rules-only baseline misses five expected items on the open cases, and all five are signals the rubric's bands already call "acceptable" which the open label raises to "expected". So a table with one threshold moved (complaints flagged from 0.08% instead of 0.10%) finds 10 of 14, exactly the pass mark, with nothing harmful. I reproduced that. Of the other open cases, four can never change a score (the call is "acceptable" either way) and three can only count against the model. Passing Phase 2 would show that the model raises a few optional signals, not that it judges. Its full report is in the Phase 0 log ("challenger, second run, on 71d51ff").
+>
+> **1. Which way? One of these.**
+>
+> - **A. Add open cases that a looser table cannot pass, and keep the claim (the challenger's recommendation and mine).** A fresh agent that never sees the prompt drafts six to ten more open cases of two kinds: ones where the right call is a risk the bands call wrong or do not list at all, so no loosening reaches it; and ones where a signal the bands call acceptable is wrong to raise in context, so loosening is punished. A new test proves the point in code: no table made by also returning any set of "acceptable" bands may pass the comparison. The gain over the baseline must come from at least two different open cases and hold in at least two of the three runs, so one lucky run of one case cannot meet it. Costs you about fifteen minutes more of reading at the merge; costs the build about half a day and another review round; under $0.05 more per paid run (worst case for the build stays under $7, cap $10).
+> - **B. Compare the model against the strongest loosened table.** No build cost, but as the cases stand that table scores 14 of 14, so the model cannot beat it and this ends at the weaker claim wording anyway.
+> - **C. Leave the cases as they are and say what they show.** Take the weaker wording now ("judgment-call risks picked by a model from a closed list and scored against a written rubric"), and drop the sentence that the open cases show judgment. Nothing more to build; Phase 0 can merge after one review round. The reader's question "why is this not just rules?" stays unanswered by the evals.
+>
+> **2. Two open calls the challenger finds arguable (cases 34 and 38).** In 34 one expected type does not meet its own definition in the rubric; in 38 a mention that only states a fact from the input is scored as harmful, and harmful has zero tolerance. Recommended: with A, the fresh agent redrafts both; with C, you look at these two in the pull request's table and correct them by hand or say they stand.
+>
+> **3. One sentence in `docs/CLAIM.md` promises more than its test does.** It says the test fails if a file states the claim "in other words"; the test checks only that the exact sentence is present. Recommended: reword that line to say what the test does. Yes or no.
+>
+> **What happens once you answer.** For A: the cases, the test and the reworded rule go onto this branch with a short addition to decision 0010 and the spec; the reviewer, the verifier and the challenger run again; the pull request's table grows by the new cases; then I tell you #1 is ready. For C: I make the wording changes (the claim sentence changes in `docs/CLAIM.md`, `docs/SPEC.md` and the page together, which the claim test enforces), run the three checks again, and tell you. If you would rather merge #1 exactly as it is, you can: the challenger's verdict line stays as it gave it, and Phase 1 starts after the merge.
+
+The owner's answers, given in the session, as written:
+
+> 1. A. Draft the harder open cases as you describe, with the test that no loosened table can pass, and the rule that the gain must come from at least two open cases and hold in at least two of three runs. Ground each new case's reason in context or in several signals together, citing public guidance where it applies, the way a specialist reads a domain.
+>    A limit, so this does not loop: this is the last round on the measure. If the challenger still says change needed on the claim-versus-measure question after this round, do not stop to ask again. Apply option C's wording (the weaker claim sentence, and drop the sentence that the open cases show judgment), keep the cases and the baseline as evidence, say in the README's limits what was tried and why it fell short, run the three checks again, and bring me the pull request to merge. The same fallback applies in Phase 2 if the model does not beat the baseline: propose C's wording and stop for my merge.
+> 2. Yes: the fresh agent redrafts cases 34 and 38.
+> 3. Yes: reword that line in docs/CLAIM.md to say what the test does.
+>
+> As before, put the new open cases in the pull request's one-page table with the call and the reason in one line each, and tell me when #1 is ready to merge. Do not ask me anything else unless the stop list requires it.
 
 ---
 
