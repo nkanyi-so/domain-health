@@ -9,9 +9,10 @@ a failure too.
 import argparse
 import sys
 import tomllib
+from collections.abc import Mapping
 from pathlib import Path
 
-from domain_health.evals.cases import load_cases
+from domain_health.evals.cases import EvalCase, load_cases
 from domain_health.evals.report import (
     NoRecordingsError,
     lines,
@@ -29,6 +30,19 @@ __all__ = ["NOTHING", "main", "prompt_versions"]
 def settings(evals: Path) -> dict[str, object]:
     """Which model the committed results are for, and how it was called."""
     return tomllib.loads((evals / "settings.toml").read_text(encoding="utf-8"))
+
+
+def _has_recordings(path: Path, cases: Mapping[str, EvalCase], evals: Path) -> bool:
+    """Whether some model has three whole runs recorded with this exact text of the prompt."""
+    prompt = load_prompt(path)
+    folder = evals / "recordings" / prompt.version
+    for model in sorted(item.name for item in folder.iterdir()) if folder.is_dir() else []:
+        try:
+            load_runs(cases, prompt, model, evals / "recordings")
+        except NoRecordingsError:
+            continue
+        return True
+    return False
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -79,7 +93,19 @@ def main(argv: list[str] | None = None) -> int:
         (args.evals / "results.json").write_text(
             results.model_dump_json(indent=2) + "\n", encoding="utf-8"
         )
-    return 1 if args.strict and not results.all_bars_met else 0
+    if not args.strict:
+        return 0
+    # Strict also holds every other version file to its recordings: a version edited after it was
+    # run no longer has any that match it.
+    unmatched = [
+        path.stem
+        for path in versions
+        if path.stem != prompt.version and not _has_recordings(path, cases, args.evals)
+    ]
+    if unmatched:
+        print(f"no recordings match the prompt text of: {', '.join(unmatched)}", file=sys.stderr)
+        return 1
+    return 0 if results.all_bars_met else 1
 
 
 if __name__ == "__main__":

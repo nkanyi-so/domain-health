@@ -21,11 +21,18 @@ from domain_health.evals.cases import EvalCase, load_cases
 from domain_health.evals.report import RUNS, run_folder
 from domain_health.models import SnapshotInput
 from domain_health.risks.ledger import Ledger, SpendCapError, standing_cap
-from domain_health.risks.model import ModelCall, input_hash, load_calls, save_call
+from domain_health.risks.model import (
+    ModelCall,
+    RecordingExistsError,
+    input_hash,
+    load_calls,
+    save_call,
+)
 from domain_health.risks.prompt import Prompt, load_prompt, prompt_versions
 from domain_health.risks.prompt_rules import problems_with
 
 CONCURRENCY = 6
+LOCK_FILE = ".eval-live.lock"
 PROBE_PROMPT = Prompt(
     version="probe",
     text="Return an empty list of risks for whatever input you are given.",
@@ -57,6 +64,54 @@ def refuse_an_edited_prompt(prompt: Prompt, model: str, recordings: Path) -> Non
                 f"{prompt.version} has recordings on {model} made with another text of the "
                 "prompt. A changed prompt is a new version file; this one was not run."
             )
+
+
+def refuse_a_prompt_already_run(prompt: Prompt, model: str, recordings: Path) -> None:
+    """An unchanged prompt is never run again, under any name. If this exact text has recordings
+    on this model under another version's name, the file is a copy: nothing is called."""
+    for folder in sorted(recordings.glob(f"*/{model}/run-*")) if recordings.is_dir() else []:
+        recorded_as = folder.parent.parent.name
+        if recorded_as == prompt.version:
+            continue
+        if any(call.prompt_sha256 == prompt.sha256 for call in load_calls(folder)):
+            raise PromptChangedError(
+                f"{prompt.version} is a text already recorded on {model} as {recorded_as}. "
+                "An unchanged prompt is never run again."
+            )
+
+
+class AnotherRunError(Exception):
+    """Another paid run holds the lock. Two at once would each count spend alone."""
+
+
+class _OnlyOneRun:
+    """An exclusive lock file for the whole paid command: one run at a time counts the spend."""
+
+    def __init__(self, path: Path) -> None:
+        self._path = path
+
+    def __enter__(self) -> None:
+        try:
+            descriptor = os.open(self._path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError as error:
+            raise AnotherRunError(
+                f"{self._path.name} exists: another paid run is in progress, or one was killed. "
+                "If none is running, delete that file and run again."
+            ) from error
+        os.close(descriptor)
+
+    def __exit__(self, *exc: object) -> None:
+        self._path.unlink(missing_ok=True)
+
+
+# What stops the paid command with a plain message and no traceback.
+STOPPED = (
+    SpendCapError,
+    AlreadyRecordedError,
+    PromptChangedError,
+    AnotherRunError,
+    RecordingExistsError,
+)
 
 
 def still_to_record(
@@ -103,8 +158,15 @@ async def record_runs(
         made += 1
 
     for number, inputs in todo.items():
-        await asyncio.gather(*(one(number, snapshot) for snapshot in inputs))
-        say(f"run {number}: {len(inputs)} call(s) recorded")
+        # Every call of the run is let finish and is saved, whatever happens to one of them: a
+        # call cut off half way would be paid for and leave nothing behind.
+        outcomes = await asyncio.gather(
+            *(one(number, snapshot) for snapshot in inputs), return_exceptions=True
+        )
+        failed = [outcome for outcome in outcomes if isinstance(outcome, BaseException)]
+        say(f"run {number}: {len(inputs) - len(failed)} call(s) recorded")
+        if failed:
+            raise failed[0]
     return made
 
 
@@ -137,52 +199,67 @@ def main(argv: list[str] | None = None) -> int:
 
     client = client_from_environment()
     try:
-        if args.probe:
-            return asyncio.run(_probe(client, model, ledger, BAD_REQUEST_ERROR, OpenAIRiskModel))
-        versions = prompt_versions(args.prompts)
-        if not versions:
-            print(free.NOTHING)
-            return 1
-        prompt = load_prompt(versions[-1])
-        cases = load_cases(args.evals / "cases")
-        broken = problems_with(
-            prompt.text,
-            (args.evals / "RUBRIC.md").read_text(encoding="utf-8"),
-            [case.input for case in cases.values()],
-        )
-        if broken:
-            # A prompt that breaks a rule for the paid runs is never paid for.
-            print(
-                f"{prompt.version} breaks a rule for prompts, so it was not run:", file=sys.stderr
+        with _OnlyOneRun(args.evals / LOCK_FILE):
+            return _paid(
+                args, client, model, temperature, ledger, BAD_REQUEST_ERROR, OpenAIRiskModel
             )
-            print("\n".join(f"  {problem}" for problem in broken), file=sys.stderr)
-            return 1
-        refuse_an_edited_prompt(prompt, model, args.evals / "recordings")
-        todo = still_to_record(cases, prompt, model, args.evals / "recordings")
-        if not todo:
-            raise AlreadyRecordedError(
-                f"{prompt.version} on {model} already has its {RUNS} runs recorded. An unchanged "
-                "prompt is never run again: a change is a new version file."
-            )
-        live = OpenAIRiskModel(
-            client, prompt, model, ledger, temperature=temperature, purpose=f"eval {prompt.version}"
-        )
-        before = ledger.spent()
-        made = asyncio.run(
-            record_runs(
-                live.call,
-                todo,
-                lambda number: run_folder(args.evals / "recordings", prompt.version, model, number),
-                print,
-            )
-        )
-        print(
-            f"{made} call(s) on {date.today().isoformat()}, ${ledger.spent() - before:.4f}; "
-            f"spent in all ${ledger.spent():.4f}"
-        )
-    except (SpendCapError, AlreadyRecordedError, PromptChangedError) as stopped:
+    except STOPPED as stopped:
         print(f"stopped: {stopped}", file=sys.stderr)
         return 1
+
+
+def _paid(
+    args: argparse.Namespace,
+    client: object,
+    model: str,
+    temperature: float | None,
+    ledger: Ledger,
+    bad_request: type[Exception],
+    build: Callable[..., _Caller],
+) -> int:
+    """Everything that can spend, under the lock."""
+    if args.probe:
+        return asyncio.run(_probe(client, model, ledger, bad_request, build))
+    versions = prompt_versions(args.prompts)
+    if not versions:
+        print(free.NOTHING)
+        return 1
+    prompt = load_prompt(versions[-1])
+    cases = load_cases(args.evals / "cases")
+    broken = problems_with(
+        prompt.text,
+        (args.evals / "RUBRIC.md").read_text(encoding="utf-8"),
+        [case.input for case in cases.values()],
+    )
+    if broken:
+        # A prompt that breaks a rule for the paid runs is never paid for.
+        print(f"{prompt.version} breaks a rule for prompts, so it was not run:", file=sys.stderr)
+        print("\n".join(f"  {problem}" for problem in broken), file=sys.stderr)
+        return 1
+    refuse_an_edited_prompt(prompt, model, args.evals / "recordings")
+    refuse_a_prompt_already_run(prompt, model, args.evals / "recordings")
+    todo = still_to_record(cases, prompt, model, args.evals / "recordings")
+    if not todo:
+        raise AlreadyRecordedError(
+            f"{prompt.version} on {model} already has its {RUNS} runs recorded. An unchanged "
+            "prompt is never run again: a change is a new version file."
+        )
+    live = build(
+        client, prompt, model, ledger, temperature=temperature, purpose=f"eval {prompt.version}"
+    )
+    before = ledger.spent()
+    made = asyncio.run(
+        record_runs(
+            live.call,
+            todo,
+            lambda number: run_folder(args.evals / "recordings", prompt.version, model, number),
+            print,
+        )
+    )
+    print(
+        f"{made} call(s) on {date.today().isoformat()}, ${ledger.spent() - before:.4f}; "
+        f"spent in all ${ledger.spent():.4f}"
+    )
     scored = ["--prompts", str(args.prompts), "--evals", str(args.evals), "--table-report"]
     return free.main([*scored, *(["--model", args.model] if args.model else [])])
 

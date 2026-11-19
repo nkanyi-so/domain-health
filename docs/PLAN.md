@@ -1308,7 +1308,7 @@ temperature with reasoning off on gpt-6-luna: ACCEPTED (call completed)
 
 - **The model's output** (`backend/src/domain_health/risks/__init__.py`): the structured-output schema (a type from the closed list, a title, a reason, evidence as input field names from a closed list), validation, and the ID built in code. One broken rule drops the whole output: a shape that is not the schema's, more than eight, a type twice, an empty or over-long title or reason, a number in the text that the input does not hold. A word that starts with a digit and is not a number (`18k`, `2x`) counts as invented.
 - **The model seam** (`risks/model.py`, `risks/openai_model.py`): `RiskModel` with `RecordedRiskModel`, `FixtureRiskModel` and `OpenAIRiskModel`. A recording is one file per input holding the model's text exactly as it came back; it is validated again at every use. The live module is the only one that imports `openai`, which is in the `live` dependency group; a test holds both, and that only the paid command loads the live module.
-- **The spend ledger** (`risks/ledger.py`, `evals/ledger.jsonl`): every paid call is checked before it is made, at the most it could cost (no token is shorter than a byte, so the request's size in bytes bounds its tokens), against the cap line in `docs/STANDING.md`; calls in flight count at their worst; the ledger is a committed file.
+- **The spend ledger** (`risks/ledger.py`, `evals/ledger.jsonl`): every paid call is checked before it is made, at the most it could cost (no token is shorter than a byte, so the size in bytes of the prompt, the message and, since the second review, the schema sent with them, plus a margin for the framing, bounds the tokens billed as input), against the cap line in `docs/STANDING.md`; calls in flight count at their worst; the ledger is a committed file.
 - **The eval harness** (`evals/scoring.py`, `evals/report.py`, `evals/__main__.py`, `evals/live.py`): the four measures as the spec defines them, the dropped count, each run's own numbers, coverage per risk type, each set with the rules-only baseline beside it, the comparison on the open set, `evals/results.json` (totals only: no case is named in it). `make eval` scores committed recordings for free; `make eval-live` is the paid run and refuses a prompt version whose three runs are already recorded. A per-case report exists for the table set only; the open set's cases are never printed.
 - **Tests:** 641 in the backend outside the emulator. Among them the ones the checklist names: only a case's `input` reaches the model; a prompt holds none of the rubric's numbers, none of its band lines, no eval case's domain and no eval case's input as a worked example; one run of the whole plumbing on fixture recordings with no threshold asserted.
 - **`backend/pyproject.toml`:** `default-groups = ["dev", "live"]`, so the live module is linted, typed and tested in `make check` and CI against a fake client. The production image (Phase 4) installs neither group.
@@ -1519,6 +1519,25 @@ Verdict as reported: "there are blocking findings. The results themselves are ho
    - Done: text is folded to its plain form first; a digit from another script counts as invented; and the digits inside a letter-led word are checked unless the word is one the input itself uses, a name from the closed lists or the input's fields, or a protocol's name. All four attempts were scored again with the tighter rule and no number moved; `evals/results.json` is byte for byte what it was.
 
 Tests: 659 in the backend outside the emulator.
+
+### 2026-11-19: review, second run, on 05a93af
+
+Verdict as reported: "there are blocking findings. Two are new, both in the paid command's guards. The results themselves are honest and reproduce exactly." It ran `make check` (659 tests, the emulator test, the frontend), `make eval` on a copy (the log's lines, a byte-identical results file), scored all four attempts again, counted 576 recordings each carrying its prompt's hash and summing with the probe to the ledger's total. The fixes for the first review's findings 1, 2 and 6 "are in the code and each has a test"; fix 3 missed a path, its finding 1 here.
+
+1. Blocking. "Paid calls in flight when a run aborts are never written to the ledger": one failing call made the run re-raise at once and cancel the others, whose requests had gone out; with one of six concurrent calls refused, "7 requests sent, 0 ledger entries".
+   - Done: a call that is cancelled, or fails in any way not already handled, is written to the ledger at the most it could have cost before the reason travels on; a run lets every one of its calls finish and saves each before it reports the first failure; the command stops with a plain message on a recording that already exists. Tests: five calls cut off while waiting leave five ledger entries; with one call of twelve failing, the other eleven finish and are on disk.
+2. Blocking. "'An unchanged prompt is never run again to get a pass' is guarded by file name only": an unchanged copy of version 3 saved as version 4 was accepted.
+   - Done: before any call the command refuses a prompt whose exact text is already recorded on that model under any other version's name. A test: the copy is refused, a real change is not, and the same text on another model is another attempt.
+3. Lower. "`make eval STRICT=1` misses an older prompt version edited after it was recorded."
+   - Done: in strict mode every version file has to have some model with three whole runs recorded with its exact text. Two tests.
+4. Lower. "The ledger's worst case leaves out part of the request": the schema and the framing are billed as input too.
+   - Done: the bound adds the schema's size and a margin of 512. A test pins the sum.
+5. Lower. "Two `make eval-live` runs at once" would each count spend alone and pay twice.
+   - Done: the whole paid command holds an exclusive lock file and refuses to start beside another. Two tests.
+
+Carried, "the owner's to rule": the first review's findings 4 and 5, with one thing it added to the second: the number rule does not see a number written as a word ("twelve", "double"); such words appear one to four times in each attempt's outputs, mostly "one", and tightening the rule would change what is dropped. Both are in the block under "Waiting on you", written after the challenger.
+
+Tests: 667 in the backend outside the emulator. No eval number changed: the scoring code is untouched by these fixes.
 
 ---
 

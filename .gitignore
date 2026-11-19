@@ -28,3 +28,6 @@ ui-debug.log
 
 # Machine
 .DS_Store
+
+# Held while a paid eval run is in progress; removed when it ends.
+evals/.eval-live.lock

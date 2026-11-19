@@ -238,3 +238,55 @@ def test_past_the_cap_no_request_is_made(tmp_path: Path) -> None:
 
     assert client.responses.requests == []
     assert ledger.entries() == []
+
+
+def test_a_call_cut_off_while_waiting_is_written_down_at_its_worst_case(tmp_path: Path) -> None:
+    """When another call of the run fails, or the run is interrupted, the calls still waiting
+    are cancelled. Their requests went out and may be billed, so each is in the ledger."""
+    import asyncio
+
+    class _Hanging(_Responses):
+        async def parse(self, **request: object) -> _Response:
+            self.requests.append(request)
+            await asyncio.sleep(60)
+            raise AssertionError("never reached")
+
+    model, client, ledger = model_with(tmp_path, _Response(output_text()))
+    client._responses = _Hanging(_Response(output_text()))
+
+    async def cut_off() -> None:
+        tasks = [asyncio.create_task(model.call(CASE.input)) for _ in range(5)]
+        await asyncio.sleep(0.01)
+        for task in tasks:
+            task.cancel()
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        assert all(isinstance(result, asyncio.CancelledError) for result in results)
+
+    run(cut_off())
+
+    assert len(client.responses.requests) == 5
+    assert len(ledger.entries()) == 5
+    assert all(entry.cost_usd > 0.001 for entry in ledger.entries())
+    # Nothing stays reserved once they are written down.
+    assert ledger.spent() == pytest.approx(sum(entry.cost_usd for entry in ledger.entries()))
+
+
+def test_the_worst_case_counts_the_schema_and_the_framing_too(tmp_path: Path) -> None:
+    import json
+
+    from domain_health.risks.ledger import cost_usd, most_tokens
+    from domain_health.risks.model import user_message
+
+    model, _, _ = model_with(tmp_path, live.API_ERROR("the connection dropped"))
+
+    call = run(model.call(CASE.input))
+
+    schema = most_tokens(json.dumps(ModelOutput.model_json_schema()))
+    assert live.SCHEMA_TOKENS == schema > 1000
+    most_input = (
+        most_tokens("Rank the risks for this domain.")
+        + most_tokens(user_message(CASE.input))
+        + schema
+        + live.FRAMING_TOKENS
+    )
+    assert call.cost_usd == pytest.approx(cost_usd(MODEL, most_input, live.MAX_OUTPUT_TOKENS))

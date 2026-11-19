@@ -5,6 +5,7 @@ Built only by `make eval-live` and `make record`. The deployed service never imp
 Every call goes through the spend ledger first.
 """
 
+import json
 import time
 from datetime import UTC, datetime
 from typing import Protocol
@@ -26,6 +27,9 @@ from domain_health.risks.prompt import Prompt
 REASONING_EFFORT = "none"
 MAX_OUTPUT_TOKENS = 2000
 REQUEST_SECONDS = 60.0
+# The structured-output schema is sent with every request and billed as input.
+SCHEMA_TOKENS = most_tokens(json.dumps(ModelOutput.model_json_schema()))
+FRAMING_TOKENS = 512
 
 
 class _Usage(Protocol):
@@ -100,9 +104,12 @@ class OpenAIRiskModel:
     async def call(self, snapshot: SnapshotInput) -> ModelCall:
         """One paid call, checked against the cap first, written to the ledger after."""
         message = user_message(snapshot)
-        reserved = self._ledger.reserve(
-            self._model, most_tokens(self._prompt.text) + most_tokens(message), MAX_OUTPUT_TOKENS
+        # Everything that is billed as input: the prompt, the message, the schema the library
+        # sends with them, and a margin for the framing around them.
+        most_input = (
+            most_tokens(self._prompt.text) + most_tokens(message) + SCHEMA_TOKENS + FRAMING_TOKENS
         )
+        reserved = self._ledger.reserve(self._model, most_input, MAX_OUTPUT_TOKENS)
         sampling = {} if self._temperature is None else {"temperature": self._temperature}
         started = time.monotonic()
         status: CallStatus = "error"
@@ -133,6 +140,12 @@ class OpenAIRiskModel:
             # The library parses the model's text into the schema and raises if it does not fit
             # (text cut short, for one). The model did answer, so this is its answer: unusable.
             status, detail, unknown_cost = "incomplete", type(error).__name__, True
+        except BaseException:
+            # Cancelled (another call in the run failed, or Ctrl-C) or anything unforeseen: the
+            # request went out and may be billed, so it is written down at its worst case before
+            # the reason travels on.
+            self._ledger.settle(reserved, self._entry(0, 0, reserved))
+            raise
         else:
             if response.usage is not None:
                 tokens_in, tokens_out = response.usage.input_tokens, response.usage.output_tokens
@@ -148,15 +161,7 @@ class OpenAIRiskModel:
         at = datetime.now(UTC).isoformat(timespec="seconds")
         # Where what was billed is not known, the ledger takes the most it could have been.
         cost = reserved if unknown_cost else cost_usd(self._model, tokens_in, tokens_out)
-        entry = LedgerEntry(
-            at=at,
-            purpose=self._purpose,
-            model=self._model,
-            input_tokens=tokens_in,
-            output_tokens=tokens_out,
-            cost_usd=cost,
-        )
-        self._ledger.settle(reserved, entry)
+        self._ledger.settle(reserved, self._entry(tokens_in, tokens_out, cost))
         return ModelCall(
             prompt_version=self._prompt.version,
             prompt_sha256=self._prompt.sha256,
@@ -172,6 +177,16 @@ class OpenAIRiskModel:
             cost_usd=cost,
             latency_ms=int((time.monotonic() - started) * 1000),
             recorded_at=at,
+        )
+
+    def _entry(self, tokens_in: int, tokens_out: int, cost: float) -> LedgerEntry:
+        return LedgerEntry(
+            at=datetime.now(UTC).isoformat(timespec="seconds"),
+            purpose=self._purpose,
+            model=self._model,
+            input_tokens=tokens_in,
+            output_tokens=tokens_out,
+            cost_usd=cost,
         )
 
     async def rank(self, snapshot: SnapshotInput) -> list[Risk]:

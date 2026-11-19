@@ -1,5 +1,6 @@
 """The paid command's own logic, with a scripted model in place of the live one."""
 
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -7,8 +8,12 @@ import pytest
 from domain_health.evals import live
 from domain_health.evals.cases import load_cases
 from domain_health.evals.live import (
+    LOCK_FILE,
+    AnotherRunError,
     PromptChangedError,
+    _OnlyOneRun,
     record_runs,
+    refuse_a_prompt_already_run,
     refuse_an_edited_prompt,
     still_to_record,
 )
@@ -180,3 +185,91 @@ def test_a_prompt_edited_after_it_was_run_is_refused_and_nothing_is_overwritten(
     assert "A changed prompt is a new version file" in capsys.readouterr().err
     assert called == []
     assert sorted(path.read_bytes() for path in recordings.rglob("*.json")) == before
+
+
+def test_the_same_text_under_a_new_version_name_is_not_run_again(tmp_path: Path) -> None:
+    recordings = tmp_path / "recordings"
+    third = write_prompt(tmp_path / "prompts", "risks-v3.md", "The third version.")
+    record_as_labelled(recordings, third, ALL)
+
+    copy = write_prompt(tmp_path / "prompts", "risks-v4.md", third.text)
+    with pytest.raises(PromptChangedError, match="already recorded on gpt-6-luna as risks-v3"):
+        refuse_a_prompt_already_run(copy, MODEL, recordings)
+
+    # A real change is a new prompt, and the same text on another model is another attempt.
+    changed = write_prompt(tmp_path / "prompts", "risks-v4.md", third.text + " Changed.")
+    refuse_a_prompt_already_run(changed, MODEL, recordings)
+    refuse_a_prompt_already_run(copy, "gpt-6.1-terra", recordings)
+    refuse_a_prompt_already_run(third, MODEL, recordings)
+
+
+def test_when_one_call_fails_the_others_of_the_run_still_finish_and_are_saved(
+    tmp_path: Path,
+) -> None:
+    prompt = write_prompt(tmp_path / "prompts")
+    recordings = tmp_path / "recordings"
+    inputs = [case.input for case in list(ALL.values())[:12]]
+    finished: list[str] = []
+
+    async def scripted(snapshot: SnapshotInput) -> ModelCall:
+        if snapshot == inputs[3]:
+            raise RuntimeError("this request was refused")
+        await asyncio.sleep(0.01)
+        finished.append(snapshot.domain)
+        return recorded_call(prompt, snapshot, output_text())
+
+    said: list[str] = []
+    with pytest.raises(RuntimeError, match="refused"):
+        run(
+            record_runs(
+                scripted,
+                {1: inputs, 2: inputs},
+                lambda number: run_folder(recordings, prompt.version, MODEL, number),
+                said.append,
+            )
+        )
+
+    # Eleven of the first run's twelve were let finish and are on disk; the second run, which
+    # had not started, was not begun.
+    assert len(finished) == 11
+    assert len(load_calls(run_folder(recordings, prompt.version, MODEL, 1))) == 11
+    assert said == ["run 1: 11 call(s) recorded"]
+    assert not run_folder(recordings, prompt.version, MODEL, 2).exists()
+
+
+def test_only_one_paid_run_at_a_time(tmp_path: Path) -> None:
+    lock = tmp_path / LOCK_FILE
+
+    with _OnlyOneRun(lock):
+        assert lock.exists()
+        with pytest.raises(AnotherRunError, match="another paid run"), _OnlyOneRun(lock):
+            pass
+        assert lock.exists()
+    assert not lock.exists()
+
+    # Released on the way out even when the run fails.
+    with pytest.raises(RuntimeError), _OnlyOneRun(lock):
+        raise RuntimeError("the run failed")
+    assert not lock.exists()
+
+
+def test_the_command_takes_the_lock_before_anything_that_can_spend(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-key")
+    evals = tmp_path / "evals"
+    evals.mkdir()
+    (evals / "settings.toml").write_text(f'model = "{MODEL}"\ntemperature = 0\n')
+    (evals / LOCK_FILE).write_text("")
+    reached: list[object] = []
+    monkeypatch.setattr(live, "_paid", lambda *args: reached.append(args))
+    command = [
+        "--prompts", str(tmp_path / "prompts"),
+        "--evals", str(evals),
+        "--standing", str(REPO / "docs" / "STANDING.md"),
+    ]  # fmt: skip
+
+    assert live.main(command) == 1
+    assert reached == []
+    assert "another paid run is in progress" in capsys.readouterr().err
+    assert (evals / LOCK_FILE).exists()

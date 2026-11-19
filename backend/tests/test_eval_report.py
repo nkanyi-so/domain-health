@@ -247,3 +247,31 @@ def test_the_real_settings_name_a_model_with_a_known_price() -> None:
 
     assert config["model"] in PRICES
     assert config.get("temperature", 0) == 0
+
+
+def test_strict_fails_when_an_older_version_was_edited_after_it_was_run(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    evals = evals_folder(tmp_path)
+    first = write_prompt(tmp_path / "prompts")
+    second = write_prompt(tmp_path / "prompts", "risks-v2.md", "Second.")
+    record_as_labelled(evals / "recordings", first, ALL)
+    record_as_labelled(evals / "recordings", second, ALL)
+    arguments = ["--prompts", str(tmp_path / "prompts"), "--evals", str(evals)]
+    assert main([*arguments, "--strict"]) == 0
+
+    write_prompt(tmp_path / "prompts", text=first.text + " And one more line.")
+
+    assert main(arguments) == 0
+    assert main([*arguments, "--strict"]) == 1
+    assert "no recordings match the prompt text of: risks-v1" in capsys.readouterr().err
+
+
+def test_strict_accepts_an_older_version_recorded_on_another_model(tmp_path: Path) -> None:
+    evals = evals_folder(tmp_path)
+    first = write_prompt(tmp_path / "prompts")
+    second = write_prompt(tmp_path / "prompts", "risks-v2.md", "Second.")
+    record_as_labelled(evals / "recordings", first, ALL, model="gpt-6.1-terra")
+    record_as_labelled(evals / "recordings", second, ALL)
+
+    assert main(["--prompts", str(tmp_path / "prompts"), "--evals", str(evals), "--strict"]) == 0
