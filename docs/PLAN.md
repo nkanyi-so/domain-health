@@ -10,7 +10,7 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
-| 2: the model and the evals (checkpoint) | not started | |
+| 2: the model and the evals (checkpoint) | building | |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
@@ -1254,6 +1254,43 @@ challenger-verdict: not needed @ 10f4114
 **Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty-eight cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. Whether the model does better than the baseline on the open cases, as `docs/SPEC.md` defines it, is in the output and the log whichever way it comes out; it is evidence and not a bar (decision 0012), and if it does not, the phase is left for the owner to merge. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
 
 **Log:**
+
+### 2026-11-19: step list and risks (written before the work)
+
+Where things stood: Phase 1 merged by the merge gate (pull request #5, merge commit b1af282); its `gate-merged` line and its row's `merged` are in this branch's first commit, with the one-sentence wording fix the twelfth Phase 1 review asked for (the resolver's fourth outcome, in `docs/ARCHITECTURE.md` and one docstring). Nothing is waiting, no stop is open, no decision is marked `undo`. The preflight ended `preflight: ready` at the start of this session. `make check` is green on `main` (552 backend tests).
+
+This session has not opened an open case (`evals/cases/31` to `48`), their notes, or the Phase 0 pull request's description, and will not: it reads their totals only. It has read the Phase 0 log in this file, which names open cases by number and quotes two reviewers' doubts about some of them in general words.
+
+Steps:
+
+1. The model's output: the structured-output schema (a risk type from the closed list, a title, a reason, evidence as input field names), validation (a known type, no duplicate, at most eight, every number in the text present in the input), and the risk ID built in code as `<type>:<domain>`. Tests first.
+2. `RiskModel` with three implementations: `FixtureRiskModel` (scripted), `RecordedRiskModel` (replays committed recordings by a hash of prompt version, model and input) and `OpenAIRiskModel` (the only module that imports `openai`, which goes in a `live` dependency group). The installed SDK is read before the call is written.
+3. The spend ledger: a committed file of every paid call, checked before each call at the most that call could cost against the cap in `docs/STANDING.md`.
+4. The eval harness: the four measures as the spec defines them, the dropped count, coverage per risk type, each set by itself, each run's own numbers beside the means, the rules-only baseline beside the model, the comparison on the open set; `evals/results.json`; `make eval` (free, from recordings) and `make eval-live` (paid). Tests first for the scoring, on plain numbers.
+5. `prompts/risks-v1.md`, written by an agent with fresh context that is given the rubric, the thirty table cases, the output schema and the validation rules, and nothing else. Tests: no worked example shares a domain or an input hash with an eval case; the prompt holds none of the rubric's numbers and none of its band lines; only a case's `input` reaches the model.
+6. One paid call (at most $0.01): is `temperature` accepted with reasoning off. The answer goes into decision 0002 and the code.
+7. `make eval-live` on `gpt-6-luna` (at most $0.12 a run). If a bar is missed, up to three further prompt versions, each written by a fresh agent from table-case results only; then the same on `gpt-6.1-terra`. Every attempt's numbers go in this log.
+8. One real failure from these runs and its fix, written down for the README.
+9. `make check`, `make eval`, the results file and recordings committed, then reviewer, verifier, challenger, evidence, pull request, and the checkpoint stop: the owner merges this phase.
+
+Verifier: needed. There is something to run: `make eval` on the committed recordings, `make eval STRICT=1`, the fixture run of the plumbing.
+
+Challenger: needed. This phase produces the first eval results.
+
+Looked ahead for anything on the stop list:
+
+- The checkpoint at the end of the phase, known in advance. The pull request waits for the owner whatever the numbers are.
+- Paid steps: all listed in the plan, worst case $5.53 against a cap of $10. Each is added to the "Spend:" line at its worst case before it runs.
+- Known in advance: if the first live run is at the maximum on every measure, the set is too easy and the phase stops with proposed harder cases. If a bar is still missed after both models, that is a gate that cannot pass and a stop.
+- No guard, `CLAUDE.md`, `docs/SPEC.md` or measure file is planned to change. The model's output model is a new file; `models.py` is not edited.
+
+Risks seen:
+
+- Validation drops a whole output for one invented number. A model that writes "over the 0.3% limit" where the input says 0.30, or names a limit the input does not hold, loses the case. The prompt has to say so plainly, and the dropped count is reported.
+- The prompt may not hold the rubric's numbers, so the model has to bring its own sense of where a rate becomes worth raising. That is the design (the bands are the measure, not the prompt), and it is the likeliest reason for a missed bar.
+- The spec already says a prompt tuned on the table cases alone can fail the harmful bar on six open calls it was never shown. If that happens it is reported as what it is.
+- The `openai` SDK and the model names are newer than anything this build has checked by running. The first call is the one-cent probe, behind the ledger.
+- `temperature` may be refused with reasoning off; decision 0002 already says what happens then.
 
 ---
 
