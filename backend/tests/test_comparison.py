@@ -3,11 +3,14 @@
 Part of the measure: the owner changes this file.
 """
 
+import tomllib
+from collections.abc import Callable
 from itertools import combinations
 
 import pytest
 
-from domain_health.evals.cases import load_cases
+from domain_health.evals import comparison
+from domain_health.evals.cases import EvalCase, load_cases
 from domain_health.evals.comparison import (
     OpenScore,
     baseline_run,
@@ -15,9 +18,9 @@ from domain_health.evals.comparison import (
     mean_precision,
     score_open_run,
 )
-from domain_health.evals.table import table_label
+from domain_health.evals.table import baseline_risks, table_label
 from domain_health.types import RiskType
-from tests.paths import CASES
+from tests.paths import BARS, CASES
 
 OPEN = {name: case for name, case in load_cases(CASES).items() if case.set == "open"}
 BASELINE = baseline_run(OPEN)
@@ -129,6 +132,27 @@ def test_precision_is_the_mean_of_the_runs_not_pooled() -> None:
     assert mean_precision([full, full, full]) == 1.0
 
 
+def test_the_comparison_itself_uses_the_mean_of_the_runs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Two full runs and one noisy one: pooled precision passes the bar, the mean does not."""
+    base = OpenScore(found=10, expected=20, returned=10, precise=10, harmful=0, cases_gained=0)
+    full = OpenScore(found=14, expected=20, returned=50, precise=50, harmful=0, cases_gained=3)
+    noisy = OpenScore(found=14, expected=20, returned=10, precise=3, harmful=0, cases_gained=3)
+    scores = iter([base, full, full, noisy])
+    monkeypatch.setattr(comparison, "score_open_run", lambda *_: next(scores))
+
+    assert comparison.PRECISION_BAR <= (50 + 50 + 3) / (50 + 50 + 10)  # pooled would pass
+    assert not better_than_baseline(OPEN, [BASELINE] * 3)
+
+
+def test_with_precise_runs_the_same_gains_do_pass(monkeypatch: pytest.MonkeyPatch) -> None:
+    base = OpenScore(found=10, expected=20, returned=10, precise=10, harmful=0, cases_gained=0)
+    full = OpenScore(found=14, expected=20, returned=50, precise=50, harmful=0, cases_gained=3)
+    scores = iter([base, full, full, full])
+    monkeypatch.setattr(comparison, "score_open_run", lambda *_: next(scores))
+
+    assert better_than_baseline(OPEN, [BASELINE] * 3)
+
+
 def test_a_run_that_returns_nothing_has_no_precision() -> None:
     empty = OpenScore(found=0, expected=10, returned=0, precise=0, harmful=0, cases_gained=0)
 
@@ -161,3 +185,77 @@ def test_every_note_names_the_types_its_call_moves() -> None:
                 assert f"`{risk.value}`" in case.note, (
                     f"{name}: the note does not name {risk.value}"
                 )
+
+
+# --- what the four bars do and do not show (docs/SPEC.md, "What the comparison does not show") ---
+
+ALL = load_cases(CASES)
+BARS_FILE = tomllib.loads(BARS.read_text(encoding="utf-8"))
+
+
+def scored(pick: Callable[[EvalCase], list[RiskType]]) -> tuple[float, float, int]:
+    """Coverage, precision and harmful for one deterministic run over all the cases."""
+    found = expected = returned = precise = harmful = 0
+    for case in ALL.values():
+        everything = pick(case)
+        first_five = set(everything[:5])
+        wanted = set(case.label.expected)
+        expected += len(wanted)
+        found += len(first_five & wanted)
+        returned += len(first_five)
+        precise += len(first_five & (wanted | set(case.label.acceptable)))
+        harmful += len(set(everything) & set(case.label.wrong))
+    return found / expected, precise / returned, harmful
+
+
+def plain_baseline(case: EvalCase) -> list[RiskType]:
+    return baseline_risks(case.input)
+
+
+def one_number_moved(case: EvalCase) -> list[RiskType]:
+    sources = case.input.sources
+    ratio = sources.volume_7d / sources.volume_prev_7d if sources.volume_prev_7d else 2.0
+    risks = baseline_risks(case.input)
+    if ratio >= 1.3 and sources.volume_7d >= 1000 and RiskType.VOLUME_SPIKE not in risks:
+        risks.append(RiskType.VOLUME_SPIKE)
+    return risks
+
+
+def everything_the_bands_allow(case: EvalCase) -> list[RiskType]:
+    bands = table_label(case.input)
+    return [*bands.expected, *bands.acceptable][:8]
+
+
+@pytest.mark.parametrize("pick", [plain_baseline, one_number_moved])
+def test_a_table_with_no_model_meets_the_bars(pick: Callable[[EvalCase], list[RiskType]]) -> None:
+    """Pins the spec's sentence: the bars alone do not tell a model from a table.
+
+    A table is deterministic, so its stability is 1.00 and only three bars need computing.
+    """
+    coverage, precision, harmful = scored(pick)
+
+    assert coverage >= BARS_FILE["coverage"]["value"]
+    assert precision >= BARS_FILE["precision"]["value"]
+    assert harmful == BARS_FILE["harmful"]["value"]
+
+
+def test_the_two_tables_score_what_the_spec_says() -> None:
+    plain = scored(plain_baseline)
+    moved = scored(one_number_moved)
+
+    assert (round(plain[0], 2), plain[1], plain[2]) == (0.88, 1.0, 0)
+    assert (round(moved[0], 2), round(moved[1], 2), moved[2]) == (0.94, 0.97, 0)
+
+
+def test_naming_everything_the_bands_allow_fails_only_on_the_open_cases() -> None:
+    """Pins the spec's sentence: six open calls make wrong a type the bands call acceptable."""
+    harmful_open = harmful_table = 0
+    for case in ALL.values():
+        named = set(everything_the_bands_allow(case)) & set(case.label.wrong)
+        if case.set == "open":
+            harmful_open += len(named)
+        else:
+            harmful_table += len(named)
+
+    assert harmful_table == 0
+    assert harmful_open == 6

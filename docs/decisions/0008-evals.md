@@ -1,6 +1,6 @@
 # 0008: evals scored in code against four bars; labels signed off in Phase 0
 
-**Status:** accepted by the owner, 2026-11-19 (intake). Changed in part by [0010](0010-measure-after-the-challenge.md) the same day: forty cases in two sets, harmful counted over everything returned, stability as a share, a rules-only baseline.
+**Status:** accepted by the owner, 2026-11-19 (intake). Changed in part by [0010](0010-measure-after-the-challenge.md) the same day: forty cases in two sets, harmful counted over everything returned, stability as a share, a rules-only baseline. One sentence below no longer stands: "the owner is the specialist". The labels were drafted by AI and reviewed by the owner, the engineer who built the original system; they were not written or reviewed by a deliverability specialist (0010).
 
 **Context.** The brief names four scores (coverage, precision, harmful, stability over three runs) and fixes two bars. Labels are meant to be what a specialist would flag; the owner is the specialist. Under the harness, a phase that touches the cases, the labels or the bars is merged by the owner, and the owner wants to be needed once.
 
