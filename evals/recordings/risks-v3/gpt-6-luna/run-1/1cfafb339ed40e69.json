@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1cfafb339ed40e692e5f092fb8064fb9269adf349adcc46e632995b44302182e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation grade has declined\",\"why\":\"The reputation grade has fallen from high to medium, indicating a deterioration in sending reputation.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has surged\",\"why\":\"Weekly volume has grown substantially, and the medium reputation grade makes this increase a deliverability risk.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4928,
+  "output_tokens": 124,
+  "cost_usd": 0.0005547999999999999,
+  "latency_ms": 2408,
+  "recorded_at": "2026-11-19T19:10:01+00:00"
+}

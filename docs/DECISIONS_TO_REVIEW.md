@@ -15,6 +15,13 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-19, Phase 2: three prompt versions on `gpt-6-luna`, not four, before `gpt-6.1-terra`
+
+- **Decided:** the plan allows up to three further prompt versions on `gpt-6-luna` after the first misses a bar, then the same on `gpt-6.1-terra`. After versions 1, 2 and 3 all missed, the fourth Luna version was not written and the next attempt is version 3 on Terra. The other option was a fourth version on Luna first.
+- **Why:** stability was 0.79, 0.67 and 0.69 on three quite different prompts, at temperature 0 with reasoning off: the same input and prompt give a different set of risks in a quarter to a third of the cases, which is the model and not the wording, and the stability bar is 0.90. Harmful was 2, 24 and 20 against a bar of zero. A fourth version would have cost about eight cents and twenty minutes and could at best have moved coverage. "Up to three" allows fewer.
+- **To undo:** have a fresh agent write `prompts/risks-v4.md` from the table-case lines of the three Luna attempts and run `make eval-live`; about $0.08. Nothing else changes.
+- **Status:** to review
+
 ## 2026-11-19, Phase 1: the phase goes to `main` as one commit on a second branch
 
 - **Decided:** the first three commits of this phase held, in two test files and one log line, a few domain names that are not documentation names (an invented company name under `.com`, a short `.co.uk` name, a one-letter `.com` name). None was ever looked up. They were replaced in the tree, but the merge gate merges with a merge commit, which would have carried those commits into `main`'s history for good. So the phase's work was put on a new branch, `phase-1-checks-and-rules-clean`, as a single commit made from `main`, and the pull request is opened from that branch. The first branch, `phase-1-checks-and-rules`, was not rewritten and not deleted: rewriting pushed history and deleting a branch are both the owner's. The other options were to merge the history as it was, or to stop and ask.

@@ -20,8 +20,8 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.18 of $10 cap
-Decisions to review: 15 (`docs/DECISIONS_TO_REVIEW.md`)
+Spend: $0.26 of $10 cap
+Decisions to review: 16 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -1389,6 +1389,46 @@ prompts/risks-v2.md []
 So: version 2 is a legitimate attempt and is back in `prompts/` under its own name; `make eval` and the results file are now version 2's, as the newest version's should be; the folder `evals/attempts/` is gone. The word splitter is fixed in `backend/src/domain_health/risks/prompt_rules.py`, and a test pins what a word is (a dot inside `checks.spf.valid` or `0.10` belongs to the word; a full stop does not), that five shared words and a full stop are not a quote, and that six are. This corrects a test to the rule it was written to hold; it loosens nothing the spec asks for, and it changes no attempt's numbers.
 
 Two things in the entry above still stand. The paid run did go ahead past a failing test, which is a fault in how the build ran it whatever the test's worth, and the paid command now refuses a prompt that fails the check before its first call. And attempt 2's numbers are what they are: two bars met, harmful 24, stability 0.667.
+
+### 2026-11-19: prompt version 3, attempt 3
+
+A third fresh agent, with the same materials plus both earlier versions, both sets of table-case lines and the check itself as a script, wrote version 3 (2,987 words): every type an ordered checklist with its stops first, the fix list as the only word on what has crossed a hard limit, and for each number an anchor the model is asked to recall for itself (the level mailbox providers publish, SPF's cap on lookups, the bounce level list-hygiene practice quotes). Its own walk-through gave the labelled answer on all thirty table cases. The check passes and so do the prompt tests.
+
+For the owner and the challenger to judge: version 3 holds no figure and no run of six words from a band line, but it does carry relative wording that sits close to a threshold. The writer listed it: "a single lookup short of" the cap; "half that level or less" and "half the cap or less"; the hard complaint limit as "several times larger" than the recommended level and the bounce one as "more than twice as high" as its benchmark; current DKIM practice as "twice that length"; "only a few hundred messages or fewer"; "first few weeks", "years of history", "thousands of messages a week". The rule in the spec is that a prompt does not quote the rubric's thresholds or bands, and the test for it passes; whether arithmetic on a publicly known limit is a quote in other words is not the build's to settle. It is question material for the checkpoint, and the prompt text was not edited by the build.
+
+Attempt 3, `gpt-6-luna` ("Spend:" raised to $0.26 before it):
+
+```text
+$ make eval-live
+run 1: 48 call(s) recorded
+run 2: 48 call(s) recorded
+run 3: 48 call(s) recorded
+144 call(s) on 2026-11-19, $0.0787; spent in all $0.2108
+risks-v3 (11e24baa36aa) on gpt-6-luna, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.786                        bar >= 0.8   missed  each run: 0.791 0.776 0.791
+precision  0.877                        bar >= 0.8   met  each run: 0.864 0.878 0.890
+harmful    20 in 144 case-runs          bar == 0     missed  each run: 7 7 6
+stability  0.688 (33 of 48 cases)       bar >= 0.9   missed
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 0.817, precision 0.933, harmful 9, stability 0.700, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+  open set (18 cases, 25 expected items): coverage 0.733, precision 0.809, harmful 11, stability 0.667, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 6/9, spf_near_lookup_limit 4/9, spf_weak_all 2/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 7/18, bounce_rate_elevated 18/24, volume_spike 19/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  cost $0.0787, 704397 tokens in, 16584 out, median latency 2425 ms
+```
+
+Coverage slipped just under its bar, harmful is 20, stability 0.688. On the table cases the wrong answers of version 2 are gone where version 3 put a stop (the low bounce rate, the fully enforced DMARC record) and new ones appeared elsewhere, some in one run of three only.
+
+The three attempts side by side, all forty-eight cases:
+
+| Attempt | Prompt | Model | coverage | precision | harmful | stability | dropped | cost |
+|---|---|---|---|---|---|---|---|---|
+| 1 | risks-v1 | gpt-6-luna | 0.552 | 0.986 | 2 in 144 | 0.792 | 0 | $0.0563 |
+| 2 | risks-v2 | gpt-6-luna | 0.816 | 0.841 | 24 in 144 | 0.667 | 1 | $0.0757 |
+| 3 | risks-v3 | gpt-6-luna | 0.786 | 0.877 | 20 in 144 | 0.688 | 0 | $0.0787 |
+
+What the three say together. Stability never passed 0.79, and it was highest for the prompt that said least: with reasoning off and temperature 0, this model gives a different set of risks on the same input and the same prompt in a quarter to a third of the cases. No wording fixes that, and the harmful bar is zero over 144 case-runs. A fourth prompt on this model was allowed by the plan ("up to three further prompt versions") and was not written: the next attempt is the same prompt on `gpt-6.1-terra`, as the plan provides when Luna misses a bar. The call is in `docs/DECISIONS_TO_REVIEW.md`.
 
 ---
 

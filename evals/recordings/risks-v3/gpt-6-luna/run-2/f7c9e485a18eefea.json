@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "f7c9e485a18eefea68b2d594b425f956661c2bdf75a165b0112b2ba92fd2edaa",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The reputation grade is bad, which can make it harder for your mail to reach recipients.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rates have declined\",\"why\":\"Opens have lost a substantial share of their earlier level, suggesting recipients are engaging less with your mail.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has spiked\",\"why\":\"Weekly volume has grown substantially, and the bad reputation makes this increase a deliverability risk.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 175,
+  "cost_usd": 0.0005755,
+  "latency_ms": 2997,
+  "recorded_at": "2026-11-19T19:10:28+00:00"
+}

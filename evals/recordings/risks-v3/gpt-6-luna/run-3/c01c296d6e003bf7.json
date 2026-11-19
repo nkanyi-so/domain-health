@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c01c296d6e003bf7eb625060e31c74d2d2c9ba7a1634e64f0f291512d7da5c75",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation is declining\",\"why\":\"The reputation grade has fallen from medium to low, which can make delivery less reliable.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current low reputation grade can make it harder for messages to reach recipients.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, which can signal list-quality problems and harm deliverability.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\"]},{\"type\":\"engagement_declining\",\"title\":\"Engagement is declining\",\"why\":\"Opens have lost a substantial share of their earlier level, suggesting recipients are engaging less with recent mail.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring, so it does not yet protect the domain from spoofing. With SPF and DKIM fixes still open, monitoring is the right stage for now; enforcement is the step that follows.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4970,
+  "output_tokens": 300,
+  "cost_usd": 0.000647,
+  "latency_ms": 3705,
+  "recorded_at": "2026-11-19T19:10:53+00:00"
+}

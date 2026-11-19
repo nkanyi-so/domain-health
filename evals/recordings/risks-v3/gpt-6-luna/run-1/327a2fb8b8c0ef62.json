@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "327a2fb8b8c0ef627a8ed9635304cd73b9c5b95c7896d9bb0769a8719cc9c47e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, which can indicate list-quality problems.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4918,
+  "output_tokens": 64,
+  "cost_usd": 0.0005237999999999999,
+  "latency_ms": 1804,
+  "recorded_at": "2026-11-19T19:10:08+00:00"
+}

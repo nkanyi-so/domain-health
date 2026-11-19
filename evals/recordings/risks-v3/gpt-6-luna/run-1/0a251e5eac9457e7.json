@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "0a251e5eac9457e716ffe4d39f5d1414ab9beda64c2f7bbdbe54e75c6bd7edaf",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC leaves subdomains unenforced\",\"why\":\"The main domain uses quarantine, but the subdomain policy is none, leaving subdomains without the same protection.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4921,
+  "output_tokens": 75,
+  "cost_usd": 0.0005296,
+  "latency_ms": 1935,
+  "recorded_at": "2026-11-19T19:10:07+00:00"
+}

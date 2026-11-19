@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c4506e5288771f37cee1a05b728fe7d7e20b9ecd6ba9fdad7d45f5c604fb1bc5",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The domain’s reputation is low, which can make mailbox providers less likely to deliver its mail to the inbox.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate at a concerning level\",\"why\":\"The complaint rate has reached the level mailbox providers recommend senders stay under, which can harm delivery if it persists.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate above the clean-list benchmark\",\"why\":\"The bounce rate has reached the clean-list benchmark, indicating list-quality concerns that can affect delivery.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has jumped\",\"why\":\"Weekly volume has grown substantially, and the domain’s reputation is not high; a sharp increase can put delivery at risk.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC enforcement is partial\",\"why\":\"DMARC applies quarantine to failing mail, but its policy does not cover all failing messages.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4924,
+  "output_tokens": 313,
+  "cost_usd": 0.0006489000000000001,
+  "latency_ms": 3609,
+  "recorded_at": "2026-11-19T19:10:15+00:00"
+}

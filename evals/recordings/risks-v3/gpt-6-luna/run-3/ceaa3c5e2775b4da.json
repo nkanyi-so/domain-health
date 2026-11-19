@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceaa3c5e2775b4dad8697c122268526956b9cc830c11ab4f7b7c77a9630d6096",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key is below current strength\",\"why\":\"The only DKIM key is shorter than current practice, leaving signing weaker than expected.\",\"evidence\":[\"checks.dkim.keys\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring subdomains\",\"why\":\"The main domain enforces DMARC, but the subdomain policy is set to none, leaving subdomains without enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 126,
+  "cost_usd": 0.0005509000000000001,
+  "latency_ms": 3033,
+  "recorded_at": "2026-11-19T19:10:41+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "4da997e4d2a8e307d27652792ae951c1f0932243771e7b5fa6a89dc9df14c64a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Reputation grade is poor\",\"why\":\"The domain’s reputation is rated low, which can make delivery less reliable.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, indicating a list-quality concern.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"A blocklist listing ended recently, so the domain may still face lingering delivery effects.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 157,
+  "cost_usd": 0.0005665,
+  "latency_ms": 2822,
+  "recorded_at": "2026-11-19T19:10:30+00:00"
+}

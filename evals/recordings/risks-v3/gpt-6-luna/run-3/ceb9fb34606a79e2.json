@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceb9fb34606a79e220ab999212f47571e0f20cb32ed7195b2d4201954d7a6b4a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"A blocklist listing ended within the review window, so it remains a recent deliverability concern.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\",\"sources.blocklist.listings_90d\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 75,
+  "cost_usd": 0.0005255,
+  "latency_ms": 2526,
+  "recorded_at": "2026-11-19T19:10:38+00:00"
+}

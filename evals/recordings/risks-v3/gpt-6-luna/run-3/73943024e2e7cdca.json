@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "73943024e2e7cdca4eea7199f0a4a67747d35395a96fbbdc40cd33b9017252ba",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list level, which can signal list-quality problems even alongside otherwise healthy indicators.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"A blocklist listing ended recently, so the domain may still carry deliverability risk.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\",\"sources.blocklist.listings_90d\"]}]}",
+  "detail": null,
+  "input_tokens": 4881,
+  "output_tokens": 131,
+  "cost_usd": 0.0005536,
+  "latency_ms": 2750,
+  "recorded_at": "2026-11-19T19:10:52+00:00"
+}

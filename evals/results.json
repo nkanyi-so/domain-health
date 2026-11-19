@@ -1,61 +1,61 @@
 {
-  "prompt_version": "risks-v2",
-  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
   "model": "gpt-6-luna",
   "reasoning_effort": "none",
   "temperature": 0.0,
-  "recorded_at": "2026-11-19T18:59:31+00:00",
+  "recorded_at": "2026-11-19T19:11:05+00:00",
   "runs": 3,
   "cases": 48,
   "case_runs": 144,
   "measures": {
     "coverage": {
-      "value": 0.8159203980099502,
+      "value": 0.7860696517412936,
       "runs": [
-        0.8059701492537313,
-        0.8507462686567164,
+        0.7910447761194029,
+        0.7761194029850746,
         0.7910447761194029
       ],
       "bar": ">= 0.8",
-      "met": true
+      "met": false
     },
     "precision": {
-      "value": 0.8414382552313587,
+      "value": 0.8774967379303423,
       "runs": [
-        0.8275862068965517,
-        0.8461538461538461,
-        0.8505747126436781
+        0.8641975308641975,
+        0.8780487804878049,
+        0.8902439024390244
       ],
       "bar": ">= 0.8",
       "met": true
     },
     "harmful": {
-      "value": 24.0,
+      "value": 20.0,
       "runs": [
-        8.0,
-        9.0,
-        7.0
+        7.0,
+        7.0,
+        6.0
       ],
       "bar": "== 0",
       "met": false
     },
     "stability": {
-      "value": 0.6666666666666666,
+      "value": 0.6875,
       "runs": [],
       "bar": ">= 0.9",
       "met": false
     }
   },
   "all_bars_met": false,
-  "dropped": 1,
+  "dropped": 0,
   "sets": {
     "table": {
       "cases": 30,
       "expected_items": 42,
-      "coverage": 0.8650793650793651,
-      "precision": 0.9181791865682444,
-      "harmful": 12,
-      "stability": 0.7333333333333333,
+      "coverage": 0.8174603174603176,
+      "precision": 0.9329819938515591,
+      "harmful": 9,
+      "stability": 0.7,
       "dropped": 0,
       "baseline_coverage": 1.0,
       "baseline_precision": 1.0,
@@ -65,33 +65,33 @@
       "cases": 18,
       "expected_items": 25,
       "coverage": 0.7333333333333334,
-      "precision": 0.7470047068891742,
-      "harmful": 12,
-      "stability": 0.5555555555555556,
-      "dropped": 1,
+      "precision": 0.8090590590590591,
+      "harmful": 11,
+      "stability": 0.6666666666666666,
+      "dropped": 0,
       "baseline_coverage": 0.68,
       "baseline_precision": 1.0,
       "baseline_harmful": 0
     }
   },
   "coverage_by_type": {
-    "dmarc_policy_none": "14/15",
-    "dmarc_partial_enforcement": "9/9",
-    "spf_near_lookup_limit": "2/9",
-    "spf_weak_all": "6/6",
+    "dmarc_policy_none": "15/15",
+    "dmarc_partial_enforcement": "6/9",
+    "spf_near_lookup_limit": "4/9",
+    "spf_weak_all": "2/6",
     "dkim_key_1024": "6/6",
     "reputation_declining": "21/21",
     "reputation_poor": "27/27",
-    "complaint_rate_elevated": "9/18",
-    "bounce_rate_elevated": "19/24",
-    "volume_spike": "18/27",
+    "complaint_rate_elevated": "7/18",
+    "bounce_rate_elevated": "18/24",
+    "volume_spike": "19/27",
     "new_domain_volume": "6/12",
     "engagement_declining": "12/12",
     "blocklist_recent": "15/15"
   },
   "better_than_baseline_on_open": false,
-  "input_tokens": 666957,
-  "output_tokens": 18101,
-  "cost_usd": 0.075746,
-  "median_latency_ms": 2593
+  "input_tokens": 704397,
+  "output_tokens": 16584,
+  "cost_usd": 0.078732,
+  "median_latency_ms": 2425
 }

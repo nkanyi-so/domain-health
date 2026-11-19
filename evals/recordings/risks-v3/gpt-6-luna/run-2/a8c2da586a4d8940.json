@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "a8c2da586a4d894083a86a181ee2b0b305f982f3118ad283a7eef8f0090b545b",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"A blocklist listing ended recently, which can continue to affect deliverability even though the domain is no longer listed.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a young domain\",\"why\":\"This domain is still in its first few weeks of sending history but is already sending substantial weekly volume, which can draw scrutiny from mailbox providers.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring rather than enforcement, so it does not protect the domain from spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4878,
+  "output_tokens": 191,
+  "cost_usd": 0.0005832999999999999,
+  "latency_ms": 3645,
+  "recorded_at": "2026-11-19T19:10:36+00:00"
+}

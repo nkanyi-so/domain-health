@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "cd5c4e51f03b0474f4201df833721994ddf5f42df52f88b39bb8ccad201cf47d",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dkim_key_1024\",\"title\":\"An older DKIM key remains in use\",\"why\":\"One DKIM key is below current practice, while no current-strength key is present alongside it. This leaves signing dependent on a weaker key.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4952,
+  "output_tokens": 76,
+  "cost_usd": 0.0005332000000000001,
+  "latency_ms": 2021,
+  "recorded_at": "2026-11-19T19:10:06+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "097f472d2ccb7a3735ade9b4fff253ee0235424f117a66e82ea586232957f7f8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open rates have fallen substantially\",\"why\":\"Opens are down by a substantial share of their earlier level, indicating a meaningful decline in engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4982,
+  "output_tokens": 72,
+  "cost_usd": 0.0005342000000000001,
+  "latency_ms": 2025,
+  "recorded_at": "2026-11-19T19:10:44+00:00"
+}
