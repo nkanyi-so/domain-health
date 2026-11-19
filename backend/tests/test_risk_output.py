@@ -103,6 +103,17 @@ def test_eight_are_accepted_and_a_ninth_is_rejected() -> None:
         "Complaints near \u0660.\u0667 percent.",
         "The limit is v9 of the policy.",
         "Sent 18K messages, a Q4 peak.",
+        # What the page shows as 9000 or 420000, written so that it splits into known numbers.
+        "Volume rose to 900\u200b0 messages.",
+        "Volume rose to 900\u00ad0 messages.",
+        "Volume rose to 42000\u20600 messages.",
+        "Volume rose to 900\u03010 messages.",
+        "Volume rose to 900 0 messages.",
+        "Volume rose to 42 000 messages.",
+        "Volume rose to 900\u2009000 messages.",
+        "Open rate 31\u066b0\u066b4 percent.",
+        "About 900\u00d7 the usual.",
+        "Roughly \u00b142000 messages.",
     ],
 )
 def test_a_number_that_is_not_in_the_input_is_rejected(why: str) -> None:
@@ -234,6 +245,16 @@ HOSTILE_TEXT = [
     "a line\nbreak",
     "an escape \x1b[31m",
     "a zero-width\u200bjoiner and \u202e an override",
+    "900\u200b0",
+    "900\u00ad0 and 42000\u20600",
+    "900 0",
+    "42 000",
+    "900\u2009000",
+    "900\u3000000",
+    "31\u066b0",
+    "9\u20e3",
+    "900\ufeff0",
+    "0\u0338",
 ]
 
 
@@ -270,3 +291,33 @@ def test_a_number_too_large_to_hold_is_dropped_and_leaves_the_caller_its_usual_e
     call = recorded_call(write_prompt(tmp_path), SNAPSHOT, text)
     with pytest.raises(RisksUnavailableError, match="invalid output dropped"):
         risks_from(SNAPSHOT, call)
+
+
+def test_case_06_holds_the_numbers_the_tricks_above_are_built_from() -> None:
+    """The tricks only test anything if their pieces are numbers the input does hold."""
+    from domain_health.risks import _numbers_of
+
+    known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
+
+    assert {Decimal("900"), Decimal("0"), Decimal("42000")} <= known
+    assert Decimal("9000") not in known
+    assert Decimal("420000") not in known
+
+
+def test_what_is_accepted_states_only_the_inputs_numbers_however_it_is_dressed() -> None:
+    """For every hostile text that is accepted: strip everything invisible and every space
+    between digits, and the numbers that are then on the page are still the input's."""
+    import re
+    import unicodedata
+
+    from domain_health.risks import _numbers_of
+
+    known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
+    for why in HOSTILE_TEXT:
+        text = output(risk("complaint_rate_elevated", why=why[:400]))
+        with contextlib.suppress(InvalidOutputError):
+            for accepted in validate(SNAPSHOT, text):
+                shown = unicodedata.normalize("NFKC", accepted.why)
+                shown = "".join(c for c in shown if unicodedata.category(c)[0] not in "CM")
+                joined = re.sub(r"(?<=[0-9])\s+(?=[0-9])", "", shown)
+                assert numbers_in(joined) <= known, repr(why)

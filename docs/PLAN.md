@@ -1573,6 +1573,16 @@ Verdict as reported: "one blocking finding apart from the two carried for the ow
 
 Tests: 703 in the backend outside the emulator.
 
+### 2026-11-19: review, sixth run, on 074fee3
+
+Verdict as reported: "there is one blocking finding besides the two carried for the owner. It is small and cheap to fix: invisible characters can hide an invented number from the number rule." The fifth round's fix works (with the old file back, the new tests fail); it scored all four attempts again and each matches the log; `make check` in a clean clone (703 tests, the emulator test, the frontend), `make eval` byte for byte, strict mode, the plan, the guarded and measure files, the absence of live calls: all held.
+
+1. Blocking. A zero-width space, a soft hyphen or a word joiner between digits split a number into pieces the input holds: "900" and "0" for what the page shows as 9000. An Arabic decimal separator did the same.
+   - Done, for the kind of fault and not the three characters. This is the third review running to find one more way of dressing a number, as the SPF parser's reviews did in Phase 1, so the rule was restated as what it is about, the number a person sees: characters that take no room on the page (format characters, combining marks) are removed before the text is read; a digit with anything but plain ASCII beside it is an invented number; and so are two numbers with only spaces between them ("9 000", "42 000"), which no figure in the input is ever written as. Ten more texts that must be dropped, a test that the case they are tried on really holds their pieces and not the whole, and a test over every hostile text that whatever is accepted still states only the input's numbers once everything invisible and every space between digits is taken out. This stays inside the spec's fourth rule; it adds no new reason to drop an output that states only the input's numbers plainly.
+   - All four attempts were scored again: no number moved, and the results file is byte for byte what it was.
+
+Tests: 725 in the backend outside the emulator.
+
 ---
 
 ## Phase 3: snapshots and the handled loop

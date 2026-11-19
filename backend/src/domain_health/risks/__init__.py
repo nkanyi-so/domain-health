@@ -107,8 +107,20 @@ PROTOCOL_WORDS = frozenset(
 )
 
 
+# Characters that take no room on the page: format characters (a zero-width space, a soft
+# hyphen) and combining marks. Left in, they would split 9000 into 900 and 0 for the reader of
+# this code and for nobody else.
+_INVISIBLE = frozenset({"Cf", "Mn", "Me", "Mc"})
+# A digit with anything but plain ASCII beside it, or two numbers with only spaces between them
+# (9 000), reads as one number on the page that this code would take for another, or for two.
+_ODD_NEIGHBOUR = re.compile(r"[0-9][^\x00-\x7f]|[^\x00-\x7f][0-9]")
+_SPLIT_NUMBER = re.compile(r"[0-9][.,]?\s+[0-9]")
+
+
 def _plain(text: str) -> str:
-    return unicodedata.normalize("NFKC", text)
+    """The text as the page shows it: compatibility forms folded, invisible characters gone."""
+    folded = unicodedata.normalize("NFKC", text)
+    return "".join(ch for ch in folded if unicodedata.category(ch) not in _INVISIBLE)
 
 
 def words_in(text: str) -> set[str]:
@@ -130,7 +142,11 @@ def numbers_in(text: str, known_words: frozenset[str] = frozenset()) -> set[Deci
     """Every number a text states. `known_words` are letter-led words that may hold digits."""
     text = _plain(text)
     found: set[Decimal] = set()
-    if any(ch.isdigit() and not ch.isascii() for ch in text):
+    if (
+        any(ch.isdigit() and not ch.isascii() for ch in text)
+        or _ODD_NEIGHBOUR.search(text)
+        or _SPLIT_NUMBER.search(text)
+    ):
         found.add(NOT_A_NUMBER)
     for word in _WORD.findall(text):
         if word[0].isdigit():
