@@ -34,7 +34,7 @@
       },
       "complaint_rate_pct": 0.21,
       "bounce_rate_pct": 0.3,
-      "volume_7d": 1400,
+      "volume_7d": 4200,
       "volume_prev_7d": 52000,
       "open_rate_pct": 38.0,
       "open_rate_prev_pct": 37.0,
@@ -67,5 +67,5 @@
       "blocklist_recent"
     ]
   },
-  "note": "Open: the bands expect complaint_rate_elevated, because the rate is 0.21% and the week's volume is over 1,000. The call is that it is only acceptable: the rate is about three complaints, in a quiet week that follows a mailing of 52,000, and people report mail days after it arrives, so these are most likely last week's complaints set against this week's small count. Reputation is steady at high and opens are flat, which is not what a real complaint problem looks like. The 0.10% and 0.30% lines in the Google and Yahoo bulk-sender requirements are meant for rates at volume; the reading of the lag is general practice."
+  "note": "Open: the bands expect complaint_rate_elevated, because the rate is 0.21% and the week is not low volume. The call is that it is only acceptable: the week's 4,200 messages follow a mailing of 52,000 the week before, and people report mail days after it arrives, so most of these nine or so complaints belong to last week's mailing, against which they would be a rate of about 0.02%. Reputation is steady at high and opens are flat, which is not what a real complaint problem looks like. The 0.10% line comes from the bulk-sender requirements published by Google and the 0.30% line from those published by Google and by Yahoo; reading a week's rate beside the week before it, and the lag in complaints, are general practice."
 }

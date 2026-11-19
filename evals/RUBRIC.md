@@ -26,7 +26,7 @@ Words used below:
 - **Low volume**: `volume_7d` under 1,000. A handful of messages moves any rate at that size.
 - **A readable SPF record**: exactly one record, and it parses. A record over the lookup limit is still readable: its `all` can be judged, its lookup count is a fix.
 - **Volume ratio**: `volume_7d` divided by `volume_prev_7d`. When the previous week is 0 and this week is not, the ratio counts as 2.0 or more.
-- **Open-rate fall**: (`open_rate_prev_pct` minus `open_rate_pct`) divided by `open_rate_prev_pct`. There is no fall to read when the previous value is null.
+- **Open-rate fall**: (`open_rate_prev_pct` minus `open_rate_pct`) divided by `open_rate_prev_pct`. There is no fall to read when the previous value is null or 0.
 
 ## The line between a fix and a risk
 
@@ -156,7 +156,7 @@ Open rate has fallen against the previous thirty days, an early sign that mail i
 - **Acceptable:** a fall from 0.10 up to but not including 0.20; or 0.20 or more at low volume.
 - **Wrong:** a fall under 0.05, which includes a flat or rising open rate.
 
-With no previous value there is nothing to compare, and the type is noise.
+With no previous value, or a previous value of 0, there is nothing to compare, and the type is noise.
 
 ### `blocklist_recent`
 

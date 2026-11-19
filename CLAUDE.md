@@ -28,7 +28,7 @@ Never run without being asked, or, in run-through mode, outside what `docs/PLAN.
 3. The deployed service is built with `RecordedRiskModel` only. `openai` is in a dependency group the production image does not install, and no model key is ever set in Cloud Run or Vercel.
 4. Every write of a snapshot or a handled mark goes through the two transaction functions in the store. No other code writes those documents, and `visible_risks` is the only place the visible list is computed.
 5. Seeded clients resolve through `FixtureResolver` only. `LiveResolver` is reached only from the live-check path and `make check-domain`, and that path checks the rate limit and the daily cap before the first lookup.
-6. No real company, person, client or platform name anywhere: code, fixtures, eval cases, docs, commit messages, branch names. Seeded domains end in `.example`. The story is "a client's internal platform".
+6. No real company, person, client or platform name anywhere: code, fixtures, eval cases, docs, commit messages, branch names. Seeded domains end in `.example`. The story is "a client's internal platform". The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
 7. The claim sentence, the eval cases, the rubric, the bars and the claim test (`.claude/hooks/measure-paths.txt`) are the owner's. A phase does not edit them; if one seems wrong, that is a stop.
 
 ## How phases are built

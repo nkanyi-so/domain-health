@@ -149,6 +149,6 @@ The bars live in `evals/bars.toml` and are judged on all forty cases together.
 - A real domain typed on the hosted page gets live DNS checks and a fix list.
 - After one scheduled run, all twelve seeded clients have today's snapshot in Firestore.
 - The eval table is in the README with the prompt version, the model and the date, and all four bars are met.
-- CI is green on `main`. No key in the repository or its history. No real company or person in the tree or the history.
+- CI is green on `main`. No key in the repository or its history. No real client, company or person in the story, the seeded data, the eval inputs or the history. The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
 - The hosted page loads in a real browser with no key on the visitor's side, in both themes, at desktop and phone width.
 - Left to the owner: the walkthrough video, and making the repository public.

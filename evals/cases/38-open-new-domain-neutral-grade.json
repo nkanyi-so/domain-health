@@ -1,0 +1,68 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "greenwick-fold-bakery.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 2,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 3800,
+      "volume_prev_7d": 3000,
+      "open_rate_pct": 47.0,
+      "open_rate_prev_pct": null,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 38
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [
+      "dmarc_policy_none"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call reputation_poor acceptable, because the grade is medium. The call is that it is wrong here: the domain is 38 days old, and a middle grade is where a domain with five weeks of history stands, not a mark against it. Volume is modest and growing gently, complaints and bounces are minimal, nearly half the mail is opened and the grade has not moved down, so the warm-up is going as it should. Telling this client its reputation is poor would send it to change a sending plan that is working. On an established domain with the same grade the bands' answer would stand. General practice; that reputation is built over weeks of steady sending is the warm-up advice in M3AAWG's sender best practices."
+}

@@ -9,6 +9,7 @@ import pytest
 
 from domain_health.evals.cases import EvalCase, Label, load_cases
 from domain_health.evals.table import baseline_risks, fix_types, table_label
+from domain_health.models import SnapshotInput
 from domain_health.types import RiskType
 from tests.paths import CASES
 
@@ -56,3 +57,11 @@ def test_the_baseline_returns_what_the_bands_expect() -> None:
 
 def test_the_baseline_is_silent_on_a_healthy_domain() -> None:
     assert baseline_risks(CASES_BY_NAME["01-healthy-baseline"].input) == []
+
+
+def test_a_previous_open_rate_of_zero_gives_no_fall_to_read() -> None:
+    raw = CASES_BY_NAME["01-healthy-baseline"].input.model_dump()
+    raw["sources"]["open_rate_prev_pct"] = 0.0
+    label = table_label(SnapshotInput.model_validate(raw))
+
+    assert RiskType.ENGAGEMENT_DECLINING not in {*label.expected, *label.acceptable, *label.wrong}

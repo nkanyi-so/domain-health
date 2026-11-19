@@ -29,8 +29,8 @@
     },
     "sources": {
       "reputation": {
-        "grade": "high",
-        "previous_grade": "high"
+        "grade": "medium",
+        "previous_grade": "medium"
       },
       "complaint_rate_pct": 0.29,
       "bounce_rate_pct": 4.9,
@@ -58,7 +58,9 @@
       "complaint_rate_elevated",
       "bounce_rate_elevated"
     ],
-    "acceptable": [],
+    "acceptable": [
+      "reputation_poor"
+    ],
     "wrong": [
       "dmarc_policy_none",
       "dmarc_partial_enforcement",
@@ -66,12 +68,11 @@
       "spf_weak_all",
       "dkim_key_1024",
       "reputation_declining",
-      "reputation_poor",
       "volume_spike",
       "new_domain_volume",
       "engagement_declining",
       "blocklist_recent"
     ]
   },
-  "note": "Hard: values next to thresholds. Complaints at 0.29% and bounces at 4.9% are each one step under the limit where a fix takes over, so both are still risks and both expected. The DMARC record does not parse, which is a fix, so both DMARC risks are wrong."
+  "note": "Hard: values next to thresholds. Complaints at 0.29% and bounces at 4.9% are each one step under the limit where a fix takes over, so both are still risks and both expected. The DMARC record does not parse, which is a fix, so both DMARC risks are wrong. The medium grade is acceptable to mention."
 }

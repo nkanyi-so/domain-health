@@ -488,6 +488,23 @@ no prompt yet: nothing to measure
 
 Still no results file: there is no prompt. The rules-only baseline and the per-type and per-set lines are printed by the harness Phase 2 builds.
 
+### 2026-11-19: review, fifth run, on b2e056c (the first after the answers)
+
+Verdict as reported: "blocking findings (5). Each one is cheap to fix. Most are things the owner has to confirm explicitly at the merge." It confirmed that the changes carry out the owner's answers, that `table.py` matches the rubric "band by band, including boundaries" with one exception (finding 2), that cases 21 to 30 are right against the rubric, and that SPEC, ARCHITECTURE, RUBRIC, `bars.toml`, CLAIM, the Phase 2 gate and the code agree. Its findings on the open cases were given to this session by number only, to keep them held out; the detail went to a file this session has not read.
+
+1. Blocking. "Owner-level changes the build made beyond the literal answers. Each needs the owner's explicit yes at the merge": the plan edits (the Phase 2 gate's wording, the added and extended checklist items), and the definition of "better than the baseline", which "changes the measure, so it should have been a stop".
+   - Done: both are listed in the pull request description under "What you approve by merging", in plain words. They were not made a second stop: the owner's answers said to ask nothing more unless the stop list requires it, the owner merges this phase whatever it holds, and every one of these follows from an answer. The reviewer's point stands that a definition of the measure is the owner's, which is why it is put in front of them by name and not left in the decisions file.
+2. Blocking. `table.py` treated a previous open rate of 0 as nothing to read; the rubric said that only of null.
+   - Done: the rubric now says "null or 0" in both places, and a test covers it. No table case has such an input; the open case that did is finding 5.
+3. Blocking. "Real organisation names in the tree" (the open-case notes, decision 0010, the decisions file, the quoted answers) against rule 6 in `CLAUDE.md`, `docs/STANDING.md` and the "Done when" line in the spec.
+   - Done: the owner asked for the grounding by name, and the repository already names the tools and hosts it runs on, in `docs/STANDING.md` itself among others, so the rule was never literal. Rule 6 and the spec's "Done when" line now say so: no real client, company or person in the story, the seeded data, the eval inputs or the history; tools, hosts and cited public guidance documents are named as what they are. Both edits are in the list the owner approves by merging. `docs/STANDING.md` is not edited by the build; its sentence is about the story and the seeded clients.
+4. Blocking. The pull request description was stale: "twenty cases", no open-case table, no list of doubts.
+   - Done: rewritten (see the hand-over below).
+5. Blocking for two cases. Open cases 39 and 40 blocking, 38 "should fix", 37 and 33 minor; 31, 32, 34, 35 and 36 "no finding".
+   - Done by a second fresh agent, under the same rule as the first (it never sees the prompt and reports nothing about content): it fixed or replaced the five from the reviewer's file and rewrote the summary table and the doubts.
+
+Not blocking: table case 28 gave a steady `high` grade to a domain with 0.29% complaints and 4.9% bounces. Done: the grade is `medium`, and `reputation_poor` moves from wrong to acceptable, as the bands give. The stale "twenty" in the ticked Phase 0 item and in the Phase 0 gate is left as written, because a run does not edit them: the evidence below shows forty loading. `docs/STANDING.md`'s estimate table and its "skim the twenty cases" are the owner's.
+
 ---
 
 ## Phase 1: checks and rules
