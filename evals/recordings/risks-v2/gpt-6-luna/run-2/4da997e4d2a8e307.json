@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "4da997e4d2a8e307d27652792ae951c1f0932243771e7b5fa6a89dc9df14c64a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The domain has a low reputation grade, which can make delivery less reliable even though the grade has not worsened.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is at a level that warrants attention, despite the domain’s substantial sending volume.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is high enough to signal list-quality concerns, independently of the complaint rate.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, so the listing may still affect delivery and merits attention.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped\",\"why\":\"Weekly volume rose substantially, and the low reputation grade makes the domain less able to absorb that increase safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC enforcement is incomplete\",\"why\":\"The quarantine policy applies to failing mail, but subdomains inherit that policy; enforcement is otherwise complete.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4620,
+  "output_tokens": 359,
+  "cost_usd": 0.0006415,
+  "latency_ms": 4695,
+  "recorded_at": "2026-11-19T18:59:03+00:00"
+}

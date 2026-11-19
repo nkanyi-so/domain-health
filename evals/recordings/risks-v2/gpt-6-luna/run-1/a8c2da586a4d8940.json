@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "a8c2da586a4d894083a86a181ee2b0b305f982f3118ad283a7eef8f0090b545b",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, and a listing in the recent past can still signal deliverability risk.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring on an established domain, so it does not yet enforce protection against unauthorised senders.\",\"evidence\":[\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4618,
+  "output_tokens": 135,
+  "cost_usd": 0.0005292999999999999,
+  "latency_ms": 2582,
+  "recorded_at": "2026-11-19T18:58:45+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c01c296d6e003bf7eb625060e31c74d2d2c9ba7a1634e64f0f291512d7da5c75",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation is declining\",\"why\":\"The reputation grade has fallen since the previous reading, which can signal worsening inbox placement.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current reputation grade is low, putting delivery performance at risk.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is high enough to raise concern about list quality and can further harm deliverability.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"engagement_declining\",\"title\":\"Open engagement is declining\",\"why\":\"Opens have lost a substantial share of their earlier level, which may indicate weakening recipient engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established domain's DMARC policy is set to monitoring, so failing mail is not being blocked by the policy.\",\"evidence\":[\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4710,
+  "output_tokens": 267,
+  "cost_usd": 0.0006045,
+  "latency_ms": 3511,
+  "recorded_at": "2026-11-19T18:59:03+00:00"
+}

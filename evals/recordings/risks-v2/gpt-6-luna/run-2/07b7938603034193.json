@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "07b79386030341934a7335cc361b3107311f9b1f854fa0a3393c48412840e19b",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is at a level that can signal list-quality problems, even without an open bounce-rate fix.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"new_domain_volume\",\"title\":\"A young domain is sending real volume\",\"why\":\"This domain is still in its first few weeks and is already sending thousands of messages, which can put its sending reputation at risk.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is valid but set to monitoring on an established sending domain, so failing mail is not being blocked by policy.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4615,
+  "output_tokens": 203,
+  "cost_usd": 0.000563,
+  "latency_ms": 3537,
+  "recorded_at": "2026-11-19T18:59:07+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "097f472d2ccb7a3735ade9b4fff253ee0235424f117a66e82ea586232957f7f8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open rates have fallen substantially\",\"why\":\"Opens are down from their earlier level, a meaningful decline that may signal weakening engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is at a level worth attention for list quality, despite no bounce-rate fix being open.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dkim_key_1024\",\"title\":\"An older DKIM key remains in use\",\"why\":\"A current-strength key is present alongside an older, shorter key, which leaves a weaker selector in the setup.\",\"evidence\":[\"checks.dkim.keys\"]}]}",
+  "detail": null,
+  "input_tokens": 4722,
+  "output_tokens": 180,
+  "cost_usd": 0.0005622,
+  "latency_ms": 2791,
+  "recorded_at": "2026-11-19T18:59:18+00:00"
+}

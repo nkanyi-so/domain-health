@@ -115,3 +115,17 @@ def test_a_recorded_prompt_version_is_refused_before_any_call(
 
     assert live.main(arguments(tmp_path)) == 1
     assert "An unchanged prompt is never run again" in capsys.readouterr().err
+
+
+def test_a_prompt_that_breaks_a_rule_is_refused_before_any_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-key")
+    called: list[object] = []
+    monkeypatch.setattr(live, "record_runs", lambda *args: called.append(args))
+    domain = next(iter(ALL.values())).input.domain
+    write_prompt(tmp_path / "prompts", text=f"Rank the risks, as for {domain}.")
+
+    assert live.main(arguments(tmp_path)) == 1
+    assert "breaks a rule for prompts, so it was not run" in capsys.readouterr().err
+    assert called == []

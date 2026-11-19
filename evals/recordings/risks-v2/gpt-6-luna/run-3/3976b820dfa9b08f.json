@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "3976b820dfa9b08f9d4fdb185a947426e3749e42dd7d64eaff7cccd4291639af",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is at a level mailbox providers ask bulk senders to stay below, despite the strong reputation and substantial sending volume.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4619,
+  "output_tokens": 78,
+  "cost_usd": 0.0005009000000000001,
+  "latency_ms": 2020,
+  "recorded_at": "2026-11-19T18:59:22+00:00"
+}

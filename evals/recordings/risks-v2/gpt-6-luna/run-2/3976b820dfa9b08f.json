@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "3976b820dfa9b08f9d4fdb185a947426e3749e42dd7d64eaff7cccd4291639af",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, even with a strong reputation. This can put future delivery at risk.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4619,
+  "output_tokens": 77,
+  "cost_usd": 0.0005004,
+  "latency_ms": 1914,
+  "recorded_at": "2026-11-19T18:58:59+00:00"
+}

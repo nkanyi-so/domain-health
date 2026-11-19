@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceaa3c5e2775b4dad8697c122268526956b9cc830c11ab4f7b7c77a9630d6096",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC leaves subdomains unenforced\",\"why\":\"The main domain uses reject, but subdomains are explicitly exempt, leaving them without the same protection.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key uses older strength\",\"why\":\"The only key found is at an older strength, which is below current practice.\",\"evidence\":[\"checks.dkim.keys\"]}]}",
+  "detail": null,
+  "input_tokens": 4619,
+  "output_tokens": 125,
+  "cost_usd": 0.0005244000000000001,
+  "latency_ms": 2711,
+  "recorded_at": "2026-11-19T18:58:50+00:00"
+}

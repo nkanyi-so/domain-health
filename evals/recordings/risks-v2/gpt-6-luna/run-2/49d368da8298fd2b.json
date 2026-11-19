@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "49d368da8298fd2b1425983f5e2df8d28f5d31ede44bbbff133d85248685a543",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from medium to bad, signaling a substantial deterioration in how receivers view this domain.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current bad reputation grade indicates serious deliverability trouble for this domain.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"Volume rose substantially from the previous week. Even for an established domain, a jump of this size is risky when reputation is bad.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC leaves subdomains exposed\",\"why\":\"The main domain enforces rejection, but subdomains inherit that policy rather than having an explicit stricter setting; this is complete enforcement, so no gap is present.\" ,\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4708,
+  "output_tokens": 252,
+  "cost_usd": 0.0005968,
+  "latency_ms": 4879,
+  "recorded_at": "2026-11-19T18:58:55+00:00"
+}

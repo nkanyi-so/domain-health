@@ -20,7 +20,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.13 of $10 cap
+Spend: $0.18 of $10 cap
 Decisions to review: 15 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
@@ -1341,6 +1341,41 @@ no bar:
 ```
 
 Three bars missed on the first live run, so the set is not too easy and the stop for harder cases does not apply. Read from the table cases only (their per-case lines are in the session and went to the next prompt writer; the open set was looked at as the totals above and no further): the model is far too restrained. Complaint and bounce rates under their hard limits are almost never raised (1 of 18 and 1 of 24 over the runs), nor is partial DMARC enforcement (1 of 9) or an SPF record near its lookup limit (2 of 9); a `p=none` policy on an established domain is missed about half the time. The two harmful answers are one table case, in two of three runs: `spf_weak_all` named on a record the rubric's bands call wrong for it. Nothing was dropped by validation.
+
+### 2026-11-19: prompt version 2, attempt 2, and a mistake in how it was run
+
+A second fresh agent, in the same folder with the same four things plus version 1 and version 1's table-case lines, wrote version 2 (2,771 words). Its reading of version 1's misses, in general terms: a closing "when in doubt leave it out" beat every "raise it" clause for a model with no reasoning step; "a healthy domain gets an empty list" worked as a first-glance shortcut; a rate with no fix open was read as fine; an open fix drowned out unrelated risks. Version 2 states each type as a test with definite outcomes and the two kinds of mistake as equally serious.
+
+**The mistake, the build's own.** The prompt test was run on version 2 before the paid run, and it failed: two sentences of version 2 each share six words in a row with one of the rubric's band lines (one about a missing or invalid DMARC record, one about a `low` or `bad` grade). The command that ran the test was joined to the paid run in a way that did not stop on the failure, so the run went ahead: 144 calls, $0.0757, on a prompt that breaks the rule "a prompt does not quote the rubric's bands". Neither sentence holds a threshold, but the rule is the rule and a test enforces it. What was done:
+
+- Attempt 2 is reported here with its numbers, as every attempt is. It cannot be the gate's run whatever it scored, and it did not come close.
+- The prompt text as it was run is kept beside the other evidence, `evals/attempts/risks-v2-as-run.md`, with its recordings under `evals/recordings/risks-v2/`. It is not in `prompts/`, so `make eval` and the results file are still version 1's.
+- So that this cannot happen again whoever runs the command: the prompt rules moved from the test into the code (`backend/src/domain_health/risks/prompt_rules.py`), the test and `make eval-live` both call them, and the paid command now refuses a prompt that breaks one before its first call. A test holds that.
+- The next prompt writer is given the check itself to run, not a description of it.
+
+Attempt 2, `gpt-6-luna` ("Spend:" was raised to $0.18, the $0.056 spent plus this run's worst case, before it):
+
+```text
+$ make eval-live
+run 1: 48 call(s) recorded
+run 2: 48 call(s) recorded
+run 3: 48 call(s) recorded
+144 call(s) on 2026-11-19, $0.0757; spent in all $0.1321
+risks-v2 (bf58125d22de) on gpt-6-luna, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.816                        bar >= 0.8   met  each run: 0.806 0.851 0.791
+precision  0.841                        bar >= 0.8   met  each run: 0.828 0.846 0.851
+harmful    24 in 144 case-runs          bar == 0     missed  each run: 8 9 7
+stability  0.667 (32 of 48 cases)       bar >= 0.9   missed
+dropped    1 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 0.865, precision 0.918, harmful 12, stability 0.733, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+  open set (18 cases, 25 expected items): coverage 0.733, precision 0.747, harmful 12, stability 0.556, dropped 1 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 14/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 2/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 9/18, bounce_rate_elevated 19/24, volume_spike 18/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  cost $0.0757, 666957 tokens in, 18101 out, median latency 2593 ms
+```
+
+Coverage and precision now meet their bars; harmful went from 2 to 24 and stability fell. Read from the table cases only: the model swung from too restrained to too eager. It raises a bounce rate that is low, names an SPF risk on a record that already has an SPF fix, and still does not raise an SPF record that sits at its lookup limit or a complaint rate just under the hard limit. With no figure in the prompt, a small model with no reasoning step does not place a value on the right side of a line it has to recall for itself: told to hold back it holds back everywhere, told to raise it raises everywhere.
 
 ---
 

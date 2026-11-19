@@ -1,70 +1,32 @@
 """What a prompt version may not hold (docs/SPEC.md, "Rules for the paid runs"): the rubric's
 numbers, its band lines, or anything taken from an eval case. Every version file is checked."""
 
-import json
-import re
 from pathlib import Path
 
 import pytest
 
 from domain_health.evals.cases import load_cases
-from domain_health.models import SnapshotInput
-from domain_health.risks import numbers_in
-from domain_health.risks.model import input_hash
+from domain_health.risks import numbers_in, prompt_rules
 from domain_health.risks.prompt import load_prompt, prompt_versions, unversioned
 from domain_health.types import FixType, RiskType
 from tests.paths import CASES, REPO, RUBRIC
 
 PROMPTS = REPO / "prompts"
 VERSIONS = prompt_versions(PROMPTS)
-SHINGLE = 6  # words in a row
-
-
-def words(text: str) -> list[str]:
-    return re.findall(r"[a-z0-9_.%]+", text.lower())
-
-
-def shingles(text: str) -> set[tuple[str, ...]]:
-    found = words(text)
-    return {tuple(found[i : i + SHINGLE]) for i in range(len(found) - SHINGLE + 1)}
-
-
-def rubric_rules() -> str:
-    """The part of the rubric that holds the thresholds and the bands."""
-    text = RUBRIC.read_text(encoding="utf-8")
-    return text[text.index("## The input") : text.index("## How a case is labelled")]
-
-
-def band_lines() -> list[str]:
-    return [
-        line
-        for line in rubric_rules().splitlines()
-        if line.startswith(("- **Expected:**", "- **Acceptable:**", "- **Wrong:**"))
-    ]
+RUBRIC_TEXT = RUBRIC.read_text(encoding="utf-8")
+INPUTS = [case.input for case in load_cases(CASES).values()]
 
 
 def problems_with(prompt_text: str) -> list[str]:
-    """Everything in a prompt that the rules for the paid runs forbid."""
-    found: list[str] = []
-    quoted = numbers_in(prompt_text) & numbers_in(rubric_rules())
-    if quoted:
-        found.append(f"numbers from the rubric: {sorted(str(n) for n in quoted)}")
-    for line in band_lines():
-        if shingles(line) & shingles(prompt_text):
-            found.append(f"quotes a band line: {line[:60]}")
-    cases = load_cases(CASES)
-    for case in cases.values():
-        if case.input.domain in prompt_text:
-            found.append(f"names an eval case's domain: {case.input.domain}")
-    hashes = {input_hash(case.input) for case in cases.values()}
-    for block in re.findall(r"```(?:json)?\n(.*?)```", prompt_text, flags=re.DOTALL):
-        try:
-            example = SnapshotInput.model_validate(json.loads(block))
-        except ValueError:
-            continue
-        if input_hash(example) in hashes:
-            found.append("a worked example is an eval case's input")
-    return found
+    return prompt_rules.problems_with(prompt_text, RUBRIC_TEXT, INPUTS)
+
+
+def rubric_rules() -> str:
+    return prompt_rules.rubric_rules(RUBRIC_TEXT)
+
+
+def band_lines() -> list[str]:
+    return prompt_rules.band_lines(RUBRIC_TEXT)
 
 
 def test_the_rubric_has_numbers_and_band_lines_to_keep_out() -> None:

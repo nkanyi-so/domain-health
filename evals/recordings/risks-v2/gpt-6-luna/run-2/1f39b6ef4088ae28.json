@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1f39b6ef4088ae28d2d41531a30e3b421ad4b7d87d2655aaba5193521fc4e7dc",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is at a level that can signal list-quality problems, despite the substantial sending volume.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rate has fallen sharply\",\"why\":\"Opens have lost a large share of their earlier level, a substantial change that may indicate weakening engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"Volume rose from a much smaller prior week, and the medium reputation means the domain may not absorb the sudden increase safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established domain's DMARC policy does not enforce protection, leaving failing mail without a rejection or quarantine action.\",\"evidence\":[\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4616,
+  "output_tokens": 250,
+  "cost_usd": 0.0005866000000000001,
+  "latency_ms": 3575,
+  "recorded_at": "2026-11-19T18:59:03+00:00"
+}

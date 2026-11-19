@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "f7c9e485a18eefea68b2d594b425f956661c2bdf75a165b0112b2ba92fd2edaa",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The domain’s reputation is bad, which can make mailbox providers less willing to deliver its mail.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is at a level that can signal list-quality problems, even though no bounce-rate fix is open.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rates have declined\",\"why\":\"Opens have lost a substantial share of their earlier level, which may indicate weakening engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped\",\"why\":\"Volume rose substantially week over week, and the bad reputation makes that increase harder for the domain to absorb.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4620,
+  "output_tokens": 233,
+  "cost_usd": 0.0005785,
+  "latency_ms": 3012,
+  "recorded_at": "2026-11-19T18:59:22+00:00"
+}

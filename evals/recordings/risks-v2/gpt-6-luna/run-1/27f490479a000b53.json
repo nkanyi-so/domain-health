@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "27f490479a000b532eaa6a56da576ec2a4d56dc58fff03d52c6b288ad9cdfa6c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain is no longer listed, but it has had multiple listings in the recent lookback period, indicating recurring reputation risk.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]} \n{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain is no longer listed, but it has had multiple listings in the recent lookback period, indicating recurring reputation risk.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4621,
+  "output_tokens": 162,
+  "cost_usd": 0.0005431,
+  "latency_ms": 2703,
+  "recorded_at": "2026-11-19T18:58:37+00:00"
+}

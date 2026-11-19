@@ -23,6 +23,7 @@ from domain_health.models import SnapshotInput
 from domain_health.risks.ledger import Ledger, SpendCapError, standing_cap
 from domain_health.risks.model import ModelCall, input_hash, load_calls, save_call
 from domain_health.risks.prompt import Prompt, load_prompt, prompt_versions
+from domain_health.risks.prompt_rules import problems_with
 
 CONCURRENCY = 6
 PROBE_PROMPT = Prompt(
@@ -126,6 +127,18 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         prompt = load_prompt(versions[-1])
         cases = load_cases(args.evals / "cases")
+        broken = problems_with(
+            prompt.text,
+            (args.evals / "RUBRIC.md").read_text(encoding="utf-8"),
+            [case.input for case in cases.values()],
+        )
+        if broken:
+            # A prompt that breaks a rule for the paid runs is never paid for.
+            print(
+                f"{prompt.version} breaks a rule for prompts, so it was not run:", file=sys.stderr
+            )
+            print("\n".join(f"  {problem}" for problem in broken), file=sys.stderr)
+            return 1
         todo = still_to_record(cases, prompt, model, args.evals / "recordings")
         if not todo:
             raise AlreadyRecordedError(

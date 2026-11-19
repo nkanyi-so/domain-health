@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "49d368da8298fd2b1425983f5e2df8d28f5d31ede44bbbff133d85248685a543",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from medium to bad, signaling worsening deliverability.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current bad reputation grade indicates serious deliverability trouble.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"Volume rose substantially from the previous week, and a domain with a bad reputation may not absorb that increase safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC leaves subdomains exposed\",\"why\":\"The main policy rejects failing mail, but subdomains inherit that policy rather than having a separate setting; enforcement is complete, so this is not a gap.\" ,\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4708,
+  "output_tokens": 237,
+  "cost_usd": 0.0005893,
+  "latency_ms": 3145,
+  "recorded_at": "2026-11-19T18:58:32+00:00"
+}

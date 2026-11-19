@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1cfafb339ed40e692e5f092fb8064fb9269adf349adcc46e632995b44302182e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from high to medium, indicating a deterioration in how receivers view this domain.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, which can signal list-quality problems even without an open bounce-rate fix.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF uses a strong hard-fail setting\",\"why\":\"The SPF record ends with a hard fail, so unauthorized senders are not permitted by SPF.\",\"evidence\":[\"checks.spf.all_qualifier\"]}]}",
+  "detail": null,
+  "input_tokens": 4668,
+  "output_tokens": 177,
+  "cost_usd": 0.0005553,
+  "latency_ms": 2756,
+  "recorded_at": "2026-11-19T18:58:29+00:00"
+}
