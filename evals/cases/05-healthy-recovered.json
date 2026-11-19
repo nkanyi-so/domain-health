@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "tidewater-kayaks.example",
     "checks": {

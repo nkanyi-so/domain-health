@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "willowbend-optics.example",
     "checks": {

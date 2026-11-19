@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "stonegate-supply.example",
     "checks": {

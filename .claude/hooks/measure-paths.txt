@@ -18,3 +18,9 @@ frontend/src/content/claim.test.ts
 backend/src/domain_health/types.py
 backend/tests/test_rubric_types.py
 backend/tests/paths.py
+backend/src/domain_health/models.py
+backend/src/domain_health/evals/cases.py
+backend/src/domain_health/evals/table.py
+backend/tests/test_eval_cases.py
+backend/tests/test_rubric_table.py
+backend/tests/test_input_validation.py

@@ -4,6 +4,10 @@ This is the rule every eval label is read against. It defines the two closed lis
 
 It belongs to the owner. The build drafted it in Phase 0; the owner signs it off by merging that phase, and changes it by hand after that. A test keeps the lists here equal to the lists in `backend/src/domain_health/types.py`.
 
+Where the labels come from, said plainly: they were drafted by AI against this rubric and against public deliverability guidance, and reviewed by the engineer who built the original system. They were not written or reviewed by a deliverability specialist.
+
+There are two sets of cases. In a **table** case the label is exactly what the bands below give, and a test re-derives it from this file read as a table (`backend/src/domain_health/evals/table.py`). In an **open** case the bands do not settle the matter, and the label is a written call: see "Open cases" at the end.
+
 ## The input
 
 Each case's `input` is exactly what the model receives for one client on one day:
@@ -164,6 +168,21 @@ The domain is not listed now but was recently, or keeps being listed: the cause 
 
 ## How a case is labelled
 
-For each of the thirteen risk types, read the case's input against the three lines above and put the type in `expected`, `acceptable`, `wrong`, or none of them. The `note` says in a sentence or two what the case is there to test. A note that starts with `Hard:` marks a case built to be hard: signals that conflict, a value at or next to a threshold, or a healthy domain that looks odd.
+For each of the thirteen risk types, read the case's input against the three lines above and put the type in `expected`, `acceptable`, `wrong`, or none of them. That is a table case, and its `set` is `table`. The `note` says in a sentence or two what the case is there to test. A note that starts with `Hard:` marks a case built to be hard: signals that conflict, a value at or next to a threshold, or a healthy domain that looks odd.
 
-The order of the model's list is not labelled or scored. Scoring looks at the set of the first five risks returned, so no case expects more than five.
+The order of the model's list is not labelled or scored. Coverage, precision and stability look at the set of the first five risks returned, so no case expects more than five. Harmful looks at everything returned, up to eight.
+
+## Open cases
+
+The bands above are thresholds on single fields, with a few fixed conditions on other fields. Anything they decide, a table could decide without a model. A specialist does not read a domain that way: the same number means different things beside different facts, and the bands cannot hold every combination.
+
+An open case is an input where reading the whole picture gives a different answer from the bands for at least one risk type: something the bands expect that a specialist would not raise here, something they call acceptable or noise that a specialist would insist on, or something they allow that would be wrong to say to this client. Its `set` is `open`, and its label differs from the bands' label somewhere; a test checks that it does.
+
+How an open case is labelled:
+
+- The fix list still follows the fix table exactly. Fixes are never a judgment.
+- Each of the thirteen types goes in `expected`, `acceptable`, `wrong` or none, as before. Where the call follows the bands, nothing more is needed. Where it departs from them, the `note` gives the reason in plain words and, where one applies, the public guidance it rests on.
+- The `note` starts with `Open:`.
+- The three consequences under "The line between a fix and a risk" still hold: an open call never contradicts or repeats a fix.
+
+Open cases are held out of prompt work. Whoever writes or changes a prompt does not read them, their notes or their per-case results; only their totals are reported, beside a rules-only baseline (the bands, applied by code). The baseline cannot score full marks on them, by construction. Whether the model does better than the baseline there is what shows judgment, and it is reported whichever way it comes out.

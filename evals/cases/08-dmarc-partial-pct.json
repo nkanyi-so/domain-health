@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "copperline-outfitters.example",
     "checks": {

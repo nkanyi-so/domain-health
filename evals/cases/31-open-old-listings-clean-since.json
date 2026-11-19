@@ -1,0 +1,71 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "dovecote-ceramics.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 3,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "quarantine",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.3,
+      "volume_7d": 26000,
+      "volume_prev_7d": 25000,
+      "open_rate_pct": 34.0,
+      "open_rate_prev_pct": 31.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 2,
+        "days_since_delisted": 84
+      },
+      "domain_age_days": 1100
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [
+      "blocklist_recent"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining"
+    ]
+  },
+  "note": "Open: the bands expect blocklist_recent, because two listings fall inside the last 90 days. The call is that it is only acceptable: both listings ended twelve weeks ago, and since then the reputation grade has risen to high, complaints and bounces are minimal, opens are up and volume is steady, so the evidence says the cause was dealt with. A specialist would not lead with a problem that is about to age out of the window; mentioning it stays defensible. General practice."
+}

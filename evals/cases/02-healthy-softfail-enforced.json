@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "pinecrest-dental.example",
     "checks": {

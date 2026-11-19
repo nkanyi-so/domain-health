@@ -57,7 +57,7 @@ Both read what they overwrite, so Firestore retries whichever commits second. `v
 
 A risk: `{id: "<type>:<domain>", type, title, why, evidence: [input field names]}`. A fix: `{type, source: "dns" | "seeded", instruction}`.
 
-An eval case (`evals/cases/NN-name.json`): `{input: <exactly what the model receives>, label: {expected: [...], acceptable: [...], wrong: [...]}, note}`.
+An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exactly what the model receives>, label: {expected: [...], acceptable: [...], wrong: [...]}, note}`. The input is `SnapshotInput` in `backend/src/domain_health/models.py`, whose validators refuse a combination that cannot happen. `backend/src/domain_health/evals/table.py` is the rubric read as a table: it checks the cases and is the rules-only baseline. It is never an input to the model, a prompt or the pipeline (decision 0010).
 
 ## Stack and why
 
@@ -71,6 +71,8 @@ An eval case (`evals/cases/NN-name.json`): `{input: <exactly what the model rece
 | Backend: Python 3.14, FastAPI, uv, dnspython | [0006](decisions/0006-backend-stack.md) |
 | Frontend: Next.js 16, TypeScript strict, Tailwind 4, pnpm | [0007](decisions/0007-frontend-stack.md) |
 | Evals scored in code against four bars, labels signed off in Phase 0 | [0008](decisions/0008-evals.md) |
+| Forty cases in two sets, a rules-only baseline, tighter definitions | [0010](decisions/0010-measure-after-the-challenge.md) |
+| Rubric objections not taken | [0011](decisions/0011-rubric-objections-not-taken.md) |
 | Auth: OIDC for machines, a proxy secret, an admin session, a visitor sandbox | [0009](decisions/0009-auth.md) |
 | Each runtime dependency | [dependencies](decisions/dependencies.md) |
 

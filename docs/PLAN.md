@@ -21,19 +21,19 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 No phase is a checkpoint. Phase 0 is merged by the owner. Phases 1 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $0.00 of $10 cap
-Decisions to review: 6 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 9 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
 | Phase | Step | Worst case |
 |---|---|---|
 | 2 | one call to test whether `temperature` is accepted | $0.01 |
-| 2 | `make eval-live`, up to six times on `gpt-6-luna` (60 calls each) | $0.30 |
-| 2 | `make eval-live`, up to four times on `gpt-6.1-terra`, only if Luna misses a bar | $2.00 |
+| 2 | `make eval-live`, up to six times on `gpt-6-luna` (120 calls each, after decision 0010) | $0.60 |
+| 2 | `make eval-live`, up to four times on `gpt-6.1-terra`, only if Luna misses a bar | $4.00 |
 | 4 | `make record` for every seeded client state, up to three times | $0.20 |
 | 4 to 6 | Google Cloud outside the free tier (image storage, builds) | $1.00 |
 
-Estimated total: under $3.50. Everything else is free.
+Estimated total: under $6 (it was under $3.50 before the set went from twenty cases to forty). Everything else is free.
 
 ## Waiting on you
 
@@ -64,6 +64,7 @@ The owner merges this phase, so it carries everything the owner must sign off on
 - [x] `docs/CLAIM.md` and `backend/tests/test_claim_wording.py`, which checks the sentence in `README.md`, `frontend/src/content/claim.ts` and `backend/src/domain_health/report/templates/` wherever those exist.
 - [x] `scripts/preflight-project.sh`, called by `.claude/hooks/preflight.sh`: confirms every owner action in `docs/STANDING.md` that a script can confirm (the OpenAI key answers for `gpt-6-luna`; the `domain-health` gcloud configuration exists, is signed in with a user account and points at `GCP_PROJECT_ID`; billing is enabled on that project; the login may create budgets; `vercel whoami` answers; Node 24 and a JDK of 21 or later are present). It reads names, never prints values.
 - [x] Branch protection on `main`: no force-push, status checks required with this project's CI jobs picked as the required checks (`check`, `secrets`; not `eval`), and it applies to administrators too (a classic rule with "Do not allow bypassing", or a ruleset with an empty bypass list). The deny rules in settings are a courtesy; this is the guard. In run-through mode the merge gate checks it and merges nothing without it, so if it cannot be turned on, say so under "Waiting on you".
+- [x] After the challenge (decision 0010, the owner's answers to issue #2): forty cases, thirty table and ten open; the open ten drafted by an agent that never sees the prompt; every risk type expected in at least two; `backend/src/domain_health/evals/table.py` (the rubric as a table, the rules-only baseline) with tests that re-derive every table label and fix list and that an open label departs from the bands; validators on the model's input; decisions 0010 and 0011.
 - [x] `docs/STANDING.md` is filled in and lands on `main` with this phase. Every owner action in it is ticked or listed under "Waiting on you". `bash .claude/hooks/preflight.sh` output is in the log.
 
 **Gate:** `make check` exits 0 with at least one passing test in each toolchain and the twenty cases loading. The pre-commit hook refuses a commit when a test is made to fail (show it, then undo). CI runs green on the first push, all three jobs. Branch protection is shown to be on. `bash .claude/hooks/preflight.sh` ends with `preflight: ready`. The owner merges this phase in both modes: it changes the guards and sets the measure.
@@ -458,6 +459,35 @@ preflight: ready
 
 Every other line was `ok:`, the OpenAI key for `gpt-6-luna`, the project, billing and the budget permission among them.
 
+### 2026-11-19: after the answers, what changed
+
+Docs first, as the owner's answers settle them: `docs/decisions/0010-measure-after-the-challenge.md`, `docs/decisions/0011-rubric-objections-not-taken.md`, the eval plan in `docs/SPEC.md`, the case shape in `docs/ARCHITECTURE.md`, `evals/bars.toml` (stability is a share, 0.90; the comments say what each bar counts), `docs/CLAIM.md` (what stands behind "judgment-call"), and "forty" for "twenty" in `CLAUDE.md`'s line for `make eval-live`. In this file: one checklist line added to Phase 0, one to Phase 2, a clause to one item in each of Phases 4 and 6, the Phase 2 gate reworded to the new measure, and the paid-steps table (a paid eval run is now 120 calls; worst case for the build under $6, cap $10). The Phase 2 gate is the one gate whose words changed; the owner merges this phase. `docs/STANDING.md` still shows the old estimate table and "twenty labelled cases": it is the owner's file and is not edited by the build.
+
+Then the work:
+
+- **Forty cases.** The twenty are kept (each gained `"set": "table"`). Ten more table cases, 21 to 30, drafted from the rubric by the build, bring every risk type to at least two expected cases. Ten open cases, 31 to 40.
+- **The open cases were written by a separate agent** with fresh context, told that it will never write, see or tune the prompt, and to report back nothing about their content. This session has not read them, their summary table or the agent's list of doubts; it knows their file names, that the four kinds of departure from the bands are spread 3, 3, 2, 2, and that the agent "did not check the public guidance documents on the web. The notes cite them by name only, from memory, with no quotations or section numbers". The file names are descriptive and hint at each case's theme; that much has been seen. The summary table and the doubts go into the pull request description for the owner, unread by this session.
+- **`backend/src/domain_health/evals/table.py`**: the rubric read as a table (`fix_types`, `table_label`) and the rules-only baseline (`baseline_risks`).
+- **Tests** (141 in the backend now, one of them in the emulator): every case's fix list is what the fix table gives; every table case's label is what the bands give; every open case's label departs from the bands and its note starts with "Open:"; forty files, ten of them open and named so; every type expected at least twice; fifteen inputs that cannot happen are each refused.
+- **Validators** on the model's input: SPF, DMARC and blocklist fields have to agree with each other, and an earlier open rate exists exactly from 60 days of age.
+- **`.claude/hooks/measure-paths.txt`**: six more lines, so a later phase that changes the input model, the case shape, the table reading or the tests on them is merged by the owner: `backend/src/domain_health/models.py`, `evals/cases.py`, `evals/table.py`, `tests/test_eval_cases.py`, `tests/test_rubric_table.py`, `tests/test_input_validation.py`.
+- **Rubric**: where the labels come from; the two sets; a closing section "Open cases". Nothing in the bands changed.
+
+The mix, counted by script without reading the open cases:
+
+```text
+table 30 open 10 hard 13 healthy 12 expected items 53 min per type 2 types 13
+```
+
+`make eval` after the changes:
+
+```text
+$ make eval
+no prompt yet: nothing to measure
+```
+
+Still no results file: there is no prompt. The rules-only baseline and the per-type and per-set lines are printed by the harness Phase 2 builds.
+
 ---
 
 ## Phase 1: checks and rules
@@ -485,8 +515,9 @@ Every other line was `ok:`, the OpenAI key for `gpt-6-luna`, the project, billin
 - [ ] One paid call that shows whether `temperature` is accepted with reasoning off; the answer and what the code does about it are in the log and in decision 0002.
 - [ ] `make eval-live` on `gpt-6-luna`. If a bar is missed: up to three further prompt versions, then the same on `gpt-6.1-terra`; the numbers for each attempt are in the log.
 - [ ] One real failure from these runs and its fix are written down for the README.
+- [ ] From decision 0010: the harness scores the rules-only baseline beside the model, for the table set and the open set; prints coverage per risk type and the dropped count; counts harmful over everything returned. Tests: only a case's `input` reaches the model; a prompt quotes none of the rubric's thresholds. Whoever writes or changes the prompt does not read the open cases or their per-case results.
 
-**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of twenty cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0, stability at least 18 of 20. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
+**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. On the open cases the model does better than the baseline as `docs/SPEC.md` defines it; if it does not, stop for the owner with the weaker claim wording proposed. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
 
 **Log:**
 
@@ -513,7 +544,7 @@ Every other line was `ok:`, the OpenAI key for `gpt-6-luna`, the project, billin
 - [ ] `/api/*`: clients, snapshot, handled, reopen, live check; the proxy secret; the actor.
 - [ ] Live-check limits in Firestore counters: five per address per ten minutes, 200 a day, a ten-minute cache.
 - [ ] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
-- [ ] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording.
+- [ ] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
 - [ ] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
 - [ ] `make seed`, then one scheduled run triggered by hand.
 - [ ] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
@@ -542,7 +573,7 @@ Every other line was `ok:`, the OpenAI key for `gpt-6-luna`, the project, billin
 ## Phase 6: report, README, release checks
 
 - [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ.
+- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 120 case-runs", and names the six limits in decision 0011.
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.

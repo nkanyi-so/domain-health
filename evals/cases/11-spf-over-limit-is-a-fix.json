@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "greywether-legal.example",
     "checks": {

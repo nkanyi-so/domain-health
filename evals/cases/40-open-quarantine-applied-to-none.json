@@ -1,0 +1,72 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "hollowell-instruments.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "quarantine",
+        "subdomain_policy": null,
+        "pct": 0
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 30000,
+      "volume_prev_7d": 29000,
+      "open_rate_pct": 33.0,
+      "open_rate_prev_pct": 33.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "dmarc_partial_enforcement"
+    ],
+    "acceptable": [
+      "dmarc_policy_none"
+    ],
+    "wrong": [
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call dmarc_policy_none wrong, because the published policy is quarantine, and expect dmarc_partial_enforcement. The call keeps partial enforcement as expected and makes dmarc_policy_none acceptable: with pct at 0 the policy is applied to no failing mail, so the record protects the domain exactly as much as p=none does. A specialist who describes it as a monitoring-only record in effect is not wrong. It rests on the DMARC RFC's definition of pct as the share of failing mail the policy applies to."
+}

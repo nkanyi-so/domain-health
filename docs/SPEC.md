@@ -16,7 +16,7 @@ The problem it rebuilds: someone checks each client's sending domain by hand, ac
 
 ## In scope (by phase)
 
-**Phase 0: scaffold, process layer and the measure.** Two toolchains behind one `make check`; CI with `check`, `secrets` and `eval` jobs; the labelling rubric, the twenty labelled eval snapshots, the bars and the claim pin, so the owner signs off the measure once.
+**Phase 0: scaffold, process layer and the measure.** Two toolchains behind one `make check`; CI with `check`, `secrets` and `eval` jobs; the labelling rubric, the forty labelled eval snapshots (thirty table cases and ten open cases), the bars and the claim pin, so the owner signs off the measure once.
 
 **Phase 1: checks and rules.**
 - A resolver interface with a live implementation (real DNS, TXT lookups only) and a fixture implementation (zone data in the repository).
@@ -66,6 +66,8 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 - SPF lookup counting on nested includes, including a loop and a chain of eleven.
 - Stable IDs: the same input gives the same IDs; the ID never comes from model text.
 - Model output validation: an unknown type, a duplicate, a ninth item or an invented number is rejected.
+- Only a case's `input` reaches the model: never its label, its note or its file name.
+- No recording for a seeded client names a risk type the rubric's bands call wrong for that input.
 - Suppression: handled today, hidden for thirty days, back on day thirty-one; the cap of five; the next risk moving up.
 - The race: a handled click and a daily write run concurrently against the Firestore emulator; afterwards the click is kept and the handled risk is not visible.
 - Idempotency: the worker run twice for one day leaves one document.
@@ -77,25 +79,44 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 
 ### The eval plan (the model's list)
 
-**The set.** Twenty labelled snapshots in `evals/cases/`, healthy and unhealthy mixed, at least six built to be hard (signals that conflict, values near a threshold, a healthy domain that looks odd). Each case is the exact input the model receives, plus a label: `expected` (risk types a specialist would flag), `acceptable` (types that are not wrong to include), `wrong` (types that would be wrong or damaging to flag here). Any type in none of the three lists is noise. Labels are drafted against `evals/RUBRIC.md` in Phase 0, given a second read by a separate agent, and signed off by the owner at the Phase 0 merge.
+**The set.** Forty labelled snapshots in `evals/cases/`, healthy and unhealthy mixed, in two sets (decision 0010):
 
-**No judge.** Risk types are a closed list, so every score is computed in code from IDs.
+- Thirty **table** cases. The label is exactly what the bands in `evals/RUBRIC.md` give, and a test re-derives it. At least six are built to be hard (signals that conflict, values near a threshold, a healthy domain that looks odd). A table of thresholds with no model scores full marks on these, so they show that the model follows the rubric, not that it judges.
+- Ten **open** cases. The bands do not settle them: the label is a written call that departs from the bands, with its reason and, where one applies, the public guidance behind it. They are held out of prompt work: whoever writes or changes a prompt does not read them, and only their totals are reported.
 
-**The measures**, each over three live runs of all twenty cases, scored on the first five risks returned:
+Each case is the exact input the model receives, plus a label: `expected` (risk types a specialist would flag), `acceptable` (types that are not wrong to include), `wrong` (types that would be wrong or damaging to flag here). Any type in none of the three lists is noise. Every risk type is expected in at least two cases.
+
+**Where the labels come from.** Drafted by AI against `evals/RUBRIC.md` and public deliverability guidance; the open cases by an agent that never sees the prompt. Reviewed and signed off by the owner, the engineer who built the original system, at the Phase 0 merge. Not written or reviewed by a deliverability specialist, and the README says so.
+
+**No judge.** Risk types are a closed list, so every score is computed in code from IDs. The wording the model writes for a risk is not scored.
+
+**The measures**, each over three live runs of all forty cases:
 
 | Measure | Definition | Bar |
 |---|---|---|
-| coverage | expected risks found, divided by expected risks, summed over the twenty cases; the mean of the three runs | at least 0.80 |
-| precision | returned risks that are `expected` or `acceptable`, divided by returned risks, summed over the twenty cases; the mean of the three runs. A case that returns nothing adds nothing | at least 0.80 |
-| harmful | returned risks whose type is in the case's `wrong` list, counted over all three runs | exactly 0 |
-| stability | cases whose set of five IDs is identical in all three runs | at least 18 of 20 |
+| coverage | expected risks found in the first five returned, divided by expected risks, summed over the cases; the mean of the three runs | at least 0.80 |
+| precision | of the first five returned, those that are `expected` or `acceptable`, divided by the number returned, summed over the cases; the mean of the three runs. A case that returns nothing adds nothing | at least 0.80 |
+| harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
+| stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-The bars live in `evals/bars.toml`.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 120 case-runs": it bounds the rate, it does not show never. Precision adds little on this set, because few label slots are noise; it is kept and that is said.
+
+The bars live in `evals/bars.toml` and are judged on all forty cases together.
+
+**Also reported, with no bar:** coverage for each risk type; every measure for the table set and for the open set separately; and beside each, the same measure for the **rules-only baseline**, which is the rubric's bands applied by code (`backend/src/domain_health/evals/table.py`), with no model.
+
+**The model against the baseline.** On the table cases the baseline is perfect by construction, and the model can at best equal it. The open cases are where a model can show judgment. The model does better than the baseline there when, over the three runs, its coverage and its precision on the open set are each at least the baseline's, at least one of the two is higher, and its harmful count is no higher. If it does not, the claim's words "judgment-call" are not shown: the build stops for the owner and proposes the wording "judgment-call risks picked by a model from a closed list and scored against a written rubric".
+
+**Rules for the paid runs.**
+- The numbers that count at a gate are those of one run of the final prompt version. Every attempt, of every version, is reported with its numbers.
+- An unchanged prompt is never run again to get a pass.
+- A prompt does not quote the rubric's thresholds or bands, and no worked example in it comes from an eval case. Tests enforce both.
+- Prompt changes are argued from table-case results only. Open-case results are looked at as totals, never case by case.
 
 **Where each check lives.**
-- `make check`: the eval code's tests and one fixture run of the plumbing. No threshold.
-- `make eval`: free. Scores the committed recordings for the current prompt version, writes `evals/results.json`, prints one line per measure with the score, the bar and `met` or `missed`. Exits 0 whenever it ran; with `STRICT=1` it exits non-zero on a missed bar, or when a prompt version exists with no recordings that match it and the cases. Before any prompt exists it prints "no prompt yet: nothing to measure" and exits 0.
-- `make eval-live`: paid. Three runs of the twenty cases through the live model, behind the ledger, writing the recordings and the same results file. All four bars need this run.
+- `make check`: the eval code's tests and one fixture run of the plumbing. No threshold. Also here: the test that re-derives every table label and every fix list from the rubric, the test that an open label departs from the bands, and the validators that refuse an input that cannot happen.
+- `make eval`: free. Scores the committed recordings for the current prompt version, writes `evals/results.json`, prints one line per measure with the score, the bar and `met` or `missed`, then the lines that have no bar. Exits 0 whenever it ran; with `STRICT=1` it exits non-zero on a missed bar, or when a prompt version exists with no recordings that match it and the cases. Before any prompt exists it prints "no prompt yet: nothing to measure" and exits 0.
+- `make eval-live`: paid. Three runs of the forty cases through the live model, behind the ledger, writing the recordings and the same results file. All four bars need this run.
 - CI: `make eval STRICT=1` in a job named `eval`, not a required check.
 - Whether a bar is met is the challenger's reading of the pasted output at the phase gate.
 

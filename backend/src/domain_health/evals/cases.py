@@ -1,7 +1,7 @@
 """An eval case: the exact input the model receives, and the label it is scored against."""
 
 from pathlib import Path
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import model_validator
 
@@ -9,6 +9,11 @@ from domain_health.models import Frozen, SnapshotInput
 from domain_health.types import RiskType
 
 HARD_PREFIX = "Hard:"
+
+# "table": the label is what the rubric's bands give, and a test re-derives it.
+# "open": the rubric's bands do not settle the case; the label is a written call with its reason,
+# and it differs from the bands somewhere. Open cases are held out of prompt tuning.
+CaseSet = Literal["table", "open"]
 
 
 class Label(Frozen):
@@ -28,6 +33,7 @@ class Label(Frozen):
 
 
 class EvalCase(Frozen):
+    set: CaseSet
     input: SnapshotInput
     label: Label
     note: str

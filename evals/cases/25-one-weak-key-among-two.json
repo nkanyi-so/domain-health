@@ -1,0 +1,81 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "halcyon-print-works.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          },
+          {
+            "selector": "old",
+            "key_bits": 768
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.12,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": [
+      {
+        "type": "dkim_weak_key",
+        "source": "dns",
+        "instruction": "Rotate the DKIM key to 2,048 bits: a key under 1,024 bits is rejected by receivers."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "complaint_rate_elevated"
+    ],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "One DKIM key is 768 bits, which is a fix, so the 1,024-bit risk is wrong whatever the other key is. Complaints at 0.12% are over the recommended level and under the limit: expected."
+}

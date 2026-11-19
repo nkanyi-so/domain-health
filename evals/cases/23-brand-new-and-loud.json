@@ -1,0 +1,71 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "juniper-row-bikes.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 9000,
+      "volume_prev_7d": 1500,
+      "open_rate_pct": 38.0,
+      "open_rate_prev_pct": null,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 12
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "volume_spike",
+      "new_domain_volume"
+    ],
+    "acceptable": [
+      "reputation_poor"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "blocklist_recent"
+    ]
+  },
+  "note": "A 12-day-old domain sending 9,000 messages a week, six times the week before, with enforcing DMARC and clean rates. The new-domain volume and the spike are expected; the medium grade is acceptable."
+}

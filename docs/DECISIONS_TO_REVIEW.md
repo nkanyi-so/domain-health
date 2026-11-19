@@ -56,3 +56,24 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 - **Why:** (1) nothing reads settings yet and an unused dependency is noise; (2) and (3) follow the libraries as installed; (4) and (5) make the pin real from the first commit and guard it like the backend's.
 - **To undo:** (1) `cd backend && uv add pydantic-settings`. (2) `uv remove --dev httpx2 && uv add --dev httpx`. (3) edit `frontend/next.config.ts` and `frontend/src/app/layout.tsx`. (4) and (5) delete the two files and the line in `measure-paths.txt` (owner-merged).
 - **Status:** to review
+
+## 2026-11-19, Phase 0: how "better than the baseline" is decided on the open cases
+
+- **Decided:** in `docs/SPEC.md`: over the three runs, the model's coverage and precision on the open set are each at least the baseline's, at least one is higher, and its harmful count is no higher. The other options were a single combined score, or coverage alone.
+- **Why:** the owner's answer said "if the model does no better than the baseline on the open cases", which needed a definition before any score exists, so that it cannot be chosen to fit one. This one uses only the measures already defined and cannot be met by trading harmful output for coverage.
+- **To undo:** edit the paragraph "The model against the baseline" in `docs/SPEC.md` and the Phase 2 gate. Owner-merged.
+- **Status:** to review
+
+## 2026-11-19, Phase 0: public guidance documents are named in open-case notes
+
+- **Decided:** the notes of the open cases, decision 0010 and (later) the README may name the public documents the owner asked the calls to rest on: the bulk-sender requirements published by Google and by Yahoo, and M3AAWG's best practices. Rule 6 in `CLAUDE.md` says no real company name anywhere; it is read here as it is meant, as a rule against real clients, people and platforms in the story and the seeded data. A case's `input`, which is what the model receives, still holds no real name.
+- **Why:** the owner's answer to issue #2 asks for exactly this grounding, by name.
+- **To undo:** replace the names in the notes of `evals/cases/31` to `40` and in decision 0010 with "public bulk-sender requirements". Owner-merged (the cases are the measure).
+- **Status:** to review
+
+## 2026-11-19, Phase 0: the build session did not read the open cases
+
+- **Decided:** the ten open cases were written by a separate agent and checked by tests only; this session passed that agent's summary table and its list of doubts into the pull request without reading them, so that a later session that writes the prompt from this one's notes has nothing to leak. The reviewer and the challenger, which never write a prompt, read them in full. The other option was to read and edit them like the table cases.
+- **Why:** the owner asked that the open cases come from an agent that never sees the prompt and stay out of prompt tuning. The session that builds Phase 0 may be the one that builds Phase 2.
+- **To undo:** nothing to undo; to tighten it further, have a different person or session run Phase 2.
+- **Status:** to review

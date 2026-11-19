@@ -1,4 +1,5 @@
 {
+  "set": "table",
   "input": {
     "domain": "quillfeather-press.example",
     "checks": {
