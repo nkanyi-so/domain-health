@@ -65,3 +65,26 @@ def test_a_previous_open_rate_of_zero_gives_no_fall_to_read() -> None:
     label = table_label(SnapshotInput.model_validate(raw))
 
     assert RiskType.ENGAGEMENT_DECLINING not in {*label.expected, *label.acceptable, *label.wrong}
+
+
+def test_no_open_call_takes_away_what_the_bands_expect() -> None:
+    """Keeps a sentence in docs/SPEC.md true: the baseline's precision on the open set is 1.00.
+
+    The baseline returns what the bands expect. If an open label moved such a type to wrong or
+    to noise, the baseline would lose precision there and the comparison's rule would need to
+    be looked at again by the owner.
+    """
+    for name, case in CASES_BY_NAME.items():
+        if case.set == "open":
+            allowed = {*case.label.expected, *case.label.acceptable}
+            assert set(baseline_risks(case.input)) <= allowed, name
+
+
+def test_the_baseline_misses_something_on_the_open_cases() -> None:
+    found = expected = 0
+    for case in CASES_BY_NAME.values():
+        if case.set == "open":
+            expected += len(case.label.expected)
+            found += len(set(baseline_risks(case.input)[:5]) & set(case.label.expected))
+
+    assert found < expected

@@ -516,6 +516,23 @@ Verdict as reported: "2 blocking findings. Both blocking findings are cheap to f
 
 Not blocking: open case 34's note attributed a line to both providers' requirements that is in one only. Done by a fresh agent, note only.
 
+### 2026-11-19: review, seventh run, on c7874ae
+
+Verdict as reported: "one blocking finding. It is cheap to fix, and like the sixth round's findings it is about what the owner is told, not a code defect." It recomputed the baseline: "Open set: coverage 9/14 (0.643), precision 12/12, harmful 0. Table set: 42/42, 42/42, 0." It found the three sixth-round fixes holding and SPEC, ARCHITECTURE, RUBRIC, `bars.toml`, CLAIM, the Phase 2 gate, decision 0010, `table.py` and the cases in agreement.
+
+1. Blocking. "The '10 of 14' figure misstates the new rule": the spec required only coverage "higher" than the baseline's, the mean of three runs, so "runs scoring 9, 9 and 10 ... pass. So one extra expected item in one run of three is enough", "within run-to-run noise", while the owner was told "at least 10 of 14 on average".
+   - Done, by making the rule what the owner was told, which is also the firmer of the two it offered: the model has to find on average at least one more expected item per run than the baseline, 30 of 42 as the cases stand. The spec, decision 0010, the decisions file and the pull request description now say the same thing with the same numbers. (The "Done" line under the sixth run above was written before this and reads "at least 10 of 14"; the rule is the one here.)
+
+Worth noting, as it put it, and what was done:
+
+- Decision 0010 still said precision adds little "on this set". Done: "on the table cases".
+- The decisions entry on naming said nothing else in either rule changed; the spec line also gained "client,". Done.
+- "Nothing guards the 1.00 precision premise." Done: a test fails if an open label moves a type the bands expect to wrong or to noise, and another if the baseline stops missing anything on the open cases.
+- The pull request description said five review rounds. Done.
+- "twenty cases" twice in the decisions file's input-shape entry. Done.
+- "The measure changed through the decisions file, not a stop... I treat this as covered, not blocking: Phase 0 is owner-merged, and item 1 of the pull request asks for the owner's approval of that definition by name. The owner's merge must be read as that approval." Agreed, and said in the hand-over.
+- The verifier and the challenger last ran on 2e989a7 and have to run again on the final commit. They do, next.
+
 ---
 
 ## Phase 1: checks and rules
