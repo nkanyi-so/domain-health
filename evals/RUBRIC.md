@@ -185,4 +185,4 @@ How an open case is labelled:
 - The `note` starts with `Open:`.
 - The three consequences under "The line between a fix and a risk" still hold: an open call never contradicts or repeats a fix.
 
-Open cases are held out of prompt work. Whoever writes or changes a prompt does not read them, their notes or their per-case results; only their totals are reported, beside a rules-only baseline (the bands, applied by code). The baseline cannot score full marks on them, by construction. Whether the model does better than the baseline there is what shows judgment, and it is reported whichever way it comes out.
+Open cases are held out of prompt work. A prompt is written and changed by an agent with fresh context that is given this rubric and the table cases only; it does not read the open cases, their notes or their per-case results. Only their totals are reported, beside a rules-only baseline (the bands, applied by code). The baseline cannot score full marks on them, by construction. Whether the model does better than the baseline there is what shows judgment, and it is reported whichever way it comes out.

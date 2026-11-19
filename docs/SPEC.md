@@ -82,7 +82,7 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 **The set.** Forty labelled snapshots in `evals/cases/`, healthy and unhealthy mixed, in two sets (decision 0010):
 
 - Thirty **table** cases. The label is exactly what the bands in `evals/RUBRIC.md` give, and a test re-derives it. At least six are built to be hard (signals that conflict, values near a threshold, a healthy domain that looks odd). A table of thresholds with no model scores full marks on these, so they show that the model follows the rubric, not that it judges.
-- Ten **open** cases. The bands do not settle them: the label is a written call that departs from the bands, with its reason and, where one applies, the public guidance behind it. They are held out of prompt work: whoever writes or changes a prompt does not read them, and only their totals are reported.
+- Ten **open** cases. The bands do not settle them: the label is a written call that departs from the bands, with its reason and, where one applies, the public guidance behind it. They are held out of prompt work: a prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only, and only the open set's totals are reported.
 
 Each case is the exact input the model receives, plus a label: `expected` (risk types a specialist would flag), `acceptable` (types that are not wrong to include), `wrong` (types that would be wrong or damaging to flag here). Any type in none of the three lists is noise. Every risk type is expected in at least two cases.
 

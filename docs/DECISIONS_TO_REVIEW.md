@@ -71,9 +71,9 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 - **To undo:** replace the names in the notes of `evals/cases/31` to `40` and in decision 0010 with "public bulk-sender requirements". Owner-merged (the cases are the measure).
 - **Status:** to review
 
-## 2026-11-19, Phase 0: the build session did not read the open cases
+## 2026-11-19, Phase 0: who has seen the open cases, and who writes the prompt
 
-- **Decided:** the ten open cases were written by a separate agent and checked by tests only; this session passed that agent's summary table and its list of doubts into the pull request without reading them, so that a later session that writes the prompt from this one's notes has nothing to leak. The reviewer and the challenger, which never write a prompt, read them in full. The other option was to read and edit them like the table cases.
+- **Decided:** the ten open cases were written by a separate agent, fixed by a second one, and checked by this session through tests only: it never opened the case files. It meant not to read the agents' summary table and list of doubts either, but saw both while putting them into the pull request description. So the rule is moved to where it can hold: in Phase 2 the prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only, and gets table-case results only. The reviewer and the challenger, which never write a prompt, read the open cases in full. The other option was to treat the open cases like the table cases.
 - **Why:** the owner asked that the open cases come from an agent that never sees the prompt and stay out of prompt tuning. The session that builds Phase 0 may be the one that builds Phase 2.
-- **To undo:** nothing to undo; to tighten it further, have a different person or session run Phase 2.
+- **To undo:** nothing to undo. To tighten it further, have a different person or a new session with no memory of this one run Phase 2, and keep it away from the Phase 0 pull request's description.
 - **Status:** to review
