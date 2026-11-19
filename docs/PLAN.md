@@ -505,6 +505,17 @@ Verdict as reported: "blocking findings (5). Each one is cheap to fix. Most are 
 
 Not blocking: table case 28 gave a steady `high` grade to a domain with 0.29% complaints and 4.9% bounces. Done: the grade is `medium`, and `reputation_poor` moves from wrong to acceptable, as the bands give. The stale "twenty" in the ticked Phase 0 item and in the Phase 0 gate is left as written, because a run does not edit them: the evidence below shows forty loading. `docs/STANDING.md`'s estimate table and its "skim the twenty cases" are the owner's.
 
+### 2026-11-19: review, sixth run, on 4c82fd0
+
+Verdict as reported: "2 blocking findings. Both blocking findings are cheap to fix. Both are about what the owner is told before signing off; neither is a code defect." It found `table.py` and the rubric in agreement, all ten open cases sound and the earlier findings on 33, 37, 38, 39 and 40 resolved, table case 28 correct, and the pull request description's table, lists and counts accurate.
+
+1. Blocking. "'Better than the baseline' quietly requires perfect precision on the open set." It scored the baseline on the ten open labels: "coverage 9/14, precision 12/12 and harmful 0", perfect precision "by construction", so "at least the baseline's" meant exactly 1.00 across thirty case-runs, and "one noise pick fails the claim test". The spec's "Precision adds little on this set" was false for this comparison, and neither list of doubts said any of it.
+   - Done: the build's own definition was wrong and is changed to the reviewer's option (b): coverage higher than the baseline's, harmful no higher, precision at least the 0.80 bar. The spec, decision 0010, the decisions file and the pull request description say why, give the numbers (the model has to average at least 10 of 14 on the open set), and offer the owner the stricter alternatives. "Precision adds little" now says "on the table cases".
+2. Blocking. The pull request description said rule 6 and the "Done when" line had both been reworded the same way; in fact rule 6 only gained a sentence, and the spec line had also dropped "in the tree". The decisions entry was stale.
+   - Done: the spec line says "in the tree or the history" again, so both rules differ from before only by the one added sentence. The description quotes the sentence and says exactly that; the decisions entry and its undo steps are corrected. The description also now names the "twenty" to "forty" edit in `CLAUDE.md`.
+
+Not blocking: open case 34's note attributed a line to both providers' requirements that is in one only. Done by a fresh agent, note only.
+
 ---
 
 ## Phase 1: checks and rules

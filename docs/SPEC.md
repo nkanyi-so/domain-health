@@ -99,13 +99,13 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 | harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
 | stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 120 case-runs": it bounds the rate, it does not show never. Precision adds little on this set, because few label slots are noise; it is kept and that is said.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 120 case-runs": it bounds the rate, it does not show never. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
 
 The bars live in `evals/bars.toml` and are judged on all forty cases together.
 
 **Also reported, with no bar:** coverage for each risk type; every measure for the table set and for the open set separately; and beside each, the same measure for the **rules-only baseline**, which is the rubric's bands applied by code (`backend/src/domain_health/evals/table.py`), with no model.
 
-**The model against the baseline.** On the table cases the baseline is perfect by construction, and the model can at best equal it. The open cases are where a model can show judgment. The model does better than the baseline there when, over the three runs, its coverage and its precision on the open set are each at least the baseline's, at least one of the two is higher, and its harmful count is no higher. If it does not, the claim's words "judgment-call" are not shown: the build stops for the owner and proposes the wording "judgment-call risks picked by a model from a closed list and scored against a written rubric".
+**The model against the baseline.** On the table cases the baseline is perfect by construction, and the model can at best equal it. The open cases are where a model can show judgment. The model does better than the baseline there when, over the three runs, its coverage on the open set is higher than the baseline's, its harmful count there is no higher than the baseline's, and its precision there is at least 0.80. Precision is held to its bar and not to the baseline, because the baseline's precision on the open set is 1.00 by construction (no open call moves a type the bands expect to wrong or to noise), and matching it would demand a perfect score. If it does not, the claim's words "judgment-call" are not shown: the build stops for the owner and proposes the wording "judgment-call risks picked by a model from a closed list and scored against a written rubric".
 
 **Rules for the paid runs.**
 - The numbers that count at a gate are those of one run of the final prompt version. Every attempt, of every version, is reported with its numbers.
@@ -149,6 +149,6 @@ The bars live in `evals/bars.toml` and are judged on all forty cases together.
 - A real domain typed on the hosted page gets live DNS checks and a fix list.
 - After one scheduled run, all twelve seeded clients have today's snapshot in Firestore.
 - The eval table is in the README with the prompt version, the model and the date, and all four bars are met.
-- CI is green on `main`. No key in the repository or its history. No real client, company or person in the story, the seeded data, the eval inputs or the history. The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
+- CI is green on `main`. No key in the repository or its history. No real client, company or person in the tree or the history. The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
 - The hosted page loads in a real browser with no key on the visitor's side, in both themes, at desktop and phone width.
 - Left to the owner: the walkthrough video, and making the repository public.
