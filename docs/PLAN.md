@@ -10,7 +10,7 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
-| 2: the model and the evals (checkpoint) | waiting on you | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
+| 2: the model and the evals (checkpoint) | building | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
@@ -37,44 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 2 has stopped for you, for two reasons: it is the checkpoint you set, and its gate is not met.** The pull request is [#6](https://github.com/nkanyi-so/domain-health/pull/6). The model and the eval harness are built and reviewed. Four paid attempts were made ($0.99 of the $10 cap). The best one meets three of the four bars and misses the fourth, and the challenger, the independent agent that reads the results against the claim, says a change is needed. Nothing has been changed in answer to it.
-
-**The numbers.** Three runs of the forty-eight cases each time:
-
-| Attempt | Prompt | Model | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
-|---|---|---|---|---|---|---|
-| 1 | version 1 | gpt-6-luna | 0.552 | 0.986 | 2 in 144 | 0.792 |
-| 2 | version 2 | gpt-6-luna | 0.816 | 0.841 | 24 in 144 | 0.667 |
-| 3 | version 3 | gpt-6-luna | 0.786 | 0.877 | 20 in 144 | 0.688 |
-| 4 | version 3 | gpt-6.1-terra | 0.896 | 0.962 | **9 in 144** | 0.979 |
-
-In attempt 4 every one of the thirty table cases came back as labelled. All nine harmful answers are on the eighteen held-out open cases, the same three in each run. The model does not do better than the rules-only baseline on the open cases (18 of 25 expected items a run against the baseline's 17, and the nine wrong answers where the baseline has none).
-
-**What the challenger found, in short.** (Its full report is in the Phase 2 log, "challenger, on cd7613f".)
-
-- The nine harmful answers are all risks that the rubric's bands call "acceptable" and that an open case's written call makes wrong. The spec said in Phase 0 that this could happen. They trace back to the build's own brief to the prompt writers, which said an acceptable risk "costs nothing". A prompt that leaves such risks out can be written from the table cases alone, and by the challenger's projection it would meet all four bars. But it would do so by returning exactly what the rules-only table returns. Its words: "the owner's real question is whether a model that reproduces the table is worth the claim, not whether the miss can be fixed."
-- Prompt version 3 holds no figure, but it restates several of the rubric's bands as arithmetic on a limit the model is asked to recall ("the cap exactly, or a single lookup short of it"; "half the cap or less"; "twice that length"). So "all thirty table cases as labelled" shows that the model can carry out the rubric as the prompt restates it, not that it follows the rubric unaided.
-- The details of the three open cases behind the harmful answers are in a file for you only, which the build has not opened: `~/.config/domain-health/challenger-phase2-detail.md`.
-
-**Questions.** Each has my recommendation first.
-
-1. **The harmful bar.** One of these.
-   - **A (recommended). One more attempt on `gpt-6.1-terra`.** A fresh agent writes prompt version 4 from the rubric and the table cases only, told to leave out every risk the bands call merely acceptable, because such a risk earns nothing on any measure. The table report is first changed to show those answers, which it hid until now. Cost: about $0.78, at most $1.20; then the three checks run again and the pull request comes back to you. If it passes, the README says plainly what the challenger says: the model's list is then the table's list. If it still misses, B.
-   - **B. Merge as it is.** The bar is missed and the README says so. The spec's "Done when" line "all four bars are met" is then not met, and you would reword that line yourself.
-   - **C. Change what the bar counts** (for example harmful on the table cases only). Nothing to build, but it changes the measure after seeing the result. Not recommended.
-2. **Is version 3's wording allowed?** The spec says a prompt does not quote the rubric's thresholds or bands. Version 3 has no figure and no run of six words from a band line, so the test passes; but it gives the bands as arithmetic on public limits.
-   - **A (recommended). Allowed, and said plainly.** The limits it leans on are public (the SPF lookup cap, the complaint level mailbox providers publish), and without any anchor versions 1 and 2 show the model guessing. The README then says the prompt restates the rubric's lines relative to public limits, and the table-set result is described as what it is. I add a check that lists such phrases so a reader can see them, with no pass or fail.
-   - **B. Not allowed.** Then no attempt so far counts, version 4 must be written without such wording, and the check fails a prompt that has it. Expect coverage to fall and one or two more attempts at about $0.78 each, with no promise they pass.
-3. **The claim's wording on the page.** The challenger says "judgment-call risks picked by a model" reads wider than the evidence: the model follows a checklist.
-   - **A (recommended). Keep your sentence, and put its limit beside it wherever it appears**, the page and the README included: one sentence, taken from decision 0012, saying that on this evidence a table of rules does as well on the risk list. Phase 5 and Phase 6 then carry it.
-   - **B. Reword the sentence**, for example "judgment-call risks, ranked by a model following a written checklist from a closed list, and scored against a written rubric". That is a change to `docs/CLAIM.md`, the spec and the page, which you make or approve.
-4. **Rules for model output beyond the spec's four.** The spec lists four reasons to drop an output. The code has more: an empty or over-long title or reason; a control character or half a character pair; evidence limited to a closed list of field names; a word that starts with a digit and is not a number; a number disguised with invisible characters, an apostrophe or spaces. The reviewer said these should have been put to you before being built, and it is right. None changed any number: one output in 576 was dropped, for being unreadable JSON. Known gaps that remain: a number written as a word ("twelve", "double"), `900.000` read as nine hundred, and `20,48` read as 2048.
-   - **A (recommended). Keep them and write them into the spec** (your edit, or mine for you to merge), and add the two cheap fixes: the comma, and a generated test of number disguises in place of the hand-written list. Leave number words alone and have the README say that the wording a reader sees is not scored.
-   - **B. Remove everything beyond the four rules.**
-5. **Reporting changes the challenger asks for, none of which changes a bar. Yes or no to all (recommended: yes).** The table report shows the acceptable risks returned; the output prints how many such risks each set got, and the result of keeping only what the bands expect, so a reader sees when the model is just the table; harmful is written as "0 in 144 case-runs (48 cases, three runs that agreed on 47)" when it is ever zero; decision 0002 is updated to say the model is `gpt-6.1-terra` and why; the spec's "an unchanged prompt is never run again" gains "on the same model".
-6. **The model is now `gpt-6.1-terra`.** `gpt-6-luna` gave a different list on the same input in a quarter to a third of the cases at temperature 0, on three different prompts. Terra costs about ten times as much: $0.78 an eval run, and a few cents more for Phase 4's recordings. Recommended: confirm. The worst case for the whole build stays under $7.
-
-**What I will do once you answer.** Answer in a comment on the issue or in the session; "recommended for all" is enough. For 1A: the reporting change first, then version 4 by a fresh agent, the paid run, the three checks, and the pull request back to you with the new numbers. Changes to `docs/SPEC.md` or `docs/CLAIM.md` are written on the branch for you to read in the pull request, never merged by me. If you would rather merge #6 exactly as it is, you can: the verdict lines stay as the agents gave them, and Phase 3 starts after the merge.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -1698,6 +1661,61 @@ The gate is **not ticked**: two of its parts are not met.
 reviewer-verdict: no blocking findings apart from the two carried for the owner @ cd7613f
 verifier-verdict: pass @ cd7613f
 challenger-verdict: change needed @ cd7613f
+
+### 2026-11-19: the stop (issue #7) and the owner's answers
+
+The block as it stood under "Waiting on you":
+
+> **Phase 2 has stopped for you, for two reasons: it is the checkpoint you set, and its gate is not met.** The pull request is [#6](https://github.com/nkanyi-so/domain-health/pull/6). The model and the eval harness are built and reviewed. Four paid attempts were made ($0.99 of the $10 cap). The best one meets three of the four bars and misses the fourth, and the challenger, the independent agent that reads the results against the claim, says a change is needed. Nothing has been changed in answer to it.
+>
+> **The numbers.** Three runs of the forty-eight cases each time:
+>
+> | Attempt | Prompt | Model | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
+> |---|---|---|---|---|---|---|
+> | 1 | version 1 | gpt-6-luna | 0.552 | 0.986 | 2 in 144 | 0.792 |
+> | 2 | version 2 | gpt-6-luna | 0.816 | 0.841 | 24 in 144 | 0.667 |
+> | 3 | version 3 | gpt-6-luna | 0.786 | 0.877 | 20 in 144 | 0.688 |
+> | 4 | version 3 | gpt-6.1-terra | 0.896 | 0.962 | **9 in 144** | 0.979 |
+>
+> In attempt 4 every one of the thirty table cases came back as labelled. All nine harmful answers are on the eighteen held-out open cases, the same three in each run. The model does not do better than the rules-only baseline on the open cases (18 of 25 expected items a run against the baseline's 17, and the nine wrong answers where the baseline has none).
+>
+> **What the challenger found, in short.** (Its full report is in the Phase 2 log, "challenger, on cd7613f".)
+>
+> - The nine harmful answers are all risks that the rubric's bands call "acceptable" and that an open case's written call makes wrong. The spec said in Phase 0 that this could happen. They trace back to the build's own brief to the prompt writers, which said an acceptable risk "costs nothing". A prompt that leaves such risks out can be written from the table cases alone, and by the challenger's projection it would meet all four bars. But it would do so by returning exactly what the rules-only table returns. Its words: "the owner's real question is whether a model that reproduces the table is worth the claim, not whether the miss can be fixed."
+> - Prompt version 3 holds no figure, but it restates several of the rubric's bands as arithmetic on a limit the model is asked to recall ("the cap exactly, or a single lookup short of it"; "half the cap or less"; "twice that length"). So "all thirty table cases as labelled" shows that the model can carry out the rubric as the prompt restates it, not that it follows the rubric unaided.
+> - The details of the three open cases behind the harmful answers are in a file for you only, which the build has not opened: `~/.config/domain-health/challenger-phase2-detail.md`.
+>
+> **Questions.** Each has my recommendation first.
+>
+> 1. **The harmful bar.** One of these.
+>    - **A (recommended). One more attempt on `gpt-6.1-terra`.** A fresh agent writes prompt version 4 from the rubric and the table cases only, told to leave out every risk the bands call merely acceptable, because such a risk earns nothing on any measure. The table report is first changed to show those answers, which it hid until now. Cost: about $0.78, at most $1.20; then the three checks run again and the pull request comes back to you. If it passes, the README says plainly what the challenger says: the model's list is then the table's list. If it still misses, B.
+>    - **B. Merge as it is.** The bar is missed and the README says so. The spec's "Done when" line "all four bars are met" is then not met, and you would reword that line yourself.
+>    - **C. Change what the bar counts** (for example harmful on the table cases only). Nothing to build, but it changes the measure after seeing the result. Not recommended.
+> 2. **Is version 3's wording allowed?** The spec says a prompt does not quote the rubric's thresholds or bands. Version 3 has no figure and no run of six words from a band line, so the test passes; but it gives the bands as arithmetic on public limits.
+>    - **A (recommended). Allowed, and said plainly.** The limits it leans on are public (the SPF lookup cap, the complaint level mailbox providers publish), and without any anchor versions 1 and 2 show the model guessing. The README then says the prompt restates the rubric's lines relative to public limits, and the table-set result is described as what it is. I add a check that lists such phrases so a reader can see them, with no pass or fail.
+>    - **B. Not allowed.** Then no attempt so far counts, version 4 must be written without such wording, and the check fails a prompt that has it. Expect coverage to fall and one or two more attempts at about $0.78 each, with no promise they pass.
+> 3. **The claim's wording on the page.** The challenger says "judgment-call risks picked by a model" reads wider than the evidence: the model follows a checklist.
+>    - **A (recommended). Keep your sentence, and put its limit beside it wherever it appears**, the page and the README included: one sentence, taken from decision 0012, saying that on this evidence a table of rules does as well on the risk list. Phase 5 and Phase 6 then carry it.
+>    - **B. Reword the sentence**, for example "judgment-call risks, ranked by a model following a written checklist from a closed list, and scored against a written rubric". That is a change to `docs/CLAIM.md`, the spec and the page, which you make or approve.
+> 4. **Rules for model output beyond the spec's four.** The spec lists four reasons to drop an output. The code has more: an empty or over-long title or reason; a control character or half a character pair; evidence limited to a closed list of field names; a word that starts with a digit and is not a number; a number disguised with invisible characters, an apostrophe or spaces. The reviewer said these should have been put to you before being built, and it is right. None changed any number: one output in 576 was dropped, for being unreadable JSON. Known gaps that remain: a number written as a word ("twelve", "double"), `900.000` read as nine hundred, and `20,48` read as 2048.
+>    - **A (recommended). Keep them and write them into the spec** (your edit, or mine for you to merge), and add the two cheap fixes: the comma, and a generated test of number disguises in place of the hand-written list. Leave number words alone and have the README say that the wording a reader sees is not scored.
+>    - **B. Remove everything beyond the four rules.**
+> 5. **Reporting changes the challenger asks for, none of which changes a bar. Yes or no to all (recommended: yes).** The table report shows the acceptable risks returned; the output prints how many such risks each set got, and the result of keeping only what the bands expect, so a reader sees when the model is just the table; harmful is written as "0 in 144 case-runs (48 cases, three runs that agreed on 47)" when it is ever zero; decision 0002 is updated to say the model is `gpt-6.1-terra` and why; the spec's "an unchanged prompt is never run again" gains "on the same model".
+> 6. **The model is now `gpt-6.1-terra`.** `gpt-6-luna` gave a different list on the same input in a quarter to a third of the cases at temperature 0, on three different prompts. Terra costs about ten times as much: $0.78 an eval run, and a few cents more for Phase 4's recordings. Recommended: confirm. The worst case for the whole build stays under $7.
+>
+> **What I will do once you answer.** Answer in a comment on the issue or in the session; "recommended for all" is enough. For 1A: the reporting change first, then version 4 by a fresh agent, the paid run, the three checks, and the pull request back to you with the new numbers. Changes to `docs/SPEC.md` or `docs/CLAIM.md` are written on the branch for you to read in the pull request, never merged by me. If you would rather merge #6 exactly as it is, you can: the verdict lines stay as the agents gave them, and Phase 3 starts after the merge.
+
+The owner's answer, given in the session, word for word:
+
+> Recommended for all six.
+>
+> One limit on the first: exactly one more attempt. If version 4 passes, bring #6 back to me. If it misses any bar, do not try again: record the result as it is, state the miss plainly in the spec and for the README, and bring #6 back to me to merge as it stands. I would rather ship an honest miss than spend more of the build on this phase.
+>
+> The old branch phase-1-checks-and-rules: deleting it is approved. If your guards refuse, give me the one command to run.
+>
+> Keep the review rounds on this phase to what the version 4 result needs. Do not reopen wording that has already passed.
+
+So: 1A with a limit of exactly one attempt, 2A, 3A, 4A, 5 yes, 6 confirmed. Whatever attempt 5 gives, the pull request goes back to the owner; the challenger's `change needed` stands on cd7613f and the owner merges this phase either way.
 
 ---
 
