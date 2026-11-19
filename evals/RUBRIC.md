@@ -176,13 +176,13 @@ The order of the model's list is not labelled or scored. Coverage, precision and
 
 The bands above are thresholds on single fields, with a few fixed conditions on other fields. Anything they decide, a table could decide without a model. A specialist does not read a domain that way: the same number means different things beside different facts, and the bands cannot hold every combination.
 
-An open case is an input where reading the whole picture gives a different answer from the bands for at least one risk type: something the bands expect that a specialist would not raise here, something they call acceptable or noise that a specialist would insist on, or something they allow that would be wrong to say to this client. Its `set` is `open`, and its label differs from the bands' label somewhere; a test checks that it does.
+An open case is an input where reading the whole picture gives a different answer from the bands for at least one risk type: something the bands expect that a specialist would not insist on here, something they call acceptable, noise or even wrong that a specialist would raise, or something they allow that would be wrong to say to this client. One limit holds for every open case, and a test checks it: a type the bands expect stays expected or acceptable. Its `set` is `open`, and its label differs from the bands' label somewhere; a test checks that it does.
 
 How an open case is labelled:
 
 - The fix list still follows the fix table exactly. Fixes are never a judgment.
 - Each of the thirteen types goes in `expected`, `acceptable`, `wrong` or none, as before. Where the call follows the bands, nothing more is needed. Where it departs from them, the `note` gives the reason in plain words and, where one applies, the public guidance it rests on.
-- The `note` starts with `Open:`.
+- The `note` starts with `Open:` and names, in backticks, every risk type whose placement differs from the bands'.
 - The three consequences under "The line between a fix and a risk" still hold: an open call never contradicts or repeats a fix.
 
-Open cases are held out of prompt work. A prompt is written and changed by an agent with fresh context that is given this rubric and the table cases only; it does not read the open cases, their notes or their per-case results. Only their totals are reported, beside a rules-only baseline (the bands, applied by code). The baseline cannot score full marks on them, by construction. Whether the model does better than the baseline there is what shows judgment, and it is reported whichever way it comes out.
+Open cases are held out of prompt work. A prompt is written and changed by an agent with fresh context that is given this rubric and the table cases only; it does not read the open cases, their notes or their per-case results. Only their totals are reported, beside a rules-only baseline (the bands, applied by code). The baseline does not score full marks on them, and no version of it that also returns the bands' "acceptable" types does better than the baseline by the spec's rule; tests keep both true. Whether the model does better than the baseline there is what shows more than a table, and it is reported whichever way it comes out.

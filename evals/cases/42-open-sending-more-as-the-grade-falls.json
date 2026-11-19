@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "wexcombe-lettings.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "low",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.07,
+      "bounce_rate_pct": 1.2,
+      "volume_7d": 59000,
+      "volume_prev_7d": 42000,
+      "open_rate_pct": 23.0,
+      "open_rate_prev_pct": 26.5,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1400
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "reputation_declining",
+      "reputation_poor",
+      "volume_spike"
+    ],
+    "acceptable": [
+      "engagement_declining"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "new_domain_volume",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands leave `volume_spike` unlisted, because a rise of 40% is under their line of one and a half times. The call is that it is expected: the grade fell from medium to low in the same week while complaints and bounces stayed under their own lines, so the 17,000 extra messages are the one change in the picture that goes with the fall, and opens are slipping too. Whether a jump is a risk depends on whether the domain's standing can absorb it, and this standing is giving way under a smaller jump than the bands ask for. Holding volume level while a grade is falling is general practice, and the advice in M3AAWG's sender best practices to raise volume gradually points the same way."
+}

@@ -17,7 +17,7 @@ Source of truth, in this order: `docs/SPEC.md` (what), `docs/ARCHITECTURE.md` (h
 
 Never run without being asked, or, in run-through mode, outside what `docs/PLAN.md` lists and `docs/STANDING.md` allows:
 
-- `make eval-live` paid: three live runs of the forty cases.
+- `make eval-live` paid: three live runs of every eval case.
 - `make record` paid: records model output for the seeded clients.
 - `make infra`, `make deploy-backend`, `make seed` write to Google Cloud. Always with the `domain-health` gcloud configuration (`CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health`), never the machine's default one.
 

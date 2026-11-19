@@ -67,5 +67,5 @@
       "engagement_declining"
     ]
   },
-  "note": "Open: the bands call blocklist_recent only acceptable, because the single listing ended more than 30 days ago. The call is that it is expected: bounces are still at 4.3% on steady volume, so the list that most likely earned the listing has not been cleaned and the cause is still there. A specialist would tie the two together and warn that the listing can return. It rests on the list-hygiene advice in M3AAWG's sender best practices."
+  "note": "Open: the bands call `blocklist_recent` only acceptable, because the single listing ended more than 30 days ago. The call is that it is expected: bounces are still at 4.3% on steady volume, so the list that most likely earned the listing has not been cleaned and the cause is still there. A specialist would tie the two together and warn that the listing can return. It rests on the list-hygiene advice in M3AAWG's sender best practices."
 }

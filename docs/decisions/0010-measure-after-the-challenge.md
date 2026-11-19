@@ -1,4 +1,4 @@
-# 0010: forty cases in two sets, a rules-only baseline, tighter definitions
+# 0010: two sets of cases, a rules-only baseline, tighter definitions
 
 **Status:** accepted by the owner, 2026-11-19 (answers to the Phase 0 stop, issue #2). Changes [0008](0008-evals.md) in part.
 
@@ -15,3 +15,17 @@
 - **Checks in code.** Table labels and fix lists re-derived from the rubric; an open label must depart from the bands; validators refuse an input that cannot happen; in Phase 2 a test that only a case's `input` reaches the model; in Phase 4 a test that no recording for a seeded client names a type the bands call wrong.
 
 **Consequence.** The bars are still judged on all forty cases, where thirty can be passed by following a table. What shows judgment is ten cases, which is a small number: one open case is a tenth of that evidence, and the comparison with the baseline can turn on one or two calls. The open labels are AI-drafted calls, signed off by the owner, on what a specialist would say; a specialist might disagree with some. `table.py` now exists in the source tree and could be misused as a filter or as prompt material; it is listed as part of the measure and its docstring says what it may be used for. A paid eval run is 120 calls, twice the intake's estimate: about $0.06 on `gpt-6-luna` and about $0.70 on `gpt-6.1-terra`, counted in the plan at $0.10 and $1.00. The worst case for the whole build rises from under $3.50 to under $6, still below the $10 cap; the estimate table in `docs/STANDING.md` is the owner's and still shows the old figures. Revisit if the open set proves too small to separate the model from the baseline, or if a specialist reviews the labels.
+
+## Added the same day, after the second challenge (the owner's answers to issue #3)
+
+**Context.** A second challenger read the measure above and showed that the comparison with the baseline could be passed by a table with one threshold moved: every item the baseline missed on the ten open cases was one the bands already call "acceptable". Returning the acceptable complaint band as well found 10 of 14, the pass mark, with nothing harmful. Four of the ten open calls could not move any score and three could only count against the model.
+
+**Decision.** The owner chose to add harder open cases and set a limit of one round.
+
+- **Eighteen open cases.** Eight more, and two of the first ten redrafted, by a fresh agent under the same rules. Two kinds were asked for: calls that expect a risk the bands call wrong or do not list, which no loosening reaches; and calls that make wrong a risk the bands call acceptable, which punish loosening. The set is forty-eight cases; "0 in 120 case-runs" becomes "0 in 144".
+- **The rule, in code** (`backend/src/domain_health/evals/comparison.py`): no more harmful output than the baseline; precision at least 0.80; on average at least one more expected item per run; and in at least two of three runs a real gain that comes from at least two open cases.
+- **No loosened table passes.** A test runs the baseline plus the bands' "acceptable" for every subset of the thirteen types through that rule and requires each to fail. Other tests: one good run of three is not enough, a gain from one case is not enough, one harmful answer fails it, and every open note names the types its call moves.
+- **The limit.** This is the last round on the measure. If the challenger still says a change is needed on claim against measure, the build does not stop again: it applies the weaker wording ("judgment-call risks picked by a model from a closed list and scored against a written rubric"), drops the sentence that the open cases show more than a table, keeps the cases and the baseline as evidence, records for the README's limits what was tried and why it fell short, runs the checks again and brings the pull request to the owner. The same fallback applies in Phase 2 if the model does not beat the baseline: the wording is proposed and the build stops for the owner's merge.
+- **`docs/CLAIM.md`** now says what the claim test does: it checks that the exact sentence is present, and cannot see a different wording beside it.
+
+**Consequence.** A paid eval run is 144 calls; the worst case for the build is under $7 against a cap of $10. The comparison is harder to pass by accident and cannot be passed by moving thresholds, but it still rests on eighteen AI-drafted calls: a table written with those cases in view could reproduce them, which is why they are held out, and a specialist might dispute some.

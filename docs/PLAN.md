@@ -28,12 +28,12 @@ Paid steps this plan lists (they run without asking while the worst case stays u
 | Phase | Step | Worst case |
 |---|---|---|
 | 2 | one call to test whether `temperature` is accepted | $0.01 |
-| 2 | `make eval-live`, up to six times on `gpt-6-luna` (120 calls each, after decision 0010) | $0.60 |
-| 2 | `make eval-live`, up to four times on `gpt-6.1-terra`, only if Luna misses a bar | $4.00 |
+| 2 | `make eval-live`, up to six times on `gpt-6-luna` (144 calls each, after decision 0010) | $0.72 |
+| 2 | `make eval-live`, up to four times on `gpt-6.1-terra`, only if Luna misses a bar | $4.80 |
 | 4 | `make record` for every seeded client state, up to three times | $0.20 |
 | 4 to 6 | Google Cloud outside the free tier (image storage, builds) | $1.00 |
 
-Estimated total: under $6 (it was under $3.50 before the set went from twenty cases to forty). Everything else is free.
+Estimated total: under $7 (it was under $3.50 before the set went from twenty cases to forty-eight). Everything else is free.
 
 ## Waiting on you
 
@@ -65,6 +65,7 @@ The owner merges this phase, so it carries everything the owner must sign off on
 - [x] `scripts/preflight-project.sh`, called by `.claude/hooks/preflight.sh`: confirms every owner action in `docs/STANDING.md` that a script can confirm (the OpenAI key answers for `gpt-6-luna`; the `domain-health` gcloud configuration exists, is signed in with a user account and points at `GCP_PROJECT_ID`; billing is enabled on that project; the login may create budgets; `vercel whoami` answers; Node 24 and a JDK of 21 or later are present). It reads names, never prints values.
 - [x] Branch protection on `main`: no force-push, status checks required with this project's CI jobs picked as the required checks (`check`, `secrets`; not `eval`), and it applies to administrators too (a classic rule with "Do not allow bypassing", or a ruleset with an empty bypass list). The deny rules in settings are a courtesy; this is the guard. In run-through mode the merge gate checks it and merges nothing without it, so if it cannot be turned on, say so under "Waiting on you".
 - [x] After the challenge (decision 0010, the owner's answers to issue #2): forty cases, thirty table and ten open; the open ten drafted by an agent that never sees the prompt; every risk type expected in at least two; `backend/src/domain_health/evals/table.py` (the rubric as a table, the rules-only baseline) with tests that re-derive every table label and fix list and that an open label departs from the bands; validators on the model's input; decisions 0010 and 0011.
+- [x] After the second challenge (the owner's answers to issue #3): eighteen open cases, forty-eight in all; the comparison with the baseline as code (`backend/src/domain_health/evals/comparison.py`) and a test that no loosened table passes it; `docs/CLAIM.md` says what its test checks.
 - [x] `docs/STANDING.md` is filled in and lands on `main` with this phase. Every owner action in it is ticked or listed under "Waiting on you". `bash .claude/hooks/preflight.sh` output is in the log.
 
 **Gate:** `make check` exits 0 with at least one passing test in each toolchain and the twenty cases loading. The pre-commit hook refuses a commit when a test is made to fail (show it, then undo). CI runs green on the first push, all three jobs. Branch protection is shown to be on. `bash .claude/hooks/preflight.sh` ends with `preflight: ready`. The owner merges this phase in both modes: it changes the guards and sets the measure.
@@ -670,6 +671,31 @@ The owner's answers, given in the session, as written:
 >
 > As before, put the new open cases in the pull request's one-page table with the call and the reason in one line each, and tell me when #1 is ready to merge. Do not ask me anything else unless the stop list requires it.
 
+### 2026-11-19: after the second answers, what changed
+
+The owner's limit is recorded in decision 0010: this is the last round on the measure, and if the challenger still says a change is needed on claim against measure, the build applies the weaker wording and brings the pull request without stopping again.
+
+- **Docs first:** an addition to `docs/decisions/0010-measure-after-the-challenge.md`; `docs/SPEC.md` (forty-eight cases, the four kinds of open call and which can move a score, the comparison as four conditions, the loosened-table test and what it does not rule out, the fallback); `docs/CLAIM.md` (what its test checks; what stands behind "judgment-call"); `evals/RUBRIC.md` (the open-case section: a note names the types it moves; what the tests keep true); `CLAUDE.md` ("every eval case" for "the forty cases"); `evals/bars.toml` (a comment). In this file: one more checklist line under Phase 0, "forty-eight" in the Phase 2 gate, the paid-steps table (a paid run is 144 calls; worst case for the build under $7, cap $10).
+- **The comparison in code:** `backend/src/domain_health/evals/comparison.py`, with `backend/tests/test_comparison.py`: no loosened table (the baseline plus the bands' "acceptable" for any subset of the thirteen types, 8,192 tables) passes; the baseline does not beat itself; the written calls do; one good run of three is not enough; a gain from one case is not enough; one harmful answer fails it; harmful is counted past the first five; a gain is possible in at least six open cases; every open note names the types its call moves. Both files are in `measure-paths.txt` (seventeen lines now).
+- **The open cases:** a third fresh agent, under the same rules, redrafted 34 and 38, wrote eight new ones (41 to 48: four that expect a risk the bands call wrong or do not list, four that make wrong a risk the bands call acceptable), and edited one line of the note in each of the other eight so that it names the moved type. It reported that it "did not have to stop short", that "every type that some open case promotes from acceptable to expected is also acceptable by the bands and wrong by the call in another open case", and that two of its doubts "name cases that the loosened-table test depends on singly, so if the owner rejects either call the test fails again". This session has still not opened the case files; it has seen their names.
+
+Counted by script, totals only:
+
+```text
+open: baseline found 17 of 25 precise 20 of 20 harmful 0
+open cases where a gain is possible: 8
+all cases: expected items 67 baseline finds 59 cases 48 hard 13 healthy 16
+```
+
+So to do better than the baseline the model has to find at least 54 of 75 expected items on the open set over three runs (the baseline's 51 plus one per run), with nothing harmful, precision at least 0.80, and a gain from at least two cases in at least two runs. (The "expected items 53" printed earlier in this log was counted before the first open cases were reworked; it was 56 then.)
+
+`make eval` after the changes:
+
+```text
+$ make eval
+no prompt yet: nothing to measure
+```
+
 ---
 
 ## Phase 1: checks and rules
@@ -699,7 +725,7 @@ The owner's answers, given in the session, as written:
 - [ ] One real failure from these runs and its fix are written down for the README.
 - [ ] From decision 0010: the harness scores the rules-only baseline beside the model, for the table set and the open set; prints coverage per risk type and the dropped count; counts harmful over everything returned. Tests: only a case's `input` reaches the model; a prompt quotes none of the rubric's thresholds. The prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only; it does not read the open cases, the Phase 0 pull request's description or any per-case result on the open set.
 
-**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. On the open cases the model does better than the baseline as `docs/SPEC.md` defines it; if it does not, stop for the owner with the weaker claim wording proposed. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
+**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty-eight cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. On the open cases the model does better than the baseline as `docs/SPEC.md` defines it; if it does not, stop for the owner with the weaker claim wording proposed. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
 
 **Log:**
 
@@ -755,7 +781,7 @@ The owner's answers, given in the session, as written:
 ## Phase 6: report, README, release checks
 
 - [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 120 case-runs", and names the six limits in decision 0011.
+- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", and names the six limits in decision 0011.
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.

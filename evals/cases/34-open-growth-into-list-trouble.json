@@ -32,7 +32,7 @@
         "grade": "medium",
         "previous_grade": "medium"
       },
-      "complaint_rate_pct": 0.09,
+      "complaint_rate_pct": 0.12,
       "bounce_rate_pct": 1.9,
       "volume_7d": 66000,
       "volume_prev_7d": 40000,
@@ -50,13 +50,13 @@
   "label": {
     "expected": [
       "complaint_rate_elevated",
-      "bounce_rate_elevated",
-      "engagement_declining"
+      "volume_spike"
     ],
     "acceptable": [
       "spf_weak_all",
       "reputation_poor",
-      "volume_spike"
+      "bounce_rate_elevated",
+      "engagement_declining"
     ],
     "wrong": [
       "dmarc_policy_none",
@@ -68,5 +68,5 @@
       "blocklist_recent"
     ]
   },
-  "note": "Open: the bands call complaints, bounces and the fall in opens each merely acceptable, because every one sits just under its own line. The call is that all three are expected: they moved together in a week when volume grew by two thirds on a domain whose reputation is only medium, which is the pattern of a send widened to older or poorly collected addresses. A specialist would raise it now, before the complaint rate crosses 0.10%. It rests on Google's bulk-sender requirements for the 0.10% line and on the list-hygiene and engagement advice in M3AAWG's sender best practices."
+  "note": "Open: the bands call `volume_spike` only acceptable, because the week-on-week rise is under double. The call is that it is expected: the 26,000 extra messages went out in the week complaints passed 0.10%, with bounces at 1.9% and opens down by a sixth, each just short of its own line, on a domain whose grade is only medium, which is the picture of a send widened to older or poorly collected addresses. The growth is the cause to name, and a specialist would have it taken back before the other signals cross their lines. It rests on the bulk-sender requirements published by Google for the 0.10% line and on the list-hygiene advice in M3AAWG's sender best practices."
 }

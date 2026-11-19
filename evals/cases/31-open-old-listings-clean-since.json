@@ -67,5 +67,5 @@
       "engagement_declining"
     ]
   },
-  "note": "Open: the bands expect blocklist_recent, because two listings fall inside the last 90 days. The call is that it is only acceptable: both listings ended twelve weeks ago, and since then the reputation grade has risen to high, complaints and bounces are minimal, opens are up and volume is steady, so the evidence says the cause was dealt with. A specialist would not lead with a problem that is about to age out of the window; mentioning it stays defensible. General practice."
+  "note": "Open: the bands expect `blocklist_recent`, because two listings fall inside the last 90 days. The call is that it is only acceptable: both listings ended twelve weeks ago, and since then the reputation grade has risen to high, complaints and bounces are minimal, opens are up and volume is steady, so the evidence says the cause was dealt with. A specialist would not lead with a problem that is about to age out of the window; mentioning it stays defensible. General practice."
 }

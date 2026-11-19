@@ -24,3 +24,5 @@ backend/src/domain_health/evals/table.py
 backend/tests/test_eval_cases.py
 backend/tests/test_rubric_table.py
 backend/tests/test_input_validation.py
+backend/src/domain_health/evals/comparison.py
+backend/tests/test_comparison.py

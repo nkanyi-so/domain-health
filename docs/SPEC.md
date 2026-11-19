@@ -16,7 +16,7 @@ The problem it rebuilds: someone checks each client's sending domain by hand, ac
 
 ## In scope (by phase)
 
-**Phase 0: scaffold, process layer and the measure.** Two toolchains behind one `make check`; CI with `check`, `secrets` and `eval` jobs; the labelling rubric, the forty labelled eval snapshots (thirty table cases and ten open cases), the bars and the claim pin, so the owner signs off the measure once.
+**Phase 0: scaffold, process layer and the measure.** Two toolchains behind one `make check`; CI with `check`, `secrets` and `eval` jobs; the labelling rubric, the forty-eight labelled eval snapshots (thirty table cases and eighteen open cases), the bars and the claim pin, so the owner signs off the measure once.
 
 **Phase 1: checks and rules.**
 - A resolver interface with a live implementation (real DNS, TXT lookups only) and a fixture implementation (zone data in the repository).
@@ -79,10 +79,10 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 
 ### The eval plan (the model's list)
 
-**The set.** Forty labelled snapshots in `evals/cases/`, healthy and unhealthy mixed, in two sets (decision 0010):
+**The set.** Forty-eight labelled snapshots in `evals/cases/`, healthy and unhealthy mixed, in two sets (decision 0010):
 
 - Thirty **table** cases. The label is exactly what the bands in `evals/RUBRIC.md` give, and a test re-derives it. At least six are built to be hard (signals that conflict, values near a threshold, a healthy domain that looks odd). A table of thresholds with no model scores full marks on these, so they show that the model follows the rubric, not that it judges.
-- Ten **open** cases. The bands do not settle them: the label is a written call that departs from the bands, with its reason and, where one applies, the public guidance behind it. They are held out of prompt work: a prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only, and only the open set's totals are reported.
+- Eighteen **open** cases. The bands do not settle them: the label is a written call that departs from the bands, with its reason and, where one applies, the public guidance behind it. They are of four kinds, and not every kind can move a score. Where the call expects a risk the bands call wrong or do not list, only reading the whole picture finds it. Where the call makes wrong a risk the bands call acceptable, a table that loosens a threshold is punished. Where the call raises an acceptable risk to expected, a loosened table finds it too, which is why the kind before exists. Where the call only lowers a risk from expected to acceptable, or allows a mention the bands call wrong, no score can see the difference: those cases record a call and are scored like any other. They are held out of prompt work: a prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only, and only the open set's totals are reported.
 
 Each case is the exact input the model receives, plus a label: `expected` (risk types a specialist would flag), `acceptable` (types that are not wrong to include), `wrong` (types that would be wrong or damaging to flag here). Any type in none of the three lists is noise. Every risk type is expected in at least two cases.
 
@@ -90,7 +90,7 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 
 **No judge.** Risk types are a closed list, so every score is computed in code from IDs. The wording the model writes for a risk is not scored.
 
-**The measures**, each over three live runs of all forty cases:
+**The measures**, each over three live runs of all forty-eight cases:
 
 | Measure | Definition | Bar |
 |---|---|---|
@@ -99,13 +99,22 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 | harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
 | stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 120 case-runs": it bounds the rate, it does not show never. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs": it bounds the rate, it does not show never. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
 
-The bars live in `evals/bars.toml` and are judged on all forty cases together.
+The bars live in `evals/bars.toml` and are judged on all forty-eight cases together.
 
 **Also reported, with no bar:** coverage for each risk type; every measure for the table set and for the open set separately; and beside each, the same measure for the **rules-only baseline**, which is the rubric's bands applied by code (`backend/src/domain_health/evals/table.py`), with no model.
 
-**The model against the baseline.** On the table cases the baseline is perfect by construction, and the model can at best equal it. The open cases are where a model can show judgment. The model does better than the baseline there when, over the three runs, it finds on average at least one more expected item per run on the open set than the baseline does, its harmful count there is no higher than the baseline's, and its precision there is at least 0.80. As the cases stand the baseline finds 9 of the 14 expected items, so the model has to find at least 30 of 42 over the three runs. A smaller gain than one item per run is inside the noise between runs and does not count. Precision is held to its bar and not to the baseline, because the baseline's precision on the open set is 1.00 by construction (no open call moves a type the bands expect to wrong or to noise), and matching it would demand a perfect score. If it does not, the claim's words "judgment-call" are not shown: the build stops for the owner and proposes the wording "judgment-call risks picked by a model from a closed list and scored against a written rubric".
+**The model against the baseline.** On the table cases the baseline is perfect by construction, and the model can at best equal it. The open cases are where a model can show more than a table. The model does better than the baseline there when all four of these hold over the three runs, on the open set (`backend/src/domain_health/evals/comparison.py`):
+
+1. Its harmful count is no higher than the baseline's.
+2. Its precision is at least 0.80. Precision is held to its bar and not to the baseline, whose precision there is 1.00 because no open call takes away what the bands expect (a test keeps that true).
+3. It finds on average at least one more expected item per run than the baseline.
+4. In at least two of the three runs it finds more expected items than the baseline, and in each of those runs the gain comes from at least two different open cases. One lucky run, or one case, is not enough.
+
+A test runs every loosened table through the same rule: the baseline made to return also what the bands call acceptable, for every subset of the thirteen risk types. Each must fail. So beating the baseline cannot be done by moving thresholds. What this does not rule out: each open call is still a function of its input, so a table written with those eighteen cases in view could reproduce them. The cases are held out from prompt work for that reason, and eighteen is a small number.
+
+If the model does not do better than the baseline, the claim's words "judgment-call" are not shown: the build proposes the wording "judgment-call risks picked by a model from a closed list and scored against a written rubric", drops the sentence above that the open cases show more than a table, keeps the cases and the baseline as evidence, and stops for the owner's merge.
 
 **Rules for the paid runs.**
 - The numbers that count at a gate are those of one run of the final prompt version. Every attempt, of every version, is reported with its numbers.
@@ -116,7 +125,7 @@ The bars live in `evals/bars.toml` and are judged on all forty cases together.
 **Where each check lives.**
 - `make check`: the eval code's tests and one fixture run of the plumbing. No threshold. Also here: the test that re-derives every table label and every fix list from the rubric, the test that an open label departs from the bands, and the validators that refuse an input that cannot happen.
 - `make eval`: free. Scores the committed recordings for the current prompt version, writes `evals/results.json`, prints one line per measure with the score, the bar and `met` or `missed`, then the lines that have no bar. Exits 0 whenever it ran; with `STRICT=1` it exits non-zero on a missed bar, or when a prompt version exists with no recordings that match it and the cases. Before any prompt exists it prints "no prompt yet: nothing to measure" and exits 0.
-- `make eval-live`: paid. Three runs of the forty cases through the live model, behind the ledger, writing the recordings and the same results file. All four bars need this run.
+- `make eval-live`: paid. Three runs of the forty-eight cases through the live model, behind the ledger, writing the recordings and the same results file. All four bars need this run.
 - CI: `make eval STRICT=1` in a job named `eval`, not a required check.
 - Whether a bar is met is the challenger's reading of the pasted output at the phase gate.
 

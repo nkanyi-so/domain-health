@@ -66,5 +66,5 @@
       "blocklist_recent"
     ]
   },
-  "note": "Open: the bands expect engagement_declining, because the open rate fell by about a quarter at real volume. The call is that it is only acceptable: on a domain 72 days old the earlier window is the first weeks of warm-up, when mail goes to the most engaged people first, so the rate settling as the list widens is the plan working, not the list tiring. Reputation has improved, complaints are minimal and 46% is still a strong open rate. It rests on the warm-up advice in M3AAWG's sender best practices."
+  "note": "Open: the bands expect `engagement_declining`, because the open rate fell by about a quarter at real volume. The call is that it is only acceptable: on a domain 72 days old the earlier window is the first weeks of warm-up, when mail goes to the most engaged people first, so the rate settling as the list widens is the plan working, not the list tiring. Reputation has improved, complaints are minimal and 46% is still a strong open rate. It rests on the warm-up advice in M3AAWG's sender best practices."
 }

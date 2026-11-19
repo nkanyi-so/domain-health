@@ -20,12 +20,13 @@ TABLE = {name: case for name, case in CASES_BY_NAME.items() if case.set == "tabl
 OPEN = {name: case for name, case in CASES_BY_NAME.items() if case.set == "open"}
 
 
-def test_forty_cases_load() -> None:
-    assert len(CASES_BY_NAME) == 40
+def test_forty_eight_cases_load() -> None:
+    assert len(CASES_BY_NAME) == 48
 
 
-def test_ten_cases_are_open_and_named_so() -> None:
-    assert len(OPEN) == 10
+def test_eighteen_cases_are_open_and_named_so() -> None:
+    assert len(OPEN) == 18
+    assert len(TABLE) == 30
     assert all("-open-" in name for name in OPEN)
     assert not any("-open-" in name for name in TABLE)
 
@@ -33,7 +34,7 @@ def test_ten_cases_are_open_and_named_so() -> None:
 def test_file_names_are_numbered_in_order() -> None:
     numbers = [int(name.split("-", 1)[0]) for name in CASES_BY_NAME]
 
-    assert numbers == list(range(1, 41))
+    assert numbers == list(range(1, 49))
 
 
 def test_at_least_six_cases_are_hard() -> None:

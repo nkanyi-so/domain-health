@@ -1,0 +1,71 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "pellow-and-rye.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 2,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.03,
+      "bounce_rate_pct": 1.4,
+      "volume_7d": 4200,
+      "volume_prev_7d": 3600,
+      "open_rate_pct": 33.0,
+      "open_rate_prev_pct": null,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 19
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "bounce_rate_elevated"
+    ],
+    "acceptable": [
+      "dmarc_policy_none",
+      "reputation_poor",
+      "new_domain_volume"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "complaint_rate_elevated",
+      "volume_spike",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands leave `bounce_rate_elevated` unlisted, because 1.4% sits between their lines. The call is that it is expected: the domain is 19 days old and is raising volume carefully, and mail in the first weeks of a warm-up should go to recent, confirmed addresses, where almost nothing bounces. About sixty dead addresses in 4,200 at this stage says the list was not checked before the warm-up began, and receivers judge a sender with no history largely on mail sent to addresses that do not exist. It rests on the warm-up and list-hygiene advice in M3AAWG's sender best practices."
+}

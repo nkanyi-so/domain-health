@@ -64,5 +64,5 @@
       "new_domain_volume"
     ]
   },
-  "note": "Open: the bands call volume_spike only acceptable, because the week-on-week rise is under double. The call is that it is expected: the domain came off a blocklist nine days ago and its reputation is still low, and sending 80% more mail at that moment is the surest way to be listed again. After a reputation problem volume should come back slowly, which is the ramp-up advice in M3AAWG's sender best practices."
+  "note": "Open: the bands call `volume_spike` only acceptable, because the week-on-week rise is under double. The call is that it is expected: the domain came off a blocklist nine days ago and its reputation is still low, and sending 80% more mail at that moment is the surest way to be listed again. After a reputation problem volume should come back slowly, which is the ramp-up advice in M3AAWG's sender best practices."
 }
