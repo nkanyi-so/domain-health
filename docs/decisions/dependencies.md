@@ -8,7 +8,7 @@ One line of reason per direct runtime dependency. Nothing is added without a lin
 |---|---|---|
 | `fastapi` | HTTP routes and the OpenAPI schema the frontend types come from. | Phase 0 |
 | `pydantic` | One set of models for requests, responses, stored documents and model output; validates model output before use. | Phase 0 |
-| `pydantic-settings` | Settings from the environment. | Phase 0 |
+| `pydantic-settings` | Settings from the environment. | Phase 4 (not installed until there are settings to read) |
 | `uvicorn` | Runs the app, locally and in the container. | Phase 0 |
 | `dnspython` | DNS TXT lookups with timeouts and typed errors. | Phase 1 |
 | `google-cloud-firestore` | The snapshot store and its transactions. | Phase 3 |

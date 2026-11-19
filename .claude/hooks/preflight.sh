@@ -98,6 +98,15 @@ else
   need "cannot tell which GitHub repository this is. Set HARNESS_REPO=owner/name"
 fi
 
+# This project's own checks: the owner actions in docs/STANDING.md that a script can confirm.
+# The script prints its own ok and MISSING lines; its exit status is how many are missing.
+if [ -f "$ROOT/scripts/preflight-project.sh" ]; then
+  bash "$ROOT/scripts/preflight-project.sh"
+  missing=$((missing+$?))
+else
+  need "scripts/preflight-project.sh does not exist: Phase 0 writes it"
+fi
+
 if [ "$missing" -eq 0 ]; then echo "preflight: ready"; exit 0; fi
 echo "preflight: $missing thing(s) missing. Each MISSING line is a stop for the owner, asked once, together."
 exit 1

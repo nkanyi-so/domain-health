@@ -1,0 +1,81 @@
+{
+  "input": {
+    "domain": "redcliff-travel.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "bad",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 6.1,
+      "volume_7d": 95000,
+      "volume_prev_7d": 38000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": true,
+        "listings_90d": 2,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": [
+      {
+        "type": "blocklist_listed",
+        "source": "seeded",
+        "instruction": "Fix the cause of the blocklist listing, then request delisting."
+      },
+      {
+        "type": "bounce_rate_over_limit",
+        "source": "seeded",
+        "instruction": "Stop sending to this list and validate it: the bounce rate is over the 5% limit."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "reputation_declining",
+      "reputation_poor",
+      "volume_spike"
+    ],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Hard: signals that conflict. The domain is on a blocklist now and bounces are over the limit: both are fixes, so the matching risks are wrong. What is left for judgment is expected: the reputation collapse and a volume spike on a domain that cannot absorb it."
+}

@@ -1,0 +1,70 @@
+{
+  "input": {
+    "domain": "orchard-lane-homes.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "low",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.18,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 22.0,
+      "open_rate_prev_pct": 30.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "engagement_declining"
+    ],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "blocklist_recent"
+    ]
+  },
+  "note": "A sender in trouble with no fix to make yet: reputation fell to low, complaints are above the recommended level but under the limit, and opens fell by more than a quarter. Four risks expected."
+}

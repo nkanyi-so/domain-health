@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | not started | |
+| 0: scaffold, process layer and the measure | building | |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 No phase is a checkpoint. Phase 0 is merged by the owner. Phases 1 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $0.00 of $10 cap
-Decisions to review: 0 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 6 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -69,6 +69,92 @@ The owner merges this phase, so it carries everything the owner must sign off on
 **Gate:** `make check` exits 0 with at least one passing test in each toolchain and the twenty cases loading. The pre-commit hook refuses a commit when a test is made to fail (show it, then undo). CI runs green on the first push, all three jobs. Branch protection is shown to be on. `bash .claude/hooks/preflight.sh` ends with `preflight: ready`. The owner merges this phase in both modes: it changes the guards and sets the measure.
 
 **Log:**
+
+### 2026-11-19: step list and risks (written before the work)
+
+Where things stood: branch `phase-0-scaffold` holds the blueprint commit only; no pull request, no stop, nothing to undo. `bash .claude/hooks/preflight.sh` reported two things missing, `OPENAI_API_KEY` and `GCP_PROJECT_ID`. Both are owner actions already listed in `docs/STANDING.md`; nothing in this phase's build needs either, so the phase is built first and they are asked for once, with the merge, under "Waiting on you".
+
+Steps:
+
+1. Backend scaffold in `backend/`: `uv`, Python 3.14, FastAPI app with a health route, ruff, mypy strict, pytest, one real test. The closed lists (risk types, fix types) and the pydantic models for the model's input and an eval case go in now, because the measure is written against them.
+2. Frontend scaffold in `frontend/`: Next.js 16 App Router, TypeScript strict, ESLint, Prettier, Tailwind 4, pnpm, one real test and a build.
+3. Firestore emulator wiring (pinned `firebase-tools` in `emulator/`), with one smoke test that it answers, so `make check` and CI already run emulator tests and Phase 3 does not have to touch CI.
+4. `Makefile`: `setup`, `dev`, `check`, `format`, `eval`, and the "not built yet" stubs.
+5. The measure: `evals/RUBRIC.md`, twenty cases in `evals/cases/`, `evals/bars.toml`, `docs/CLAIM.md`, `backend/tests/test_claim_wording.py`, and tests that the code's types equal the rubric's, that all twenty cases load, and that the set has the mix the plan asks for. Then a second read of every label by a separate agent.
+6. Harness layer: allow list, `protected-paths.txt`, `measure-paths.txt`, CI (`check` with both toolchains and the emulator, `secrets`, `eval`), actions pinned by commit, `scripts/preflight-project.sh` called from the preflight hook. `.gitignore`, `.env.example`.
+7. `make check` green, the pre-commit refusal shown, push, CI green, branch protection shown.
+8. Reviewer, verifier, challenger; evidence; stop for the owner's merge.
+
+Verifier: needed. There is something to run: `make setup`, `make check`, `make dev`, `make eval`, the stubs, the pre-commit hook.
+
+Challenger: needed. This phase writes the claim pin and the whole measure (rubric, cases, labels, bars). There are no eval results yet, so it reads the measure, not scores.
+
+Risks seen:
+
+- The rubric has to be exact enough for a second reader to check a label, and the more exact it is, the more a table of thresholds could produce the same labels without a model. The rubric keeps the judgment in the context clauses (the same value is expected, acceptable or wrong depending on other fields). The challenger's third question is aimed at exactly this, and its answer goes to the owner unedited.
+- The model's input shape is fixed here, before the checks exist. Phase 1 has to produce this shape; if a check needs a field the cases lack, that touches the cases and is the owner's to merge.
+- This machine's default Node is 20 and default JDK is 17. Node 24 (nvm) and JDK 23 are installed; the Makefile has to find them without changing the machine.
+- Every guard file is touched in this phase by design. The owner merges it.
+- `preflight: ready` cannot be reached by the build: it needs the owner's key and project. That gate line stays unticked until the owner has done them.
+
+### 2026-11-19: what was built
+
+- `backend/`: uv project on Python 3.14; FastAPI app with `/healthz`; the two closed lists (`types.py`); the model's input (`models.py`); the eval case and its loader (`evals/cases.py`); `python -m domain_health.evals` behind `make eval`. Ruff, mypy strict (with the pydantic plugin), pytest. 39 tests, one of them marked `emulator`.
+- `frontend/`: Next.js 16.4.6, React 19.3, TypeScript strict, ESLint (explicit types on exports are an error), Prettier, Tailwind 4.3, vitest. One page showing the claim; one test that the page's claim is the line in `docs/CLAIM.md`.
+- `emulator/`: pinned `firebase-tools` 15.37.0 and `firebase.json`.
+- `Makefile` and `scripts/` (`dev.sh`, `format-one.sh`, `toolchain-check.sh`, `preflight-project.sh`). `.gitignore`, `.env.example`.
+- The measure: `evals/RUBRIC.md` (12 fix types, 13 risk types, the line between them), `evals/cases/` (20 cases: 9 hard, 7 healthy with nothing expected and no fix), `evals/bars.toml`, `docs/CLAIM.md`, `backend/tests/test_claim_wording.py`.
+
+Changes to the harness layer, all of them (none removes or loosens a check):
+
+- `.claude/settings.json`: seven lines added to the allow list: `make format *`, `make eval`, `make eval STRICT=1`, `make dev`, `make check-domain *`, `make screens`, `make fallback`. Not added, so they always ask: `eval-live`, `record`, `infra`, `deploy-backend`, `seed`. Deny list and hooks unchanged.
+- `.claude/hooks/protected-paths.txt`: four generated paths added (`evals/results.json`, `evals/recordings/*`, `frontend/src/data/fallback.json`, `docs/RUN_LOG.md`).
+- `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; one added, `frontend/src/content/claim.test.ts`.
+- `.claude/hooks/preflight.sh`: calls `scripts/preflight-project.sh` and adds its MISSING count to its own; a missing project script is itself MISSING.
+- `.github/workflows/ci.yml`: the `check` job's placeholder is replaced by setup for uv, pnpm, Node 24 and JDK 21 and the three installs; a third job, `eval`, runs `make eval STRICT=1`. `secrets` is unchanged. Actions pinned by commit: `astral-sh/setup-uv` v10.3.3, `pnpm/action-setup` v6.1.1, `actions/setup-node` v7.1.0, `actions/setup-java` v6.3.0, beside the existing `actions/checkout` pin.
+- `.githooks/pre-commit`, the agents and the skill: unchanged.
+- No `*.harness-new` file existed: `find . -name '*.harness-new' -not -path './.git/*'` prints nothing.
+
+Libraries, checked against what was installed (principle 6):
+
+- Starlette's test client deprecates `httpx` in favour of `httpx2`; the dev group uses `httpx2`. Phase 4's webhook client (`httpx` in `docs/decisions/dependencies.md`) should check this again.
+- `create-next-app@16` now writes `cacheComponents: true` and `partialPrefetching: true` and loads Tailwind through `@tailwindcss/turbopack`, not PostCSS. Kept as generated. Phase 5 reads `frontend/node_modules/next/dist/docs/` before writing a route: with cache components on, anything that reads a cookie has to sit under a suspense boundary.
+- `frontend/AGENTS.md` is written by Next and re-created by `next dev`; it is committed as generated.
+- `pydantic-settings` is not installed yet (see the decisions file).
+
+### 2026-11-19: second read of the labels
+
+A separate agent, given only the rubric and the case files, labelled all twenty cases itself and compared.
+
+Its result, in its words: "20 of 20 labels agree with the rubric. All 20 `input.fixes` lists match the fix table exactly, with the right `source`. No type appears in two lists, and no case expects more than five."
+
+It also reported twelve places where the rubric was unclear, and ten objections "as a specialist". What was changed because of it, before the first commit:
+
+- Rubric, made exact: `pct` is 100 when a valid record sets none; the windows of the rates; what `listings_90d` and `days_since_delisted` count; the `instruction` field; "a readable SPF record" (an over-limit record is readable); a previous week of 0; no previous open rate; the order the lines are read in (`wrong`, `expected`, `acceptable`) and that the gaps are deliberate; a sub-1,024 key is wrong for `dkim_key_1024` whatever the other keys are; the scope of the 2.0 ratio in `volume_spike`; consequence 2 applies to the record a type is about.
+- Rubric, changed in substance: `spf_weak_all` (see the decisions file). This was its objections 1 and 2.
+- Input model: `open_rate_prev_pct` may be null.
+- Cases: 07 (ratio moved off the 1.2 boundary; no earlier open rate; now nothing expected), 12 (`p=none` added so `?all` is expected under the new line), 16 (no earlier open rate; grade medium), 19 (grade medium; the note no longer calls the open-rate fall unrelated), 20 (complaints 0.15 added so it still expects five), and the notes of 08, 11 and 15.
+- After the changes the labels were re-derived from the changed rubric line by line. They have not had a second read since the change: the challenger and the owner read them next.
+
+Its objections that were not taken, for the owner, who is the specialist:
+
+1. Low volume is cut at 1,000 a week; at 1,000 to 3,000 one or two complaints still make 0.10%, so "expected" there rests on very few complaints.
+2. Low volume is a seven-day figure but gates the thirty-day open rate (case 04): the reason given for complaints does not hold as well for opens.
+3. Open rate is inflated by mail privacy proxying; a specialist would weight a fall below complaints and reputation. Case 19 expects it alone.
+4. `p=quarantine; pct=0` is a known deliberate setup that is in effect `p=none`; the rubric calls it enforcing with partial enforcement expected. `pct` is also being retired from the protocol.
+5. Case 16 expects both `volume_spike` and `new_domain_volume`: one fact counted twice.
+6. A DKIM key found in DNS is not proof that it signs mail (it agreed with "acceptable" for the mix).
+
+### 2026-11-19: `make eval`
+
+```text
+$ make eval
+no prompt yet: nothing to measure
+$ make eval STRICT=1
+no prompt yet: nothing to measure
+```
+
+No results file is written before a prompt exists, so there is none to commit in this phase.
 
 ---
 

@@ -1,0 +1,46 @@
+[project]
+name = "domain-health"
+version = "0.1.0"
+description = "A daily email-domain health check for many clients."
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.165.0",
+    "pydantic>=2.14.4",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.4,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.2",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "ASYNC", "S", "PT", "TID"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, and read fixed local paths.
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers -q"
+markers = [
+    "emulator: needs the Firestore emulator; `make check` runs these inside it. Outside it they fail on purpose, never skip: use -m 'not emulator'",
+]

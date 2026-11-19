@@ -1,0 +1,71 @@
+{
+  "input": {
+    "domain": "northgate-hardware.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "~all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 1024
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.15,
+      "bounce_rate_pct": 3.1,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 700
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "dmarc_policy_none",
+      "dkim_key_1024",
+      "reputation_declining",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated"
+    ],
+    "acceptable": [
+      "spf_weak_all",
+      "reputation_poor"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Hard: five expected risks, exactly the number scored, beside two that are only acceptable. Order is not scored, but all five have to make the first five, so an acceptable one that takes a place costs coverage."
+}

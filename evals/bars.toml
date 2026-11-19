@@ -1,0 +1,22 @@
+# The four bars from docs/SPEC.md ("The measures"). Each is measured over three live runs of all
+# twenty cases, scored on the first five risks returned. The owner's: a phase does not edit them.
+
+[coverage]
+# Expected risks found, divided by expected risks, summed over the cases; the mean of the runs.
+op = ">="
+value = 0.80
+
+[precision]
+# Returned risks that are expected or acceptable, divided by returned risks; the mean of the runs.
+op = ">="
+value = 0.80
+
+[harmful]
+# Returned risks whose type is in the case's wrong list, counted over all runs.
+op = "=="
+value = 0
+
+[stability]
+# Cases, out of twenty, whose set of five IDs is identical in all runs.
+op = ">="
+value = 18

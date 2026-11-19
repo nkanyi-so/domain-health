@@ -13,7 +13,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # {{SETUP: language toolchains and dependency install for this project, actions pinned by commit}}
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: |
+            frontend/pnpm-lock.yaml
+            emulator/pnpm-lock.yaml
+      # The Firestore emulator needs a JDK of 21 or later.
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install dependencies
+        run: |
+          cd backend && uv sync --frozen
+          cd ../frontend && pnpm install --frozen-lockfile
+          cd ../emulator && pnpm install --frozen-lockfile
       - run: make check
 
   secrets:
@@ -33,3 +56,16 @@ jobs:
           tar -xzf gitleaks.tar.gz -C "$RUNNER_TEMP/gitleaks" gitleaks
           rm gitleaks.tar.gz
       - run: '"$RUNNER_TEMP/gitleaks/gitleaks" git --redact --no-banner .'
+
+  # Free: scores the committed recordings against the bars. Red on a missed bar. Not a required
+  # check, so an honest miss can still be committed and read; the merge gate will not merge it.
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: cd backend && uv sync --frozen
+      - run: make eval STRICT=1

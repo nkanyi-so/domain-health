@@ -1,0 +1,77 @@
+{
+  "input": {
+    "domain": "greywether-legal.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 11,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 1.9,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": [
+      {
+        "type": "spf_too_many_lookups",
+        "source": "dns",
+        "instruction": "Reduce the SPF record to 10 DNS lookups or fewer by removing or flattening includes."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "reputation_declining"
+    ],
+    "acceptable": [
+      "reputation_poor",
+      "bounce_rate_elevated"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "complaint_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Hard: a value just past a threshold. Eleven lookups is already a fix, so flagging the record as near the limit is wrong. The reputation drop, which the failing record may be behind, is the expected risk; the bounce rate sits just under the line and is acceptable."
+}

@@ -4,6 +4,13 @@
     "allow": [
       "Bash(make setup)",
       "Bash(make check)",
+      "Bash(make format *)",
+      "Bash(make eval)",
+      "Bash(make eval STRICT=1)",
+      "Bash(make dev)",
+      "Bash(make check-domain *)",
+      "Bash(make screens)",
+      "Bash(make fallback)",
       "Bash(git status *)",
       "Bash(git diff *)",
       "Bash(git log *)",

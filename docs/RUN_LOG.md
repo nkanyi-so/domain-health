@@ -5,3 +5,4 @@ Written by the build, one line per event, oldest first. Lines are only ever adde
 Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `phase-started`, `review`, `verify`, `challenge`, `checkpoint`, `gate-refused`, `gate-merged`, `merged` (a merge the gate did not make or did not get to record), `stop-opened`, `stop-closed`.
 
 ```text
+2026-11-19T14:05:13Z	0	phase-started	0: scaffold, process layer and the measure	0.00
