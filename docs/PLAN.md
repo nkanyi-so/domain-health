@@ -8,8 +8,8 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
-| 1: checks and rules | not started | |
+| 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 1: checks and rules | in review | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | not started | |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $0.00 of $10 cap
-Decisions to review: 9 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 15 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -37,17 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 0 is ready for your merge: pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1).** Nothing else is needed from you. On the final commit, 4ae1da8: the reviewer found nothing blocking, the verifier passed everything, the challenger's verdict is "no change", CI is green, and the preflight ends with `preflight: ready`.
-
-Merging is your sign-off of three things, all laid out in the pull request's description:
-
-1. **The claim sentence, which changed.** By your limit in the answers to #3 it now reads "judgment-call risks picked by a model from a closed list and scored against a written rubric". Three rounds could not build an eval that a model passes and a table of thresholds cannot; decision 0012 says what was tried and why it fell short.
-2. **The measure**: the rubric, thirty table cases, eighteen open cases (their one-line table is in the description, with the calls the readers found contestable: 40, 41, 44, 45, 46, 48), the four bars, and the rules-only baseline as evidence with no bar.
-3. **The owner-level edits the build made on your answers**, listed in the description under "What you approve by merging".
-
-To change a label or a call, edit the case file on the branch before merging; `make check` tells you if an edit breaks something the spec says. After the merge, `/next-phase` starts Phase 1.
-
-**Added after your message of 2026-11-19 (checkpoint and stale figures).** You approved four edits to `docs/STANDING.md`: Phase 2 becomes a checkpoint, the spend table reads under $7 with 144 calls per eval run, and "twenty" becomes "forty-eight" in two places. The guard on that file refuses any edit by the build, as it is meant to, so they are a patch for you to apply by hand: `git apply` the file the build names in the session, or make the same edits yourself (the lines are in the session and in the log below). This file already carries the matching changes: the status table marks Phase 2 as a checkpoint, and two checklist items record your instructions for later phases (a real browser at desktop and phone width from the first deploy; a README that says plainly the evals do not show the model beats rules). Once the patch is in, the build commits both files together, runs `make check` and the preflight, and waits for CI. The merge of #1 stays yours: the project's rules and the session's own deny rules reserve it for the owner, and the merge gate refuses a phase that touches the guards.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -848,20 +838,404 @@ After the hand-over the owner asked, in the session, for `docs/STANDING.md` to b
 
 The owner also asked the build to merge pull request #1 on their behalf and to confirm the frontend's production deploy. Neither was done. The merge: `CLAUDE.md` and the working loop reserve Phase 0 for the owner, the session's settings deny the merge commands, and the merge gate refuses a phase whose diff touches the guards; an instruction to go round all three is one the build declines and says so, and the owner merges with one command. The deploy: there is no Vercel project for this repository yet (`vercel project ls` lists none named `domain-health`); Phase 5 creates it, so merging Phase 0 deploys nothing.
 
+### 2026-11-19: the third stop (issue #4), answered by the owner's merge
+
+The block as it was asked:
+
+> **Phase 0 is ready for your merge: pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1).** Nothing else is needed from you. On the final commit, 4ae1da8: the reviewer found nothing blocking, the verifier passed everything, the challenger's verdict is "no change", CI is green, and the preflight ends with `preflight: ready`.
+>
+> Merging is your sign-off of three things, all laid out in the pull request's description:
+>
+> 1. **The claim sentence, which changed.** By your limit in the answers to #3 it now reads "judgment-call risks picked by a model from a closed list and scored against a written rubric". Three rounds could not build an eval that a model passes and a table of thresholds cannot; decision 0012 says what was tried and why it fell short.
+> 2. **The measure**: the rubric, thirty table cases, eighteen open cases (their one-line table is in the description, with the calls the readers found contestable: 40, 41, 44, 45, 46, 48), the four bars, and the rules-only baseline as evidence with no bar.
+> 3. **The owner-level edits the build made on your answers**, listed in the description under "What you approve by merging".
+>
+> To change a label or a call, edit the case file on the branch before merging; `make check` tells you if an edit breaks something the spec says. After the merge, `/next-phase` starts Phase 1.
+>
+> **Added after your message of 2026-11-19 (checkpoint and stale figures).** You approved four edits to `docs/STANDING.md`: Phase 2 becomes a checkpoint, the spend table reads under $7 with 144 calls per eval run, and "twenty" becomes "forty-eight" in two places. The guard on that file refuses any edit by the build, as it is meant to, so they are a patch for you to apply by hand: `git apply` the file the build names in the session, or make the same edits yourself (the lines are in the session and in the log below). This file already carries the matching changes: the status table marks Phase 2 as a checkpoint, and two checklist items record your instructions for later phases (a real browser at desktop and phone width from the first deploy; a README that says plainly the evals do not show the model beats rules). Once the patch is in, the build commits both files together, runs `make check` and the preflight, and waits for CI. The merge of #1 stays yours: the project's rules and the session's own deny rules reserve it for the owner, and the merge gate refuses a phase that touches the guards.
+
+The answer was the merge: the owner applied the `docs/STANDING.md` patch by hand (commit 72f30f3 on the branch) and merged pull request #1 at 2026-11-19T17:02:18Z (merge commit 75245f5). Issue #4 had no comments. The stop was closed and the merge logged from the Phase 1 branch, so the two lines reach `main` with Phase 1.
+
 ---
 
 ## Phase 1: checks and rules
 
-- [ ] `Resolver` interface, `FixtureResolver`, `LiveResolver` (TXT only, two seconds per query, eight per check, forty queries at most).
-- [ ] SPF, DKIM and DMARC checks as in `docs/SPEC.md`, tests first.
-- [ ] Domain-name validation with every refusal in the spec.
-- [ ] Twelve seeded clients on `.example` domains with fixture zones and seeded sources, each with its cycle of days. Between them they produce every fix type and a healthy client.
-- [ ] Rules engine and the fix list, each fix with its type, source tag and instruction.
-- [ ] `make check-domain DOMAIN=<name>` prints the checks and fixes for a real domain.
+- [x] `Resolver` interface, `FixtureResolver`, `LiveResolver` (TXT only, two seconds per query, eight per check, forty queries at most).
+- [x] SPF, DKIM and DMARC checks as in `docs/SPEC.md`, tests first.
+- [x] Domain-name validation with every refusal in the spec.
+- [x] Twelve seeded clients on `.example` domains with fixture zones and seeded sources, each with its cycle of days. Between them they produce every fix type and a healthy client.
+- [x] Rules engine and the fix list, each fix with its type, source tag and instruction.
+- [x] `make check-domain DOMAIN=<name>` prints the checks and fixes for a real domain.
 
 **Gate:** `make check` exits 0. Every fix type has at least one fixture case that produces it and one that does not (the test names them; count shown). An SPF chain of eleven lookups and an include loop are both reported as over the limit. All twelve seeded clients produce the same output on two runs (hashes shown, equal). `make check-domain DOMAIN=example.com` returns real results (output pasted). Each of the eight refusals of the live-check input in the spec has a passing test (count shown: 8 of 8).
 
 **Log:**
+
+### 2026-11-19: step list and risks (written before the work)
+
+Where things stood: pull request #1 merged by the owner; stop #4 closed; nothing to undo in `docs/DECISIONS_TO_REVIEW.md` (no entry is marked `undo`); `bash .claude/hooks/preflight.sh` ends with `preflight: ready` (its one warning is the Vercel app access a script cannot see). No failing tests and no open reviewer findings carried over. One item was handed to this phase by the first Phase 0 review: the import test that rule 1 in `CLAUDE.md` describes, with the emulator smoke test as a named exception.
+
+Steps:
+
+1. `dnspython` added to the backend (already reasoned in `docs/decisions/dependencies.md`); its current API read from the installed source.
+2. `Resolver` interface (`txt(name)` gives records, no-such-name or timeout), `FixtureResolver` over zone files in `backend/fixtures/zones/`, `LiveResolver` over real DNS (TXT only, two seconds a query), and a counting wrapper that refuses the forty-first query. The import test for rule 1.
+3. Tests first, then the checks: SPF (present, single, parses, lookups counted through nested includes and redirects against the limit of ten, a loop, `+all`), DKIM (twelve common selectors, key length read from the key itself), DMARC (present, parses, policy, subdomain policy, percentage). Each check has eight seconds. The checks produce exactly the `Checks` shape the eval cases use (`models.py` is not edited).
+4. Tests first, then domain-name validation with the eight refusals of the live-check input: an IP address, a single label, over 253 characters, a reserved name, an internal name, a scheme, a path, a port.
+5. Tests first, then the rules engine: checks and seeded sources in, the fix list out, each fix with its type, source tag and instruction. It is its own code, not `evals/table.py` (which is never part of the pipeline); a test holds the two to the same answer on every eval case, instruction wording included.
+6. Twelve seeded clients on `.example` domains: a client file each (name, domain, a cycle of days with that day's zone and seeded sources) and fixture zones. A function that builds a client's `SnapshotInput` for a date, and its hash.
+7. `make check-domain DOMAIN=<name>`: validation, the three checks over real DNS, the fix list, printed. Run once on `example.com` for the gate.
+8. `make check`, `make eval`, then reviewer, verifier, evidence, pull request, merge gate.
+
+Verifier: needed. There is something new to run: `make check-domain` against real DNS, with good and refused input, and the seeded clients' output.
+
+Challenger: not needed. This phase produces no eval results and does not touch the claim, an eval, a bar, a label or a case: no file in `.claude/hooks/measure-paths.txt` is edited. The new test that compares the rules engine with the rubric's fix table reads the cases and changes none. If the checks turn out to need a field the input model lacks, that changes the measure and this statement, and the phase stops for the owner.
+
+Looked ahead for anything on the stop list: none found. No paid step. The only outward step is real DNS lookups for `example.com`, which `docs/STANDING.md` allows. The `Makefile` changes (the `check-domain` target leaves the "not built yet" list) and `make check` checks no less. No guard file, `CLAUDE.md`, `docs/SPEC.md` or measure file is planned to change, so the merge gate should be able to merge this phase.
+
+Risks seen:
+
+- The model's input has no way to say "this check could not be made". A lookup that times out therefore makes a check unavailable, outside that shape: the live check prints it as unavailable and gives no fix for it. Fixture zones never time out, so the seeded clients are not affected. Phase 3 decides what the worker does with an unavailable check.
+- `key_bits` is the only thing the input says about a DKIM key, and it means an RSA modulus. An Ed25519 key has no such number and must not be read as a weak 256-bit key. The checks keep such keys beside the input shape: found, never called weak, and not in `keys`.
+- SPF lookup counting follows includes and redirects only as TXT lookups (the resolver does nothing else), so the `a`, `mx`, `ptr` and `exists` terms are counted and not resolved. Counting stops once the limit is passed, so a loop and a long chain both read as 11, "more than ten".
+- `example.com` is itself a reserved documentation name, and the gate wants real results for it. "Reserved" in the refusals therefore means the special-use top-level names (`.example`, `.test`, `.invalid`, `.localhost` and the like), not the three documentation domains that resolve.
+- Seeded company names are invented, but an invented name can collide with a real one. Phase 6 scans against the owner's list; here the names are kept whimsical.
+- The seeded days fix what Phase 4 records and Phase 5 shows. They are chosen now to cover every fix type and a healthy client; if a later phase needs a state they lack, a day is added, which is not a measure change.
+
+### 2026-11-19: what was built
+
+- **Resolver** (`backend/src/domain_health/resolver/`): the `Resolver` interface (`txt(name)` gives records, no-such-name or timeout); `FixtureResolver` over zone files; `LiveResolver` over `dnspython` (TXT only, two seconds a query, UDP with TCP as an option); `CountingResolver`, which refuses the forty-first lookup for one domain. DNS text is cut at 4,096 characters a record and twenty records a name. (Changed after the eleventh review: an answer over the limits, now 100 records, is not cut but makes the check unavailable.)
+- **Checks** (`checks/`): `spf.py`, `dkim.py`, `dmarc.py`, and `run.py`, which runs the three side by side with eight seconds each. Each check gives exactly the fields in `models.py` (not edited), plus the records as read and the problems in plain words. A check that cannot be made is "unavailable" and gives no fix.
+- **Domain-name validation** (`domain_name.py`): the eight refusals, and "not a domain name" for everything else that is not plainly one.
+- **Rules engine** (`rules.py`): twelve rules, one fact each, giving a fix with its type, source tag and instruction. It does not import `evals/table.py`. A test runs it over all forty-eight eval cases: its fix list is the case's own, wording included, and its types are the rubric table's.
+- **Seeded clients** (`seeded/`, `backend/fixtures/clients/`, `backend/fixtures/zones/`): twelve invented companies, twenty-six client-days, four invented mail services. `snapshot_input(client, date)` builds the `SnapshotInput` the model will receive; `input_hash` is its SHA-256. `python -m domain_health.seeded` prints every client-day's hash and fixes.
+- **`make check-domain DOMAIN=<name>`** (`check_domain.py`): validates, then the three checks over real DNS and the fix list. A refused name exits 2 before any resolver is built. The name reaches the program through the environment, not the shell's command line.
+- **Tests:** 377 in the backend outside the emulator (180 before), and the one inside it. New: the resolvers, SPF, DKIM, DMARC, the check runner, validation, rules, the seeded clients, the command, and two import rules (rule 1: only `resolver/live.py` imports the DNS library and nothing imports a model, Google Cloud or HTTP client, with the emulator smoke test as the one named exception; rule 5: only `check_domain.py` imports the live resolver).
+- **Docs:** `docs/ARCHITECTURE.md` (where Phase 1 put things; what "unavailable" means), five entries in `docs/DECISIONS_TO_REVIEW.md`.
+
+Said plainly, about "tests first": the plan asks for the checks' tests first. The implementation and its tests were written in one sitting, module by module, and in most modules the code came minutes before its tests, not after them. To make up for the order, fourteen lines of the new code were then broken one at a time (the lookup limit, loop detection, the redirect rule, two rule thresholds, the non-RSA key rule, DMARC inheritance, a reserved ending, the port refusal, the unavailable path, the lookup budget, the output cleaning, the day cycle) and the suite run on each: all fourteen were caught.
+
+Libraries, checked against what was installed (principle 6): `dnspython` 2.9.2. `dns.asyncresolver.Resolver.resolve(qname, rdtype, tcp=, lifetime=, search=, raise_on_no_answer=)` is as decision 0006 expects; `LifetimeTimeout` is a subclass of `dns.exception.Timeout`; a TXT record's `strings` is a tuple of byte strings that the resolver joins. Nothing contradicted the docs.
+
+Nothing in the guards, `CLAUDE.md`, `docs/SPEC.md`, the measure files or an existing gate or checklist line changed. The `Makefile` gained the `check-domain` target (it left the "not built yet" list and the help line); `check`, `check-backend` and `check-frontend` are untouched.
+
+Things found on the way:
+
+- `example.com` answers every DKIM selector with a revoked (empty) key, through a wildcard record. Twelve identical lines became one: "every selector probed answers with a revoked (empty) key". The fix list still says `dkim_missing`, which is true of a domain that publishes that it signs nothing.
+- `make` itself expands a command-line variable's value when it passes it to a recipe, so `make check-domain DOMAIN='$(shell ...)'` runs that shell command. That is true of every variable of every target in any Makefile and of nobody but the person typing the command, who has a shell already; the program never sees an expanded name (it refused the literal text). The API path in Phase 4 does not go through `make`.
+- The case-41 note the last Phase 0 challenger left for this phase (a previous open rate of 0.0 beside real volume): no seeded day uses 0.0; a domain with no earlier window has null, as the input's validator requires.
+
+### 2026-11-19: `make eval`
+
+```text
+$ make eval
+no prompt yet: nothing to measure
+$ make eval STRICT=1
+no prompt yet: nothing to measure
+```
+
+No results file exists before a prompt does, so there is none to commit in this phase.
+
+### 2026-11-19: review, first run, on 6d64db6
+
+Verdict as reported: "changes needed. There are three blocking findings." It ran `make check` (377 and 1 passed, frontend green) and `make eval`, and found these held: no guard, measure file, `CLAUDE.md` or `docs/SPEC.md` in the diff; the gate and checklist wording unchanged; `check` and `check-backend` untouched; no live or paid call in any test; "Verifier: needed" and "Challenger: not needed" both true; rules 1 and 6; every fix type produced and not produced by a seeded client-day; a loop and a chain of eleven both over the limit, and "the 40-lookup budget cannot be reached by one domain".
+
+1. Blocking. "The domain check lets a newline through, which gets round the reserved and internal refusals": the label pattern ended in `$` and was used with `.match`, and "`$` also matches just before a trailing `\n`", so `public_domain("oakhaven-outfitters.example\n.")` was accepted, "a real query would go out for a name the spec says must be refused", and the sentence in the decisions file that a seeded name can never reach real DNS was false.
+   - Done: every label has to match in full (`fullmatch`). Its three inputs are in the tests, with a tab and a null byte, and a new test tries every character up to U+0250 in three positions and asserts that any accepted name holds only letters, digits, hyphens and dots. With the fix reverted the suite fails.
+2. Blocking. "A broken SPF include is reported as 'could not be checked' instead of `spf_invalid` on real DNS": an include such as `bad..name.example.org` was passed to the resolver, the DNS library refused the name, and the live resolver read every library error as a timeout, while the fixture resolver answered "no such name". "So the tests and the live path disagree, and no test catches the gap."
+   - Done, both halves. The SPF parser now checks every name a term gives (`include`, `exists`, `redirect=`, `exp=`, and `a`, `mx`, `ptr` with a name) as a domain name: labels of letters, digits, hyphen and underscore, 63 characters at most, 253 in all; a name with a macro is left alone and never looked up. A record that fails this does not parse, and nothing is looked up for it. The live resolver reads text that cannot be a name as "no such name", not silence. Tests: nine malformed records; the malformed include is never asked for; the live resolver on the library's two name errors with a fake; and the real library on three malformed names, which fail while the name is parsed, before anything is sent.
+3. Blocking. "Text from DNS inside 'problem' lines is printed with no cleaning and no length limit": include names, the loop path and the DMARC values reached the output raw; an escape byte and a 3,037-character line went through.
+   - Done: every line that can carry DNS text (problems, the reason a check could not be made, where DMARC was found, the records) goes through the one cleaning function, and the SPF parser's messages no longer repeat an unreadable term. A test feeds eight hostile zones (SPF include, SPF term, four DMARC values, a DKIM key, a missing include) and asserts no escape byte and no line over the cut. With the DMARC or SPF line's cleaning removed, it fails.
+
+Its note, not a finding: the gate evidence was not in the log yet. It goes in after the checks, on the final commit, below.
+
+Tests: 398 in the backend outside the emulator.
+
+### 2026-11-19: review, second run, on 6473c88
+
+Verdict as reported: "changes needed. All three fixes from the first review hold. I found one new blocking correctness bug in the DMARC walk-up, and one smaller breach of a standing rule in the test data." It put each of the three first-round defects back in a throwaway copy and a test failed each time; it noted that cleaning removed from the DKIM problem lines, the "could not be checked" reasons or the "found at" line is not caught by a test, "acceptable because those lines only ever hold constants, checked names or the validated domain".
+
+1. Blocking. "The DMARC walk-up never reaches the parent domain for names of five or more labels, so it reports a false `dmarc_missing`": the four names tried were the four nearest, so for `a.b.c.d.example.com` the two-label parent was never asked, and a test "locks the faulty order in place".
+   - Done: a deep name is asked at itself, its two nearest parents and always the two-label parent; four names at most, as before. The test that held the wrong order now expects the parent last, and a new one checks that a name one, two, three, four, five and eight labels deep each inherits the parent's policy. The decisions entry says the same.
+2. Blocking. "Real, non-documentation domain names appear in tests" (an invented company name under `.com`, a short name under `.co.uk`, a one-letter `.com` name, and long names ending in `.com`), against the sentence in `docs/STANDING.md` that the only real domain names in the repository are the documentation ones. "None of these is ever resolved, so this is exposure only."
+   - Done: every one now sits under `example.com` or `example.org`; the 253 and 254 character test was re-measured for the longer ending. (The search made then missed two garbled forms of "example" under `.com` in one test file; the fourth review found them, below.)
+
+Clean, as it reported: every ticked step implemented with a test that fails without it; no measure file, guard, `CLAUDE.md`, `docs/SPEC.md`, gate or checklist wording touched; rules 1, 5 and 6; no test calls a paid service, and the one test that builds the real DNS library's resolver uses only names that fail while being parsed; one domain costs at most about 27 lookups; a hostile DKIM key does not crash the check.
+
+Tests: 404 in the backend outside the emulator.
+
+### 2026-11-19: review, third run, on 041e969
+
+Verdict as reported: "changes needed (two blocking findings, one smaller one)". Both second-round fixes hold. It ran `make check` (404 and 1 passed) and the seeded listing twice (26 identical hashes), and found clean: every ticked step implemented and tested; all twelve fix types produced and absent; the rule thresholds equal to the rubric table's; nothing loosened; rules 1, 2, 5 and 6; at most 27 lookups for one domain.
+
+1. Blocking. "A malformed SPF include can still pass as valid SPF on real DNS": the pattern for a target's label was compiled to ignore case without being held to ASCII, and Python then lets a long s, the Kelvin sign and a dotless i match `[a-z]`; the DNS library folds such a name into a different one, so "the live resolver would look up a different name from the one the record states", and the log's "labels of letters, digits, hyphen and underscore" was not what the code did.
+   - Done, at the root: an SPF record with any character outside ASCII does not parse (the standard's records are ASCII), and the three patterns are held to ASCII as well. Terms are now split on spaces only, so a tab or a line break inside a record is part of a term and fails, as it does at a receiver. The same fold existed in the domain-name check (the Kelvin sign lower-cases to `k`): text with any character outside ASCII is now refused before it is lower-cased. Tests: eight more records that must not parse, two more refused names, and the every-character test now includes the folding characters.
+2. Blocking. "The names the last review removed are back in the repository": the second review's log entry quoted them, and "`merge-gate.sh` merges with `merge_method=merge`, so commits 6d64db6 and 6473c88 would also bring these names into `main`'s history through the test files". "Squashing or rewriting the branch is the owner's call, so it should not be done alone."
+   - Done: the log line describes the names without quoting them. For the history, nothing was rewritten and nothing deleted. The phase's whole work is one commit on a new branch made from `main`, `phase-1-checks-and-rules-clean`, and the pull request is opened from it, so those commits never reach `main`. The first branch stays on GitHub as it was, for the owner to delete; the entry in `docs/DECISIONS_TO_REVIEW.md` gives the command. The run-log lines for the first three reviews name commits that exist only on that first branch.
+3. Smaller. "DKIM can print a false 'every selector probed answers with a revoked (empty) key'": the summary counted problem lines by their prefix, so eleven revoked selectors and one unreadable key lost the unreadable one, and two revoked records at each of six selectors read as all twelve.
+   - Done: each selector's probe says whether it answered with nothing but revoked keys, and the one-line summary is used only when all twelve did. A selector's revoked key is said once however many records hold it. Three tests: the two cases above, and a revoked key beside a live one.
+
+Tests: 417 in the backend outside the emulator.
+
+### 2026-11-19: review, fourth run, on 2e75ed2
+
+Verdict as reported: "no blocking findings. All three third-round fixes hold, on the code and on the branch history." It ran `make check` (417 and 1 passed), `make eval`, and the seeded listing twice (26 identical hashes); confirmed that `main..HEAD` is the one commit and that the earlier commits are not its ancestors; put five of the third-round defects back in a scratch copy and the suite failed on each (removing `re.ASCII` from the target-label pattern alone is not caught, "acceptable: the ASCII-only check on the whole record above it makes the flag redundant"); and attacked the checks through the fixture resolver (redirect loops and chains, mixed case, a trailing dot, odd typed names): "All gave the expected result." Rules 1, 5, 6 and 7, the guards, the step list's two statements, spend and the dependency record all held.
+
+Two findings it called non-blocking, both fixed:
+
+1. "A DMARC `pct` written in non-ASCII digits is accepted", the same class as the third round's SPF finding, against the decisions entry's "a bad `pct` does not parse".
+   - Done: a DMARC record with any character outside ASCII does not parse, as with SPF. Two more cases in the test of records that do not parse.
+2. Two garbled forms of "example" under `.com` in `backend/tests/test_domain_name.py` (one with an umlaut, one built in a loop), which "name no company or person" and are never looked up, but are outside the documentation domains, and made a sentence in this log false.
+   - Done in the tree: both now sit under `example.org`, and the false sentence above is corrected. (Two more of the same kind, one with a space and one with a tab, were left; the fifth review found them, below.) Not done: a third branch. The commit 2e75ed2 keeps those two test lines in its history; they are misspellings of "example", not names, and the reviewer did not hold the merge for them. The decisions entry says so for the owner.
+
+Tests: 419 in the backend outside the emulator.
+
+### 2026-11-19: review, fifth run, on 93ad50a
+
+Verdict as reported: "changes needed. There is one blocking finding: the DMARC check treats a record whose version tag is wrong as a valid policy. There is also one smaller finding". The fourth round's DMARC fix holds (with the ASCII check taken out, the digits case fails). It ran `make check` (419 and 1 passed), `make eval` and the seeded listing twice, and attacked the checks through the fixture resolver with redirect and include loops, `+all` before `-all`, a redirect into `+all`, `v=spf10`, an unreadable DKIM key, `p=` given twice, and 21 hostile typed names: "These all gave the right answer." Guards, measure files, rules 1, 2, 5 and 7, spend and the step list's two statements held.
+
+1. Blocking. "A DMARC record with the wrong version is reported as a valid policy, so the `dmarc_missing` fix is hidden": a record was taken for DMARC if it started with `v=dmarc1`, so `v=DMARC10; p=reject` read as policy reject, where a receiver ignores the record.
+   - Done: a record is DMARC only if its first tag is `v` with exactly the value `DMARC1` (in either case, with or without spaces around it). Six records that must give "no record", three that must still be read. The same question was then asked of DKIM without waiting for a sixth round: a record of another version (`v=DKIM2`) is not a key, and a key type that does not exist (`k=dsa`) is not a key and is said to be unreadable, where before it would have counted as a key that is not RSA and hidden `dkim_missing`. A test for each. SPF already required exactly `v=spf1`.
+2. Smaller. Two more garbled forms of "example" under `.com` in the same test file (one with a space, one with a tab), and the log and the decisions entry counted two such lines where there were four.
+   - Done: both under `example.org`; the fourth-round entry above and the decisions entry now say four. The search it asked for, over the new code, tests and fixtures, for anything ending in `.com`, `.net`, `.org` or `.uk` that is not under a documentation domain, prints nothing (output under the gate evidence).
+
+Tests: 430 in the backend outside the emulator.
+
+### 2026-11-19: review, sixth run, on 36b32f0
+
+Verdict as reported: "changes needed. There is one blocking finding." The fifth round's fixes hold: with the old DMARC version check put back three tests fail, with the DKIM version check removed one fails, and with every non-RSA key type counted again one fails. Its search of every added line for names outside the documentation domains found only package hosts, the code host, and one ending used as a word in prose. `make check` (430 and 1 passed), `make eval`, the seeded listing twice, the guards, the measure files, rules 1, 2, 5, 6 and 7, and the decisions file ("No entry should have been a stop") all held.
+
+1. Blocking. "SPF counts and follows terms after `all`, so valid records get false fixes": the standard says mechanisms after `all` must be ignored, but an include behind `-all` was still counted and looked up, so `v=spf1 ip4:192.0.2.0/24 -all include:gone.example.org` gave `spf_invalid`, eleven includes behind `-all` gave `spf_too_many_lookups`, and one that timed out made the check unavailable. "The live check would tell a visitor to fix a record that is fine."
+   - Done: once a record's `all` is read, later terms are still parsed (a syntax error anywhere still breaks the record) but cost no lookup and are not followed, in the record itself and in any record it includes. Five tests: nothing behind `all` is looked up; eleven includes behind `all` are not over the limit; a slow include behind `all` does not stop the check; a term behind `all` still has to parse; the same inside an included record. The decisions entry on SPF gained the point.
+
+Its note: the gate evidence, which an entry above refers to, is not in the log yet. It follows the verifier, below.
+
+Its note on method, kept for whoever repeats a mutation run in a copy: a copied `.venv` imports the repository's `src`, not the copy's, unless `PYTHONPATH` points at the copy.
+
+Tests: 435 in the backend outside the emulator.
+
+### 2026-11-19: review, seventh run, on 2e2e611
+
+Verdict as reported: "changes needed. There are two blocking findings. Both are the same kind of fault the fifth round found: a malformed record is read as a good one, so a fix the visitor needs is hidden." The sixth round's fix holds under its own attacks (terms and redirects behind `all`, `+all -all`, redirect loops, self-includes, macros, bad addresses). `make check`, `make eval` and the seeded hash matched the log; "Gate evidence: matches what the code does."; scope, spend, the step list's statements and rules 1, 2, 5, 6 and 7 held.
+
+1. Blocking. "DMARC: spaces inside a tag value are thrown away, so a broken record reads as a valid policy and `dmarc_invalid` is hidden": the tag reader shared with DKIM dropped all whitespace in a value, which is right for a DKIM key published in pieces and wrong for `p=re ject` and `pct=1 00`.
+   - Done: the tag reader trims around a value and keeps what is inside it. Only a DKIM key's own text has its inner spaces removed. Three more DMARC records that must not parse.
+2. Blocking. "DKIM: any `k=ed25519` record counts as a key, whatever its `p=` holds, so `dkim_missing` is hidden."
+   - Done: one function decides what a key record is. An RSA key gives its length; an Ed25519 key has to decode to exactly 32 bytes; anything else (a key that does not decode, a type that does not exist, and, asked without waiting for another round, a record that says it is not for email) is not a key and is said to be unreadable. Six records that are not keys, four that are.
+
+The evidence below was taken again after these two fixes.
+
+Tests: 448 in the backend outside the emulator.
+
+### 2026-11-19: review, eighth run, on 12473e5
+
+Verdict as reported: "changes needed (two blocking findings)". The seventh round's DMARC fix holds, and the DKIM fix holds "for what it targets". It ran `make check` (448 and 1 passed), `make eval` both ways, the seeded listing twice (the log's hash), the three gate selections (12, 3 and 8 passed) and "about 45 hostile records sent through the fixture resolver". Guards, measure files, the `Makefile`, rules 1, 2, 5, 6 and 7, the step list's statements and the decisions file held; the gate evidence for items 1, 2, 3, 4 and 6 "matches what the code produces".
+
+1. Blocking. "A DKIM key whose modulus is zero crashes the whole live check": the seventh round's change moved the building of the key out of the `try`, so a published key with a modulus of zero, which the input model refuses, raised through all three checks. "One record any domain owner can publish crashes `make check-domain`." A regression made by the fix before it, with no test.
+   - Done: a key with no modulus is unreadable, and the key is built inside the `try` again. Three more records that are not keys (a modulus of zero, an empty modulus, an empty key). And one test for the whole class, so that the next such slip fails in `make check` and not in a review: thirty-three hostile records, each published at the domain, at `_dmarc` and at two selectors, alone and beside a good record, and in every case all three checks must answer without raising.
+2. Blocking. "The seventh review's log entry is in Phase 0's log, not Phase 1's": the script that inserted it looked for the first "gate evidence" heading in this file, which is Phase 0's.
+   - Done: the entry is moved here, in front of this phase's evidence, and Phase 0's log reads as it did on `main` again (the only change to it in this phase is the third stop's block and answer, added at its end).
+
+The evidence below was taken again after these fixes.
+
+### 2026-11-19: review, ninth run, on 65194d3
+
+Verdict as reported: "changes needed. There are two blocking findings, both in `backend/src/domain_health/checks/spf.py`. They are the same kind of fault the fifth and seventh rounds called blocking: a malformed SPF record is read as valid". The eighth round's fixes hold (with the old DKIM code put back, three tests fail). It sent "20,000 random hostile zones" through the counting resolver, the checks and the output: "None raised." It took the gate evidence again on 65194d3 and items 1, 2, 3, 4 and 6 match; guards, measure files, the `Makefile`, rules 1, 2, 5, 6 and 7 and the step list's statements held.
+
+1. Blocking. "The `a` and `mx` prefix lengths are never range-checked": `a/99`, `mx//200` and `a:x.example.org/33` parsed as valid.
+2. Blocking. "A target name is cleaned up before it is checked, and a macro target is not checked at all": every trailing dot was stripped, so `include:inc.example.org..` was followed as a good name, and `include:%`, `include:%{z}x` and `redirect=a%b` parsed.
+   - Done, for both and for the class they belong to. Five rounds running had each found another SPF record a receiver fails and this parser read, one case at a time. So the term parser was rewritten against the standard's own grammar (RFC 7208, section 12) instead of being patched again: macros (`%{letter digits r delimiters}`, `%%`, `%_`, `%-`), a name that has to end in a top label with at most one trailing dot or in a macro, prefix lengths with their ranges (0 to 32, 0 to 128) and no leading zero, an address read strictly (no netmask form, no zone, no leading zeros), an unknown modifier's value, and a record that has to start with the version exactly. Counting and following are unchanged. The tests gained two tables: 24 records inside the grammar that must parse and 52 outside it that must not, with every one of the reviewer's examples among the 52. Writing the tables corrected one of the build's own guesses: `all=x` is a valid unknown modifier. (It was also taken to show that `%{rr}` is a valid macro. By the grammar alone it is; by the standard's prose it is not, as the tenth review found, below.)
+   - The same pass over DMARC and DKIM, without waiting to be asked: `pct` is one to three digits (`0100` and `+50` no longer pass); a DKIM `v=` has to be the record's first tag. What is deliberately left looser than the standard's letter, because receivers are, is written in the decisions entry: DMARC's `p=` need not be the second tag, and its other tags are not checked.
+
+The evidence below was taken again after these fixes.
+
+### 2026-11-19: review, tenth run, on ffa6118
+
+Verdict as reported: "changes needed. There is one blocking finding." The ninth round's fixes hold, with eight more variants of its own refused; DMARC `pct` and the DKIM version rule "behave as the log says"; "200,000 random SPF terms and DMARC `pct` values raised nothing except the parsers' own syntax errors"; `make check` (534 and 1 passed), `make eval`, the gate evidence, the guards, the measure files, "Decisions to review: 15", the step list's statements and rules 1, 2, 5, 6 and 7 held.
+
+1. Blocking. "SPF accepts macros that RFC 7208 allows only in explanation text, and a digit transformer of zero": the grammar in section 12 allows the letters `c`, `r` and `t` and any digits; the prose of section 7.3 allows those three letters only in explanation text and says the digit is nonzero. So `exists:%{c}.bl.example.org`, `a:%{t}.example.org` and `include:%{d0}.example.org` parsed, a test held `exists:%{rr}.example.org` to be valid, and the log said so.
+   - Done: a name's macros take the letters `s l o d i p h v` only, and a digit that does not start with zero; the full set of letters is kept for the value of a modifier nobody defined, which is passed over. Eleven more records in the table that must not parse (the three letters in each kind of term, `redirect=` and `exp=` included, and three zero digits), and `%{rr}` moved into it; the table that must parse keeps a record with every allowed letter and one with the three letters inside an unknown modifier. The sentence above and the decisions entry are corrected.
+
+Its note, no change asked: the DMARC walk-up can ask a public suffix (`_dmarc.co.uk` for a name under it); it is the bounded walk the decisions entry describes and gives no wrong fix.
+
+The evidence below was taken again after this fix.
+
+### 2026-11-19: review, eleventh run, on 285e74d
+
+Verdict as reported: "changes needed. There is one blocking finding. The tenth round's fix holds, and the gate evidence matches the code." With each of four parts of the macro fix put back in a scratch copy, the suite failed. `make check` (546 and 1 passed), `make eval`, the seeded hash, the three gate selections, the name search, the guards, the measure files, the step list's statements and rules 1, 2, 5, 6 and 7 held. "No other blocking findings."
+
+1. Blocking. "A cap in the resolver that throws records away without saying so, which gives wrong fixes on the live path": every answer was cut to its first twenty records and each record to 4,096 characters, and the checks read what was left as the whole. A domain's top name often holds more than twenty TXT records, in no fixed order, so twenty verification tokens followed by the SPF record gave `spf_missing`, and a second SPF record past the cut hid `spf_multiple`. A design fault from the first commit, not a parsing detail.
+   - Done: an answer is given whole or not at all. The limits stay, because DNS text is untrusted (now 100 records at a name, far above a real zone, and 4,096 characters a record), but an answer over either is "too large", a fourth outcome of a lookup beside records, no-such-name and timeout, and the check that asked is unavailable: no fix, and the reason printed. Tests: sixty tokens with the SPF record last is read whole; four over-limit zones (a second SPF record past the limit, the SPF record last, a record too long, an include that answers too much) each leave SPF unavailable, not missing, valid or invalid; the same for a selector and for the DMARC name; the fixture and the live resolver both hold the limits and never cut. `docs/ARCHITECTURE.md` and the decisions entry say so.
+
+The evidence below was taken again after this fix.
+
+### 2026-11-19: review, twelfth run, on 10f4114
+
+Verdict as reported: "no blocking findings. The eleventh round's fix in commit 10f4114 holds, and the gate evidence in the log matches what the code produces." It sent seven more hostile zones through the limits (a too-large DMARC parent, a too-large name in the middle of the walk, exactly 100 records holding two SPF records, a 4,099-character SPF record, a too-large include behind `-all`, a too-large redirect target, 5,000 escape bytes): "All of these gave the right result." With the record limit switched off in a scratch copy, four tests fail. It took the gate evidence again on this commit (`make check` 552 and 1 passed, `make eval` both ways, the seeded hash, the three gate selections 12, 3 and 8, the name search) and checked scope: the only lines removed from this file are the answered "Waiting on you" block, the status rows and the six boxes going from unticked to ticked; "Decisions to review: 15" matches, "and none of them should have been a stop"; rules 1, 2, 5, 6 and 7; no paid path.
+
+One note, "doc wording, the code is right": `docs/ARCHITECTURE.md`'s interface row and the first line of `backend/src/domain_health/resolver/__init__.py` still say a lookup gives "records, no-such-name or timeout", and there is now a fourth outcome, "too large", which the fixture resolver gives as well as the live one.
+   - Not done in this phase, on purpose: either edit changes a file the reviewer and the verifier have passed and would make both verdicts stale for one sentence. The paragraph added to `docs/ARCHITECTURE.md` in this phase and the decisions entry already describe the fourth outcome. The two lines are corrected in Phase 2's first commit.
+
+### 2026-11-19: verifier, on 10f4114
+
+| What it did | Expected | What happened | Result |
+|---|---|---|---|
+| `make check` | exit 0 | exit 0; ruff clean, 552 backend tests passed (1 deselected), the emulator test passed, vitest 1 passed, `next build` succeeded | pass |
+| `make check-domain DOMAIN=example.com` (real DNS) | real results | "live DNS checks (14 TXT lookups)"; SPF one record `v=spf1 -all`, 0 of 10 lookups; DKIM none at the 12 selectors, "every selector probed answers with a revoked (empty) key"; DMARC `v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s`; Fixes (1): `dkim_missing [dns]`; exit 0 | pass |
+| The same for `example.org` | the same kind of result | the same shape, 14 lookups | pass |
+| `make check-domain` with each input the spec refuses | refused, exit 2 | exit 2 each time with a plain message: `192.0.2.1` (IP address), `com` (single label), a name over 253 characters, `localhost`, `internal.example` and `foo.test` (reserved), `x.local` and `mail.corp` (internal), `http://example.com` (scheme), `example.com/path` (path), `example.com:8080` (port), `not a domain` (not a domain name) | pass |
+| `make check-domain` with no DOMAIN and with an empty one | usage, non-zero | "usage: make check-domain DOMAIN=<name>", non-zero | pass |
+| `python -m domain_health.seeded` twice, then `cmp` | the same output, 12 clients | byte-identical; 26 client-day lines, 12 clients, each with a hash and its fixes | pass |
+| `make eval`, `make eval STRICT=1` | runs; exits 0 | both print "no prompt yet: nothing to measure". Its caveat: the exit code it printed for the second was its own pipe's, not `make`'s. (The build's and the reviewer's runs both saw exit 0.) | pass, with that caveat |
+| `make dev`, then both addresses, then stopped | both start | emulator started; `localhost:3000` 200; `/healthz` 200; everything it started was stopped | pass |
+| `git status` at the end | as found | only `docs/RUN_LOG.md` modified, as at the start | pass |
+
+Not exercised, in its words: "I confirmed refusals by their message and exit code only. I did not trace that no DNS query is sent." (A test does: a refused name reaches no resolver, and the command refuses before it builds one.) "I did not run the named gate tests separately... Those ran only inside the 552 passing tests in `make check`." (They are run by name in the evidence below, and again by the reviewer.) The paid and cloud targets, which this phase does not build. "I fetched the frontend at `localhost:3000` (200) but did not open it in a browser at desktop and phone width. This phase adds no screen." "Real-world SPF chains and DKIM keys were not tried": only the documentation domains were looked up, as it was told.
+
+### 2026-11-19: gate evidence
+
+Run on 10f4114, the commit the reviewer and the verifier passed.
+
+1. `make check` exits 0 (lines kept; the rest is tool chatter):
+
+```text
+$ make check
+44 files already formatted
+All checks passed!
+Success: no issues found in 44 source files
+552 passed, 1 deselected in 2.19s
+1 passed, 552 deselected in 0.27s
+✔  Script exited successfully (code 0)
+All matched files use Prettier code style!
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+✓ Compiled successfully in 239ms
+make check exit=0
+```
+
+2. Every fix type has a fixture case that produces it and one that does not. The test names them; 12 of 12:
+
+```text
+$ cd backend && uv run pytest tests/test_seeded.py -k every_fix_type_has -vv
+[spf_missing: driftwood-coffee day 0 has it, driftwood-coffee day 1 does not] PASSED
+[spf_multiple: inkwell-and-vine day 0 has it, harbourlight-books day 0 does not] PASSED
+[spf_invalid: tamberline-travel day 0 has it, tamberline-travel day 1 does not] PASSED
+[spf_too_many_lookups: brindle-and-oak day 0 has it, willowmere-pets day 0 does not] PASSED
+[spf_plus_all: copperkettle-kitchen day 0 has it, oakhaven-outfitters day 0 does not] PASSED
+[dkim_missing: northwind-cycles day 0 has it, northwind-cycles day 1 does not] PASSED
+[dkim_weak_key: copperkettle-kitchen day 0 has it, oakhaven-outfitters day 0 does not] PASSED
+[dmarc_missing: northwind-cycles day 0 has it, fernhollow-garden day 0 does not] PASSED
+[dmarc_invalid: fernhollow-garden day 0 has it, harbourlight-books day 0 does not] PASSED
+[blocklist_listed: silverbrook-dental day 0 has it, silverbrook-dental day 1 does not] PASSED
+[complaint_rate_over_limit: emberglow-events day 0 has it, emberglow-events day 1 does not] PASSED
+[bounce_rate_over_limit: emberglow-events day 0 has it, emberglow-events day 1 does not] PASSED
+12 passed
+```
+
+3. An SPF chain of eleven lookups and an include loop are both reported as over the limit:
+
+```text
+$ uv run pytest tests/test_spf.py -k "chain_of_eleven or include_loop_is_over or includes_itself" -vv
+test_a_chain_of_eleven_lookups_is_over_the_limit PASSED
+test_an_include_loop_is_over_the_limit PASSED
+test_a_record_that_includes_itself_is_a_loop PASSED
+3 passed
+```
+
+`test_a_chain_of_eleven_lookups_is_over_the_limit` asserts `lookup_count == 11` and the problem "more than 10 DNS lookups"; `test_an_include_loop_is_over_the_limit` asserts `lookup_count == 11` and the loop's path; the chain of ten beside them asserts 10 and no problem. On the seeded data, `brindle-and-oak` costs 11 and gets `spf_too_many_lookups`; `willowmere-pets` costs 9 and does not.
+
+4. All twelve seeded clients produce the same output on two runs. Each line is a client, a day of its cycle, the first sixteen characters of its input's SHA-256, and its fixes; then the SHA-256 of each run's whole output:
+
+```text
+$ uv run python -m domain_health.seeded > run1.txt; uv run python -m domain_health.seeded > run2.txt
+$ cat run1.txt
+brindle-and-oak day 0 e2c022ffe33e3881 spf_too_many_lookups
+brindle-and-oak day 1 86d598b5e3f349e6 spf_too_many_lookups
+copperkettle-kitchen day 0 04185e6480a376a3 spf_plus_all, dkim_weak_key
+copperkettle-kitchen day 1 1aa323c58a2d85e4 spf_plus_all, dkim_weak_key
+driftwood-coffee day 0 ebfe6e44461a877c spf_missing
+driftwood-coffee day 1 c0fe77d035dd183f no fix
+emberglow-events day 0 57401bfeef86a80c complaint_rate_over_limit, bounce_rate_over_limit
+emberglow-events day 1 8b90471fd69a313d no fix
+fernhollow-garden day 0 52c5bb261eb8b832 dmarc_invalid
+fernhollow-garden day 1 d097cacd5426376d dmarc_invalid
+harbourlight-books day 0 b75305c4e844e21e no fix
+harbourlight-books day 1 0d1eaf4e7e66db66 no fix
+inkwell-and-vine day 0 aac86a6ec7d6986f spf_multiple
+inkwell-and-vine day 1 0254c957b441308e spf_multiple
+northwind-cycles day 0 5c2d471ad9729fcd dkim_missing, dmarc_missing
+northwind-cycles day 1 3291cfcf15749db0 dmarc_missing
+oakhaven-outfitters day 0 2a4f745b25bb62e1 no fix
+oakhaven-outfitters day 1 b5535faecd5bb2dd no fix
+oakhaven-outfitters day 2 249b09dc3c63562d no fix
+silverbrook-dental day 0 1504120f27af9f2b blocklist_listed
+silverbrook-dental day 1 b6e5141108c1721e no fix
+silverbrook-dental day 2 a2a258673e579f3f no fix
+tamberline-travel day 0 d43f7ccfd79ce876 spf_invalid
+tamberline-travel day 1 b2b8aa9f2a947c47 no fix
+willowmere-pets day 0 ec65c70d60b6435a no fix
+willowmere-pets day 1 4513bdf54b357947 no fix
+$ shasum -a 256 run1.txt run2.txt; cmp run1.txt run2.txt
+f1d6ef439b563cfe477008d802753b434a5d44282cad67fd86f3ec622bd51b86
+f1d6ef439b563cfe477008d802753b434a5d44282cad67fd86f3ec622bd51b86
+identical: 26 lines
+```
+
+5. `make check-domain DOMAIN=example.com` returns real results (real DNS, 14 TXT lookups, no key and no model):
+
+```text
+$ make check-domain DOMAIN=example.com
+example.com: live DNS checks (14 TXT lookups)
+
+SPF
+  one record, parses, 0 of 10 DNS lookups, ends in -all
+  v=spf1 -all
+
+DKIM
+  no key at any of the 12 common selectors probed
+  problem: every selector probed answers with a revoked (empty) key
+
+DMARC
+  policy reject, subdomains reject, 100% of mail
+  found at _dmarc.example.com
+  v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s
+
+Fixes (1)
+  dkim_missing [dns] Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors.
+
+No risks for a typed domain: it has no reputation or sending data.
+exit=0
+```
+
+6. Each of the eight refusals of the live-check input has a passing test; 8 of 8:
+
+```text
+$ uv run pytest tests/test_domain_name.py -k the_eight_refusals -vv
+[1 an IP address] PASSED
+[2 a single label] PASSED
+[3 over 253 characters] PASSED
+[4 a reserved name] PASSED
+[5 an internal name] PASSED
+[6 a scheme] PASSED
+[7 a path] PASSED
+[8 a port] PASSED
+8 passed
+```
+
+Also asked for by the fifth review: a search of the new code, tests and fixtures for a name ending in `.com`, `.net`, `.org` or `.uk` that is not under a documentation domain. Its two hits are the endings in the code comment that names the three documentation domains ("example.com, .net, .org"):
+
+```text
+$ grep -rnoE '[A-Za-z0-9._%{}\\-]*\.(com|net|org|uk)\b' tests src fixtures | grep -vE 'example\.(com|net|org)$'
+src/domain_health/domain_name.py:19:.net
+src/domain_health/domain_name.py:19:.org
+```
+
+The gate is ticked: every part of it is shown above on 10f4114, the reviewer's twelfth run found nothing blocking on that commit, and the verifier passed it. The challenger was not needed, as the step list said before the work began and as each of the twelve reviews confirmed: the phase holds no eval result and touches no measure file.
+
+What twelve review rounds were about, for the retro: one was clean. The other eleven each found something real. Two were faults of design (a name check a line break could pass; a resolver that cut long answers and read the rest as the whole), two were the build's own slips while fixing (a crash, a log entry in the wrong place, both from the round before), three were names that are not documentation names, and the rest were one family: a record a receiver fails that this parser read as good. That family ended when the parser was rewritten against the standard's grammar and its prose, with tables of records on both sides of the line, instead of being patched a case at a time.
+
+reviewer-verdict: no blocking findings @ 10f4114
+verifier-verdict: pass @ 10f4114
+challenger-verdict: not needed @ 10f4114
 
 ---
 

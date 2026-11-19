@@ -1,0 +1,12 @@
+{
+  "emberglow-events.example": [
+    "v=spf1 include:_spf.sendwillow.example -all",
+    "site-verification=emberglow-events"
+  ],
+  "k1._domainkey.emberglow-events.example": [
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnshNy/5A5bWULdzzpaOZesewlJme/UyerteWh1iUfk++vINUyCtZAqi/amNFHHhBr+c4HztUkFQNiufrXRqGTYE+Zxqm7phDRS/ugnLJyp3sSTk1xQbkABqq2QrY85UENdY1Kqx8scdGhx5LbjWUhff/ZmcXr8D9c1JiLZJWiwJwJl38Hs+9cm/WtQvNaX6bBYXNaqmOfzj0r76HoE9d6jrLfNPEaC/zOPs+xKu3gddSXPtRoGngDfKuhqW9TAQXKfALDPNJkg+b4oH1bl+i5Qq3ZHjr1nOkQIUO7IzE38edDU0DFw88drBIlWPjadrchixZHAL1zfYpe2XbPwMbjQIDAQAB"
+  ],
+  "_dmarc.emberglow-events.example": [
+    "v=DMARC1; p=reject; rua=mailto:dmarc-reports@emberglow-events.example"
+  ]
+}

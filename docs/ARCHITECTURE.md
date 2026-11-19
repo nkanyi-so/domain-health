@@ -22,12 +22,16 @@ seeded sources ─────┼─> rules ─> fixes ────────�
 
 | Outside system | Interface | Implementations |
 |---|---|---|
-| DNS | `Resolver` (`txt(name)` returns records, no-such-name or timeout) | `LiveResolver` (real DNS), `FixtureResolver` (zone data in `backend/fixtures/zones/`) |
+| DNS | `Resolver` (`txt(name)` returns records, no-such-name or timeout) | `LiveResolver` (real DNS, TXT only; a server failure reads as a timeout; an answer of more than 100 records or with a record over 4,096 characters is "too large", never cut), `FixtureResolver` (zone data in `backend/fixtures/zones/`). `CountingResolver` wraps either and refuses the forty-first lookup for one domain |
 | Language model | `RiskModel` (`rank(snapshot_input)` returns a validated ranked list) | `OpenAIRiskModel` (live; only `make eval-live` and `make record` build it), `RecordedRiskModel` (replays committed recordings by input hash; the deployed worker and `make eval` use it), `FixtureRiskModel` (scripted; tests) |
 | Database | `SnapshotStore` (read snapshot, write daily snapshot, mark handled, reopen, counters) | `FirestoreStore` (production and the emulator), `MemoryStore` (unit tests) |
 | Task queue | `TaskQueue` (`enqueue(client_id, delay)`) | `CloudTasksQueue`, `FakeQueue` |
 | Slack | `Alerter` (`send(message)`) | `SlackWebhookAlerter`, `FakeAlerter`, `NullAlerter` (the hosted demo) |
 | Clock | `Clock` (`today()`, `now()`) | system, fixed |
+
+Where Phase 1 put things (`backend/src/domain_health/`): `resolver/` (the interface and its two implementations), `checks/` (`spf.py`, `dkim.py`, `dmarc.py`, and `run.py`, which gives each check eight seconds), `rules.py` (the fix list), `domain_name.py` (is the typed text a public domain name), `seeded/` (the twelve clients; their days are in `backend/fixtures/clients/`, their DNS in `backend/fixtures/zones/`), `check_domain.py` (`make check-domain`).
+
+A check either gives the fields the risk model receives (`Checks` in `models.py`) or is **unavailable**: a lookup it needed did not answer or answered with more text than a check reads, it ran out of time, or the domain's forty lookups were spent. Unavailable is never read as "no record", so it gives no fix. The model's input cannot hold an unavailable check; fixture zones always answer, so a seeded client's input is always whole, and the typed-domain path, which has no model call, shows the check as not made. Beside those fields a check keeps what they cannot say: the records as read, the problems in plain words, and DKIM keys that are not RSA (found, never called weak, not in `keys`, whose `key_bits` is an RSA length).
 
 Boundaries that matter:
 

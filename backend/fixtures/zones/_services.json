@@ -1,0 +1,35 @@
+{
+  "_spf.mailbarrow.example": [
+    "v=spf1 ip4:198.51.100.0/24 -all"
+  ],
+  "_spf.sendwillow.example": [
+    "v=spf1 include:_a.sendwillow.example include:_b.sendwillow.example include:_c.sendwillow.example ~all"
+  ],
+  "_a.sendwillow.example": [
+    "v=spf1 ip4:203.0.113.0/26 ~all"
+  ],
+  "_b.sendwillow.example": [
+    "v=spf1 ip4:203.0.113.64/26 ~all"
+  ],
+  "_c.sendwillow.example": [
+    "v=spf1 ip4:203.0.113.128/26 ~all"
+  ],
+  "_spf.inboxorchard.example": [
+    "v=spf1 include:_net1.inboxorchard.example include:_net2.inboxorchard.example a mx ~all"
+  ],
+  "_net1.inboxorchard.example": [
+    "v=spf1 ip4:192.0.2.0/25 ~all"
+  ],
+  "_net2.inboxorchard.example": [
+    "v=spf1 ip4:192.0.2.128/25 ~all"
+  ],
+  "_spf.postfinch.example": [
+    "v=spf1 include:_r1.postfinch.example include:_r2.postfinch.example ~all"
+  ],
+  "_r1.postfinch.example": [
+    "v=spf1 ip4:198.51.100.128/26 ~all"
+  ],
+  "_r2.postfinch.example": [
+    "v=spf1 ip4:198.51.100.192/26 ~all"
+  ]
+}

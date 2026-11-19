@@ -1,0 +1,6 @@
+{
+  "northwind-cycles.example": [
+    "v=spf1 include:_spf.mailbarrow.example ~all",
+    "site-verification=northwind-cycles"
+  ]
+}

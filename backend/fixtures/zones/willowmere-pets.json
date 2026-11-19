@@ -1,0 +1,15 @@
+{
+  "willowmere-pets.example": [
+    "v=spf1 include:_spf.sendwillow.example include:_spf.inboxorchard.example -all",
+    "site-verification=willowmere-pets"
+  ],
+  "k1._domainkey.willowmere-pets.example": [
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnshNy/5A5bWULdzzpaOZesewlJme/UyerteWh1iUfk++vINUyCtZAqi/amNFHHhBr+c4HztUkFQNiufrXRqGTYE+Zxqm7phDRS/ugnLJyp3sSTk1xQbkABqq2QrY85UENdY1Kqx8scdGhx5LbjWUhff/ZmcXr8D9c1JiLZJWiwJwJl38Hs+9cm/WtQvNaX6bBYXNaqmOfzj0r76HoE9d6jrLfNPEaC/zOPs+xKu3gddSXPtRoGngDfKuhqW9TAQXKfALDPNJkg+b4oH1bl+i5Qq3ZHjr1nOkQIUO7IzE38edDU0DFw88drBIlWPjadrchixZHAL1zfYpe2XbPwMbjQIDAQAB"
+  ],
+  "s2._domainkey.willowmere-pets.example": [
+    "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3DqVvFfgjexpMvOXthfEh+hxe0yKB6F4NCX3XC0RR48dXVPgdUvxT4zn2jwjPXpYvgA3URFVsgeQYMsbTgLRuctt+VOd+tb90UL+Nocl2C+c28QV2J/PjLJyCuTgDL3utb5YSKwElBHHk5Ais8zp90sCI3BUaNkKGH1nx37ym3wIDAQAB"
+  ],
+  "_dmarc.willowmere-pets.example": [
+    "v=DMARC1; p=reject; rua=mailto:dmarc-reports@willowmere-pets.example"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "oakhaven-outfitters.example": [
+    "v=spf1 include:_spf.postfinch.example ~all",
+    "site-verification=oakhaven-outfitters"
+  ],
+  "s1._domainkey.oakhaven-outfitters.example": [
+    "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3DqVvFfgjexpMvOXthfEh+hxe0yKB6F4NCX3XC0RR48dXVPgdUvxT4zn2jwjPXpYvgA3URFVsgeQYMsbTgLRuctt+VOd+tb90UL+Nocl2C+c28QV2J/PjLJyCuTgDL3utb5YSKwElBHHk5Ais8zp90sCI3BUaNkKGH1nx37ym3wIDAQAB"
+  ],
+  "_dmarc.oakhaven-outfitters.example": [
+    "v=DMARC1; p=none; rua=mailto:dmarc-reports@oakhaven-outfitters.example"
+  ]
+}
