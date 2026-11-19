@@ -97,7 +97,10 @@ def _key_bits(found: dict[str, str]) -> int | None:
     key = base64.b64decode("".join(found["p"].split()), validate=True)
     kind = found.get("k", "rsa").lower()
     if kind == "rsa":
-        return rsa_key_bits(key)
+        bits = rsa_key_bits(key)
+        if bits == 0:
+            raise ValueError("a key with no modulus")
+        return bits
     if kind == "ed25519" and len(key) == ED25519_KEY_BYTES:
         return None
     raise ValueError("not a key type receivers read")
@@ -129,13 +132,13 @@ async def _probe(resolver: Resolver, domain: str, selector: str) -> _Probe:
             continue
         try:
             bits = _key_bits(found)
+            if bits is None:
+                other.append(selector)
+            else:
+                # Built inside the `try`: a length the model refuses is an unreadable key too.
+                keys.append(DkimKey(selector=selector, key_bits=bits))
         except ValueError, binascii.Error:
             unreadable = True
-            continue
-        if bits is None:
-            other.append(selector)
-        else:
-            keys.append(DkimKey(selector=selector, key_bits=bits))
     problems = [f"the key at selector {selector} has been revoked"] if revoked else []
     if unreadable:
         problems.append(f"the key at selector {selector} cannot be read")

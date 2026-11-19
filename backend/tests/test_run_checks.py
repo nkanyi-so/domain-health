@@ -83,3 +83,50 @@ def test_past_the_budget_a_check_is_unavailable_not_wrong() -> None:
     assert "dkim" in results.unavailable
     assert isinstance(results.dkim, Unavailable)
     assert results.dkim.reason == "more than 5 DNS lookups"
+
+
+def test_no_record_a_zone_can_publish_makes_the_checks_raise() -> None:
+    """DNS answers are untrusted. Whatever a zone holds, each check answers or is unavailable."""
+    hostile = [
+        "",
+        " ",
+        ";",
+        "=",
+        "v=",
+        "p=",
+        "v=spf1",
+        "v=spf1 ",
+        "v=spf1 a:",
+        "v=spf1 ip4:",
+        "v=spf1 ip6:::/200",
+        "v=spf1 include:" + "a." * 200,
+        "v=spf1 redirect=%",
+        "v=spf1 " + "mx " * 500,
+        "v=DMARC1",
+        "v=DMARC1;",
+        "v=DMARC1; p",
+        "v=DMARC1; p=; pct=",
+        "v=DMARC1; pct=-1; p=none",
+        "v=DMARC1; pct=99999999999999999999999; p=none",
+        "v=DKIM1",
+        "v=DKIM1; p=MAMCAQA=",
+        "v=DKIM1; p=MAICAA==",
+        "v=DKIM1; p=MAA=",
+        "v=DKIM1; p=MA==",
+        "v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ==",
+        "v=DKIM1; p=AwEA",
+        "v=DKIM1; k=; p=AAAA",
+        "v=DKIM1; s=; p=AAAA",
+        "v=DKIM1; k=ed25519; p=",
+        "k=rsa; p=" + "A" * 4000,
+        "\x00\x01\x02",
+        "\ud7ff" * 50,
+    ]
+    names = [D, f"_dmarc.{D}", *(f"{selector}._domainkey.{D}" for selector in ("mail", "k1"))]
+    for record in hostile:
+        for other in ("", "v=spf1 -all", "v=DMARC1; p=none", dkim_record(2048)):
+            zone = {name: [record, other] if other else [record] for name in names}
+
+            results = run(run_checks(FixtureResolver(zone), D))
+
+            assert results.unavailable == [], repr(record)

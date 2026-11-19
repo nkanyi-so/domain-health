@@ -169,6 +169,9 @@ def test_a_key_type_that_does_not_exist_is_not_a_key() -> None:
         "v=DKIM1; k=ed25519; p=" + rsa_public_key(1024),
         "v=DKIM1; k=r sa; p=" + rsa_public_key(2048),
         "v=DKIM1; s=other; p=" + rsa_public_key(2048),
+        "v=DKIM1; p=MAMCAQA=",
+        "v=DKIM1; p=MAICAA==",
+        "v=DKIM1; p=MAA=",
     ],
     ids=[
         "not base64",
@@ -177,6 +180,9 @@ def test_a_key_type_that_does_not_exist_is_not_a_key() -> None:
         "not 32 bytes",
         "a broken type",
         "not for email",
+        "a modulus of zero",
+        "an empty modulus",
+        "an empty key",
     ],
 )
 def test_a_record_no_receiver_could_use_is_not_a_key(record: str) -> None:
