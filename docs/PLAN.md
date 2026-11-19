@@ -99,7 +99,7 @@ Risks seen:
 
 ### 2026-11-19: what was built
 
-- `backend/`: uv project on Python 3.14; FastAPI app with `/healthz`; the two closed lists (`types.py`); the model's input (`models.py`); the eval case and its loader (`evals/cases.py`); `python -m domain_health.evals` behind `make eval`. Ruff, mypy strict (with the pydantic plugin), pytest. 39 tests, one of them marked `emulator`.
+- `backend/`: uv project on Python 3.14; FastAPI app with `/healthz`; the two closed lists (`types.py`); the model's input (`models.py`); the eval case and its loader (`evals/cases.py`); `python -m domain_health.evals` behind `make eval`. Ruff, mypy strict (with the pydantic plugin), pytest. 40 tests, one of them marked `emulator`.
 - `frontend/`: Next.js 16.4.6, React 19.3, TypeScript strict, ESLint (explicit types on exports are an error), Prettier, Tailwind 4.3, vitest. One page showing the claim; one test that the page's claim is the line in `docs/CLAIM.md`.
 - `emulator/`: pinned `firebase-tools` 15.37.0 and `firebase.json`.
 - `Makefile` and `scripts/` (`dev.sh`, `format-one.sh`, `toolchain-check.sh`, `preflight-project.sh`). `.gitignore`, `.env.example`.
@@ -109,7 +109,7 @@ Changes to the harness layer, all of them (none removes or loosens a check):
 
 - `.claude/settings.json`: five lines added to the allow list, each an exact command with no wildcard: `make eval`, `make eval STRICT=1`, `make dev`, `make screens`, `make fallback`. (Two more, `make format *` and `make check-domain *`, were in the first commit and were taken out after the review below.) Not added, so they always ask: `eval-live`, `record`, `infra`, `deploy-backend`, `seed`. Deny list and hooks unchanged.
 - `.claude/hooks/protected-paths.txt`: four generated paths added (`evals/results.json`, `evals/recordings/*`, `frontend/src/data/fallback.json`, `docs/RUN_LOG.md`).
-- `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; one added, `frontend/src/content/claim.test.ts`.
+- `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; three added: `frontend/src/content/claim.test.ts`, and after the second review `backend/src/domain_health/types.py` and `backend/tests/test_rubric_types.py`.
 - `.claude/hooks/preflight.sh`: calls `scripts/preflight-project.sh` and adds its MISSING count to its own; a missing project script is itself MISSING.
 - `.github/workflows/ci.yml`: the `check` job's placeholder is replaced by setup for uv, pnpm, Node 24 and JDK 21 and the three installs; a third job, `eval`, runs `make eval STRICT=1`. `secrets` is unchanged. Actions pinned by commit: `astral-sh/setup-uv` v10.3.3, `pnpm/action-setup` v6.1.1, `actions/setup-node` v7.1.0, `actions/setup-java` v6.3.0, beside the existing `actions/checkout` pin.
 - `.githooks/pre-commit`, the agents and the skill: unchanged.
@@ -183,6 +183,21 @@ Findings as reported, then what was done:
    - Not done here: Phase 1 adds the first outside system (DNS) and writes the import test with it, with the smoke test as a named exception until Phase 3 replaces it.
 
 It also confirmed: the harness-change list matches the diff of `.claude`, `.githooks` and `.github`; the counts in this log; that no gate, checklist item or heading in this file was edited; and that the verifier and challenger statements at the top of this log are true.
+
+### 2026-11-19: review, second run, on 8f9390e
+
+Verdict as reported: "one blocking finding. The preflight gate cannot pass on the owner's Mac. Everything else holds up: the code, the measure, the CI changes and the fixes from the first review."
+
+1. Blocking. `scripts/preflight-project.sh` called `make --eval`, which "arrived in GNU Make 3.82. This Mac's only `make` is `/usr/bin/make`, GNU Make 3.81", so "the Node and JDK check never runs on this machine" and the first review's fix "now always prints `MISSING: the Node and JDK check did not run`".
+   - Done: the Makefile has a real `toolchain` target and the script calls `make -s toolchain`. On this Mac the preflight now prints `ok:      Node 24` and `ok:      JDK 23` (full output under the gate evidence).
+2. Not blocking. The log said 39 tests; the review-fix commit made it 40.
+   - Done: corrected above.
+3. Not blocking, for the owner. "The labels can be produced by a fixed threshold table": the reviewer wrote "a mechanical reading of `evals/RUBRIC.md`, about 100 lines of if/else" that "reproduces every label in all 20 cases exactly" and every fix list. "So a rules engine with no model would score full marks on coverage, precision and harmful. Passing the bars would then not show 'judgment-call risks from a model'." It set this against the sentence in the risks above, "The rubric keeps the judgment in the context clauses".
+   - Not changed, by its own instruction and the working loop's: this is a question about the measure, so it is the owner's. It is true, and the build's own drafting confirms it: the labels were drafted by applying the rubric mechanically. The risk sentence above was written before the work and is left as written; the fact is that the context clauses are themselves fixed conditions on other fields. It is question 1 under "Waiting on you". The reviewer's run is also a second reading of the five cases changed after the label check: "They all agree with the rubric as written."
+4. Not blocking. `measure-paths.txt` did not list `backend/src/domain_health/types.py` or `backend/tests/test_rubric_types.py`, so a later phase could change the closed lists and the test that pins them together and be merged by the gate.
+   - Done: both added.
+5. Not blocking. The preflight put the OpenAI key and the gcloud token on `curl` command lines, readable by other local processes while the call runs.
+   - Done: both headers go in on standard input (`curl -H @-`).
 
 ---
 

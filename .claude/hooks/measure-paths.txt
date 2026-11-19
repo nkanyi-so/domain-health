@@ -15,3 +15,5 @@ evals/bars.toml
 docs/CLAIM.md
 backend/tests/test_claim_wording.py
 frontend/src/content/claim.test.ts
+backend/src/domain_health/types.py
+backend/tests/test_rubric_types.py

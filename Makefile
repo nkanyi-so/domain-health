@@ -24,7 +24,7 @@ export PATH := $(JDK21)/bin:$(PATH)
 endif
 endif
 
-.PHONY: help setup dev check check-backend check-frontend format eval \
+.PHONY: help setup dev check check-backend check-frontend format eval toolchain \
 	eval-live record seed infra deploy-backend fallback screens check-domain
 
 help:
@@ -38,6 +38,10 @@ setup:
 	git config core.hooksPath .githooks
 	@command -v gitleaks >/dev/null 2>&1 || echo "WARNING: gitleaks is not installed, so commits are not scanned for secrets before they are made."
 	@bash scripts/toolchain-check.sh || true
+
+# Node and JDK as this Makefile finds them. The preflight reads this.
+toolchain:
+	@bash scripts/toolchain-check.sh
 
 dev:
 	bash scripts/dev.sh $(EMULATOR_PROJECT)

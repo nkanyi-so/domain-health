@@ -23,7 +23,7 @@ value_of() {
 }
 
 # --- toolchains (the same reading make uses) -----------------------------------------------------
-if out=$(make -s -C "$ROOT" --eval 'toolchain: ; @bash scripts/toolchain-check.sh' toolchain 2>/dev/null); then
+if out=$(make -s -C "$ROOT" toolchain 2>/dev/null); then
   printf '%s\n' "$out"
 else
   seen=0
@@ -39,8 +39,9 @@ key=$(value_of OPENAI_API_KEY)
 if [ -z "$key" ]; then
   need "the OpenAI key cannot be checked: OPENAI_API_KEY is not set"
 else
+  # The header goes in on stdin, so the key is never on a command line another process can list.
   code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
-    -H "Authorization: Bearer $key" "https://api.openai.com/v1/models/$MODEL" 2>/dev/null || echo 000)
+    -H @- "https://api.openai.com/v1/models/$MODEL" 2>/dev/null <<<"Authorization: Bearer $key" || echo 000)
   case "$code" in
     200) good "the OpenAI key answers for $MODEL" ;;
     401) need "OpenAI refused the key (401). Owner: create a new key in the domain-health project" ;;
@@ -80,10 +81,11 @@ else
         billing_account="${billing##*billingAccounts/}"
         token=$(gcloud auth print-access-token --configuration="$CONFIG" 2>/dev/null)
         allowed=$(curl -sS --max-time 20 -X POST \
-          -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+          -H @- -H "Content-Type: application/json" \
           -H "x-goog-user-project: $project" \
           -d '{"permissions":["billing.budgets.create"]}' \
-          "https://cloudbilling.googleapis.com/v1/billingAccounts/$billing_account:testIamPermissions" 2>/dev/null)
+          "https://cloudbilling.googleapis.com/v1/billingAccounts/$billing_account:testIamPermissions" \
+          2>/dev/null <<<"Authorization: Bearer $token")
         unset token
         case "$allowed" in
           *billing.budgets.create*) good "this login may create budgets on the billing account" ;;
