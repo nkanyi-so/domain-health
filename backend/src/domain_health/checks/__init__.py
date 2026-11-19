@@ -6,10 +6,21 @@ are not RSA.
 """
 
 from domain_health.models import Checks, DkimCheck, DmarcCheck, Frozen, SpfCheck
+from domain_health.resolver import TxtAnswer, TxtStatus
 
 
 class LookupFailedError(Exception):
     """A lookup the check needed did not answer, so the check cannot say anything."""
+
+
+def records_at(name: str, answer: TxtAnswer) -> tuple[str, ...]:
+    """The records a lookup gave, all of them. Silence, or more text than a check reads, is not
+    "no record": the check that asked cannot be made."""
+    if answer.status is TxtStatus.TIMEOUT:
+        raise LookupFailedError(f"the lookup of {name} did not answer")
+    if answer.status is TxtStatus.TOO_LARGE:
+        raise LookupFailedError(f"the lookup of {name} gave more text than a check reads")
+    return answer.records
 
 
 class Unavailable(Frozen):

@@ -903,7 +903,7 @@ Risks seen:
 
 ### 2026-11-19: what was built
 
-- **Resolver** (`backend/src/domain_health/resolver/`): the `Resolver` interface (`txt(name)` gives records, no-such-name or timeout); `FixtureResolver` over zone files; `LiveResolver` over `dnspython` (TXT only, two seconds a query, UDP with TCP as an option); `CountingResolver`, which refuses the forty-first lookup for one domain. DNS text is cut at 4,096 characters a record and twenty records a name.
+- **Resolver** (`backend/src/domain_health/resolver/`): the `Resolver` interface (`txt(name)` gives records, no-such-name or timeout); `FixtureResolver` over zone files; `LiveResolver` over `dnspython` (TXT only, two seconds a query, UDP with TCP as an option); `CountingResolver`, which refuses the forty-first lookup for one domain. DNS text is cut at 4,096 characters a record and twenty records a name. (Changed after the eleventh review: an answer over the limits, now 100 records, is not cut but makes the check unavailable.)
 - **Checks** (`checks/`): `spf.py`, `dkim.py`, `dmarc.py`, and `run.py`, which runs the three side by side with eight seconds each. Each check gives exactly the fields in `models.py` (not edited), plus the records as read and the problems in plain words. A check that cannot be made is "unavailable" and gives no fix.
 - **Domain-name validation** (`domain_name.py`): the eight refusals, and "not a domain name" for everything else that is not plainly one.
 - **Rules engine** (`rules.py`): twelve rules, one fact each, giving a fix with its type, source tag and instruction. It does not import `evals/table.py`. A test runs it over all forty-eight eval cases: its fix list is the case's own, wording included, and its types are the rubric table's.
@@ -1059,9 +1059,18 @@ Its note, no change asked: the DMARC walk-up can ask a public suffix (`_dmarc.co
 
 The evidence below was taken again after this fix.
 
+### 2026-11-19: review, eleventh run, on 285e74d
+
+Verdict as reported: "changes needed. There is one blocking finding. The tenth round's fix holds, and the gate evidence matches the code." With each of four parts of the macro fix put back in a scratch copy, the suite failed. `make check` (546 and 1 passed), `make eval`, the seeded hash, the three gate selections, the name search, the guards, the measure files, the step list's statements and rules 1, 2, 5, 6 and 7 held. "No other blocking findings."
+
+1. Blocking. "A cap in the resolver that throws records away without saying so, which gives wrong fixes on the live path": every answer was cut to its first twenty records and each record to 4,096 characters, and the checks read what was left as the whole. A domain's top name often holds more than twenty TXT records, in no fixed order, so twenty verification tokens followed by the SPF record gave `spf_missing`, and a second SPF record past the cut hid `spf_multiple`. A design fault from the first commit, not a parsing detail.
+   - Done: an answer is given whole or not at all. The limits stay, because DNS text is untrusted (now 100 records at a name, far above a real zone, and 4,096 characters a record), but an answer over either is "too large", a fourth outcome of a lookup beside records, no-such-name and timeout, and the check that asked is unavailable: no fix, and the reason printed. Tests: sixty tokens with the SPF record last is read whole; four over-limit zones (a second SPF record past the limit, the SPF record last, a record too long, an include that answers too much) each leave SPF unavailable, not missing, valid or invalid; the same for a selector and for the DMARC name; the fixture and the live resolver both hold the limits and never cut. `docs/ARCHITECTURE.md` and the decisions entry say so.
+
+The evidence below was taken again after this fix.
+
 ### 2026-11-19: gate evidence
 
-Run on the code as it stands after the tenth review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+Run on the code as it stands after the eleventh review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
 
 1. `make check` exits 0 (lines kept; the rest is tool chatter):
 
@@ -1070,13 +1079,13 @@ $ make check
 44 files already formatted
 All checks passed!
 Success: no issues found in 44 source files
-546 passed, 1 deselected in 2.59s
-1 passed, 546 deselected in 0.23s
+552 passed, 1 deselected in 2.19s
+1 passed, 552 deselected in 0.27s
 ✔  Script exited successfully (code 0)
 All matched files use Prettier code style!
  Test Files  1 passed (1)
       Tests  1 passed (1)
-✓ Compiled successfully in 226ms
+✓ Compiled successfully in 239ms
 make check exit=0
 ```
 

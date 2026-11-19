@@ -8,10 +8,12 @@ from typing import Protocol
 
 from domain_health.models import Frozen
 
-# DNS answers are untrusted text. One record is cut at this length and a name gives at most this
-# many, so a hostile zone cannot make a check hold or print something huge.
+# DNS answers are untrusted text, so there is a limit to how much of it a check will read: this
+# many records at one name, each this long. Real zones sit far below both (a busy domain's top
+# name holds a few dozen records). An answer over either limit is not cut and read in part, which
+# could hide the one record that matters: it is `TOO_LARGE`, and the check is not made.
 MAX_RECORD_CHARS = 4096
-MAX_RECORDS_PER_NAME = 20
+MAX_RECORDS_PER_NAME = 100
 
 # The most TXT lookups one live check of a domain may make, across its three checks.
 MAX_QUERIES_PER_DOMAIN = 40
@@ -21,6 +23,7 @@ class TxtStatus(StrEnum):
     RECORDS = "records"
     NO_SUCH_NAME = "no_such_name"
     TIMEOUT = "timeout"
+    TOO_LARGE = "too_large"
 
 
 class TxtAnswer(Frozen):
@@ -38,8 +41,11 @@ def normal_name(name: str) -> str:
     return name.strip().rstrip(".").lower()
 
 
-def capped(records: list[str]) -> tuple[str, ...]:
-    return tuple(record[:MAX_RECORD_CHARS] for record in records[:MAX_RECORDS_PER_NAME])
+def answer_with(records: list[str]) -> TxtAnswer:
+    """The records a name answered with, whole, or `TOO_LARGE`. Never a part of them."""
+    if len(records) > MAX_RECORDS_PER_NAME or any(len(r) > MAX_RECORD_CHARS for r in records):
+        return TxtAnswer(status=TxtStatus.TOO_LARGE)
+    return TxtAnswer(status=TxtStatus.RECORDS, records=tuple(records))
 
 
 class QueryBudgetSpentError(Exception):

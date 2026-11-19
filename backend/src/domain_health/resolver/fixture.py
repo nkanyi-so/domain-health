@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from domain_health.resolver import TxtAnswer, TxtStatus, capped, normal_name
+from domain_health.resolver import TxtAnswer, TxtStatus, answer_with, normal_name
 
 Zone = dict[str, list[str]]
 _ZONE = TypeAdapter(Zone)
@@ -38,4 +38,4 @@ class FixtureResolver:
             return TxtAnswer(status=TxtStatus.TIMEOUT)
         if name not in self._zone:
             return TxtAnswer(status=TxtStatus.NO_SUCH_NAME)
-        return TxtAnswer(status=TxtStatus.RECORDS, records=capped(self._zone[name]))
+        return answer_with(self._zone[name])

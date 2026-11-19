@@ -32,7 +32,7 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 ## 2026-11-19, Phase 1: a check that cannot be made is "unavailable", outside the model's input
 
-- **Decided:** a lookup that does not answer, a check that passes eight seconds, or a domain past forty lookups makes that check unavailable, with the reason, and it gives no fix. A server failure counts as no answer. One DKIM selector that does not answer makes the whole DKIM check unavailable. The other options were to read silence as "no record" (wrong fixes), or to add an "unknown" state to the model's input (a change to the measure).
+- **Decided:** a lookup that does not answer, a check that passes eight seconds, or a domain past forty lookups makes that check unavailable, with the reason, and it gives no fix. A server failure counts as no answer. So does an answer too large to read (over 100 records at one name, or a record over 4,096 characters): it is never cut and read in part. One DKIM selector that does not answer makes the whole DKIM check unavailable. The other options were to read silence as "no record" (wrong fixes), or to add an "unknown" state to the model's input (a change to the measure).
 - **Why:** `SnapshotInput` has no field for it, and a missing-record fix issued because a server was slow is the worst thing this tool could say. Seeded clients resolve from fixtures that always answer, so their input is always whole. What the worker does if it ever meets an unavailable check is Phase 3's.
 - **To undo:** nothing to revert without choosing one of the two other options; the second is an owner-merged change to `models.py` and the cases.
 - **Status:** to review

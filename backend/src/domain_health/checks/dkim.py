@@ -10,9 +10,9 @@ import base64
 import binascii
 from typing import NamedTuple
 
-from domain_health.checks import DkimFinding, LookupFailedError
+from domain_health.checks import DkimFinding, records_at
 from domain_health.models import DkimCheck, DkimKey
-from domain_health.resolver import Resolver, TxtStatus, normal_name
+from domain_health.resolver import Resolver, normal_name
 
 # Generic selector names in wide use. Twelve, probed at once.
 SELECTORS: tuple[str, ...] = (
@@ -116,13 +116,11 @@ class _Probe(NamedTuple):
 
 async def _probe(resolver: Resolver, domain: str, selector: str) -> _Probe:
     name = f"{selector}._domainkey.{domain}"
-    answer = await resolver.txt(name)
-    if answer.status is TxtStatus.TIMEOUT:
-        raise LookupFailedError(f"the lookup of {name} did not answer")
+    records = records_at(name, await resolver.txt(name))
     keys: list[DkimKey] = []
     other: list[str] = []
     unreadable = revoked = False
-    for record in answer.records:
+    for record in records:
         found = tags(record)
         if "p" not in found:
             continue

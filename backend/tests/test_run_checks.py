@@ -130,3 +130,39 @@ def test_no_record_a_zone_can_publish_makes_the_checks_raise() -> None:
             results = run(run_checks(FixtureResolver(zone), D))
 
             assert results.unavailable == [], repr(record)
+
+
+def test_a_busy_top_name_with_the_spf_record_last_is_read_whole() -> None:
+    tokens = [f"site-verification=token{n}" for n in range(60)]
+    zone = ZONE | {D: [*tokens, "v=spf1 ip4:192.0.2.1 -all"]}
+
+    results = run(run_checks(FixtureResolver(zone), D))
+
+    assert results.unavailable == []
+    assert results.model_input().spf.present is True
+
+
+def test_an_answer_too_large_to_read_makes_the_check_unavailable_not_wrong() -> None:
+    tokens = [f"site-verification=token{n}" for n in range(100)]
+    one_spf_then_too_many = ZONE | {D: ["v=spf1 -all", *tokens, "v=spf1 +all"]}
+    spf_last = ZONE | {D: [*tokens, "v=spf1 -all"]}
+    too_long = ZONE | {D: ["v=spf1 " + "ip4:192.0.2.1 " * 400 + "+all"]}
+    include_too_large = ZONE | {D: ["v=spf1 include:big.example -all"], "big.example": tokens * 2}
+
+    for zone in (one_spf_then_too_many, spf_last, too_long, include_too_large):
+        results = run(run_checks(FixtureResolver(zone), D))
+
+        # Not "no SPF record", not a valid record, not a broken one: not checked.
+        assert results.unavailable == ["spf"]
+        assert isinstance(results.spf, Unavailable)
+        assert results.spf.reason.endswith("gave more text than a check reads")
+
+
+def test_a_selector_or_a_dmarc_name_that_answers_too_much_is_unavailable_too() -> None:
+    flood = ["x"] * 101
+
+    dkim = run(run_checks(FixtureResolver(ZONE | {f"mail._domainkey.{D}": flood}), D))
+    dmarc = run(run_checks(FixtureResolver(ZONE | {f"_dmarc.{D}": flood}), D))
+
+    assert dkim.unavailable == ["dkim"]
+    assert dmarc.unavailable == ["dmarc"]

@@ -12,9 +12,9 @@ import re
 from dataclasses import dataclass, field
 from typing import get_args
 
-from domain_health.checks import LookupFailedError, SpfFinding
+from domain_health.checks import SpfFinding, records_at
 from domain_health.models import AllQualifier, SpfCheck
-from domain_health.resolver import Resolver, TxtStatus, normal_name
+from domain_health.resolver import Resolver, normal_name
 
 LOOKUP_LIMIT = 10
 OVER_LIMIT = LOOKUP_LIMIT + 1
@@ -190,10 +190,8 @@ def parse(record: str) -> Record:
 
 
 async def _spf_records(resolver: Resolver, name: str) -> list[str]:
-    answer = await resolver.txt(name)
-    if answer.status is TxtStatus.TIMEOUT:
-        raise LookupFailedError(f"the lookup of {name} did not answer")
-    return [record for record in answer.records if is_spf(record)]
+    records = records_at(name, await resolver.txt(name))
+    return [record for record in records if is_spf(record)]
 
 
 class _StopCountingError(Exception):

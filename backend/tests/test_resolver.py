@@ -35,13 +35,37 @@ def test_a_named_timeout_never_answers() -> None:
     assert run(resolver.txt("a.example")).status is TxtStatus.TIMEOUT
 
 
-def test_a_long_record_and_a_long_list_are_cut() -> None:
-    resolver = FixtureResolver({"a.example": ["x" * 10_000] * 50})
+def test_an_answer_at_the_limits_is_given_whole() -> None:
+    records = ["x" * MAX_RECORD_CHARS] * MAX_RECORDS_PER_NAME
 
-    answer = run(resolver.txt("a.example"))
+    answer = run(FixtureResolver({"a.example": records}).txt("a.example"))
 
-    assert len(answer.records) == MAX_RECORDS_PER_NAME
-    assert all(len(record) == MAX_RECORD_CHARS for record in answer.records)
+    assert answer.status is TxtStatus.RECORDS
+    assert answer.records == tuple(records)
+
+
+@pytest.mark.parametrize(
+    "records",
+    [["x"] * (MAX_RECORDS_PER_NAME + 1), ["fine", "x" * (MAX_RECORD_CHARS + 1)]],
+    ids=["one record too many", "one record too long"],
+)
+def test_an_answer_over_a_limit_is_too_large_and_never_cut(records: list[str]) -> None:
+    answer = run(FixtureResolver({"a.example": records}).txt("a.example"))
+
+    assert answer.status is TxtStatus.TOO_LARGE
+    assert answer.records == ()
+
+
+def test_the_live_resolver_holds_an_answer_to_the_same_limits() -> None:
+    many = _Answer([_Rdata(b"x") for _ in range(MAX_RECORDS_PER_NAME + 1)])
+    long = _Answer([_Rdata(b"x" * 255, b"y" * (MAX_RECORD_CHARS - 254))])
+
+    assert run(LiveResolver(resolver=_FakeDns(many)).txt("example.com")).status is (
+        TxtStatus.TOO_LARGE
+    )
+    assert run(LiveResolver(resolver=_FakeDns(long)).txt("example.com")).status is (
+        TxtStatus.TOO_LARGE
+    )
 
 
 def test_a_later_zone_file_replaces_a_name_from_an_earlier_one() -> None:

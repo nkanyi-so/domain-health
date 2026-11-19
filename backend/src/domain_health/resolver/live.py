@@ -12,7 +12,7 @@ import dns.exception
 import dns.name
 import dns.resolver
 
-from domain_health.resolver import TxtAnswer, TxtStatus, capped
+from domain_health.resolver import TxtAnswer, TxtStatus, answer_with
 
 QUERY_SECONDS = 2.0
 
@@ -86,4 +86,4 @@ class LiveResolver:
             b"".join(rdata.strings).decode("utf-8", errors="replace")
             for rdata in (answer.rrset or [])
         ]
-        return TxtAnswer(status=TxtStatus.RECORDS, records=capped(records))
+        return answer_with(records)

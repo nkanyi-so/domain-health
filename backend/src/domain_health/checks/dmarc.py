@@ -8,10 +8,10 @@ What is reported is the policy that applies to the name that was asked about.
 import re
 from typing import get_args
 
-from domain_health.checks import DmarcFinding, LookupFailedError
+from domain_health.checks import DmarcFinding, records_at
 from domain_health.checks.dkim import tags
 from domain_health.models import DmarcCheck, DmarcPolicy
-from domain_health.resolver import Resolver, TxtStatus, normal_name
+from domain_health.resolver import Resolver, normal_name
 
 MAX_NAMES_TRIED = 4
 _PCT = re.compile(r"[0-9]{1,3}")
@@ -72,10 +72,8 @@ def _names(domain: str) -> list[str]:
 async def check_dmarc(resolver: Resolver, domain: str) -> DmarcFinding:
     domain = normal_name(domain)
     for name in _names(domain):
-        answer = await resolver.txt(f"_dmarc.{name}")
-        if answer.status is TxtStatus.TIMEOUT:
-            raise LookupFailedError(f"the lookup of _dmarc.{name} did not answer")
-        records = [record for record in answer.records if is_dmarc(record)]
+        answer = records_at(f"_dmarc.{name}", await resolver.txt(f"_dmarc.{name}"))
+        records = [record for record in answer if is_dmarc(record)]
         if not records:
             continue
         if len(records) > 1:
