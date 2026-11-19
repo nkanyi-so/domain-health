@@ -68,3 +68,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T21:57:54Z	2	verify	pass @ c6f7f0e	1.85
 2026-11-19T22:03:55Z	2	challenge	change needed @ c6f7f0e	1.85
 2026-11-19T22:03:55Z	2	checkpoint	Phase 2, second time, after the owner's one further attempt, pr=#6	1.85
+2026-11-19T22:04:29Z	2	stop-opened	issue=#8 questions=6 asked: Phase 2 checkpoint again: the one further attempt missed two bars; six questions, none paid	1.85
