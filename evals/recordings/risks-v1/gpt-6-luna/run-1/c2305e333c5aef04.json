@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c2305e333c5aef04273cc8c9f8f92b8d5b7e91641bb8081271d0bfade698645e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"This week's volume is several times the previous week's. The domain is still young, and its reputation is not at the top grade, so it may not absorb that jump safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.domain_age_days\",\"sources.reputation.grade\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is still in its early weeks but is already sending substantial volume, before it has built much sending history.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The valid DMARC record is not enforcing, while SPF and DKIM are readable and have no outstanding fixes. This established sending setup could move beyond monitoring.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3521,
+  "output_tokens": 241,
+  "cost_usd": 0.00047260000000000005,
+  "latency_ms": 4510,
+  "recorded_at": "2026-11-19T18:51:29+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "49d368da8298fd2b1425983f5e2df8d28f5d31ede44bbbff133d85248685a543",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has deteriorated\",\"why\":\"The mailbox-provider grade has worsened since the previous reading, indicating a downward trend.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current mailbox-provider grade is at the bottom of the scale, which can undermine delivery.\",\"evidence\":[\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 3616,
+  "output_tokens": 106,
+  "cost_usd": 0.00041460000000000005,
+  "latency_ms": 3506,
+  "recorded_at": "2026-11-19T18:52:11+00:00"
+}

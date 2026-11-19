@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c3dcdbb98749b3fbd321b4de93739c4af5e2dad3c16d20ffaa4c3af91c4ed905",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The mailbox-provider grade has fallen from high to medium, indicating a worsening reputation trend.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The valid DMARC record is set to monitoring on an established domain, while SPF and DKIM have no outstanding fixes. This leaves room to move toward enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.selectors_probed\",\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key is short\",\"why\":\"The only key found is an older, shorter signing key, so it is due for rotation.\",\"evidence\":[\"checks.dkim.selectors_probed\",\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3524,
+  "output_tokens": 224,
+  "cost_usd": 0.0004644,
+  "latency_ms": 3690,
+  "recorded_at": "2026-11-19T18:51:30+00:00"
+}

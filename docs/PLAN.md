@@ -20,7 +20,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.01 of $10 cap
+Spend: $0.13 of $10 cap
 Decisions to review: 15 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
@@ -1303,6 +1303,44 @@ temperature with reasoning off on gpt-6-luna: ACCEPTED (call completed)
 ```
 
 `temperature` 0 is accepted with reasoning off, so it is sent with every call (`evals/settings.toml`), and decision 0002 records it. The input was a seeded client's, not an eval case; the instructions were one sentence, not a prompt version. The call is the first line of `evals/ledger.jsonl`.
+
+### 2026-11-19: what was built before the first live run
+
+- **The model's output** (`backend/src/domain_health/risks/__init__.py`): the structured-output schema (a type from the closed list, a title, a reason, evidence as input field names from a closed list), validation, and the ID built in code. One broken rule drops the whole output: a shape that is not the schema's, more than eight, a type twice, an empty or over-long title or reason, a number in the text that the input does not hold. A word that starts with a digit and is not a number (`18k`, `2x`) counts as invented.
+- **The model seam** (`risks/model.py`, `risks/openai_model.py`): `RiskModel` with `RecordedRiskModel`, `FixtureRiskModel` and `OpenAIRiskModel`. A recording is one file per input holding the model's text exactly as it came back; it is validated again at every use. The live module is the only one that imports `openai`, which is in the `live` dependency group; a test holds both, and that only the paid command loads the live module.
+- **The spend ledger** (`risks/ledger.py`, `evals/ledger.jsonl`): every paid call is checked before it is made, at the most it could cost (no token is shorter than a byte, so the request's size in bytes bounds its tokens), against the cap line in `docs/STANDING.md`; calls in flight count at their worst; the ledger is a committed file.
+- **The eval harness** (`evals/scoring.py`, `evals/report.py`, `evals/__main__.py`, `evals/live.py`): the four measures as the spec defines them, the dropped count, each run's own numbers, coverage per risk type, each set with the rules-only baseline beside it, the comparison on the open set, `evals/results.json` (totals only: no case is named in it). `make eval` scores committed recordings for free; `make eval-live` is the paid run and refuses a prompt version whose three runs are already recorded. A per-case report exists for the table set only; the open set's cases are never printed.
+- **Tests:** 641 in the backend outside the emulator. Among them the ones the checklist names: only a case's `input` reaches the model; a prompt holds none of the rubric's numbers, none of its band lines, no eval case's domain and no eval case's input as a worked example; one run of the whole plumbing on fixture recordings with no threshold asserted.
+- **`backend/pyproject.toml`:** `default-groups = ["dev", "live"]`, so the live module is linted, typed and tested in `make check` and CI against a fake client. The production image (Phase 4) installs neither group.
+- **Libraries, checked against what was installed:** `openai` 3.55.1. `AsyncOpenAI().responses.parse(model=, instructions=, input=, text_format=<pydantic model>, reasoning={"effort": "none"}, temperature=, max_output_tokens=, store=)` is as decision 0002 expects; the response carries `status`, `output_text` and `usage.input_tokens` / `output_tokens`.
+
+### 2026-11-19: prompt version 1, and the first live run
+
+`prompts/risks-v1.md` (2,278 words) was written by an agent with fresh context working in a folder outside the repository that held four things: the rubric, the thirty table cases, the input model and the output rules. It was told the measures and what a prompt may not hold. It reported that it read nothing else. Its own summary of its design: types the rubric calls merely acceptable are left out, not listed last, and "when in doubt, leave it out"; no thresholds, so "value boundaries are the weak spot".
+
+"Spend:" was raised to its worst case ($0.01 + $0.12) before the run. Attempt 1, `gpt-6-luna`, the whole output above the per-case lines:
+
+```text
+$ make eval-live
+run 1: 48 call(s) recorded
+run 2: 48 call(s) recorded
+run 3: 48 call(s) recorded
+144 call(s) on 2026-11-19, $0.0563; spent in all $0.0564
+risks-v1 (3fddf3229020) on gpt-6-luna, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.552                        bar >= 0.8   missed  each run: 0.582 0.507 0.567
+precision  0.986                        bar >= 0.8   met  each run: 0.980 1.000 0.979
+harmful    2 in 144 case-runs           bar == 0     missed  each run: 1 0 1
+stability  0.792 (38 of 48 cases)       bar >= 0.9   missed
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 0.579, precision 0.977, harmful 2, stability 0.833, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+  open set (18 cases, 25 expected items): coverage 0.507, precision 1.000, harmful 0, stability 0.722, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 8/15, dmarc_partial_enforcement 1/9, spf_near_lookup_limit 2/9, spf_weak_all 2/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 1/18, bounce_rate_elevated 1/24, volume_spike 12/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 12/15
+  better than the rules-only baseline on the open set: no
+  cost $0.0563, 509709 tokens in, 10594 out, median latency 2367 ms
+```
+
+Three bars missed on the first live run, so the set is not too easy and the stop for harder cases does not apply. Read from the table cases only (their per-case lines are in the session and went to the next prompt writer; the open set was looked at as the totals above and no further): the model is far too restrained. Complaint and bounce rates under their hard limits are almost never raised (1 of 18 and 1 of 24 over the runs), nor is partial DMARC enforcement (1 of 9) or an SPF record near its lookup limit (2 of 9); a `p=none` policy on an established domain is missed about half the time. The two harmful answers are one table case, in two of three runs: `spf_weak_all` named on a record the rubric's bands call wrong for it. Nothing was dropped by validation.
 
 ---
 

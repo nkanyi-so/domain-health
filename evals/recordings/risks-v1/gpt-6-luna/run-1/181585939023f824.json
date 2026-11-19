@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "181585939023f82455b89c23fc844f8f2233a115cddc50ec1246e5698b8d91ed",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The mailbox-provider grade has worsened since the previous reading, which signals a deterioration in how providers view this domain.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The current reputation grade is low, indicating that providers may be less willing to deliver this domain’s mail to the inbox.\",\"evidence\":[\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 3527,
+  "output_tokens": 116,
+  "cost_usd": 0.00041070000000000006,
+  "latency_ms": 3039,
+  "recorded_at": "2026-11-19T18:51:39+00:00"
+}

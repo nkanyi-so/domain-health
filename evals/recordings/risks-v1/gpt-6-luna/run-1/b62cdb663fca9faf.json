@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "b62cdb663fca9faf35d841a231e91e8259a7fdec57e6e86d2548b916a8046f8e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Engagement has fallen\",\"why\":\"The open rate is down substantially from its earlier level, despite meaningful sending volume. That can signal weakening audience interest.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The domain has a valid monitoring-only DMARC policy, while SPF and DKIM are readable and have no outstanding fixes. This leaves enforcement available to strengthen its protection.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3524,
+  "output_tokens": 171,
+  "cost_usd": 0.0004379,
+  "latency_ms": 2853,
+  "recorded_at": "2026-11-19T18:51:34+00:00"
+}

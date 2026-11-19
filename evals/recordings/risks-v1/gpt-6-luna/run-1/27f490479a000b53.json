@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "27f490479a000b532eaa6a56da576ec2a4d56dc58fff03d52c6b288ad9cdfa6c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Repeated recent blocklist history\",\"why\":\"The domain has had multiple blocklist listings in the recent lookback window, so the underlying cause may still be active even though it is not listed now.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 3529,
+  "output_tokens": 88,
+  "cost_usd": 0.00039690000000000005,
+  "latency_ms": 2306,
+  "recorded_at": "2026-11-19T18:51:34+00:00"
+}

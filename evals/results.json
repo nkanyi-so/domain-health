@@ -1,0 +1,97 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "recorded_at": "2026-11-19T18:52:25+00:00",
+  "runs": 3,
+  "cases": 48,
+  "case_runs": 144,
+  "measures": {
+    "coverage": {
+      "value": 0.5522388059701493,
+      "runs": [
+        0.582089552238806,
+        0.5074626865671642,
+        0.5671641791044776
+      ],
+      "bar": ">= 0.8",
+      "met": false
+    },
+    "precision": {
+      "value": 0.9861050803300043,
+      "runs": [
+        0.9795918367346939,
+        1.0,
+        0.9787234042553191
+      ],
+      "bar": ">= 0.8",
+      "met": true
+    },
+    "harmful": {
+      "value": 2.0,
+      "runs": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "bar": "== 0",
+      "met": false
+    },
+    "stability": {
+      "value": 0.7916666666666666,
+      "runs": [],
+      "bar": ">= 0.9",
+      "met": false
+    }
+  },
+  "all_bars_met": false,
+  "dropped": 0,
+  "sets": {
+    "table": {
+      "cases": 30,
+      "expected_items": 42,
+      "coverage": 0.5793650793650794,
+      "precision": 0.9769841269841271,
+      "harmful": 2,
+      "stability": 0.8333333333333334,
+      "dropped": 0,
+      "baseline_coverage": 1.0,
+      "baseline_precision": 1.0,
+      "baseline_harmful": 0
+    },
+    "open": {
+      "cases": 18,
+      "expected_items": 25,
+      "coverage": 0.5066666666666667,
+      "precision": 1.0,
+      "harmful": 0,
+      "stability": 0.7222222222222222,
+      "dropped": 0,
+      "baseline_coverage": 0.68,
+      "baseline_precision": 1.0,
+      "baseline_harmful": 0
+    }
+  },
+  "coverage_by_type": {
+    "dmarc_policy_none": "8/15",
+    "dmarc_partial_enforcement": "1/9",
+    "spf_near_lookup_limit": "2/9",
+    "spf_weak_all": "2/6",
+    "dkim_key_1024": "6/6",
+    "reputation_declining": "21/21",
+    "reputation_poor": "27/27",
+    "complaint_rate_elevated": "1/18",
+    "bounce_rate_elevated": "1/24",
+    "volume_spike": "12/27",
+    "new_domain_volume": "6/12",
+    "engagement_declining": "12/12",
+    "blocklist_recent": "12/15"
+  },
+  "better_than_baseline_on_open": false,
+  "input_tokens": 509709,
+  "output_tokens": 10594,
+  "cost_usd": 0.056268,
+  "median_latency_ms": 2367
+}

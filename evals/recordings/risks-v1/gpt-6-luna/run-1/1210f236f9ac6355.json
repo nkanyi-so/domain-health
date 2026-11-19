@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1210f236f9ac6355689e1f6916b90ff154c12174e0f924f4cfce265ad4a0bbb7",
+  "status": "completed",
+  "output_text": "{\"risks\":[]}",
+  "detail": null,
+  "input_tokens": 3525,
+  "output_tokens": 13,
+  "cost_usd": 0.000359,
+  "latency_ms": 3054,
+  "recorded_at": "2026-11-19T18:51:22+00:00"
+}
