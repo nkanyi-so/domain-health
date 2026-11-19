@@ -63,3 +63,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T20:11:25Z	2	checkpoint	Phase 2 the model and the evals, pr=#6	0.99
 2026-11-19T20:11:45Z	2	stop-opened	issue=#7 questions=6 asked: Phase 2 checkpoint: one bar missed, the challenger asks for a change; six questions	0.99
 2026-11-19T21:33:51Z	2	stop-closed	issue=#7 opened=2026-11-19T20:11:45Z	0.99
+2026-11-19T21:53:11Z	2	review	blocking findings @ 5f674cf	1.85

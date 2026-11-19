@@ -116,7 +116,7 @@ def test_the_printed_lines_say_each_measure_its_bar_and_met_or_missed(tmp_path: 
         "dropped",
     ]
     assert all(line.split("  each run")[0].rstrip().endswith("met") for line in out[1:5])
-    assert "0 in 144 case-runs (48 cases, 3 runs that agreed on 48)" in out[3]
+    assert "0 in 144 case-runs (48 cases, 3 runs whose first five agreed on 48)" in out[3]
     assert "(48 of 48 cases)" in out[4]
     assert out[5] == "dropped    0 of 144 outputs"
     assert out[6] == "no bar:"

@@ -99,7 +99,7 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 | harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
 | stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs (48 cases, 3 runs that agreed on N)", with the number of cases whose three runs agreed: it bounds the rate, it does not show never, and runs that agree are not separate evidence. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs (48 cases, 3 runs whose first five agreed on N)", with the number of cases whose three runs gave the same first five: it bounds the rate, it does not show never, and runs that agree are not separate evidence. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
 
 The bars live in `evals/bars.toml` and are judged on all forty-eight cases together.
 

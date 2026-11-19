@@ -74,16 +74,18 @@ _RELATIVE = re.compile(
     r"short of|exactly|fraction of|a few hundred|thousands of|"
     # Version 4 also leans on the input's own field names and on plain spans of time.
     r"a third of|a month|full year|ordinary year|lookback window|the thousands|the hundreds|"
-    r"bulk-sender count)\b",
+    r"bulk-sender count|name of|gives its length|recall)\b",
     re.IGNORECASE,
 )
 
 
 def relative_wording(prompt_text: str) -> list[str]:
     """The sentences of a prompt that place a line relative to a figure the model is asked to
-    recall. The owner ruled such wording allowed (2026-11-19) as long as it is shown: this lists
-    it for a reader, and nothing passes or fails on it. The list is by words, so it can include
-    a sentence that is not a threshold and miss one phrased another way."""
-    sentences = re.split(r"(?<=[.:?!])\s+|\n+", prompt_text)
+    recall, a field's name or a span of time. The owner ruled wording relative to a public figure
+    allowed (2026-11-19) as long as it is shown; the rest is listed for the owner to rule on. This
+    lists it for a reader, and nothing passes or fails on it. The list is by words, so it can
+    include a sentence that is not a threshold and miss one phrased another way."""
+    # Not split at a colon: a term and the sentence that defines it stay together.
+    sentences = re.split(r"(?<=[.?!])\s+|\n+", prompt_text)
     found = [" ".join(sentence.split()) for sentence in sentences if _RELATIVE.search(sentence)]
     return list(dict.fromkeys(sentence.lstrip("- ").strip() for sentence in found))

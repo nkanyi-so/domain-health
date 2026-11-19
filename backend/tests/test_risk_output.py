@@ -427,7 +427,10 @@ def test_ordinary_separators_between_any_two_of_the_inputs_numbers_are_accepted(
                 assert len(validate(SNAPSHOT, output(risk("volume_spike", why=why)))) == 1, why
 
 
-@pytest.mark.parametrize("why", ["A key of 20,48 bits.", "About 1,84,00 sent.", "Sent 18,4000."])
+@pytest.mark.parametrize(
+    "why",
+    ["A key of 20,48 bits.", "About 1,84,00 sent.", "Sent 18,4000.", "Sent 0,900.", "To 000,900."],
+)
 def test_a_comma_where_no_thousands_comma_goes_is_not_a_number(why: str) -> None:
     with pytest.raises(InvalidOutputError, match="not in the input"):
         validate(SNAPSHOT, output(risk("volume_spike", why=why)))

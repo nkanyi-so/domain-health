@@ -97,8 +97,9 @@ def test_wording_that_places_a_line_relative_to_a_figure_is_listed_not_judged() 
     listed = prompt_rules.relative_wording(text)
 
     assert listed == [
-        "The count equals the cap exactly, or is a single lookup short of it:",
-        "A count of half the cap or less:",
+        "Recall the cap.",
+        "The count equals the cap exactly, or is a single lookup short of it: raise.",
+        "A count of half the cap or less: not raised.",
         "Twice is twice.",
     ]
     assert prompt_rules.relative_wording("Rank the risks a specialist would raise.") == []
@@ -113,3 +114,13 @@ def test_version_three_is_listed_for_the_wording_the_challenger_named() -> None:
 
     for phrase in ("a single lookup short of it", "half the cap or less", "twice that length"):
         assert phrase in listed
+
+
+def test_version_four_is_listed_for_the_sentence_that_takes_a_length_from_a_field_name() -> None:
+    v4 = load_prompt(PROMPTS / "risks-v4.md").text
+
+    listed = prompt_rules.relative_wording(v4)
+
+    assert any("The name of `listings_90d` gives its length in days." in s for s in listed)
+    assert any("exactly a third of the lookback window" in s for s in listed)
+    assert any("Recall that count." in s for s in listed)

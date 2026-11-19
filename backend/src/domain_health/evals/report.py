@@ -8,7 +8,7 @@ Two things are shown so a reader can tell a model from a table of thresholds. A 
 bands call merely acceptable earns nothing on any measure, and on an open case it may be the very
 thing the written call makes wrong: how many of those each set got is counted. And the runs are
 scored again with only the types the bands expect kept: where that line equals the baseline's,
-everything the model added to the table was such a type.
+everything the model added to the table was a type the bands do not expect.
 """
 
 import statistics
@@ -248,10 +248,13 @@ def lines(results: Results) -> list[str]:
         if name == "harmful":
             shown = f"{int(result.value or 0)} in {results.case_runs} case-runs"
             if not result.value:
-                # Runs that agree are not separate evidence: say how many distinct answers the
-                # zero rests on.
+                # Runs that agree are not separate evidence: say how many cases gave the same
+                # first five every time (stability's count; places six to eight may differ).
                 agreed = round((results.measures["stability"].value or 0) * results.cases)
-                shown += f" ({results.cases} cases, {results.runs} runs that agreed on {agreed})"
+                shown += (
+                    f" ({results.cases} cases, {results.runs} runs whose first five agreed "
+                    f"on {agreed})"
+                )
         elif name == "stability":
             stable = round((result.value or 0) * results.cases)
             shown = f"{_number(result.value)} ({stable} of {results.cases} cases)"
@@ -290,8 +293,8 @@ def lines(results: Results) -> list[str]:
     better = "yes" if results.better_than_baseline_on_open else "no"
     out.append(f"  better than the rules-only baseline on the open set: {better}")
     out.append(
-        f"  prompt sentences that place a line relative to a figure the model recalls "
-        f"(allowed, listed in the results file): {len(results.prompt_relative_wording)}"
+        f"  prompt sentences that place a line relative to a figure, a field's name or a "
+        f"span of time (listed in the results file): {len(results.prompt_relative_wording)}"
     )
     out.append(
         f"  cost ${results.cost_usd:.4f}, {results.input_tokens} tokens in, "

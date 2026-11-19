@@ -102,7 +102,7 @@ def risk_id(risk_type: RiskType, domain: str) -> str:
 #   other script cannot be in the input and counts as invented.
 _WORD = re.compile(r"[A-Za-z0-9_](?:[A-Za-z0-9_.,]*[A-Za-z0-9_])?")
 _DIGITS = re.compile(r"[0-9]+")
-_GROUPED = re.compile(r"[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?")
+_GROUPED = re.compile(r"[1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]+)?")
 NOT_A_NUMBER = Decimal("NaN")
 PROTOCOL_WORDS = frozenset(
     {"spf1", "dkim1", "dmarc1", "ipv4", "ipv6", "ip4", "ip6", "sha1", "sha256"}

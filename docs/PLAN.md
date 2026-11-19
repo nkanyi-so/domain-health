@@ -1827,6 +1827,20 @@ To be said plainly, in these words or plainer:
 - A table of rules with no model meets all four bars on the same cases. On this evidence the model adds nothing to the rules on the risk list, and in its final version it is less reliable than they are.
 - The second real failure, and what it shows: version 4 was a narrow change to stop the model returning merely-acceptable risks. It did that, and at the same stroke made the model raise a complaint-rate risk at random on eight cases that version 3 had right in every run. A prompt change that fixes one line can unsettle another, and only a full run on every case shows it. The owner chose to stop there and ship the miss.
 
+### 2026-11-19: review, ninth run, on 5f674cf (the changes since cd7613f only)
+
+Kept, as the owner asked, to what changed since cd7613f. Verdict: **blocking findings** (one). What it ran and found to hold: `make check` exits 0 (750 backend tests); `make eval STRICT=1` prints the attempt-5 lines above and exits 2; the results file is the one the code writes; version 3 rescored gives attempt 4's numbers; the ledger sums to $1.8521 over 721 lines; the 144 new recordings are complete, hold no digit and no domain outside `.example`; gitleaks finds nothing in the new commits; no guard and no measure file changed; the comma rule's test fails with the rule off; the owner's six answers are carried out as recorded and the spec's new paragraph matches the log.
+
+Its findings, as reported, and what was done:
+
+1. **Blocking.** The decision entry and the log said version 4's field-name wording "is in the list `make eval` counts and `evals/results.json` holds", but the list split sentences at a colon, so the sentence that takes the day count from a field name ("The name of `listings_90d` gives its length in days.") was not in it, nor "Recall the cap." and "Recall that count." **Fixed:** the list no longer splits at a colon and also matches "name of", "gives its length" and "recall"; a test holds version 4 to listing that sentence. The count is now 42 for version 4 (it read 38 in the output pasted above, which is left as it was printed).
+2. The printed line called every listed sentence "allowed", when the field-name sentences are past the owner's ruling. **Fixed:** the line now reads "relative to a figure, a field's name or a span of time (listed in the results file)".
+3. Letting the field-name wording stand before a paid run would normally have been a stop; in practice it is one, since the pull request goes back to the owner. **For the owner:** it is question 1 of the block under "Waiting on you".
+4. A comma group with leading zeros passed (`0,900`, `000,900`). **Fixed:** a grouped number starts with a digit from 1 to 9; both texts are in the test.
+5. "Runs that agreed on N" took N from stability, which compares the first five, while harmful counts up to eight. **Fixed in wording:** "3 runs whose first five agreed on N", in the output and in the spec.
+6. A docstring said that where the kept-only line equals the baseline, everything the model added was a merely-acceptable type; attempt 5 added ten wrong ones. **Fixed.**
+7. The lines added to the checklists of Phases 5 and 6 need the owner's confirmation at the merge. **For the owner:** question 3 of the block.
+
 ---
 
 ## Phase 3: snapshots and the handled loop
