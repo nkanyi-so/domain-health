@@ -129,6 +129,8 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 
 **Gating a change.** A prompt change is a new version file. It ships only with recordings for that version that meet all four bars. The README's eval table names the prompt version, the model and the date.
 
+**The Phase 2 result: the bars were not met.** Five paid attempts were made, on four prompt versions and two models, and none met all four bars. The final prompt version, version 4 on `gpt-6.1-terra`, scored coverage 0.881, precision 0.940, harmful 12 in 144 case-runs and stability 0.812: the harmful bar and the stability bar are missed. The best attempt, version 3 on the same model, scored 0.896, 0.962, 9 in 144 and 0.979 and missed the harmful bar alone. The rules-only baseline meets all four on the same cases, and the model did not do better than it on the open cases in any attempt. The owner set a limit of one attempt after the Phase 2 challenge and chose to ship the miss as it stands (2026-11-19). So "it ships only with recordings that meet all four bars" is not satisfied by any version, `make eval STRICT=1` exits non-zero, CI's `eval` job is red, and the README says all of this in plain words beside the eval table. Every attempt's numbers are in the Phase 2 log in `docs/PLAN.md`.
+
 **If the first live run scores full marks on everything,** the set is too easy: harder cases are added until something fails, the fix is made, and the before and after are kept. That touches the labels, so the owner merges that phase.
 
 ### What must be refused
@@ -155,7 +157,7 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 
 - A real domain typed on the hosted page gets live DNS checks and a fix list.
 - After one scheduled run, all twelve seeded clients have today's snapshot in Firestore.
-- The eval table is in the README with the prompt version, the model and the date, and all four bars are met.
+- The eval table is in the README with the prompt version, the model and the date, and all four bars are met. **Not met as written:** the bars were missed in Phase 2 (see "The Phase 2 result" above), and the owner ships the miss. What is done instead: the table is in the README with the missed bars marked as missed.
 - CI is green on `main`. No key in the repository or its history. No real client, company or person in the tree or the history. The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
 - The hosted page loads in a real browser with no key on the visitor's side, in both themes, at desktop and phone width.
 - Left to the owner: the walkthrough video, and making the repository public.

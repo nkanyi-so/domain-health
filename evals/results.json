@@ -1,49 +1,49 @@
 {
-  "prompt_version": "risks-v3",
-  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
   "model": "gpt-6.1-terra",
   "reasoning_effort": "none",
   "temperature": 0.0,
-  "recorded_at": "2026-11-19T19:13:49+00:00",
+  "recorded_at": "2026-11-19T21:45:52+00:00",
   "runs": 3,
   "cases": 48,
   "case_runs": 144,
   "measures": {
     "coverage": {
-      "value": 0.8955223880597015,
+      "value": 0.8805970149253731,
       "runs": [
-        0.8955223880597015,
-        0.8955223880597015,
-        0.8955223880597015
+        0.8805970149253731,
+        0.8805970149253731,
+        0.8805970149253731
       ],
       "bar": ">= 0.8",
       "met": true
     },
     "precision": {
-      "value": 0.9621835443037975,
+      "value": 0.9395377425228172,
       "runs": [
-        0.9625,
-        0.9620253164556962,
-        0.9620253164556962
+        0.9538461538461539,
+        0.9393939393939394,
+        0.9253731343283582
       ],
       "bar": ">= 0.8",
       "met": true
     },
     "harmful": {
-      "value": 9.0,
+      "value": 12.0,
       "runs": [
         3.0,
-        3.0,
-        3.0
+        4.0,
+        5.0
       ],
       "bar": "== 0",
       "met": false
     },
     "stability": {
-      "value": 0.9791666666666666,
+      "value": 0.8125,
       "runs": [],
       "bar": ">= 0.9",
-      "met": true
+      "met": false
     }
   },
   "all_bars_met": false,
@@ -53,14 +53,14 @@
       "cases": 30,
       "expected_items": 42,
       "coverage": 1.0,
-      "precision": 1.0,
-      "harmful": 0,
-      "stability": 0.9666666666666667,
+      "precision": 0.9268774703557311,
+      "harmful": 10,
+      "stability": 0.7333333333333333,
       "dropped": 0,
       "baseline_coverage": 1.0,
       "baseline_precision": 1.0,
       "baseline_harmful": 0,
-      "band_acceptable_returned": 22,
+      "band_acceptable_returned": 0,
       "expected_only_coverage": 1.0,
       "expected_only_precision": 1.0,
       "expected_only_harmful": 0,
@@ -69,15 +69,15 @@
     "open": {
       "cases": 18,
       "expected_items": 25,
-      "coverage": 0.7200000000000001,
-      "precision": 0.9,
-      "harmful": 9,
-      "stability": 1.0,
+      "coverage": 0.68,
+      "precision": 0.9682539682539683,
+      "harmful": 2,
+      "stability": 0.9444444444444444,
       "dropped": 0,
       "baseline_coverage": 0.68,
       "baseline_precision": 1.0,
       "baseline_harmful": 0,
-      "band_acceptable_returned": 30,
+      "band_acceptable_returned": 0,
       "expected_only_coverage": 0.68,
       "expected_only_precision": 1.0,
       "expected_only_harmful": 0,
@@ -97,36 +97,51 @@
     "volume_spike": "15/27",
     "new_domain_volume": "6/12",
     "engagement_declining": "12/12",
-    "blocklist_recent": "15/15"
+    "blocklist_recent": "12/15"
   },
   "better_than_baseline_on_open": false,
   "prompt_relative_wording": [
     "Your list is exactly the types that came out as raise.",
     "Compare numbers exactly, place by place, without rounding either side.",
+    "A state that is only worth a passing remark comes out as not raised, exactly like a state that is fine:",
     "When there is not exactly a single valid record, `lookup_count` and `all_qualifier` are null because there is nothing to read; that null says nothing about the record's ending.",
+    "`listed` (on a blocklist now), `listings_90d` (how many listings were active inside the lookback window, a current one included) and `days_since_delisted` (null while listed now, and null when no listing ended in the window).",
     "A value just short of a hard limit with no fix open is the most serious form of the risk, and it is yours to raise.",
     "The checklist names the figure; recall it, and compare the input value to it exactly.",
+    "`volume_7d` is in the hundreds or lower; it has not reached the thousands.",
+    "**The lookback window**:",
+    "**A month**:",
+    "exactly a third of the lookback window, counted in days.",
+    "A value equal to that count is \"a month\", not more and not less.",
     "the large mailbox providers' bulk-sender guidelines give a complaint rate that senders are asked to stay under, and a second figure, several times larger, that must never be reached.",
+    "Low volume (`volume_7d` has not reached the thousands):",
     "A rate of half that level or less is the ordinary background of a healthy list, and naming it is plainly an error.",
-    "`volume_7d` is only a few hundred messages or fewer, so that a single complaint could produce the whole rate:",
+    "Otherwise the week's volume is in the thousands or more, the rate has reached the recommended level or is above it, by any margin, and no fix is open:",
     "list-hygiene practice has a commonly quoted bounce rate that a clean list stays under, and providers act at a second level more than twice as high.",
     "A rate of half the benchmark or less is what most healthy senders show, and naming it is plainly an error, whatever the grade, the open rate or the fix list look like.",
-    "`volume_7d` is only a few hundred messages or fewer, so that a handful of bounces could produce the whole rate:",
-    "`volume_7d` is only a few hundred messages or fewer:",
+    "Otherwise the week's volume is in the thousands or more, the rate has reached the benchmark or is above it, by any margin, and no fix is open:",
+    "The week's volume is in the thousands or more and a substantial slice of the earlier rate has gone, a drop a specialist would call a change of level:",
+    "No listing ended in the lookback window.",
+    "`days_since_delisted` is a month or less (a month as defined above; that exact count of days still fits):",
+    "Otherwise there was a single listing and it ended more than a month ago:",
     "Volume is flat, down, or has grown by only a fraction of the previous week's volume:",
     "Brisk growth that leaves the latest week short of a multiple of the week before is not a spike.",
-    "The latest week is a multiple of the week before or more (reaching the smallest multiple exactly counts, and so does a week of sending after a week of none), the domain has years of history, and `grade` is `high`:",
-    "Otherwise the latest week is a multiple of the week before, and either `grade` is anything other than `high` or the domain is too young to have a seasonal history of its own:",
-    "The domain is in its first few weeks and already sends real volume, thousands of messages a week:",
+    "The latest week is a multiple of the week before or more (reaching the smallest multiple exactly counts, and so does a week of sending after a week of none), the domain is a full year old or older (`domain_age_days` has reached the number of days in an ordinary year), and `grade` is `high`:",
+    "Otherwise the latest week is a multiple of the week before, and either `grade` is anything other than `high` or the domain is less than a full year old and so has no seasonal history of its own:",
+    "`domain_age_days` has reached a month or more (a month as defined above):",
+    "The domain is under a month old and `volume_7d` equals the bulk-sender count or is below it:",
+    "Otherwise the domain is under a month old and `volume_7d` is above the bulk-sender count:",
     "There is not exactly a single SPF record, or `valid` is not true:",
     "`lookup_count` equals the cap exactly, or is a single lookup short of it:",
     "For a count of half the cap or less, naming this is plainly an error.",
     "Current practice is a key of twice that length or more.",
+    "`domain_age_days` is less than the length of the lookback window in days:",
+    "Otherwise `policy` is the value `none`, the domain is at least as old as the lookback window is long, and `fixes` holds nothing about SPF or DKIM:",
     "\"volume jumped several-fold\", \"opens lost a large share of their earlier level\", \"an older, shorter key\", \"at the lookup limit\", \"above the level mailbox providers recommend\".",
     "If you must cite a figure, copy it exactly as the input holds it and cite nothing else."
   ],
-  "input_tokens": 704397,
-  "output_tokens": 15892,
-  "cost_usd": 0.783857,
-  "median_latency_ms": 3484
+  "input_tokens": 790797,
+  "output_tokens": 13327,
+  "cost_usd": 0.857432,
+  "median_latency_ms": 2937
 }

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1cfafb339ed40e692e5f092fb8064fb9269adf349adcc46e632995b44302182e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The domain's reputation fell from high to medium, which may affect inbox placement.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]}]}",
+  "detail": null,
+  "input_tokens": 5528,
+  "output_tokens": 61,
+  "cost_usd": 0.005833,
+  "latency_ms": 2552,
+  "recorded_at": "2026-11-19T21:45:31+00:00"
+}

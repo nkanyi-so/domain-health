@@ -20,7 +20,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $2.19 of $10 cap
+Spend: $1.85 of $10 cap
 Decisions to review: 21 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
@@ -1744,6 +1744,88 @@ What it changed, by its report: `dmarc_policy_none` is not raised on a young dom
 The writer's doubts on the table cases: case 04 (410 messages), where the model ignored version 3's low-volume line; case 30, which sits exactly on the month line.
 
 The worst case for the run, $1.20, was added to the Spend line first: $2.19 of the $10 cap. By the owner's limit this is the last attempt of the phase, whatever it gives.
+
+### 2026-11-19: attempt 5, version 4 on `gpt-6.1-terra`: two bars missed, and the last attempt
+
+`make eval-live`, once, as the owner allowed. Its whole output:
+
+```
+run 1: 48 call(s) recorded
+run 2: 48 call(s) recorded
+run 3: 48 call(s) recorded
+144 call(s) on 2026-11-19, $0.8574; spent in all $1.8521
+risks-v4 (e052ad673a40) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.881                        bar >= 0.8   met  each run: 0.881 0.881 0.881
+precision  0.940                        bar >= 0.8   met  each run: 0.954 0.939 0.925
+harmful    12 in 144 case-runs          bar == 0     missed  each run: 3 4 5
+stability  0.812 (39 of 48 cases)       bar >= 0.9   missed
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 0.927, harmful 10, stability 0.733, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 0 | with only the types the bands expect kept: coverage 1.000, precision 1.000, harmful 0, stability 1.000
+  open set (18 cases, 25 expected items): coverage 0.680, precision 0.968, harmful 2, stability 0.944, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 0 | with only the types the bands expect kept: coverage 0.680, precision 1.000, harmful 0, stability 1.000
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 12/15
+  better than the rules-only baseline on the open set: no
+  prompt sentences that place a line relative to a figure the model recalls (allowed, listed in the results file): 38
+  cost $0.8574, 790797 tokens in, 13327 out, median latency 2937 ms
+table cases:
+  01-healthy-baseline: only what is expected
+  02-healthy-softfail-enforced: only what is expected
+  03-healthy-seasonal-spike: only what is expected
+  04-healthy-low-volume-odd-rates: only what is expected
+  05-healthy-recovered: only what is expected
+  06-dmarc-none-established: run 1: wrong complaint_rate_elevated
+  07-dmarc-none-new-domain: run 3: wrong complaint_rate_elevated
+  08-dmarc-partial-pct: only what is expected
+  09-subdomain-gap-and-1024-key: only what is expected
+  10-spf-at-lookup-limit: only what is expected
+  11-spf-over-limit-is-a-fix: only what is expected
+  12-spf-neutral-all: run 1: wrong complaint_rate_elevated
+  13-reputation-slide: only what is expected
+  14-complaints-over-limit: only what is expected
+  15-everything-just-under: only what is expected
+  16-new-domain-ramp: only what is expected
+  17-recently-delisted: run 2: wrong complaint_rate_elevated
+  18-listed-now-and-sending-more: run 3: wrong complaint_rate_elevated
+  19-authentication-missing: only what is expected
+  20-five-at-once: only what is expected
+  21-spf-nine-lookups-no-all: run 2: wrong complaint_rate_elevated; run 3: wrong complaint_rate_elevated
+  22-listed-twice-and-soft-subdomains: run 2: wrong complaint_rate_elevated; run 3: wrong complaint_rate_elevated
+  23-brand-new-and-loud: only what is expected
+  24-brand-new-and-quiet: only what is expected
+  25-one-weak-key-among-two: only what is expected
+  26-two-spf-records: only what is expected
+  27-plus-all-at-nine-lookups: run 2: wrong complaint_rate_elevated
+  28-just-under-two-limits: only what is expected
+  29-steady-bad-reputation: only what is expected
+  30-exactly-on-two-lines: only what is expected
+```
+
+| Attempt | Prompt | Model | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
+|---|---|---|---|---|---|---|
+| 4 | version 3 | gpt-6.1-terra | 0.896 | 0.962 | 9 in 144 | 0.979 |
+| 5 | version 4 | gpt-6.1-terra | 0.881 | 0.940 | **12 in 144** | **0.812** |
+
+**Version 4 is worse than version 3.** It did the one thing it was written to do: no type the bands call merely acceptable came back, on either set (0 and 0, against 22 and 30), and harmful on the open set fell from 9 to 2. But it broke something version 3 had right. On eight table cases (06, 07, 12, 17, 18, 21, 22, 27) the model now raises `complaint_rate_elevated` where the label calls it wrong, in one or two runs of the three and never in all of them: ten harmful answers on the table set, where every earlier attempt on this model had none, and nine cases that differ between runs. The complaint checklist is one of those whose low-volume line was moved ahead of the rate line and whose raise line was reworded; version 3's wording of the same checklist never produced this on Terra. The projection that a prompt leaving out acceptable types "would meet all four bars" assumed the rest of the prompt would behave as before. It did not.
+
+With only the types the bands expect kept, the runs are again exactly the rules-only baseline on both sets. The model does not do better than the baseline on the open cases.
+
+**By the owner's limit there is no further attempt.** The phase stands on these numbers: the final prompt version misses the harmful bar and the stability bar, and `make eval STRICT=1` exits 2. No attempt of the five met all four bars. The best was attempt 4 (version 3 on Terra), which missed the harmful bar alone.
+
+Spend: the run cost $0.8574 (the worst case reserved was $1.20). `evals/ledger.jsonl` now sums to $1.8521 over 721 lines; the Spend line reads $1.85 of the $10 cap.
+
+### 2026-11-19: `make eval` on the committed recordings, after attempt 5
+
+`make eval STRICT=1` prints the same lines as the paid run above from the header line to the cost line (compared with `diff`: no difference) and exits 2. `evals/results.json` is version 4's, because the results file is the newest version's on the configured model. Version 3's numbers are still printed, from its recordings, by `cd backend && uv run python -m domain_health.evals --prompts ../prompts --evals ../evals --version risks-v3`, which does not touch the results file.
+
+### 2026-11-19: for the README (Phase 6): the Phase 2 result, and a second real failure
+
+To be said plainly, in these words or plainer:
+
+- The model's risk list did not meet its bars. Five attempts were made, on four prompt versions and two models. None met all four. The final version, version 4 on `gpt-6.1-terra`, has coverage 0.881, precision 0.940, harmful 12 in 144 case-runs and stability 0.812; harmful and stability are missed. The best attempt, version 3 on the same model, missed harmful alone (9 in 144).
+- A table of rules with no model meets all four bars on the same cases. On this evidence the model adds nothing to the rules on the risk list, and in its final version it is less reliable than they are.
+- The second real failure, and what it shows: version 4 was a narrow change to stop the model returning merely-acceptable risks. It did that, and at the same stroke made the model raise a complaint-rate risk at random on eight cases that version 3 had right in every run. A prompt change that fixes one line can unsettle another, and only a full run on every case shows it. The owner chose to stop there and ship the miss.
 
 ---
 

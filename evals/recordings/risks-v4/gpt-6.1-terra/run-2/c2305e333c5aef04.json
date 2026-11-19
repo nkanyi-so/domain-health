@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c2305e333c5aef04273cc8c9f8f92b8d5b7e91641bb8081271d0bfade698645e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume spiked\",\"why\":\"Sending volume rose several-fold on a young domain, which can strain its developing reputation.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is very young and its weekly sending volume exceeds the bulk-sender count, increasing warm-up risk.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 5473,
+  "output_tokens": 127,
+  "cost_usd": 0.006108,
+  "latency_ms": 3441,
+  "recorded_at": "2026-11-19T21:45:11+00:00"
+}

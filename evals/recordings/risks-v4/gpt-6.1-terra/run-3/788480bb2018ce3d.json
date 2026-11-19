@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "788480bb2018ce3d54a9a6a12ef5efd334c5023e463e40a71202501955c1b660",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting list quality may need attention.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist removal\",\"why\":\"The domain was recently removed from a blocklist, so it is too soon to know whether the underlying cause is gone.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 5478,
+  "output_tokens": 133,
+  "cost_usd": 0.006143,
+  "latency_ms": 2917,
+  "recorded_at": "2026-11-19T21:45:36+00:00"
+}

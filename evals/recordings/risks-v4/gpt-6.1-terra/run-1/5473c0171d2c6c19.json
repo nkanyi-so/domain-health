@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "5473c0171d2c6c197f793a5c9e293d3a825312f91af87bab557b678bf62eaff8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above the recommended level\",\"why\":\"The complaint rate exceeds the level mailbox providers recommend, which can harm deliverability.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"spf_weak_all\",\"title\":\"Neutral SPF without DMARC enforcement\",\"why\":\"The SPF record is neutral and DMARC is not enforcing, leaving the domain less protected against unauthorized senders.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.all_qualifier\",\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy monitors failures without protecting the domain from spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5480,
+  "output_tokens": 213,
+  "cost_usd": 0.006545,
+  "latency_ms": 3988,
+  "recorded_at": "2026-11-19T21:44:45+00:00"
+}

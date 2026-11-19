@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "3b5a732bd705a93262ba1873a407500074008ea96ddbeb5d844fb6cccc1ae3ec",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above the recommended level\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can put inbox placement at risk.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is in monitoring mode\",\"why\":\"The DMARC policy monitors failing mail but does not protect the domain from spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5477,
+  "output_tokens": 139,
+  "cost_usd": 0.006172,
+  "latency_ms": 5924,
+  "recorded_at": "2026-11-19T21:44:41+00:00"
+}

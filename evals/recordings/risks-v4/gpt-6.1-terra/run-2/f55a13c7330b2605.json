@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "f55a13c7330b2605c0e8b41bb2a93aebf03dd85d25f2a3fc647bec438d13f87d",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above the recommended level\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can harm deliverability.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Repeated blocklist listings\",\"why\":\"The domain has had repeated listings in the lookback window, suggesting the underlying cause may persist.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 5482,
+  "output_tokens": 132,
+  "cost_usd": 0.006142,
+  "latency_ms": 3467,
+  "recorded_at": "2026-11-19T21:45:14+00:00"
+}
