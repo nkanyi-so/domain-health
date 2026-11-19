@@ -303,3 +303,26 @@ def test_the_command_refuses_a_copied_prompt_before_any_call(
     assert called == []
     assert sorted(path.read_bytes() for path in (evals / "recordings").rglob("*.json")) == before
     assert not (evals / LOCK_FILE).exists()
+
+
+def test_a_version_run_while_another_is_in_use_is_scored_by_name(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Scoring by name leaves the results file alone: it stays the version in use's."""
+    (tmp_path / "settings.toml").write_text(f'model = "{MODEL}"\nprompt = "risks-v1"\n')
+    prompts = tmp_path / "prompts"
+    base = ["--prompts", str(prompts), "--evals", str(tmp_path), "--table-report"]
+
+    assert live.scoring_arguments(prompts, tmp_path, "risks-v2", None) == [
+        *base,
+        "--version",
+        "risks-v2",
+    ]
+    assert "the prompt in use is risks-v1" in capsys.readouterr().out
+    assert live.scoring_arguments(prompts, tmp_path, "risks-v1", "other") == [
+        *base,
+        "--model",
+        "other",
+    ]
+    (tmp_path / "settings.toml").write_text(f'model = "{MODEL}"\n')
+    assert live.scoring_arguments(prompts, tmp_path, "risks-v2", None) == base

@@ -127,7 +127,7 @@ def test_the_printed_lines_say_each_measure_its_bar_and_met_or_missed(tmp_path: 
     assert "coverage by risk type" in out[11]
     assert all(risk.value in out[11] for risk in RiskType)
     assert out[12].endswith("better than the rules-only baseline on the open set: yes")
-    assert out[13].endswith("listed in the results file): 0")
+    assert "span of time: 0 (the results file lists them" in out[13]
 
 
 def test_a_run_with_a_case_not_recorded_is_not_scored(tmp_path: Path) -> None:
@@ -349,6 +349,8 @@ def test_the_settings_file_names_the_prompt_in_use_and_the_others_are_reported_b
     assert written["prompt_version"] == "risks-v1"
     assert [other["prompt_version"] for other in written["not_in_use"]] == ["risks-v2"]
     assert written["not_in_use"][0]["harmful"] == 1
+    # Its own wording list goes with it: the file's top-level list is the version in use's.
+    assert written["not_in_use"][0]["prompt_relative_wording"] == []
     assert "not in use, recorded on the same model: risks-v2: " in capsys.readouterr().out
     # Without the line, the newest version is the one in use, and it misses a bar.
     (evals / "settings.toml").write_text(f'model = "{MODEL}"\n')
@@ -366,3 +368,13 @@ def test_the_committed_results_are_for_the_prompt_the_settings_name() -> None:
 
     assert written["prompt_version"] == config["prompt"]
     assert written["model"] == config["model"]
+
+
+def test_the_committed_results_hold_the_wording_of_the_version_not_in_use() -> None:
+    written = json.loads((EVALS / "results.json").read_text(encoding="utf-8"))
+    others = {other["prompt_version"]: other for other in written["not_in_use"]}
+
+    listed = others["risks-v4"]["prompt_relative_wording"]
+
+    assert any("The name of `listings_90d` gives its length in days." in s for s in listed)
+    assert listed != written["prompt_relative_wording"]

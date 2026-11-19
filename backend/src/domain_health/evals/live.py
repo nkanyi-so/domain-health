@@ -260,12 +260,18 @@ def _paid(
         f"{made} call(s) on {date.today().isoformat()}, ${ledger.spent() - before:.4f}; "
         f"spent in all ${ledger.spent():.4f}"
     )
-    # Score the version that was just run. Where the settings file names another version as the
-    # one in use, that says so and leaves the results file alone.
-    scored = ["--prompts", str(args.prompts), "--evals", str(args.evals), "--table-report"]
-    if free.settings(args.evals).get("prompt") not in (None, prompt.version):
-        scored += ["--version", prompt.version]
-    return free.main([*scored, *(["--model", args.model] if args.model else [])])
+    return free.main(scoring_arguments(args.prompts, args.evals, prompt.version, args.model))
+
+
+def scoring_arguments(prompts: Path, evals: Path, version: str, model: str | None) -> list[str]:
+    """How the version that was just run is scored. Where the settings file names another
+    version as the one in use, this one is scored by name, which leaves the results file alone."""
+    scored = ["--prompts", str(prompts), "--evals", str(evals), "--table-report"]
+    in_use = free.settings(evals).get("prompt")
+    if in_use not in (None, version):
+        print(f"{version} was run; the prompt in use is {in_use}, so the results file is kept")
+        scored += ["--version", version]
+    return [*scored, *(["--model", model] if model else [])]
 
 
 async def _probe(

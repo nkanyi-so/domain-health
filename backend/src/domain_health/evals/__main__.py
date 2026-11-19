@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--prompts", type=Path, required=True, help="the folder of prompt versions")
     parser.add_argument("--evals", type=Path, help="the folder of cases, bars and recordings")
     parser.add_argument("--strict", action="store_true", help="exit non-zero on a missed bar")
-    parser.add_argument("--version", help="score this prompt version, not the newest")
+    parser.add_argument("--version", help="score this prompt version, not the one in use")
     parser.add_argument("--model", help="score this model's recordings, not the settings file's")
     parser.add_argument(
         "--table-report", action="store_true", help="also print each table case's result"
@@ -101,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             other_runs, _, _ = load_runs(cases, other, model, args.evals / "recordings")
         except NoRecordingsError:
-            continue  # recorded on another model, or not at all: strict mode says which
+            continue  # not recorded on this model: nothing of it to report beside this one
         others.append(other_version(cases, other, other_runs))
     bars = load_bars(args.evals / "bars.toml")
     results = results_for(cases, prompt, model, runs, calls, bars, others)

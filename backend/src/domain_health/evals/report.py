@@ -122,6 +122,8 @@ class OtherVersion(Frozen):
     precision: float | None
     harmful: int
     stability: float | None
+    # Its own sentences that place a line relative to a figure, a field's name or a span of time.
+    prompt_relative_wording: list[str]
 
 
 def other_version(
@@ -134,6 +136,7 @@ def other_version(
         precision=scored.precision,
         harmful=scored.harmful,
         stability=scored.stability,
+        prompt_relative_wording=relative_wording(prompt.text),
     )
 
 
@@ -327,7 +330,8 @@ def lines(results: Results) -> list[str]:
     out.append(f"  better than the rules-only baseline on the open set: {better}")
     out.append(
         f"  prompt sentences that place a line relative to a figure, a field's name or a "
-        f"span of time (listed in the results file): {len(results.prompt_relative_wording)}"
+        f"span of time: {len(results.prompt_relative_wording)} (the results file lists them "
+        f"for the version in use and for each version not in use)"
     )
     for other in results.not_in_use:
         out.append(
