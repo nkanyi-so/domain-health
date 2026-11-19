@@ -8,7 +8,7 @@ repaired. Model output is untrusted input.
 import json
 import re
 import unicodedata
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import Literal, get_args
 
 from pydantic import ValidationError
@@ -112,6 +112,16 @@ def words_in(text: str) -> set[str]:
     return {word.lower() for word in _WORD.findall(_plain(text))}
 
 
+def _number(word: str) -> Decimal:
+    """A digit-led word as a number, or `NOT_A_NUMBER`. Never raises: a word such as 1e1000000
+    is a number too large to hold, and that is not a number the input can hold either."""
+    try:
+        number = Decimal(word.replace(",", ""))
+        return number.normalize() if number.is_finite() else NOT_A_NUMBER
+    except ArithmeticError:
+        return NOT_A_NUMBER
+
+
 def numbers_in(text: str, known_words: frozenset[str] = frozenset()) -> set[Decimal]:
     """Every number a text states. `known_words` are letter-led words that may hold digits."""
     text = _plain(text)
@@ -120,11 +130,7 @@ def numbers_in(text: str, known_words: frozenset[str] = frozenset()) -> set[Deci
         found.add(NOT_A_NUMBER)
     for word in _WORD.findall(text):
         if word[0].isdigit():
-            try:
-                number = Decimal(word.replace(",", ""))
-            except InvalidOperation:
-                number = NOT_A_NUMBER
-            found.add(number.normalize() if number.is_finite() else NOT_A_NUMBER)
+            found.add(_number(word))
         elif word.lower() not in known_words | PROTOCOL_WORDS:
             found |= {Decimal(digits).normalize() for digits in _DIGITS.findall(word)}
     return found

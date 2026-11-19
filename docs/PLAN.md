@@ -1553,6 +1553,17 @@ Not blocking, "for the record":
 
 Tests: 669 in the backend outside the emulator. No eval number changed.
 
+### 2026-11-19: review, fourth run, on e0d18d5
+
+Verdict as reported: "one new blocking finding. It is small and cheap to fix: model output can crash the validator." The third round's two fixes hold (each broken in a scratch copy, its test fails). Everything else it checked held again: the plan's diff, the guarded files, `make eval` byte for byte, the other three attempts, the ledger (577 lines, $0.994686, every entry's cost agreeing with decision 0002's prices), rules 1 to 3, no live call reachable from a test, gitleaks clean over the phase's commits, the open-set statements as totals.
+
+1. Blocking. A word such as `1e1000000` in a risk's text is a number too large to hold, and reading it raised an arithmetic error that nothing caught, so "one output stops `make eval` with a traceback instead of counting as dropped", and Phase 3's worker would crash where it expects "risks unavailable". No committed recording holds such a word.
+   - Done: reading a digit-led word never raises; a number too large to hold is not a number the input holds, so the output is dropped. Tests: that word through `validate` and through a recorded call; and, for the class, twenty-one hostile texts (huge exponents, long digit runs, hexadecimal, digits of other scripts and styles, control characters) each of which is accepted or dropped and never raises anything else.
+
+Carried for the owner, as before, with its example: a number written partly as a word (`one,000`) passes the number rule.
+
+Tests: 691 in the backend outside the emulator. No eval number changed (`make eval` and the results file are as they were).
+
 ---
 
 ## Phase 3: snapshots and the handled loop

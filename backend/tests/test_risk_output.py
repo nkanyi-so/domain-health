@@ -1,7 +1,9 @@
 """The model's output is untrusted: what is accepted, what is dropped, and who builds the ID."""
 
+import contextlib
 import json
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from pydantic import BaseModel
@@ -202,3 +204,52 @@ def test_a_digit_led_word_in_the_input_does_not_excuse_invented_ones_in_the_outp
     for why in ("Complaints at 3x the limit.", "About 18k messages.", "Up 10x in a week."):
         with pytest.raises(InvalidOutputError, match="not in the input"):
             validate(odd, output(risk("complaint_rate_elevated", why=why)))
+
+
+HOSTILE_TEXT = [
+    "rate 1e1000000",
+    "rate 1e999999999",
+    "rate 9" * 60,
+    "1E+9999999 and 0e-99999999",
+    "1_000 or 1__0",
+    "0x1F and 0b11 and 0o7",
+    "1.",
+    ".5",
+    "1,,2",
+    "1.2.3.4",
+    "\u0661\u0662\u0663",
+    "\uff11\uff12\uff13",
+    "1e",
+    "NaN and Infinity and -0",
+    "1" + "0" * 300,
+    "x" + "9" * 300,
+    "\x00\x01 7",
+    "7\u200b7",
+    "\U0001d7cf\U0001d7d0\U0001d7d1",
+    "\u2460\u2461\u2462",
+    "\u00bd",
+]
+
+
+@pytest.mark.parametrize("why", HOSTILE_TEXT)
+def test_no_text_the_model_can_write_makes_validation_raise_anything_else(why: str) -> None:
+    """Model output is untrusted: whatever it holds, it is accepted or it is dropped."""
+    text = output(risk("complaint_rate_elevated", why=why[:400]))
+
+    with contextlib.suppress(InvalidOutputError):
+        validate(SNAPSHOT, text)
+
+
+def test_a_number_too_large_to_hold_is_dropped_and_leaves_the_caller_its_usual_error(
+    tmp_path: Path,
+) -> None:
+    from domain_health.risks.model import RisksUnavailableError, risks_from
+    from tests.eval_fixtures import recorded_call, write_prompt
+
+    text = output(risk("complaint_rate_elevated", why="rate 1e1000000"))
+
+    with pytest.raises(InvalidOutputError, match="not in the input"):
+        validate(SNAPSHOT, text)
+    call = recorded_call(write_prompt(tmp_path), SNAPSHOT, text)
+    with pytest.raises(RisksUnavailableError, match="invalid output dropped"):
+        risks_from(SNAPSHOT, call)
