@@ -7,7 +7,7 @@ The lines in this first block are read by scripts. Keep each as `key: value` on 
 mode: run-through
 owner: nkanyi-so
 spend-cap-usd: 10
-checkpoints: none
+checkpoints: 2
 requires-env: OPENAI_API_KEY, GCP_PROJECT_ID
 
 ## Who merges
@@ -15,11 +15,11 @@ requires-env: OPENAI_API_KEY, GCP_PROJECT_ID
 - `gated`: every phase stops at its open pull request and the owner merges it.
 - `run-through`: after Phase 0, the run merges its own phase through `.claude/hooks/merge-gate.sh` and starts the next one. It stops only for the reasons under "What stops the run". Phase 0 and every checkpoint are merged by the owner in both modes.
 
-This project is run-through. The owner merges Phase 0, which carries the guards, the commands and the whole measure (rubric, twenty labelled cases, bars, claim sentence), and then expects not to be needed.
+This project is run-through. The owner merges Phase 0, which carries the guards, the commands and the whole measure (rubric, forty-eight labelled cases, bars, claim sentence), and then expects to be needed once more, at the Phase 2 checkpoint.
 
 ## Checkpoints
 
-None, by the owner's choice. The two default checkpoints (first working draft, first eval results) are switched off. What covers them instead: the measure is fixed and signed off in Phase 0 before any prompt exists; the challenger reads every eval result against the bars and answers the three questions; and a "change needed" from the challenger still stops the run for the owner. The screen phase is not a checkpoint and needs no mock approval: design decisions are the build's, recorded in `docs/DESIGN.md`, and the verifier looks at screenshots of every state in both themes and both widths.
+One: Phase 2, the model and the evals (set by the owner on 2026-11-19, at the end of Phase 0). The run stops there with the first eval results pasted in the phase log and its pull request open; the owner reads the results, the challenger's reading of them and the comparison with the rules-only baseline, and merges. The other default checkpoint, the first working draft, stays switched off. What covers it: the measure is fixed and signed off in Phase 0 before any prompt exists, and a "change needed" from the challenger still stops the run for the owner. The screen phase is not a checkpoint and needs no mock approval: design decisions are the build's, recorded in `docs/DESIGN.md`, and the verifier looks at every state in a real browser at desktop and phone width, in both themes, not only at the HTML or at screenshots taken by a script.
 
 ## Spend
 
@@ -30,12 +30,12 @@ What is paid: OpenAI calls in Phase 2 (the eval runs) and Phase 4 (recording the
 | Phase | Estimate, worst case |
 |---|---|
 | 0, 1, 3 | $0 |
-| 2 | $2.31: one temperature test call ($0.01), up to six eval runs on `gpt-6-luna` ($0.30), up to four on `gpt-6.1-terra` if Luna misses a bar ($2.00) |
+| 2 | $5.53: one temperature test call ($0.01), up to six eval runs on `gpt-6-luna` ($0.72), up to four on `gpt-6.1-terra` if Luna misses a bar ($4.80) |
 | 4 | $0.70: recording, up to three times ($0.20); image storage and builds ($0.50) |
 | 5, 6 | $0.50: image storage and builds |
-| Total | under $3.50 |
+| Total | under $7 |
 
-One eval run is 60 calls of about 2,000 tokens in and 600 out: about $0.03 on Luna, about $0.35 on Terra, counted here at $0.05 and $0.50.
+One eval run is 144 calls (forty-eight cases, three runs each) of about 2,000 tokens in and 600 out: about $0.07 on Luna, about $0.85 on Terra, counted here at $0.12 and $1.20.
 
 Under the cap, a paid step that `docs/PLAN.md` lists runs without asking. A step that could take the total past the cap, counted at the most it could cost, is a stop. The ledger in the code enforces the same number before every paid call.
 
@@ -96,7 +96,7 @@ Things only the owner can do, listed up front so the run does not discover them 
   Then set `GCP_PROJECT_ID=<id>` in `.env`. If `gcloud billing accounts list` shows nothing, create a billing account first at console.cloud.google.com/billing with a personal card. It must be a full (paid) account, not the 90-day free trial: a trial stops everything when it ends. The project ID is public in the service URL, so it must not contain the client's name.
 - [ ] **Vercel.** `vercel whoami` already answers on this machine for team `nkanyi-so`. Two steps: update the command-line tool with `npm i -g vercel@latest`, and give Vercel's GitHub app access to the repository: github.com/settings/installations, then Vercel, Configure, Repository access, add `domain-health`, Save. A script cannot confirm the second one; the first Vercel deploy in Phase 5 will.
 - [ ] **The name list.** Create `~/.config/domain-health/names.txt`, outside the repository, one per line: the real client, its platform, its people, and any other real name that must never appear. Phase 6 scans the tree and the full history against it and reports only the number of hits. The file is never copied, committed or printed.
-- [ ] **Read the measure, then merge Phase 0.** In the Phase 0 pull request, read `evals/RUBRIC.md`, skim the twenty cases in `evals/cases/` (about fifteen minutes), correct any label by hand, and check the sentence in `docs/CLAIM.md`. Run `bash .claude/hooks/preflight.sh`; it must end with `preflight: ready`. Then merge.
+- [ ] **Read the measure, then merge Phase 0.** In the Phase 0 pull request, read `evals/RUBRIC.md`, skim the forty-eight cases in `evals/cases/` (about thirty minutes; the eighteen open ones are summarised in the pull request's description), correct any label by hand, and check the sentence in `docs/CLAIM.md`. Run `bash .claude/hooks/preflight.sh`; it must end with `preflight: ready`. Then merge.
 - [ ] **Start the run.** In the repository folder: `claude --permission-mode auto`, then `/next-phase`. The build pauses when the Mac sleeps; `caffeinate -dims` in another terminal keeps it awake.
 - [ ] **After the build:** record the walkthrough from `docs/VIDEO.md`, then make the repository public. Branch protection stays as it is.
 

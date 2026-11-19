@@ -10,7 +10,7 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
-| 2: the model and the evals | not started | |
+| 2: the model and the evals (checkpoint) | not started | |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
@@ -18,7 +18,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
 
-No phase is a checkpoint. Phase 0 is merged by the owner. Phases 1 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
+Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $0.00 of $10 cap
 Decisions to review: 9 (`docs/DECISIONS_TO_REVIEW.md`)
@@ -46,6 +46,8 @@ Merging is your sign-off of three things, all laid out in the pull request's des
 3. **The owner-level edits the build made on your answers**, listed in the description under "What you approve by merging".
 
 To change a label or a call, edit the case file on the branch before merging; `make check` tells you if an edit breaks something the spec says. After the merge, `/next-phase` starts Phase 1.
+
+**Added after your message of 2026-11-19 (checkpoint and stale figures).** You approved four edits to `docs/STANDING.md`: Phase 2 becomes a checkpoint, the spend table reads under $7 with 144 calls per eval run, and "twenty" becomes "forty-eight" in two places. The guard on that file refuses any edit by the build, as it is meant to, so they are a patch for you to apply by hand: `git apply` the file the build names in the session, or make the same edits yourself (the lines are in the session and in the log below). This file already carries the matching changes: the status table marks Phase 2 as a checkpoint, and two checklist items record your instructions for later phases (a real browser at desktop and phone width from the first deploy; a README that says plainly the evals do not show the model beats rules). Once the patch is in, the build commits both files together, runs `make check` and the preflight, and waits for CI. The merge of #1 stays yours: the project's rules and the session's own deny rules reserve it for the owner, and the merge gate refuses a phase that touches the guards.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -840,6 +842,12 @@ reviewer-verdict: no blocking findings @ 4ae1da8
 verifier-verdict: pass @ 4ae1da8
 challenger-verdict: no change @ 4ae1da8
 
+### 2026-11-19: the owner's edits to the standing answers, and two instructions for later phases
+
+After the hand-over the owner asked, in the session, for `docs/STANDING.md` to be changed on this branch: Phase 2 a checkpoint; the spend estimate under $7 with 144 calls per eval run; forty-eight cases for twenty. The owner approved the edits and added: "If a guard refuses outright, show me the exact lines to change by hand." The guard did refuse ("holds the owner's standing answers and its mode is set [...] the owner edits this file by hand"), so the build did not edit the file and did not go round the guard. It wrote the changes as a patch outside the repository, checked that it applies cleanly, and showed it to the owner. This file's own changes to match: the status table marks Phase 2 "(checkpoint)", the sentence under it names the checkpoint, and two checklist items carry the owner's instructions (Phase 5: the verifier uses a real browser at desktop and phone width from the first deploy; Phase 6: the README says plainly that the evals do not show the model beats rules).
+
+The owner also asked the build to merge pull request #1 on their behalf and to confirm the frontend's production deploy. Neither was done. The merge: `CLAUDE.md` and the working loop reserve Phase 0 for the owner, the session's settings deny the merge commands, and the merge gate refuses a phase whose diff touches the guards; an instruction to go round all three is one the build declines and says so, and the owner merges with one command. The deploy: there is no Vercel project for this repository yet (`vercel project ls` lists none named `domain-health`); Phase 5 creates it, so merging Phase 0 deploys nothing.
+
 ---
 
 ## Phase 1: checks and rules
@@ -914,7 +922,7 @@ challenger-verdict: no change @ 4ae1da8
 - [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
 - [ ] `make fallback` and the bundled fallback, with a test that it is current.
 - [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
-- [ ] Deployed to Vercel from `main`; checked in a real browser.
+- [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
 
@@ -925,7 +933,7 @@ challenger-verdict: no change @ 4ae1da8
 ## Phase 6: report, README, release checks
 
 - [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison.
+- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
