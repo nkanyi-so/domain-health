@@ -65,3 +65,22 @@ def problems_with(prompt_text: str, rubric: str, inputs: Iterable[SnapshotInput]
         if input_hash(example) in hashes:
             found.append("a worked example is an eval case's input")
     return found
+
+
+# Words that place a line by arithmetic on a figure instead of stating the figure: "half the
+# cap", "twice that length", "a single lookup short of it".
+_RELATIVE = re.compile(
+    r"\b(half|twice|double|multiple|several times|several-fold|times larger|"
+    r"short of|exactly|fraction of|a few hundred|thousands of)\b",
+    re.IGNORECASE,
+)
+
+
+def relative_wording(prompt_text: str) -> list[str]:
+    """The sentences of a prompt that place a line relative to a figure the model is asked to
+    recall. The owner ruled such wording allowed (2026-11-19) as long as it is shown: this lists
+    it for a reader, and nothing passes or fails on it. The list is by words, so it can include
+    a sentence that is not a threshold and miss one phrased another way."""
+    sentences = re.split(r"(?<=[.:?!])\s+|\n+", prompt_text)
+    found = [" ".join(sentence.split()) for sentence in sentences if _RELATIVE.search(sentence)]
+    return list(dict.fromkeys(sentence.lstrip("- ").strip() for sentence in found))

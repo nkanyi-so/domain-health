@@ -86,3 +86,30 @@ def test_a_prompt_version_names_every_risk_type_and_asks_for_no_fix(path: Path) 
     assert [risk.value for risk in RiskType if risk.value not in text] == []
     # Fixes are the rules' and reach the model as input; the prompt has no list of them to pick.
     assert [fix.value for fix in FixType if f"`{fix.value}`" in text] == []
+
+
+def test_wording_that_places_a_line_relative_to_a_figure_is_listed_not_judged() -> None:
+    text = (
+        "Recall the cap.\n- The count equals the cap exactly, or is a single lookup short of it: "
+        "raise.\n- A count of half the cap or less: not raised.\nReturn the list. Twice is twice."
+    )
+
+    listed = prompt_rules.relative_wording(text)
+
+    assert listed == [
+        "The count equals the cap exactly, or is a single lookup short of it:",
+        "A count of half the cap or less:",
+        "Twice is twice.",
+    ]
+    assert prompt_rules.relative_wording("Rank the risks a specialist would raise.") == []
+    # It is a list for a reader: the same text has no problem under the rules.
+    assert problems_with(text) == []
+
+
+def test_version_three_is_listed_for_the_wording_the_challenger_named() -> None:
+    v3 = load_prompt(PROMPTS / "risks-v3.md").text
+
+    listed = " ".join(prompt_rules.relative_wording(v3))
+
+    for phrase in ("a single lookup short of it", "half the cap or less", "twice that length"):
+        assert phrase in listed

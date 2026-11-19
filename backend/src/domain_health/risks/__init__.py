@@ -93,7 +93,8 @@ def risk_id(risk_type: RiskType, domain: str) -> str:
 # A word is a run of letters, digits and underscores, with dots and commas inside it.
 #
 # - A word that starts with a digit is read as a number: 0.12, 18,000, 2048. If it is not one
-#   (18k, 2x, 1.2.3) it is something the input cannot hold, and counts as invented.
+#   (18k, 2x, 1.2.3, or 20,48 with its comma where no thousands comma goes) it is something
+#   the input cannot hold, and counts as invented.
 # - A word that starts with a letter and holds digits (x37, v2) is checked too: each run of digits
 #   in it is a number, unless the whole word is one the input itself uses (a selector such as s1,
 #   a field or type name) or a protocol's name.
@@ -101,6 +102,7 @@ def risk_id(risk_type: RiskType, domain: str) -> str:
 #   other script cannot be in the input and counts as invented.
 _WORD = re.compile(r"[A-Za-z0-9_](?:[A-Za-z0-9_.,]*[A-Za-z0-9_])?")
 _DIGITS = re.compile(r"[0-9]+")
+_GROUPED = re.compile(r"[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?")
 NOT_A_NUMBER = Decimal("NaN")
 PROTOCOL_WORDS = frozenset(
     {"spf1", "dkim1", "dmarc1", "ipv4", "ipv6", "ip4", "ip6", "sha1", "sha256"}
@@ -139,6 +141,9 @@ def words_in(text: str) -> set[str]:
 def _number(word: str) -> Decimal:
     """A digit-led word as a number, or `NOT_A_NUMBER`. Never raises: a word such as 1e1000000
     is a number too large to hold, and that is not a number the input can hold either."""
+    if "," in word and not _GROUPED.fullmatch(word):
+        # 20,48 is not 2048: a comma inside a number only ever groups thousands.
+        return NOT_A_NUMBER
     try:
         number = Decimal(word.replace(",", ""))
         return number.normalize() if number.is_finite() else NOT_A_NUMBER

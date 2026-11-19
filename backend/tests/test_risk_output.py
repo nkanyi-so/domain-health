@@ -352,3 +352,82 @@ def test_case_06_holds_the_numbers_those_sentences_use() -> None:
     known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
 
     assert {Decimal(n) for n in ("2048", "40000", "42000", "0.02", "900")} <= known
+
+
+# Generated, not listed by hand: every way of this kind to make the page show one number where
+# the pieces are two numbers the input holds. Six review rounds found these one at a time.
+def _whole_numbers() -> list[str]:
+    from domain_health.risks import _numbers_of
+
+    known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
+    return sorted(str(int(n)) for n in known if n == n.to_integral_value() and n >= 0)
+
+
+def _joiners() -> list[str]:
+    """Characters that put two runs of digits side by side for a reader: every format character
+    and every space Unicode has, a sample of the combining marks, the apostrophes, and a comma."""
+    import sys
+    import unicodedata
+
+    every = [chr(code) for code in range(sys.maxunicode + 1)]
+    by_category = {
+        category: [ch for ch in every if unicodedata.category(ch) == category]
+        for category in ("Cf", "Zs", "Mn")
+    }
+    return [
+        *by_category["Cf"],
+        *by_category["Zs"],
+        *by_category["Mn"][::40],
+        "'",
+        "`",
+        "\u2019",
+        ",",
+        "",
+    ]
+
+
+def test_no_joiner_makes_two_of_the_inputs_numbers_pass_as_a_third() -> None:
+    from domain_health.risks import _numbers_of
+
+    known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
+    numbers = _whole_numbers()
+    pairs = [(a, b) for a in numbers for b in numbers if Decimal(a + b) not in known and a != "0"]
+    joiners = _joiners()
+    assert len(pairs) >= 20
+    assert len(joiners) >= 200
+    passed = []
+    for a, b in pairs:
+        for joiner in joiners:
+            why = f"Volume rose to {a}{joiner}{b} messages."
+            with contextlib.suppress(InvalidOutputError):
+                validate(SNAPSHOT, output(risk("volume_spike", why=why)))
+                passed.append(why)
+
+    assert passed == []
+
+
+def test_full_width_digits_are_read_as_the_digits_they_show() -> None:
+    wide = str.maketrans(
+        "0123456789", "\uff10\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18\uff19"
+    )
+    for number in _whole_numbers():
+        validate(SNAPSHOT, output(risk("volume_spike", why=f"It is {number.translate(wide)}.")))
+        invented = (number + "7").translate(wide)
+        with pytest.raises(InvalidOutputError, match="not in the input"):
+            validate(SNAPSHOT, output(risk("volume_spike", why=f"It is {invented}.")))
+
+
+def test_ordinary_separators_between_any_two_of_the_inputs_numbers_are_accepted() -> None:
+    separators = [", ", ". ", "; ", ": ", " - ", "-", "\u2013", "\u2014", "/", " to ", " (", ") "]
+    numbers = _whole_numbers()
+    for a in numbers:
+        for b in numbers:
+            for separator in separators:
+                why = f"Figures {a}{separator}{b} and so on."
+                assert len(validate(SNAPSHOT, output(risk("volume_spike", why=why)))) == 1, why
+
+
+@pytest.mark.parametrize("why", ["A key of 20,48 bits.", "About 1,84,00 sent.", "Sent 18,4000."])
+def test_a_comma_where_no_thousands_comma_goes_is_not_a_number(why: str) -> None:
+    with pytest.raises(InvalidOutputError, match="not in the input"):
+        validate(SNAPSHOT, output(risk("volume_spike", why=why)))

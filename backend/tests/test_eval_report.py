@@ -116,16 +116,18 @@ def test_the_printed_lines_say_each_measure_its_bar_and_met_or_missed(tmp_path: 
         "dropped",
     ]
     assert all(line.split("  each run")[0].rstrip().endswith("met") for line in out[1:5])
-    assert "0 in 144 case-runs" in out[3]
+    assert "0 in 144 case-runs (48 cases, 3 runs that agreed on 48)" in out[3]
     assert "(48 of 48 cases)" in out[4]
     assert out[5] == "dropped    0 of 144 outputs"
     assert out[6] == "no bar:"
     assert "table set (30 cases" in out[7]
     assert "rules-only baseline" in out[7]
-    assert "open set (18 cases, 25 expected items)" in out[8]
-    assert "coverage by risk type" in out[9]
-    assert all(risk.value in out[9] for risk in RiskType)
-    assert out[10].endswith("better than the rules-only baseline on the open set: yes")
+    assert "merely acceptable: 0 | with only the types the bands expect kept" in out[8]
+    assert "open set (18 cases, 25 expected items)" in out[9]
+    assert "coverage by risk type" in out[11]
+    assert all(risk.value in out[11] for risk in RiskType)
+    assert out[12].endswith("better than the rules-only baseline on the open set: yes")
+    assert out[13].endswith("listed in the results file): 0")
 
 
 def test_a_run_with_a_case_not_recorded_is_not_scored(tmp_path: Path) -> None:
@@ -275,3 +277,50 @@ def test_strict_accepts_an_older_version_recorded_on_another_model(tmp_path: Pat
     record_as_labelled(evals / "recordings", second, ALL)
 
     assert main(["--prompts", str(tmp_path / "prompts"), "--evals", str(evals), "--strict"]) == 0
+
+
+def test_types_the_bands_call_merely_acceptable_are_counted_and_shown(tmp_path: Path) -> None:
+    """They earn nothing on any measure, and they are where a model differs from the table."""
+    prompt = write_prompt(tmp_path / "prompts")
+    recordings = tmp_path / "recordings"
+    record_as_labelled(recordings, prompt, ALL)
+    name, case = next((n, c) for n, c in ALL.items() if c.set == "table" and c.label.acceptable)
+    extra = case.label.acceptable[0]
+    for number in (1, 2):
+        put_call(
+            run_folder(recordings, prompt.version, MODEL, number),
+            recorded_call(prompt, case.input, output_text(*case.label.expected, extra)),
+        )
+
+    runs, calls, drops = load_runs(ALL, prompt, MODEL, recordings)
+    results = results_for(ALL, prompt, MODEL, runs, calls, load_bars(BARS))
+
+    table = results.sets["table"]
+    assert table.band_acceptable_returned == 2
+    # No measure with a bar moves except stability, and with those types taken out again the
+    # runs are the rules-only baseline.
+    assert (table.coverage, table.precision, table.harmful) == (1, 1, 0)
+    assert table.stability == pytest.approx(29 / 30)
+    assert (table.expected_only_coverage, table.expected_only_precision) == (1, 1)
+    assert (table.expected_only_harmful, table.expected_only_stability) == (0, 1)
+    line = next(line for line in table_report(ALL, runs, drops) if line.startswith(name))
+    assert f"run 1: acceptable, not expected {extra.value}" in line
+    assert "run 3" not in line
+    assert any("merely acceptable: 2 |" in line for line in lines(results))
+
+
+def test_a_harmful_count_above_zero_is_printed_bare(tmp_path: Path) -> None:
+    prompt = write_prompt(tmp_path / "prompts")
+    recordings = tmp_path / "recordings"
+    record_as_labelled(recordings, prompt, ALL)
+    case = ALL[TABLE_CASE]
+    put_call(
+        run_folder(recordings, prompt.version, MODEL, 2),
+        recorded_call(prompt, case.input, output_text(*case.label.expected, case.label.wrong[0])),
+    )
+    runs, calls, _ = load_runs(ALL, prompt, MODEL, recordings)
+
+    out = lines(results_for(ALL, prompt, MODEL, runs, calls, load_bars(BARS)))
+
+    assert "1 in 144 case-runs " in out[3]
+    assert "agreed" not in out[3]

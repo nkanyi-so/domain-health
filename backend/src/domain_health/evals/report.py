@@ -3,6 +3,12 @@
 Reads committed recordings only; makes no call. The model's numbers stand beside the rules-only
 baseline's, for all the cases and for each set. Per-case results of the open set are never
 printed or written: only totals.
+
+Two things are shown so a reader can tell a model from a table of thresholds. A type the rubric's
+bands call merely acceptable earns nothing on any measure, and on an open case it may be the very
+thing the written call makes wrong: how many of those each set got is counted. And the runs are
+scored again with only the types the bands expect kept: where that line equals the baseline's,
+everything the model added to the table was such a type.
 """
 
 import statistics
@@ -20,6 +26,7 @@ from domain_health.evals.scoring import (
     coverage_by_type,
     measure,
 )
+from domain_health.evals.table import table_label
 from domain_health.models import Frozen
 from domain_health.risks.model import (
     ModelCall,
@@ -29,6 +36,7 @@ from domain_health.risks.model import (
     risks_from,
 )
 from domain_health.risks.prompt import Prompt
+from domain_health.risks.prompt_rules import relative_wording
 
 RUNS = 3
 
@@ -94,6 +102,13 @@ class SetResult(Frozen):
     baseline_coverage: float | None
     baseline_precision: float | None
     baseline_harmful: int
+    # Types returned that the rubric's bands call merely acceptable, over the runs.
+    band_acceptable_returned: int
+    # The same runs with only the types the bands expect kept.
+    expected_only_coverage: float | None
+    expected_only_precision: float | None
+    expected_only_harmful: int
+    expected_only_stability: float | None
 
 
 class Results(Frozen):
@@ -112,16 +127,30 @@ class Results(Frozen):
     sets: dict[str, SetResult]
     coverage_by_type: dict[str, str]
     better_than_baseline_on_open: bool
+    # Sentences of the prompt that place a line relative to a figure: shown, not judged.
+    prompt_relative_wording: list[str]
     input_tokens: int
     output_tokens: int
     cost_usd: float
     median_latency_ms: int
 
 
+def _kept(run: Run, cases: Mapping[str, EvalCase], band: str) -> dict[str, CaseRun]:
+    """One run with only the types kept that the rubric's bands put in `band` for that input."""
+    kept: dict[str, CaseRun] = {}
+    for name, case in cases.items():
+        returned = run[name]
+        wanted = getattr(table_label(case.input), band)
+        kept[name] = None if returned is None else [risk for risk in returned if risk in wanted]
+    return kept
+
+
 def _set_result(cases: Mapping[str, EvalCase], runs: Sequence[Run]) -> SetResult:
     chosen = [{name: run[name] for name in cases} for run in runs]
     model = measure(cases, chosen)
     baseline = measure(cases, [baseline_run(cases)] * len(runs))
+    acceptable = [_kept(run, cases, "acceptable") for run in chosen]
+    expected_only = measure(cases, [_kept(run, cases, "expected") for run in chosen])
     return SetResult(
         cases=len(cases),
         expected_items=model.runs[0].expected,
@@ -133,6 +162,13 @@ def _set_result(cases: Mapping[str, EvalCase], runs: Sequence[Run]) -> SetResult
         baseline_coverage=baseline.coverage,
         baseline_precision=baseline.precision,
         baseline_harmful=baseline.harmful,
+        band_acceptable_returned=sum(
+            len(kept or ()) for run in acceptable for kept in run.values()
+        ),
+        expected_only_coverage=expected_only.coverage,
+        expected_only_precision=expected_only.precision,
+        expected_only_harmful=expected_only.harmful,
+        expected_only_stability=expected_only.stability,
     )
 
 
@@ -187,6 +223,7 @@ def results_for(
             risk.value: f"{found}/{expected}" for risk, (found, expected) in by_type.items()
         },
         better_than_baseline_on_open=better_than_baseline(opened, open_runs),
+        prompt_relative_wording=relative_wording(prompt.text),
         input_tokens=sum(call.input_tokens for call in calls),
         output_tokens=sum(call.output_tokens for call in calls),
         cost_usd=round(sum(call.cost_usd for call in calls), 6),
@@ -210,6 +247,11 @@ def lines(results: Results) -> list[str]:
         result = results.measures[name]
         if name == "harmful":
             shown = f"{int(result.value or 0)} in {results.case_runs} case-runs"
+            if not result.value:
+                # Runs that agree are not separate evidence: say how many distinct answers the
+                # zero rests on.
+                agreed = round((results.measures["stability"].value or 0) * results.cases)
+                shown += f" ({results.cases} cases, {results.runs} runs that agreed on {agreed})"
         elif name == "stability":
             stable = round((result.value or 0) * results.cases)
             shown = f"{_number(result.value)} ({stable} of {results.cases} cases)"
@@ -235,10 +277,22 @@ def lines(results: Results) -> list[str]:
             f"coverage {_number(part.baseline_coverage)}, "
             f"precision {_number(part.baseline_precision)}, harmful {part.baseline_harmful}"
         )
+        out.append(
+            f"    types returned that the bands call merely acceptable: "
+            f"{part.band_acceptable_returned} | with only the types the bands expect kept: "
+            f"coverage {_number(part.expected_only_coverage)}, "
+            f"precision {_number(part.expected_only_precision)}, "
+            f"harmful {part.expected_only_harmful}, "
+            f"stability {_number(part.expected_only_stability)}"
+        )
     by_type = ", ".join(f"{risk} {count}" for risk, count in results.coverage_by_type.items())
     out.append(f"  coverage by risk type (found/expected over the runs): {by_type}")
     better = "yes" if results.better_than_baseline_on_open else "no"
     out.append(f"  better than the rules-only baseline on the open set: {better}")
+    out.append(
+        f"  prompt sentences that place a line relative to a figure the model recalls "
+        f"(allowed, listed in the results file): {len(results.prompt_relative_wording)}"
+    )
     out.append(
         f"  cost ${results.cost_usd:.4f}, {results.input_tokens} tokens in, "
         f"{results.output_tokens} out, median latency {results.median_latency_ms} ms"
@@ -250,7 +304,8 @@ def table_report(
     cases: Mapping[str, EvalCase], runs: Sequence[Run], drops: Mapping[str, Sequence[str]]
 ) -> list[str]:
     """Per-case results for the table set only: what prompt changes are argued from. The open
-    set's cases never appear here."""
+    set's cases never appear here. A type returned that the label calls merely acceptable is
+    shown too: it costs nothing here and earns nothing, and a prompt writer has to see it."""
     out: list[str] = []
     for name, case in cases.items():
         if case.set != "table":
@@ -265,8 +320,15 @@ def table_report(
             wrong = [risk.value for risk in returned if risk in case.label.wrong]
             allowed = set(case.label.expected) | set(case.label.acceptable)
             noise = [risk.value for risk in first if risk not in allowed | set(case.label.wrong)]
-            for label, found in (("missed", missed), ("wrong", wrong), ("noise", noise)):
+            acceptable = [risk.value for risk in returned if risk in case.label.acceptable]
+            found_all = (
+                ("missed", missed),
+                ("wrong", wrong),
+                ("noise", noise),
+                ("acceptable, not expected", acceptable),
+            )
+            for label, found in found_all:
                 if found:
                     problems.append(f"run {number}: {label} {', '.join(found)}")
-        out.append(f"{name}: {'; '.join(problems) if problems else 'as labelled in every run'}")
+        out.append(f"{name}: {'; '.join(problems) if problems else 'only what is expected'}")
     return out
