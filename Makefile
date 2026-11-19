@@ -29,7 +29,8 @@ endif
 
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] | check-domain DOMAIN=<name>"
-	@echo "not built yet: eval-live record seed infra deploy-backend fallback screens"
+	@echo "paid: eval-live [MODEL=<name>] [PROBE=1]"
+	@echo "not built yet: record seed infra deploy-backend fallback screens"
 
 setup:
 	cd backend && uv sync --frozen
@@ -71,7 +72,16 @@ format:
 
 # Free. Scores the committed recordings; before any prompt exists there is nothing to measure.
 eval:
-	@cd backend && uv run --frozen python -m domain_health.evals --prompts ../prompts $(if $(STRICT),--strict,)
+	@cd backend && uv run --frozen python -m domain_health.evals --prompts ../prompts --evals ../evals $(if $(STRICT),--strict,) $(if $(TABLE),--table-report,)
+
+# Paid. Three live runs of every eval case through the model in evals/settings.toml (or MODEL=),
+# behind the spend ledger; writes the recordings and the results file. PROBE=1 makes one call
+# instead, to see whether the model accepts `temperature`. The key comes from the shell or from
+# .env, and is only ever in this command's own environment.
+eval-live:
+	@cd backend && set -a && { [ ! -f ../.env ] || . ../.env; } && set +a && \
+		uv run --frozen python -m domain_health.evals.live --prompts ../prompts --evals ../evals \
+		--standing ../docs/STANDING.md $(if $(MODEL),--model $(MODEL),) $(if $(PROBE),--probe,)
 
 # Paid, or writes to Google Cloud. Each must be the only goal on the command line, so that it can
 # never ride along behind an allowed command such as `make eval record`. Keep this guard when a
@@ -90,5 +100,5 @@ check-domain:
 	@test -n "$$CHECK_DOMAIN" || { echo "usage: make check-domain DOMAIN=<name>" >&2; exit 1; }
 	@cd backend && uv run --frozen python -m domain_health.check_domain -- "$$CHECK_DOMAIN"
 
-eval-live record seed infra deploy-backend fallback screens:
+record seed infra deploy-backend fallback screens:
 	@echo "make $@: not built yet" >&2; exit 1

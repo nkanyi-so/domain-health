@@ -8,8 +8,6 @@ same day, so a run can be repeated and consecutive days can differ.
 Seeded clients resolve through `FixtureResolver` only. Nothing here reaches real DNS.
 """
 
-import hashlib
-import json
 from datetime import date
 from pathlib import Path
 from typing import Self
@@ -19,6 +17,7 @@ from pydantic import Field, model_validator
 from domain_health.checks.run import run_checks
 from domain_health.models import Frozen, SnapshotInput, Sources
 from domain_health.resolver.fixture import FixtureResolver, load_zone
+from domain_health.risks.model import input_hash as input_hash
 from domain_health.rules import fix_list
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures"
@@ -76,9 +75,3 @@ async def snapshot_input(
     checks = results.model_input()
     fixes = fix_list(checks.spf, checks.dkim, checks.dmarc, day.sources)
     return SnapshotInput(domain=client.domain, checks=checks, sources=day.sources, fixes=fixes)
-
-
-def input_hash(snapshot: SnapshotInput) -> str:
-    """One input, one hash: the same data gives the same hash on any machine."""
-    canonical = json.dumps(snapshot.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()

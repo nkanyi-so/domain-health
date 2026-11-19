@@ -20,7 +20,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.00 of $10 cap
+Spend: $0.01 of $10 cap
 Decisions to review: 15 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
@@ -1291,6 +1291,18 @@ Risks seen:
 - The spec already says a prompt tuned on the table cases alone can fail the harmful bar on six open calls it was never shown. If that happens it is reported as what it is.
 - The `openai` SDK and the model names are newer than anything this build has checked by running. The first call is the one-cent probe, behind the ledger.
 - `temperature` may be refused with reasoning off; decision 0002 already says what happens then.
+
+### 2026-11-19: the temperature call (the first paid step)
+
+"Spend:" was raised to its worst case, $0.01, before the call.
+
+```text
+$ make eval-live PROBE=1
+temperature with reasoning off on gpt-6-luna: ACCEPTED (call completed)
+766 tokens in, 13 out, $0.000083
+```
+
+`temperature` 0 is accepted with reasoning off, so it is sent with every call (`evals/settings.toml`), and decision 0002 records it. The input was a seeded client's, not an eval case; the instructions were one sentence, not a prompt version. The call is the first line of `evals/ledger.jsonl`.
 
 ---
 

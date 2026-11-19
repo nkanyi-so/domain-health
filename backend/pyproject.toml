@@ -21,6 +21,14 @@ dev = [
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]
+live = [
+    "openai>=3.55.1",
+]
+
+[tool.uv]
+# Installed for development and CI, so the live model's module is linted, typed and tested
+# against a fake. The production image installs neither group.
+default-groups = ["dev", "live"]
 
 [tool.ruff]
 line-length = 100

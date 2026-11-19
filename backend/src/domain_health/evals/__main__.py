@@ -1,40 +1,46 @@
 """`make eval`: scores the committed recordings for the current prompt version.
 
-Until a prompt exists there is nothing to measure, and that is said and is not a failure. Once a
-prompt file exists this must score it or fail: it never reports "nothing to measure" for a prompt
-it cannot score.
+Free: it reads recordings and makes no call. Until a prompt exists there is nothing to measure,
+and that is said and is not a failure. Once a prompt file exists this must score it or fail: it
+never reports "nothing to measure" for a prompt it cannot score. With `--strict` a missed bar is
+a failure too.
 """
 
 import argparse
-import re
 import sys
+import tomllib
 from pathlib import Path
 
+from domain_health.evals.cases import load_cases
+from domain_health.evals.report import (
+    NoRecordingsError,
+    lines,
+    load_runs,
+    results_for,
+    table_report,
+)
+from domain_health.evals.scoring import load_bars
+from domain_health.risks.prompt import load_prompt, prompt_versions, unversioned
+
 NOTHING = "no prompt yet: nothing to measure"
+__all__ = ["NOTHING", "main", "prompt_versions"]
 
 
-VERSION_FILE = re.compile(r"risks-v(\d+)\.md")
-
-
-def prompt_versions(folder: Path) -> list[Path]:
-    """Prompt version files, oldest first by number, so v10 comes after v9."""
-    if not folder.is_dir():
-        return []
-    numbered = [(m, path) for path in folder.iterdir() if (m := VERSION_FILE.fullmatch(path.name))]
-    return [path for m, path in sorted(numbered, key=lambda pair: int(pair[0].group(1)))]
-
-
-def unversioned(folder: Path) -> list[Path]:
-    """Anything in the prompts folder that is not a version file."""
-    if not folder.is_dir():
-        return []
-    return sorted(path for path in folder.iterdir() if path not in prompt_versions(folder))
+def settings(evals: Path) -> dict[str, object]:
+    """Which model the committed results are for, and how it was called."""
+    return tomllib.loads((evals / "settings.toml").read_text(encoding="utf-8"))
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="make eval")
     parser.add_argument("--prompts", type=Path, required=True, help="the folder of prompt versions")
+    parser.add_argument("--evals", type=Path, help="the folder of cases, bars and recordings")
     parser.add_argument("--strict", action="store_true", help="exit non-zero on a missed bar")
+    parser.add_argument("--version", help="score this prompt version, not the newest")
+    parser.add_argument("--model", help="score this model's recordings, not the settings file's")
+    parser.add_argument(
+        "--table-report", action="store_true", help="also print each table case's result"
+    )
     args = parser.parse_args(argv)
 
     versions = prompt_versions(args.prompts)
@@ -47,11 +53,33 @@ def main(argv: list[str] | None = None) -> int:
     if not versions:
         print(NOTHING)
         return 0
-    print(
-        f"{versions[-1].name} exists but the scorer is not built yet (Phase 2): nothing was scored",
-        file=sys.stderr,
-    )
-    return 1
+    if args.evals is None:
+        print("a prompt exists: say where the cases and recordings are (--evals)", file=sys.stderr)
+        return 1
+    chosen = [path for path in versions if args.version in (None, path.stem)]
+    if not chosen:
+        print(f"no prompt version named {args.version}", file=sys.stderr)
+        return 1
+    prompt = load_prompt(chosen[-1])
+    newest = args.version is None and args.model is None
+    try:
+        model = args.model or str(settings(args.evals)["model"])
+        cases = load_cases(args.evals / "cases")
+        runs, calls, drops = load_runs(cases, prompt, model, args.evals / "recordings")
+    except (NoRecordingsError, OSError, KeyError) as error:
+        print(f"{prompt.version} was not scored: {error}", file=sys.stderr)
+        return 1
+    results = results_for(cases, prompt, model, runs, calls, load_bars(args.evals / "bars.toml"))
+    print("\n".join(lines(results)))
+    if args.table_report:
+        print("table cases:")
+        print("\n".join(f"  {line}" for line in table_report(cases, runs, drops)))
+    if newest:
+        # The results file is for the newest prompt version on the settings file's model.
+        (args.evals / "results.json").write_text(
+            results.model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )
+    return 1 if args.strict and not results.all_bars_met else 0
 
 
 if __name__ == "__main__":
