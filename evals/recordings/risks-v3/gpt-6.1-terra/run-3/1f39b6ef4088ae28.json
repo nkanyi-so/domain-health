@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1f39b6ef4088ae28d2d41531a30e3b421ad4b7d87d2655aaba5193521fc4e7dc",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open rate has fallen sharply\",\"why\":\"Opens have lost a large share of their earlier level, suggesting a significant decline in engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has surged\",\"why\":\"Weekly sending volume jumped several-fold, which can strain sender reputation.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy monitors authentication failures but does not protect the domain from spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4876,
+  "output_tokens": 183,
+  "cost_usd": 0.005791,
+  "latency_ms": 4184,
+  "recorded_at": "2026-11-19T19:13:45+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "49d368da8298fd2b1425983f5e2df8d28f5d31ede44bbbff133d85248685a543",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The domain's reputation fell from medium to bad, which can make mailbox providers less likely to deliver its mail.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Poor sending reputation\",\"why\":\"The domain has a bad reputation, putting inbox placement at risk.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has spiked\",\"why\":\"Weekly sending volume rose several-fold while the domain's reputation is bad, increasing the risk of delivery problems.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4968,
+  "output_tokens": 168,
+  "cost_usd": 0.005808,
+  "latency_ms": 4353,
+  "recorded_at": "2026-11-19T19:13:03+00:00"
+}

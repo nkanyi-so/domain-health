@@ -1,6 +1,7 @@
-# Which model the committed results are for, and how it is called (decision 0002).
+# Which model the committed results are for, and how it is called (decision 0002). It was
+# gpt-6-luna for the first three attempts of Phase 2, which missed their bars; see the phase log.
 # `make eval` scores this model's recordings; `make eval-live` calls it unless MODEL= says otherwise.
-model = "gpt-6-luna"
+model = "gpt-6.1-terra"
 # Sent with every call while this line holds a number. The first paid call of Phase 2 tests
 # whether the model accepts it with reasoning off; if it does not, the line is removed.
 temperature = 0

@@ -20,8 +20,8 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.26 of $10 cap
-Decisions to review: 16 (`docs/DECISIONS_TO_REVIEW.md`)
+Spend: $0.99 of $10 cap
+Decisions to review: 19 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -1241,15 +1241,15 @@ challenger-verdict: not needed @ 10f4114
 
 ## Phase 2: the model and the evals
 
-- [ ] `RiskModel` interface with `OpenAIRiskModel`, `RecordedRiskModel`, `FixtureRiskModel`.
-- [ ] `prompts/risks-v1.md`; the structured-output schema; validation of model output; IDs built in code.
-- [ ] A test that no worked example in a prompt shares a domain or an input hash with an eval case.
-- [ ] The spend ledger: checked before every paid call at the most that call could cost; stops before the cap in `docs/STANDING.md`.
-- [ ] Eval harness, `make eval`, `make eval-live`, `evals/results.json`, recordings under `evals/recordings/<prompt version>/`.
-- [ ] One paid call that shows whether `temperature` is accepted with reasoning off; the answer and what the code does about it are in the log and in decision 0002.
-- [ ] `make eval-live` on `gpt-6-luna`. If a bar is missed: up to three further prompt versions, then the same on `gpt-6.1-terra`; the numbers for each attempt are in the log.
-- [ ] One real failure from these runs and its fix are written down for the README.
-- [ ] From decision 0010: the harness scores the rules-only baseline beside the model, for the table set and the open set; prints coverage per risk type, the dropped count and each run's own numbers beside the means; counts harmful over everything returned. Tests: only a case's `input` reaches the model; a prompt quotes none of the rubric's thresholds. The prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only; it does not read the open cases, the Phase 0 pull request's description or any per-case result on the open set.
+- [x] `RiskModel` interface with `OpenAIRiskModel`, `RecordedRiskModel`, `FixtureRiskModel`.
+- [x] `prompts/risks-v1.md`; the structured-output schema; validation of model output; IDs built in code.
+- [x] A test that no worked example in a prompt shares a domain or an input hash with an eval case.
+- [x] The spend ledger: checked before every paid call at the most that call could cost; stops before the cap in `docs/STANDING.md`.
+- [x] Eval harness, `make eval`, `make eval-live`, `evals/results.json`, recordings under `evals/recordings/<prompt version>/`.
+- [x] One paid call that shows whether `temperature` is accepted with reasoning off; the answer and what the code does about it are in the log and in decision 0002.
+- [x] `make eval-live` on `gpt-6-luna`. If a bar is missed: up to three further prompt versions, then the same on `gpt-6.1-terra`; the numbers for each attempt are in the log.
+- [x] One real failure from these runs and its fix are written down for the README.
+- [x] From decision 0010: the harness scores the rules-only baseline beside the model, for the table set and the open set; prints coverage per risk type, the dropped count and each run's own numbers beside the means; counts harmful over everything returned. Tests: only a case's `input` reaches the model; a prompt quotes none of the rubric's thresholds. The prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only; it does not read the open cases, the Phase 0 pull request's description or any per-case result on the open set.
 
 **Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty-eight cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. Whether the model does better than the baseline on the open cases, as `docs/SPEC.md` defines it, is in the output and the log whichever way it comes out; it is evidence and not a bar (decision 0012), and if it does not, the phase is left for the owner to merge. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
 
@@ -1429,6 +1429,77 @@ The three attempts side by side, all forty-eight cases:
 | 3 | risks-v3 | gpt-6-luna | 0.786 | 0.877 | 20 in 144 | 0.688 | 0 | $0.0787 |
 
 What the three say together. Stability never passed 0.79, and it was highest for the prompt that said least: with reasoning off and temperature 0, this model gives a different set of risks on the same input and the same prompt in a quarter to a third of the cases. No wording fixes that, and the harmful bar is zero over 144 case-runs. A fourth prompt on this model was allowed by the plan ("up to three further prompt versions") and was not written: the next attempt is the same prompt on `gpt-6.1-terra`, as the plan provides when Luna misses a bar. The call is in `docs/DECISIONS_TO_REVIEW.md`.
+
+### 2026-11-19: attempt 4, version 3 on `gpt-6.1-terra`
+
+"Spend:" was raised to $1.42 (the $0.21 spent plus this run's worst case, $1.20) before the run, and set to what was spent, $0.99, after it.
+
+```text
+$ make eval-live MODEL=gpt-6.1-terra
+run 1: 48 call(s) recorded
+run 2: 48 call(s) recorded
+run 3: 48 call(s) recorded
+144 call(s) on 2026-11-19, $0.7839; spent in all $0.9947
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+```
+
+Every one of the thirty table cases came back as labelled in every run (the per-case lines all read "as labelled in every run"). Coverage, precision and stability meet their bars. **Harmful does not: 9 in 144 case-runs, three in each run, all of them on the open set.** The model does not do better than the rules-only baseline on the open set (it finds 18 of 25 per run to the baseline's 17, and names wrong types where the baseline names none).
+
+| Attempt | Prompt | Model | coverage | precision | harmful | stability | dropped | cost |
+|---|---|---|---|---|---|---|---|---|
+| 1 | risks-v1 | gpt-6-luna | 0.552 | 0.986 | 2 in 144 | 0.792 | 0 | $0.0563 |
+| 2 | risks-v2 | gpt-6-luna | 0.816 | 0.841 | 24 in 144 | 0.667 | 1 | $0.0757 |
+| 3 | risks-v3 | gpt-6-luna | 0.786 | 0.877 | 20 in 144 | 0.688 | 0 | $0.0787 |
+| 4 | risks-v3 | gpt-6.1-terra | 0.896 | 0.962 | 9 in 144 | 0.979 | 0 | $0.7839 |
+
+Spent in all: $0.9947 (the four runs and the one-cent probe), of a $10 cap.
+
+**Why the build stops here and does not write a fifth attempt.** The spec's rule is that prompt changes are argued from table-case results only, and the open set is looked at as totals, never case by case. On the table cases there is nothing left to argue from: all thirty are right in all three runs. The nine harmful answers are on cases the prompt's writer may not see, and the spec said in Phase 0 that this could happen and how to read it: six open calls make wrong a type the rubric's bands call acceptable, so "a prompt tuned on the table cases alone can therefore fail the harmful bar on calls it was never shown; that is a property of holding the open cases out". Three wrong types a run is consistent with exactly that (the model gave the same three in each run: stability on the open set is 1.000), though the build has not looked at which cases they are and cannot say it is that and nothing else. Any next step uses the open set in a way the rules do not allow, or changes what the bar counts, or accepts the miss. Each of those is the owner's. The gate's line "harmful exactly 0" is not met and is not ticked.
+
+`evals/settings.toml` now names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show attempt 4, the best attempt and the one a gate would be read from. `make eval STRICT=1` exits non-zero on it, which is the truth.
+
+### 2026-11-19: one real failure and its fix, for the README
+
+Two, both from these runs; Phase 6 picks.
+
+1. **"When in doubt, leave it out."** Version 1 closed with a blanket instruction to hold back, because one wrong risk fails a bar. On a small model with no reasoning step that one sentence beat every description of when to raise a risk: coverage 0.55, complaint rates under the hard limit raised once in eighteen chances. The fix was not a softer sentence but a different shape: version 3 makes every risk type a short checklist (the states in which it must never be raised first, tied to specific fields; then the condition for raising it), and makes the fix list the only word on whether a hard limit has been crossed. On the model that could follow it, all thirty table cases then came back as labelled.
+2. **Temperature 0 is not stability.** On `gpt-6-luna` with reasoning off and temperature 0, three runs of the same input and the same prompt gave a different set of risks in a quarter to a third of the cases, on three quite different prompts (stability 0.79, 0.67, 0.69). The same prompt on `gpt-6.1-terra` gave 0.979. Stability was measured, not assumed, and the measure is what showed that the cheaper model could not be used: a risk that comes and goes between runs would come and go between days, and "handled" would mean nothing. The cost is ten times the price per run ($0.78 against $0.08 for the eval; a few cents more for the seeded clients' recordings in Phase 4).
+
+### 2026-11-19: `make eval` on the committed recordings
+
+Free; it reads the recordings of the newest prompt version on the model in `evals/settings.toml` and writes `evals/results.json`. The whole output:
+
+```text
+$ make eval
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+$ make eval STRICT=1; echo $?
+(the same lines)
+2
+```
+
+The results file committed with this log holds these numbers. All nine checklist items of the phase are ticked because each thing exists as the item describes it; the gate is not ticked, because harmful is not 0.
 
 ---
 

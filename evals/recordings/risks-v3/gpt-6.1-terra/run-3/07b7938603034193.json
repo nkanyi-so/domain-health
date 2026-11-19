@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "07b79386030341934a7335cc361b3107311f9b1f854fa0a3393c48412840e19b",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"new_domain_volume\",\"title\":\"Significant volume on a new domain\",\"why\":\"The domain is still in its first few weeks but is already sending thousands of messages weekly, which can strain its developing sender reputation.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC does not yet protect the domain from spoofing. Monitoring is appropriate while the domain is young, with enforcement as the next stage.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4875,
+  "output_tokens": 146,
+  "cost_usd": 0.005605,
+  "latency_ms": 4142,
+  "recorded_at": "2026-11-19T19:13:48+00:00"
+}

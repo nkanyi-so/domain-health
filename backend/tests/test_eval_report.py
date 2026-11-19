@@ -148,13 +148,14 @@ def test_recordings_made_with_another_text_of_the_prompt_do_not_count(tmp_path: 
 
 
 def evals_folder(tmp_path: Path) -> Path:
-    """A copy of the real cases, bars and settings with room for made-up recordings."""
+    """A copy of the real cases and bars, with room for made-up recordings."""
     folder = tmp_path / "evals"
     (folder / "cases").mkdir(parents=True)
     for path in CASES.glob("*.json"):
         (folder / "cases" / path.name).write_text(path.read_text(encoding="utf-8"))
-    for name in ("bars.toml", "settings.toml"):
-        (folder / name).write_text((EVALS / name).read_text(encoding="utf-8"))
+    (folder / "bars.toml").write_text((EVALS / "bars.toml").read_text(encoding="utf-8"))
+    # Its own settings: these tests do not depend on which model the real results are for.
+    (folder / "settings.toml").write_text(f'model = "{MODEL}"\ntemperature = 0\n')
     return folder
 
 
@@ -235,3 +236,14 @@ def test_an_older_version_can_be_scored_without_touching_the_results_file(tmp_pa
     assert not (evals / "results.json").exists()
     assert main(arguments) == 0
     assert json.loads((evals / "results.json").read_text())["prompt_version"] == "risks-v2"
+
+
+def test_the_real_settings_name_a_model_with_a_known_price() -> None:
+    import tomllib
+
+    from domain_health.risks.ledger import PRICES
+
+    config = tomllib.loads((EVALS / "settings.toml").read_text(encoding="utf-8"))
+
+    assert config["model"] in PRICES
+    assert config.get("temperature", 0) == 0

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e1fc3cc0547811201e7b1ff246c2b58a5061da6203fc30e045ef70a64dc07fa3",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The domain's reputation fell from medium to low, which can make inbox placement harder.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Sending reputation is low\",\"why\":\"A low reputation can cause mailbox providers to filter or reject more mail.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, creating a risk to deliverability.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy monitors authentication failures but does not ask receivers to reject or quarantine spoofed mail.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4874,
+  "output_tokens": 217,
+  "cost_usd": 0.005959,
+  "latency_ms": 4648,
+  "recorded_at": "2026-11-19T19:13:45+00:00"
+}

@@ -15,6 +15,27 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-19, Phase 2: the committed results are `gpt-6.1-terra`'s
+
+- **Decided:** `evals/settings.toml` names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show attempt 4 (version 3 on Terra), not any of the three Luna attempts. The other option was to leave Luna as the configured model and report Terra beside it.
+- **Why:** decision 0002 says that if Luna misses a bar, Terra is run on the same set "and the numbers decide". Terra meets three bars where Luna met at most two, and its stability is 0.979 against 0.69. All four attempts' recordings stay in the repository and any of them can be scored with `--version` and `--model`. The cost: an eval run is about $0.78 instead of $0.08, and Phase 4's recording of the seeded clients costs a few cents more.
+- **To undo:** change the `model` line in `evals/settings.toml` back and run `make eval`.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: model output is held to three rules more than the spec lists
+
+- **Decided:** the spec lists four rules for model output (a known type, no duplicate, at most eight, every number in the text present in the input). The code also drops an output with an empty title or reason, with a title over 120 characters or a reason over 400, and it gives the model a closed list of input field names for `evidence`, so a field that does not exist cannot be named at all. A word that starts with a digit and is not a number (`18k`, `2x`) counts as an invented number.
+- **Why:** the title and the reason are shown to a person, and the evidence is meant to point at the input. None of the three cost anything in the runs: one output in 576 was dropped in all, and not by these.
+- **To undo:** remove the length and emptiness checks in `validate` (`backend/src/domain_health/risks/__init__.py`) and make `evidence` a list of plain strings. That changes the schema sent to the model, so recordings made after it are a new prompt run.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: the `openai` package is installed for development and CI
+
+- **Decided:** `backend/pyproject.toml` sets `default-groups = ["dev", "live"]`, so `uv sync` and `make check` install the `live` group and the live model's module is linted, type-checked and tested against a fake client. The other option was to leave `live` out of the default and exclude that one module from the checks.
+- **Why:** an unchecked module is where a paid call would break first. Rule 3 in `CLAUDE.md` is about the deployed service: its image is built in Phase 4 with neither group (`uv sync --no-default-groups`), a test already holds that nothing but the paid command imports the live module, and no key is ever set there.
+- **To undo:** remove the `[tool.uv]` block and add `--group live` to the `uv run` line of the `eval-live` target; mypy then needs the module excluded.
+- **Status:** to review
+
 ## 2026-11-19, Phase 2: three prompt versions on `gpt-6-luna`, not four, before `gpt-6.1-terra`
 
 - **Decided:** the plan allows up to three further prompt versions on `gpt-6-luna` after the first misses a bar, then the same on `gpt-6.1-terra`. After versions 1, 2 and 3 all missed, the fourth Luna version was not written and the next attempt is version 3 on Terra. The other option was a fourth version on Luna first.

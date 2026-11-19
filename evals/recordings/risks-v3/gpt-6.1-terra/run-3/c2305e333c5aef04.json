@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c2305e333c5aef04273cc8c9f8f92b8d5b7e91641bb8081271d0bfade698645e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume spiked\",\"why\":\"Weekly sending volume rose several-fold on a young domain with medium reputation, which can strain deliverability.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume on a new domain\",\"why\":\"The domain is in its first few weeks but is already sending substantial volume, increasing the risk of deliverability problems.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The policy does not protect the domain from spoofing. Monitoring is the right stage for this young domain for now, with enforcement following later.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4873,
+  "output_tokens": 204,
+  "cost_usd": 0.005893,
+  "latency_ms": 5082,
+  "recorded_at": "2026-11-19T19:13:32+00:00"
+}
