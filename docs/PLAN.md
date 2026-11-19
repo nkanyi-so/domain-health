@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -37,7 +37,21 @@ Estimated total: under $6 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 0 is stopped for you a second time, for one reason.** The challenger read the measure as rebuilt from your answers and again says a change is needed before you sign it off. Everything else is done: the review (eighth run) found nothing blocking, the verifier passed every command, CI is green, and the preflight ends with `preflight: ready`. You asked not to be asked anything more unless the stop list requires it. It does: a change to how the claim is measured is yours.
+
+**What it found.** You chose A1 so that the ten open cases would show "what the model does that rules cannot". As drafted, they cannot show that. The rules-only baseline misses five expected items on the open cases, and all five are signals the rubric's bands already call "acceptable" which the open label raises to "expected". So a table with one threshold moved (complaints flagged from 0.08% instead of 0.10%) finds 10 of 14, exactly the pass mark, with nothing harmful. I reproduced that. Of the other open cases, four can never change a score (the call is "acceptable" either way) and three can only count against the model. Passing Phase 2 would show that the model raises a few optional signals, not that it judges. Its full report is in the Phase 0 log ("challenger, second run, on 71d51ff").
+
+**1. Which way? One of these.**
+
+- **A. Add open cases that a looser table cannot pass, and keep the claim (the challenger's recommendation and mine).** A fresh agent that never sees the prompt drafts six to ten more open cases of two kinds: ones where the right call is a risk the bands call wrong or do not list at all, so no loosening reaches it; and ones where a signal the bands call acceptable is wrong to raise in context, so loosening is punished. A new test proves the point in code: no table made by also returning any set of "acceptable" bands may pass the comparison. The gain over the baseline must come from at least two different open cases and hold in at least two of the three runs, so one lucky run of one case cannot meet it. Costs you about fifteen minutes more of reading at the merge; costs the build about half a day and another review round; under $0.05 more per paid run (worst case for the build stays under $7, cap $10).
+- **B. Compare the model against the strongest loosened table.** No build cost, but as the cases stand that table scores 14 of 14, so the model cannot beat it and this ends at the weaker claim wording anyway.
+- **C. Leave the cases as they are and say what they show.** Take the weaker wording now ("judgment-call risks picked by a model from a closed list and scored against a written rubric"), and drop the sentence that the open cases show judgment. Nothing more to build; Phase 0 can merge after one review round. The reader's question "why is this not just rules?" stays unanswered by the evals.
+
+**2. Two open calls the challenger finds arguable (cases 34 and 38).** In 34 one expected type does not meet its own definition in the rubric; in 38 a mention that only states a fact from the input is scored as harmful, and harmful has zero tolerance. Recommended: with A, the fresh agent redrafts both; with C, you look at these two in the pull request's table and correct them by hand or say they stand.
+
+**3. One sentence in `docs/CLAIM.md` promises more than its test does.** It says the test fails if a file states the claim "in other words"; the test checks only that the exact sentence is present. Recommended: reword that line to say what the test does. Yes or no.
+
+**What happens once you answer.** For A: the cases, the test and the reworded rule go onto this branch with a short addition to decision 0010 and the spec; the reviewer, the verifier and the challenger run again; the pull request's table grows by the new cases; then I tell you #1 is ready. For C: I make the wording changes (the claim sentence changes in `docs/CLAIM.md`, `docs/SPEC.md` and the page together, which the claim test enforces), run the three checks again, and tell you. If you would rather merge #1 exactly as it is, you can: the challenger's verdict line stays as it gave it, and Phase 1 starts after the merge.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -532,6 +546,114 @@ Worth noting, as it put it, and what was done:
 - "twenty cases" twice in the decisions file's input-shape entry. Done.
 - "The measure changed through the decisions file, not a stop... I treat this as covered, not blocking: Phase 0 is owner-merged, and item 1 of the pull request asks for the owner's approval of that definition by name. The owner's merge must be read as that approval." Agreed, and said in the hand-over.
 - The verifier and the challenger last ran on 2e989a7 and have to run again on the final commit. They do, next.
+
+### 2026-11-19: review, eighth run, on 71d51ff
+
+Verdict as reported: "No blocking findings." It recomputed every quoted figure (open set 9/14, 12/12, 0; table set 42/42, 42/42, 0; 27, 30 of 42), found the baseline rule reading the same in the spec, decision 0010, the decisions file and the pull request, found the two new tests doing what the spec's sentence needs, and found the description accurate and naming every owner-level change. Three notes, not blocking: one sentence in the description's list of doubts stated a necessary condition as if it were the rule, and its account of who fixed the open cases left out the later note correction (both fixed in the description); and "by construction" in the rubric and the spec is true of these cases because two tests keep it so, not of every possible open case (the rubric is the owner's; left for them).
+
+### 2026-11-19: verifier, on 71d51ff
+
+| What it ran | Expected | What happened | Result |
+|---|---|---|---|
+| `make setup` | exit 0 | exit 0; `ok: Node 24`, `ok: JDK 23` | pass |
+| `make check` | exit 0, both toolchains, emulator test, forty cases | exit 0; `143 passed, 1 deselected`; in the emulator `1 passed, 143 deselected`; frontend format, lint, typecheck, vitest, `next build` | pass |
+| `make format FILE=...`; `make format` | formats; usage error without FILE | exit 0, no diff; `usage: make format FILE=<path>`, exit 2 | pass |
+| `make eval`, `make eval STRICT=1` | "no prompt yet: nothing to measure", exit 0 | both, exit 0 | pass |
+| `make fallback`, `screens`, `check-domain DOMAIN=a.example` | "not built yet", non-zero | `not built yet` and `Error 1` (it did not capture the message line for `screens`) | pass |
+| `make -n` with each of the five paid or cloud targets beside another goal, both orders | refused | all ten refused: "is paid or writes to Google Cloud: run it alone, as the only goal" | pass |
+| `make dev`, then SIGINT to its process group | healthz ok, page shows the claim, clean stop | `{"status":"ok"}`; the page holds the exact claim sentence; after SIGINT nothing listened on 8000, 3000 or 8085 | pass |
+| Commit with a failing test | refused, fully undone | `1 failed, 143 passed`, "pre-commit: make check failed. Fix the cause before committing."; no commit made; tree as found | pass |
+| `bash .claude/hooks/preflight.sh` | ends `preflight: ready` | last line `preflight: ready`; the only lines not `ok:` were the header and the two known warnings | pass |
+| Forty cases load | 30 table, 10 open | `total 40 table 30 open 10`; every table case equals the bands, every open case differs | pass |
+| One label slot of a table case changed | differs from the bands | it does | pass |
+| An open case's label set to the bands' | its departure disappears | it does | pass |
+| Three inputs that cannot happen | each refused | each refused with the validator's message | pass |
+| The baseline | nothing for case 01; fewer than expected on the open cases | `[]`; 9 of 14 | pass |
+
+Not exercised, in its words: "I have no browser tool, so I did not see the page at desktop or phone width. I only fetched its HTML". (The page is the scaffold's one paragraph; the screens are Phase 5.)
+
+### 2026-11-19: challenger, second run, on 71d51ff
+
+Its report arrived under an automatic warning from the session's safety layer ("auto mode blocked this subagent's report. Reason: Unsanctioned Communication"). Checked before using it: the working tree, the pushed branch, the pull request and the issues are unchanged; it left only scripts and one notes file outside the repository. Its central finding was then reproduced by the build with a totals-only script (below). Verdict: **change needed**. Nothing has been changed in answer to it.
+
+**The bars.** "The Phase 0 gate has no eval bar. There is no prompt... No bar was met or missed in this phase because there are no scores." It recomputed the baseline: "Open set: coverage 9/14, precision 12/12, harmful 0. Table set: 42/42, 42/42, harmful 0. All forty cases: 51/56 expected items." It notes that the log's "expected items 53" above is stale (the open cases changed after it was counted; 56 is right) and that "no spec sentence depends on it".
+
+**Is what was built what the owner decided?** "Mostly yes: B, C, D and F are written into SPEC and decision 0010. There are forty cases, 30 table and 10 open, and every type is expected at least twice (tested). Labels are re-derived, fix lists are re-derived, there are 15 input validators, the open set is held out, and decision 0011 records the six objections. One part does not do what the owner chose A1 for, which was 'here is what the model does that rules cannot'."
+
+**1. Is the claim true as an absolute?**
+
+"The comparison can be passed by a table with no model. The five expected open-set items the baseline misses are in only three cases: 34 (three items), 35 (one) and 36 (one). All five are types the bands call *acceptable* that the open labels raise to *expected*. So a slightly looser table recovers them: add one rule to the baseline: return `complaint_rate_elevated` when the bands call it acceptable (the complaint line at 0.08% instead of 0.10%). That gives open-set coverage 10/14 per run, which is 30/42 over three runs, the exact pass mark. Precision is 1.00 and harmful is 0. All four bars on the forty cases come out at their maximum [...]. Returning the bands' acceptable for the five rate, volume and blocklist types gives 14/14. Of the 8,192 type subsets whose band-acceptable values a table could also return, 992 pass the 'better than the baseline' rule and every bar. So a Phase 2 pass would not show anything a table could not do. It is the earlier challenger's central finding in a new form, and it defeats the purpose of A1."
+
+"What the comparison can and cannot see, by kind of departure: 31, 32, 33 (the bands expect a type, the open label says only acceptable) and 39 (wrong becomes acceptable): no score can tell a restrained model from one that follows the bands. [...] Four of the ten open calls are unscored. 37, 38, 40 (acceptable becomes wrong): these can only count against the model. The baseline never returns acceptable types, so it avoids them for free. 34, 35, 36: the only cases where the model can beat the baseline, and only by raising more."
+
+"What passing Phase 2 would show: the model follows the table on 30 synthetic cases. On three cases it raises some signals the bands leave optional, at least three items over three runs. It does not raise three acceptable types that the open labels call wrong. Harmful is 0 in 120 case-runs. What it would still not show: that the model raises more than a looser table would; restraint judgment (31-33); the written reason a reader sees; order; the seeded clients' recordings [...]; stability from day to day."
+
+"Are the open cases open? None is decided by a single field, and the test confirms each departs from the bands. But each is a two- or three-field condition a table could hold, and the five that can raise the model's score are each one band's acceptable promoted to expected. Are the calls defensible? Eight are clearly defensible. Case 34 is arguable. Its expected set contains a type whose own rubric definition does not hold for the input. Case 38 is arguable. It counts as harmful a mention that states a plain fact from the input, and harmful has zero tolerance."
+
+"Wording that would be true if nothing changes: the A2 sentence already in SPEC. Or, for the comparison alone: 'on ten held-out cases the model raises signals the rubric leaves optional, and avoids ones a written call says are wrong'."
+
+**2. Is the measurement too noisy to trust?**
+
+"The comparison. 'At least one more item per run on average' means at least 3 extra item-runs out of 15 possible (5 items × 3 runs). Case 34 holds three of the five items, and they share one reason. So a single case-run of case 34 can meet the rule. [...] Three discriminating cases is also a case-sampling problem, and more runs do not fix that. It would take roughly 10-15 cases that can actually move the comparison, with the rule counted per case or required in at least two of three runs."
+
+"Global bars: Coverage: 56 items per run, so one item is 0.018. A model that follows the table gets 0.911, so the margin is about six items per run. That is adequate. Stability: 36 of 40 cases. Each case is 0.025. Harmful == 0 over 120 case-runs bounds the rate at about 2.5%. The owner should know it now also includes nine trap case-runs (cases 37, 38 and 40 over three runs) where the rubric given to the prompt writer calls the type acceptable. One mention in any of them fails the whole Phase 2 gate, not just the comparison."
+
+**3. Could anything still be checked in code?**
+
+"Yes: (a) A loosened-table test. For every subset S of risk types, the table that returns the bands' expected plus the bands' acceptable within S must not pass the 'better than the baseline' rule with harmful 0. It is deterministic, runs in seconds, and fails today: 992 subsets pass, and the smallest is one type. This is the check that would have caught finding 1. (b) A test that pins the numbers the docs state ('9 of the 14', '30 of 42', '0 in 120'). [...] (c) A test that each open note names, by ID, every type whose band it moves. (d) Arithmetic in notes, and plausibility combinations [...]. A soft lint could flag these. (e) The claim pin is narrower than CLAIM.md says. CLAIM.md line 7 says the test fails if a file 'states it in other words'. `test_claim_wording.py` only checks that the exact sentence appears somewhere. A paraphrase next to it passes. Either reword CLAIM.md or accept the limit."
+
+**Its changes, "the owner's choice; one of A, B or C":**
+
+- "A. Make the open set able to show more than a looser table would, and keep the claim (recommended). A fresh agent that never sees the prompt drafts about 6-10 more open cases of two kinds: cases where an expected item is one the bands call wrong or leave unlisted (not acceptable), so a looser table cannot reach it; cases where a band-acceptable rate signal is wrong in context, so loosening is punished. Add test (a). Count the gain per case, or require it in at least two of three runs. Cost: about half a day of build, about 15 minutes of owner review, and well under $0.05 more per paid run. It touches labels, so the owner merges it."
+- "B. Compare against the strongest loosened table, not the bands' expected. No build cost. As the cases stand, that table scores 14/14, so the model cannot beat it, and in effect this leads to the A2 wording."
+- "C. Accept the comparison as it is, but state what it shows. Use the comparison wording in finding 1, take the A2 claim wording now, and drop 'The open cases are where a model can show judgment' from SPEC and CLAIM.md. Cost: a weaker sentence."
+
+Its notes, not blocking: cases 31-33 and 39 are unscored and should be reported as such; cases 34 and 38 are arguable; the harmful bar includes the open-set traps; the "in other words" overstatement in `docs/CLAIM.md`; the stale "twenty" and "53".
+
+The build's own check of the central finding, on the committed cases (totals only):
+
+```text
+bands' expected only:             found 9/14, precise 12/12, harmful 0
+plus acceptable complaint rate:   found 10/14, precise 13/13, harmful 0
+plus acceptable for 5 rate/volume/blocklist types: found 14/14, precise 19/19, harmful 0
+```
+
+It is right. The "better than the baseline" rule the build wrote can be passed by a table with one threshold moved.
+
+### 2026-11-19: gate evidence, on 71d51ff
+
+All five parts of the gate are shown, and every checklist box is ticked; the gate's own wording is left as the owner wrote it. That is separate from the stop: the challenger says the measure needs a change before it is signed off, and the owner decides.
+
+1. `make check` exits 0, with passing tests in each toolchain and the cases loading (forty; the gate's "twenty" was written before the owner's answers):
+
+```text
+$ make check   (lines kept; the rest is tool chatter)
+All checks passed!
+143 passed, 1 deselected in 0.24s
+1 passed, 143 deselected in 0.15s
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+exit=0
+```
+
+2. The pre-commit hook refuses a commit with a failing test: shown by the build before the first commit (evidence under the first gate evidence above) and by the verifier on 2e989a7 and again on 71d51ff (`1 failed, 143 passed`, "pre-commit: make check failed. Fix the cause before committing.", no commit made, tree restored).
+
+3. CI green on the first push, all three jobs (0a7b46b, above), and on 71d51ff:
+
+```text
+$ gh api repos/nkanyi-so/domain-health/commits/71d51ff/check-runs -q '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)"'
+check	completed	success
+eval	completed	success
+secrets	completed	success
+```
+
+4. Branch protection is on (above: `check` and `secrets` required, strict, administrators included, no force-push). The preflight on 71d51ff reads it the same way.
+
+5. `bash .claude/hooks/preflight.sh` ends with `preflight: ready` (run by the build after the owner's answers, above; by the reviewer on c7874ae and 71d51ff; by the verifier on 71d51ff).
+
+reviewer-verdict: no blocking findings @ 71d51ff
+verifier-verdict: pass @ 71d51ff
+challenger-verdict: change needed @ 71d51ff
 
 ---
 
