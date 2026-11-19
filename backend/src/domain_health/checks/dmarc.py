@@ -24,7 +24,10 @@ class DmarcSyntaxError(ValueError):
 
 
 def is_dmarc(record: str) -> bool:
-    return "".join(record.split()).lower().startswith("v=dmarc1")
+    """A DMARC record opens with the tag `v=DMARC1`, exactly that value (in either case).
+    Anything else, `v=DMARC10` included, is not a DMARC record, and receivers pass over it."""
+    name, _, value = record.split(";")[0].partition("=")
+    return name.strip().lower() == "v" and value.strip().upper() == "DMARC1"
 
 
 def _policy(name: str, value: str) -> DmarcPolicy:

@@ -141,6 +141,25 @@ def test_a_key_that_is_not_rsa_is_found_and_has_no_rsa_length() -> None:
     assert found.other_keys == ("k1",)
 
 
+def test_a_record_of_another_version_is_not_a_key() -> None:
+    key = rsa_public_key(2048)
+
+    found = run(check_dkim(FixtureResolver({at("k1"): [f"v=DKIM2; k=rsa; p={key}"]}), D))
+
+    assert found.check.keys == []
+    assert found.other_keys == ()
+
+
+def test_a_key_type_that_does_not_exist_is_not_a_key() -> None:
+    key = rsa_public_key(2048)
+
+    found = run(check_dkim(FixtureResolver({at("k1"): [f"v=DKIM1; k=dsa; p={key}"]}), D))
+
+    assert found.check.keys == []
+    assert found.other_keys == ()
+    assert found.problems == ("the key at selector k1 cannot be read",)
+
+
 def test_a_txt_record_that_is_not_a_key_is_ignored() -> None:
     found = run(check_dkim(FixtureResolver({at("k1"): ["hello"]}), D))
 

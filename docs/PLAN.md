@@ -985,9 +985,20 @@ Two findings it called non-blocking, both fixed:
 1. "A DMARC `pct` written in non-ASCII digits is accepted", the same class as the third round's SPF finding, against the decisions entry's "a bad `pct` does not parse".
    - Done: a DMARC record with any character outside ASCII does not parse, as with SPF. Two more cases in the test of records that do not parse.
 2. Two garbled forms of "example" under `.com` in `backend/tests/test_domain_name.py` (one with an umlaut, one built in a loop), which "name no company or person" and are never looked up, but are outside the documentation domains, and made a sentence in this log false.
-   - Done in the tree: both now sit under `example.org`, and the false sentence above is corrected. Not done: a third branch. The commit 2e75ed2 keeps those two test lines in its history; they are misspellings of "example", not names, and the reviewer did not hold the merge for them. The decisions entry says so for the owner.
+   - Done in the tree: both now sit under `example.org`, and the false sentence above is corrected. (Two more of the same kind, one with a space and one with a tab, were left; the fifth review found them, below.) Not done: a third branch. The commit 2e75ed2 keeps those two test lines in its history; they are misspellings of "example", not names, and the reviewer did not hold the merge for them. The decisions entry says so for the owner.
 
 Tests: 419 in the backend outside the emulator.
+
+### 2026-11-19: review, fifth run, on 93ad50a
+
+Verdict as reported: "changes needed. There is one blocking finding: the DMARC check treats a record whose version tag is wrong as a valid policy. There is also one smaller finding". The fourth round's DMARC fix holds (with the ASCII check taken out, the digits case fails). It ran `make check` (419 and 1 passed), `make eval` and the seeded listing twice, and attacked the checks through the fixture resolver with redirect and include loops, `+all` before `-all`, a redirect into `+all`, `v=spf10`, an unreadable DKIM key, `p=` given twice, and 21 hostile typed names: "These all gave the right answer." Guards, measure files, rules 1, 2, 5 and 7, spend and the step list's two statements held.
+
+1. Blocking. "A DMARC record with the wrong version is reported as a valid policy, so the `dmarc_missing` fix is hidden": a record was taken for DMARC if it started with `v=dmarc1`, so `v=DMARC10; p=reject` read as policy reject, where a receiver ignores the record.
+   - Done: a record is DMARC only if its first tag is `v` with exactly the value `DMARC1` (in either case, with or without spaces around it). Six records that must give "no record", three that must still be read. The same question was then asked of DKIM without waiting for a sixth round: a record of another version (`v=DKIM2`) is not a key, and a key type that does not exist (`k=dsa`) is not a key and is said to be unreadable, where before it would have counted as a key that is not RSA and hidden `dkim_missing`. A test for each. SPF already required exactly `v=spf1`.
+2. Smaller. Two more garbled forms of "example" under `.com` in the same test file (one with a space, one with a tab), and the log and the decisions entry counted two such lines where there were four.
+   - Done: both under `example.org`; the fourth-round entry above and the decisions entry now say four. The search it asked for, over the new code, tests and fixtures, for anything ending in `.com`, `.net`, `.org` or `.uk` that is not under a documentation domain, prints nothing (output under the gate evidence).
+
+Tests: 430 in the backend outside the emulator.
 
 ---
 

@@ -56,7 +56,7 @@ def test_there_are_eight_and_each_is_a_different_refusal() -> None:
         ("example.com:", Refusal.PORT),
         ("", Refusal.NOT_A_NAME),
         ("   ", Refusal.NOT_A_NAME),
-        ("exa mple.com", Refusal.NOT_A_NAME),
+        ("exa mple.example.org", Refusal.NOT_A_NAME),
         ("user@example.com", Refusal.NOT_A_NAME),
         ("-bad.example.com", Refusal.NOT_A_NAME),
         ("bad-.example.com", Refusal.NOT_A_NAME),
@@ -72,7 +72,7 @@ def test_there_are_eight_and_each_is_a_different_refusal() -> None:
         ("oakhaven-outfitters.example\n.", Refusal.NOT_A_NAME),
         ("a.localhost\n.", Refusal.NOT_A_NAME),
         ("foo\n.example.com", Refusal.NOT_A_NAME),
-        ("exam\tple.com", Refusal.NOT_A_NAME),
+        ("exam\tple.example.org", Refusal.NOT_A_NAME),
         ("example.com\x00", Refusal.NOT_A_NAME),
         # The Kelvin sign lower-cases to an ordinary k; it is not one.
         ("\u212aa.example.com", Refusal.NOT_A_NAME),

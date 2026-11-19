@@ -98,12 +98,16 @@ async def _probe(resolver: Resolver, domain: str, selector: str) -> _Probe:
     unreadable = revoked = False
     for record in answer.records:
         found = tags(record)
-        if "p" not in found:
+        if "p" not in found or found.get("v", "DKIM1") != "DKIM1":
+            # Not a key record, or one of a version receivers do not read.
             continue
         if not found["p"]:
             revoked = True
-        elif found.get("k", "rsa").lower() != "rsa":
+        elif found.get("k", "rsa").lower() == "ed25519":
             other.append(selector)
+        elif found.get("k", "rsa").lower() != "rsa":
+            # A key type that does not exist: no receiver can use it.
+            unreadable = True
         else:
             try:
                 bits = rsa_key_bits(base64.b64decode(found["p"], validate=True))

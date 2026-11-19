@@ -29,6 +29,30 @@ def test_a_txt_record_that_is_not_dmarc_is_no_record() -> None:
     assert dmarc("v=spf1 -all").check.present is False
 
 
+@pytest.mark.parametrize(
+    "record",
+    [
+        "v=DMARC10; p=reject",
+        "v=DMARC1x; p=reject",
+        "v=DMARC2; p=reject",
+        "v=DMARC1 p=reject",
+        "p=reject; v=DMARC1",
+        "xv=DMARC1; p=reject",
+    ],
+)
+def test_a_record_with_any_other_version_tag_is_no_dmarc_record(record: str) -> None:
+    # A receiver passes over it, so the domain has no DMARC: the fix is "missing", not a pass.
+    found = dmarc(record)
+
+    assert found.check.present is False
+    assert found.check.policy is None
+
+
+@pytest.mark.parametrize("record", ["v=DMARC1", "V = dmarc1 ; p = none", "v=DMARC1;p=none"])
+def test_the_version_tag_is_read_with_or_without_spaces_and_in_either_case(record: str) -> None:
+    assert dmarc(record).check.present is True
+
+
 @pytest.mark.parametrize("policy", ["none", "quarantine", "reject"])
 def test_the_policy_is_read_and_the_percentage_defaults_to_100(policy: str) -> None:
     found = dmarc(f"v=DMARC1; p={policy}; rua=mailto:reports@shop.example")
