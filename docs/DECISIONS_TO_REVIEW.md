@@ -15,11 +15,16 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
-## 2026-11-19, Phase 2: version 4's day counts, taken from a field name, were let stand
+## 2026-11-19, Phase 2: version 4's wording, which pins the rubric's lines at their boundaries, was let stand
 
-- **Decided:** prompt version 4 states no figure, but it reaches three of the rubric's day counts without one: "the lookback window" has the length the field name `listings_90d` gives, "a month" is exactly a third of it, and a year is "the number of days in an ordinary year". The owner's ruling (answer 2 to issue #7) allowed wording that places a line relative to a public figure the model recalls, as long as it is shown. A field name is not a public figure, so this is a step past the ruling. The build let it stand and shows it. The other option was to send the writer back for vaguer wording ("within the last month", "its first three months") before the one attempt the owner allowed.
-- **Why:** the ruling's test was that nothing is hidden, and this wording is in the list `make eval` counts and `evals/results.json` holds. Vaguer wording leaves the values on a line to chance, and there is one attempt.
-- **To undo:** rule attempt 5 out. Its numbers then count for nothing, and by the owner's limit there is no further attempt: the phase stands on attempt 4's miss.
+- **Decided:** prompt version 4 states no figure, and the build let it be run. The owner has since ruled (answer 1 to issue #8, 2026-11-20) that attempt 5 counts as the final attempt with this wording disclosed boundary by boundary. Here it is:
+  - `dmarc_policy_none`, the rubric's 90 days: "the lookback window" has the length the name of the field `listings_90d` gives, and the type is not raised while `domain_age_days` is less than that.
+  - `blocklist_recent`, the rubric's 30 days: "a month" is "exactly a third of the lookback window", and "that exact count of days still fits".
+  - `new_domain_volume`, the rubric's 30 days and its volume line: under "a month" old, and `volume_7d` "above the bulk-sender count", the count by which the bulk-sender guidelines define a bulk sender, with "equals the bulk-sender count or is below it" on the other side.
+  - `volume_spike`, the rubric's 365 days: "`domain_age_days` has reached the number of days in an ordinary year".
+  - the low-volume line of `complaint_rate_elevated`, `bounce_rate_elevated` and `engagement_declining`, the rubric's 1,000 messages: "`volume_7d` has not reached the thousands". Version 3 said only "a few hundred messages or fewer".
+- **Why:** there was one attempt and vaguer wording leaves the values on a line to chance. That was the build's reason and not the ruling's: the owner's ruling on version 3 rested on the figures being public, and a field's name and an exact rule for which side a boundary value falls on are neither. The reviewer said this should have come to the owner before the paid run, and it should have.
+- **To undo:** nothing ships from version 4: the prompt in use is version 3 (`prompt` in `evals/settings.toml`). To stop reporting version 4 at all, delete `prompts/risks-v4.md` and `evals/recordings/risks-v4/`; the ledger keeps its cost.
 - **Status:** to review
 
 ## 2026-11-19, Phase 2: how the changes the owner approved after the challenge were built
@@ -31,7 +36,7 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 ## 2026-11-19, Phase 2: the committed results are `gpt-6.1-terra`'s
 
-- **Decided:** `evals/settings.toml` names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show attempt 4 (version 3 on Terra), not any of the three Luna attempts. The other option was to leave Luna as the configured model and report Terra beside it.
+- **Decided:** `evals/settings.toml` names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show `gpt-6.1-terra`'s results, not any of the three Luna attempts. (Which prompt version they show is set by the `prompt` line added to the same file on 2026-11-20: version 3, attempt 4.) The other option was to leave Luna as the configured model and report Terra beside it.
 - **Why:** decision 0002 says that if Luna misses a bar, Terra is run on the same set "and the numbers decide". Terra meets three bars where Luna met at most two, and its stability is 0.979 against 0.69. All four attempts' recordings stay in the repository and any of them can be scored with `--version` and `--model`. The cost: an eval run is about $0.78 instead of $0.08, and Phase 4's recording of the seeded clients costs a few cents more.
 - **To undo:** change the `model` line in `evals/settings.toml` back and run `make eval`.
 - **Status:** to review
@@ -54,7 +59,7 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 - **Decided:** the plan allows up to three further prompt versions on `gpt-6-luna` after the first misses a bar, then the same on `gpt-6.1-terra`. After versions 1, 2 and 3 all missed, the fourth Luna version was not written and the next attempt is version 3 on Terra. The other option was a fourth version on Luna first.
 - **Why:** stability was 0.79, 0.67 and 0.69 on three quite different prompts, at temperature 0 with reasoning off: the same input and prompt give a different set of risks in a quarter to a third of the cases, which is the model and not the wording, and the stability bar is 0.90. Harmful was 2, 24 and 20 against a bar of zero. A fourth version would have cost about eight cents and twenty minutes and could at best have moved coverage. "Up to three" allows fewer.
-- **To undo:** have a fresh agent write `prompts/risks-v4.md` from the table-case lines of the three Luna attempts and run `make eval-live`; about $0.08. Nothing else changes.
+- **To undo:** have a fresh agent write a fourth version for Luna from the table-case lines of its three attempts (as a new version file: `prompts/risks-v4.md` has since been used for the last attempt on Terra) and run `make eval-live MODEL=gpt-6-luna`; about $0.08. Nothing else changes.
 - **Status:** to review
 
 ## 2026-11-19, Phase 1: the phase goes to `main` as one commit on a second branch

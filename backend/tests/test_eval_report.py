@@ -122,7 +122,7 @@ def test_the_printed_lines_say_each_measure_its_bar_and_met_or_missed(tmp_path: 
     assert out[6] == "no bar:"
     assert "table set (30 cases" in out[7]
     assert "rules-only baseline" in out[7]
-    assert "merely acceptable: 0 | with only the types the bands expect kept" in out[8]
+    assert "merely acceptable: 0, wrong: 0 | with only the types the bands expect kept" in out[8]
     assert "open set (18 cases, 25 expected items)" in out[9]
     assert "coverage by risk type" in out[11]
     assert all(risk.value in out[11] for risk in RiskType)
@@ -306,7 +306,7 @@ def test_types_the_bands_call_merely_acceptable_are_counted_and_shown(tmp_path: 
     line = next(line for line in table_report(ALL, runs, drops) if line.startswith(name))
     assert f"run 1: acceptable, not expected {extra.value}" in line
     assert "run 3" not in line
-    assert any("merely acceptable: 2 |" in line for line in lines(results))
+    assert any("merely acceptable: 2, wrong: 0 |" in line for line in lines(results))
 
 
 def test_a_harmful_count_above_zero_is_printed_bare(tmp_path: Path) -> None:
@@ -324,3 +324,45 @@ def test_a_harmful_count_above_zero_is_printed_bare(tmp_path: Path) -> None:
 
     assert "1 in 144 case-runs " in out[3]
     assert "agreed" not in out[3]
+
+
+def test_the_settings_file_names_the_prompt_in_use_and_the_others_are_reported_beside_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    evals = evals_folder(tmp_path)
+    prompts = tmp_path / "prompts"
+    first = write_prompt(prompts)
+    second = write_prompt(prompts, "risks-v2.md", "Rank them again.")
+    record_as_labelled(evals / "recordings", first, ALL)
+    record_as_labelled(evals / "recordings", second, ALL)
+    case = ALL[TABLE_CASE]
+    put_call(
+        run_folder(evals / "recordings", second.version, MODEL, 1),
+        recorded_call(second, case.input, output_text(*case.label.expected, case.label.wrong[0])),
+    )
+    (evals / "settings.toml").write_text(f'model = "{MODEL}"\nprompt = "risks-v1"\n')
+    arguments = ["--prompts", str(prompts), "--evals", str(evals)]
+
+    assert main([*arguments, "--strict"]) == 0
+
+    written = json.loads((evals / "results.json").read_text(encoding="utf-8"))
+    assert written["prompt_version"] == "risks-v1"
+    assert [other["prompt_version"] for other in written["not_in_use"]] == ["risks-v2"]
+    assert written["not_in_use"][0]["harmful"] == 1
+    assert "not in use, recorded on the same model: risks-v2: " in capsys.readouterr().out
+    # Without the line, the newest version is the one in use, and it misses a bar.
+    (evals / "settings.toml").write_text(f'model = "{MODEL}"\n')
+    assert main([*arguments, "--strict"]) == 1
+    written = json.loads((evals / "results.json").read_text(encoding="utf-8"))
+    assert written["prompt_version"] == "risks-v2"
+    assert written["sets"]["table"]["band_wrong_returned"] == 1
+
+
+def test_the_committed_results_are_for_the_prompt_the_settings_name() -> None:
+    import tomllib
+
+    config = tomllib.loads((EVALS / "settings.toml").read_text(encoding="utf-8"))
+    written = json.loads((EVALS / "results.json").read_text(encoding="utf-8"))
+
+    assert written["prompt_version"] == config["prompt"]
+    assert written["model"] == config["model"]

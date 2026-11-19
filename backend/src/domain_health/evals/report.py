@@ -104,11 +104,37 @@ class SetResult(Frozen):
     baseline_harmful: int
     # Types returned that the rubric's bands call merely acceptable, over the runs.
     band_acceptable_returned: int
+    # Types returned that the rubric's bands call wrong for that input, over the runs. On the
+    # table set this is the harmful count; on the open set a written call can differ.
+    band_wrong_returned: int
     # The same runs with only the types the bands expect kept.
     expected_only_coverage: float | None
     expected_only_precision: float | None
     expected_only_harmful: int
     expected_only_stability: float | None
+
+
+class OtherVersion(Frozen):
+    """A prompt version recorded on the same model that is not the one in use: its four scores."""
+
+    prompt_version: str
+    coverage: float | None
+    precision: float | None
+    harmful: int
+    stability: float | None
+
+
+def other_version(
+    cases: Mapping[str, EvalCase], prompt: Prompt, runs: Sequence[Run]
+) -> OtherVersion:
+    scored = measure(cases, runs)
+    return OtherVersion(
+        prompt_version=prompt.version,
+        coverage=scored.coverage,
+        precision=scored.precision,
+        harmful=scored.harmful,
+        stability=scored.stability,
+    )
 
 
 class Results(Frozen):
@@ -129,6 +155,8 @@ class Results(Frozen):
     better_than_baseline_on_open: bool
     # Sentences of the prompt that place a line relative to a figure: shown, not judged.
     prompt_relative_wording: list[str]
+    # Other versions recorded on this model, newest last: reported, never the ones in use.
+    not_in_use: list[OtherVersion]
     input_tokens: int
     output_tokens: int
     cost_usd: float
@@ -150,6 +178,7 @@ def _set_result(cases: Mapping[str, EvalCase], runs: Sequence[Run]) -> SetResult
     model = measure(cases, chosen)
     baseline = measure(cases, [baseline_run(cases)] * len(runs))
     acceptable = [_kept(run, cases, "acceptable") for run in chosen]
+    wrong = [_kept(run, cases, "wrong") for run in chosen]
     expected_only = measure(cases, [_kept(run, cases, "expected") for run in chosen])
     return SetResult(
         cases=len(cases),
@@ -165,6 +194,7 @@ def _set_result(cases: Mapping[str, EvalCase], runs: Sequence[Run]) -> SetResult
         band_acceptable_returned=sum(
             len(kept or ()) for run in acceptable for kept in run.values()
         ),
+        band_wrong_returned=sum(len(kept or ()) for run in wrong for kept in run.values()),
         expected_only_coverage=expected_only.coverage,
         expected_only_precision=expected_only.precision,
         expected_only_harmful=expected_only.harmful,
@@ -189,6 +219,7 @@ def results_for(
     runs: Sequence[Run],
     calls: Sequence[ModelCall],
     bars: Mapping[str, Bar],
+    not_in_use: Sequence[OtherVersion] = (),
 ) -> Results:
     everything = measure(cases, runs)
     table = {name: case for name, case in cases.items() if case.set == "table"}
@@ -224,6 +255,7 @@ def results_for(
         },
         better_than_baseline_on_open=better_than_baseline(opened, open_runs),
         prompt_relative_wording=relative_wording(prompt.text),
+        not_in_use=list(not_in_use),
         input_tokens=sum(call.input_tokens for call in calls),
         output_tokens=sum(call.output_tokens for call in calls),
         cost_usd=round(sum(call.cost_usd for call in calls), 6),
@@ -282,7 +314,8 @@ def lines(results: Results) -> list[str]:
         )
         out.append(
             f"    types returned that the bands call merely acceptable: "
-            f"{part.band_acceptable_returned} | with only the types the bands expect kept: "
+            f"{part.band_acceptable_returned}, wrong: {part.band_wrong_returned} | "
+            f"with only the types the bands expect kept: "
             f"coverage {_number(part.expected_only_coverage)}, "
             f"precision {_number(part.expected_only_precision)}, "
             f"harmful {part.expected_only_harmful}, "
@@ -296,6 +329,13 @@ def lines(results: Results) -> list[str]:
         f"  prompt sentences that place a line relative to a figure, a field's name or a "
         f"span of time (listed in the results file): {len(results.prompt_relative_wording)}"
     )
+    for other in results.not_in_use:
+        out.append(
+            f"  not in use, recorded on the same model: {other.prompt_version}: "
+            f"coverage {_number(other.coverage)}, precision {_number(other.precision)}, "
+            f"harmful {other.harmful} in {results.case_runs}, "
+            f"stability {_number(other.stability)}"
+        )
     out.append(
         f"  cost ${results.cost_usd:.4f}, {results.input_tokens} tokens in, "
         f"{results.output_tokens} out, median latency {results.median_latency_ms} ms"

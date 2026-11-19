@@ -18,7 +18,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
 
-Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
+Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $1.85 of $10 cap
 Decisions to review: 21 (`docs/DECISIONS_TO_REVIEW.md`)
@@ -1955,6 +1955,52 @@ The owner's answer, given in the session, word for word:
 
 So: 1A, 2A, 3 confirmed, 4, 5 and 6 as recommended, and two instructions. The second is a standing one for Phases 3 to 6: a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has passed is reopened only if it is false.
 
+### 2026-11-20: after the second answers: what changed
+
+No paid call. On the owner's answers to issue #8:
+
+- **The prompt in use is version 3 (answer 2).** `evals/settings.toml` has `prompt = "risks-v3"`. `make eval` scores that version into `evals/results.json` and reports every other version recorded on the same model beside it as "not in use"; a test holds the committed results file to the settings. With no such line the newest version file is in use, as before. `make eval-live` still runs the newest version file and prints its scores without touching the results file while another version is in use.
+- **Attempt 5 counts, with its wording disclosed (answer 1).** The decision entry now lists each boundary version 4 pins, says the build's reason was not the ruling's, and has an undo that does something.
+- **The limit sentence (answer 4)**, in the spec and in the Phase 5 and 6 lines: "on this project's evals a table of rules does better on the risk list than the model: it meets all four bars and no prompt version did (on the thirty table cases the labels are that table's own output)".
+- **The owner's first addition: the model's risks are advisory.** `docs/SPEC.md` has a paragraph "How the product uses the model" under the claim, in the owner's words: the rules drive the action list; model-picked risks appear beside it, marked advisory and unproven, never ranked above a rules finding, with a plain link to the eval result; the README leads with the finding. Phase 5 and Phase 6 each have a checklist line for it.
+- **The gate line of Phase 6 (answer 6)** now reads "`make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed". It is a gate line, so it is the owner's to merge, with this pull request.
+- **Phase 4 (answer 6):** a new checklist line: `make record` uses the prompt in use and keeps a seeded state's recording only when three calls agree. `make eval` prints, for each set, how many returned types the bands call wrong (version 3: 0 and 0; version 4: 10 on the table set). No filter was added.
+- **The lines added to Phases 5 and 6 (answer 3)** are confirmed by the owner and now say so.
+- **Two stale entries** in `docs/DECISIONS_TO_REVIEW.md` are corrected (which attempt the results file shows; an undo that named `prompts/risks-v4.md`).
+- **The owner's second addition** is in the Status section: from Phase 3 on, a phase that needs more than three review rounds stops for the owner, and wording that has passed is not reopened unless it is false.
+
+`make eval STRICT=1` now, on the prompt in use (exit 2, on the harmful bar alone):
+
+```
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 22, wrong: 0 | with only the types the bands expect kept: coverage 1.000, precision 1.000, harmful 0, stability 1.000
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 30, wrong: 0 | with only the types the bands expect kept: coverage 0.680, precision 1.000, harmful 0, stability 1.000
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  prompt sentences that place a line relative to a figure, a field's name or a span of time (listed in the results file): 26
+  not in use, recorded on the same model: risks-v4: coverage 0.881, precision 0.940, harmful 12 in 144, stability 0.812
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+```
+
+### 2026-11-20: for the README (Phase 6), corrected: this entry replaces the one above
+
+The entry "for the README" written after attempt 5 said version 4 was "a narrow change" and read as if the cause of its fault were known. Both were wrong. What the README says, in these words or plainer:
+
+- **It leads with the finding.** The eval was built before the prompt. It showed that rules beat the model on this task, and the product ships that way: the rules drive the action list, and the model's risks are shown beside it as advisory and unproven, never above a rules finding, with a link to this result.
+- The model's risk list did not meet its bars. Five attempts were made, on four prompt versions and two models, and none met all four. The prompt in use, version 3 on `gpt-6.1-terra`, has coverage 0.896, precision 0.962, harmful 9 in 144 case-runs and stability 0.979: harmful is missed. The final attempt, version 4, did worse on the bars: 0.881, 0.940, 12 in 144 and 0.812, with harmful and stability missed. Between the two versions the harmful counts (12 against 9) are within the noise of version 4's own runs; what is solid is the stability (39 stable cases against 47) and ten wrong answers on the table cases against none.
+- A table of rules with no model meets all four bars on the same cases. On the thirty table cases that is by construction: their labels are that table's output. With only the types the table expects kept, every Terra attempt's list is exactly the table's.
+- The second real failure. Version 4 was written to stop the model returning risks the rubric calls merely acceptable. It was not a small change: it rewrote seven of the thirteen checklists, added a paragraph and a block of definitions, and is 457 words longer. It did stop those risks. It also began raising a complaint-rate risk in about one call in seven on cases whose complaint rate is a fifth of the level that matters. Why is not established: the same edit to two other checklists did nothing of the kind. Version 4 also found one expected item fewer per run on the open cases, for a different reason: its blocklist line follows the rubric's bands, and a written call there asks for more than the bands do.
+- The wording a reader would have seen was false in all twelve harmful answers of that attempt ("above the level mailbox providers recommend", on a rate a fifth of it). It holds no digit, so the number rule cannot see it, and nothing in the evals reads wording.
+- The first failure story ("all thirty table cases then came back as labelled") is true of version 3 and is told as version 3's.
+
 ---
 
 ## Phase 3: snapshots and the handled loop
@@ -1979,6 +2025,7 @@ So: 1A, 2A, 3 confirmed, 4, 5 and 6 as recommended, and two instructions. The se
 - [ ] Live-check limits in Firestore counters: five per address per ten minutes, 200 a day, a ten-minute cache.
 - [ ] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
 - [ ] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
+- [ ] Added after the Phase 2 challenge (the owner, 2026-11-20): `make record` uses the prompt in use (`evals/settings.toml`), and a seeded state's recording is kept only when three calls agree on its first five; a state where they do not is reported and shown as "risks unavailable". The worst case in the paid-steps table is three times the calls it assumed and is corrected before the step runs.
 - [ ] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
 - [ ] `make seed`, then one scheduled run triggered by hand.
 - [ ] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
@@ -1996,7 +2043,8 @@ So: 1A, 2A, 3 confirmed, 4, 5 and 6 as recommended, and two instructions. The se
 - [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
 - [ ] `make fallback` and the bundled fallback, with a test that it is current.
 - [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
-- [ ] Added after the Phase 2 challenge (the owner's answer 3, 2026-11-19): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence from decision 0012: on this project's evals a table of rules does as well on the risk list as the model does.
+- [ ] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars and no prompt version did (on the thirty table cases the labels are that table's own output).
+- [ ] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
 - [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
@@ -2011,11 +2059,12 @@ So: 1A, 2A, 3 confirmed, 4, 5 and 6 as recommended, and two instructions. The se
 - [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
-- [ ] Added after the Phase 2 challenge (the owner's answers, 2026-11-19): the README puts the decision-0012 limit beside the claim sentence; says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
+- [ ] Added by the owner, 2026-11-20: the README leads with the finding: the eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way, with the model's risks advisory.
+- [ ] Added after the Phase 2 challenges (the owner's answers, 2026-11-19 and 2026-11-20, confirmed): the README puts the limit sentence beside the claim sentence, in the words of `docs/SPEC.md`; names version 3 as the prompt in use and shows version 4 beside it as the final attempt, which did worse for a reason that is not established; says the risk wording shown was false in the harmful answers and that no check reads wording; says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
 - [ ] Every "Done when" line in `docs/SPEC.md` checked and shown.
 
-**Gate:** `make check` exits 0. `make eval STRICT=1` exits 0. The reviewer finds no sentence in the README that the code or the result files do not back (its list is in the log, with 0 open). The security review has 0 open blocking findings. `gitleaks git` over the full history reports 0 leaks. The name scan reports 0 hits. After merge: CI is green on `main`; the hosted page loads in a real browser in both themes at 1440 and 390 wide; the report opens for one client in both formats.
+**Gate:** `make check` exits 0. `make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed (reworded for the owner to merge with Phase 2, 2026-11-20: it read "exits 0", which no prompt version can meet). The reviewer finds no sentence in the README that the code or the result files do not back (its list is in the log, with 0 open). The security review has 0 open blocking findings. `gitleaks git` over the full history reports 0 leaks. The name scan reports 0 hits. After merge: CI is green on `main`; the hosted page loads in a real browser in both themes at 1440 and 390 wide; the report opens for one client in both formats.
 
 **Log:**
 

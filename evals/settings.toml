@@ -2,6 +2,11 @@
 # gpt-6-luna for the first three attempts of Phase 2, which missed their bars; see the phase log.
 # `make eval` scores this model's recordings; `make eval-live` calls it unless MODEL= says otherwise.
 model = "gpt-6.1-terra"
+# The prompt version in use (the owner, 2026-11-20): the one `make eval` scores into the results
+# file, the README's table shows and Phase 4 records the seeded clients with. Without this line
+# the newest version file is in use. Version 4 is newer and did worse; it is reported beside this
+# one as not in use. No version met all four bars: see "The Phase 2 result" in docs/SPEC.md.
+prompt = "risks-v3"
 # Sent with every call while this line holds a number. The first paid call of Phase 2 tests
 # whether the model accepts it with reasoning off; if it does not, the line is removed.
 temperature = 0

@@ -1,4 +1,7 @@
-"""`make eval`: scores the committed recordings for the current prompt version.
+"""`make eval`: scores the committed recordings for the prompt version in use.
+
+The version in use is the one the settings file names (`prompt = "risks-v3"`); with no such line
+it is the newest version file. Other versions recorded on the same model are reported beside it.
 
 Free: it reads recordings and makes no call. Until a prompt exists there is nothing to measure,
 and that is said and is not a failure. Once a prompt file exists this must score it or fail: it
@@ -17,6 +20,7 @@ from domain_health.evals.report import (
     NoRecordingsError,
     lines,
     load_runs,
+    other_version,
     results_for,
     table_report,
 )
@@ -70,26 +74,43 @@ def main(argv: list[str] | None = None) -> int:
     if args.evals is None:
         print("a prompt exists: say where the cases and recordings are (--evals)", file=sys.stderr)
         return 1
-    chosen = [path for path in versions if args.version in (None, path.stem)]
+    try:
+        config = settings(args.evals)
+    except OSError as error:
+        print(f"the settings file was not read: {error}", file=sys.stderr)
+        return 1
+    wanted = args.version or config.get("prompt")
+    chosen = [path for path in versions if wanted in (None, path.stem)]
     if not chosen:
-        print(f"no prompt version named {args.version}", file=sys.stderr)
+        print(f"no prompt version named {wanted}", file=sys.stderr)
         return 1
     prompt = load_prompt(chosen[-1])
-    newest = args.version is None and args.model is None
+    in_use = args.version is None and args.model is None
     try:
-        model = args.model or str(settings(args.evals)["model"])
+        model = args.model or str(config["model"])
         cases = load_cases(args.evals / "cases")
         runs, calls, drops = load_runs(cases, prompt, model, args.evals / "recordings")
     except (NoRecordingsError, OSError, KeyError) as error:
         print(f"{prompt.version} was not scored: {error}", file=sys.stderr)
         return 1
-    results = results_for(cases, prompt, model, runs, calls, load_bars(args.evals / "bars.toml"))
+    others = []
+    for path in versions if in_use else []:
+        if path.stem == prompt.version:
+            continue
+        other = load_prompt(path)
+        try:
+            other_runs, _, _ = load_runs(cases, other, model, args.evals / "recordings")
+        except NoRecordingsError:
+            continue  # recorded on another model, or not at all: strict mode says which
+        others.append(other_version(cases, other, other_runs))
+    bars = load_bars(args.evals / "bars.toml")
+    results = results_for(cases, prompt, model, runs, calls, bars, others)
     print("\n".join(lines(results)))
     if args.table_report:
         print("table cases:")
         print("\n".join(f"  {line}" for line in table_report(cases, runs, drops)))
-    if newest:
-        # The results file is for the newest prompt version on the settings file's model.
+    if in_use:
+        # The results file is for the prompt version in use on the settings file's model.
         (args.evals / "results.json").write_text(
             results.model_dump_json(indent=2) + "\n", encoding="utf-8"
         )

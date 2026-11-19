@@ -260,7 +260,11 @@ def _paid(
         f"{made} call(s) on {date.today().isoformat()}, ${ledger.spent() - before:.4f}; "
         f"spent in all ${ledger.spent():.4f}"
     )
+    # Score the version that was just run. Where the settings file names another version as the
+    # one in use, that says so and leaves the results file alone.
     scored = ["--prompts", str(args.prompts), "--evals", str(args.evals), "--table-report"]
+    if free.settings(args.evals).get("prompt") not in (None, prompt.version):
+        scored += ["--version", prompt.version]
     return free.main([*scored, *(["--model", args.model] if args.model else [])])
 
 
