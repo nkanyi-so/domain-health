@@ -4,7 +4,7 @@
 
 > A daily email-domain health check for many clients: clear-cut fixes from rules, judgment-call risks picked by a model from a closed list and scored against a written rubric, a human handled loop, and an eval harness for the model's list.
 
-That sentence is the claim. It was first written as "judgment-call risks from a model"; the owner's fallback wording replaced it at the end of Phase 0, when three rounds on the measure had not produced an eval that a model can pass and a table of thresholds cannot (decision 0012). It is kept in `docs/CLAIM.md` and a test pins it wherever it appears (README, the page, the report). Changing it is the owner's call.
+That sentence is the claim. It was first written as "judgment-call risks from a model"; the owner's fallback wording replaced it at the end of Phase 0, when three rounds on the measure had not produced an eval that a model can pass and a table of thresholds cannot (decision 0012). It is kept in `docs/CLAIM.md` and a test pins it wherever it appears (README, the page, the report). Changing it is the owner's call. Wherever a reader is shown the sentence (the page, the README, the report), its limit stands beside it in one plain sentence taken from decision 0012: on this project's evals a table of rules does as well on the risk list as the model does (the owner, after the Phase 2 challenge, 2026-11-19).
 
 **The honest paragraph** (README section 1, and in short on the page): a public rebuild of a deliverability monitor built for a client's internal platform. What is real: the DNS authentication checks (SPF, DKIM, DMARC) on any domain a visitor types. What is seeded: the twelve clients, their mailbox-provider reputation, blocklist status and sending statistics, because those come from accounts the demo does not have. The seeded clients' DNS answers come from a fixture resolver, and their model output on the hosted demo is recorded from real model runs, not generated on each visit. Seeded sources are labelled on the page.
 
@@ -26,7 +26,7 @@ The problem it rebuilds: someone checks each client's sending domain by hand, ac
 
 **Phase 2: the model and the evals.**
 - One model interface. The live implementation calls OpenAI with structured outputs. The model ranks up to eight risks from a closed list of risk types defined in `evals/RUBRIC.md`.
-- A risk's ID is `<risk type>:<domain>`, built in code. Model output is validated before use: known type, no duplicates, at most eight, every number in its text present in its input.
+- A risk's ID is `<risk type>:<domain>`, built in code. Model output is validated before use: known type, no duplicates, at most eight, every number in its text present in its input. Beyond those four, as built in Phase 2 and kept by the owner (2026-11-19), an output is also dropped for: an empty title or reason, or one longer than 120 or 400 characters; a control character or half a character pair in either; an evidence entry that is not one of the input's field names; a word that starts with a digit and is not a number (`18k`, `2x`, `20,48`); and a number disguised so the page shows one the input does not hold (invisible characters, an apostrophe or spaces between digits, digits of another script). Known gaps, left open: a number written as a word ("twelve", "double"), and `900.000` read as nine hundred. The wording a reader sees is otherwise not scored: the evals score risk types only.
 - The prompt is a versioned file. Recordings of live output are stored per prompt version.
 - The eval harness, `make eval`, `make eval-live`, the spend ledger, the results file.
 
@@ -65,7 +65,7 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 - Every check and rule against fixture zones: one case per fix type, plus healthy.
 - SPF lookup counting on nested includes, including a loop and a chain of eleven.
 - Stable IDs: the same input gives the same IDs; the ID never comes from model text.
-- Model output validation: an unknown type, a duplicate, a ninth item or an invented number is rejected.
+- Model output validation: an unknown type, a duplicate, a ninth item or an invented number is rejected; number disguises are generated, not listed by hand, and ordinary punctuation between two of the input's numbers is accepted.
 - Only a case's `input` reaches the model: never its label, its note or its file name.
 - No recording for a seeded client names a risk type the rubric's bands call wrong for that input.
 - Suppression: handled today, hidden for thirty days, back on day thirty-one; the cap of five; the next risk moving up.
@@ -99,7 +99,7 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 | harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
 | stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs": it bounds the rate, it does not show never. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs (48 cases, 3 runs that agreed on N)", with the number of cases whose three runs agreed: it bounds the rate, it does not show never, and runs that agree are not separate evidence. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
 
 The bars live in `evals/bars.toml` and are judged on all forty-eight cases together.
 
@@ -116,8 +116,8 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 
 **Rules for the paid runs.**
 - The numbers that count at a gate are those of one run of the final prompt version. Every attempt, of every version, is reported with its numbers.
-- An unchanged prompt is never run again to get a pass.
-- A prompt does not quote the rubric's thresholds or bands, and no worked example in it comes from an eval case. Tests enforce both.
+- An unchanged prompt is never run again on the same model to get a pass.
+- A prompt does not quote the rubric's thresholds or bands, and no worked example in it comes from an eval case. Tests enforce both. Wording that places a line relative to a public figure the model is asked to recall ("half the cap or less") is allowed (the owner, 2026-11-19) and is shown: `make eval` counts such sentences and the results file lists them, with no pass or fail, and a result on the table cases is described as the model carrying out the rubric as the prompt restates it.
 - Prompt changes are argued from table-case results only. Open-case results are looked at as totals, never case by case.
 
 **Where each check lives.**

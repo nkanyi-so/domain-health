@@ -71,7 +71,10 @@ def problems_with(prompt_text: str, rubric: str, inputs: Iterable[SnapshotInput]
 # cap", "twice that length", "a single lookup short of it".
 _RELATIVE = re.compile(
     r"\b(half|twice|double|multiple|several times|several-fold|times larger|"
-    r"short of|exactly|fraction of|a few hundred|thousands of)\b",
+    r"short of|exactly|fraction of|a few hundred|thousands of|"
+    # Version 4 also leans on the input's own field names and on plain spans of time.
+    r"a third of|a month|full year|ordinary year|lookback window|the thousands|the hundreds|"
+    r"bulk-sender count)\b",
     re.IGNORECASE,
 )
 

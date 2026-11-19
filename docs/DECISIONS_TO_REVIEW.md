@@ -15,6 +15,20 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-19, Phase 2: version 4's day counts, taken from a field name, were let stand
+
+- **Decided:** prompt version 4 states no figure, but it reaches three of the rubric's day counts without one: "the lookback window" has the length the field name `listings_90d` gives, "a month" is exactly a third of it, and a year is "the number of days in an ordinary year". The owner's ruling (answer 2 to issue #7) allowed wording that places a line relative to a public figure the model recalls, as long as it is shown. A field name is not a public figure, so this is a step past the ruling. The build let it stand and shows it. The other option was to send the writer back for vaguer wording ("within the last month", "its first three months") before the one attempt the owner allowed.
+- **Why:** the ruling's test was that nothing is hidden, and this wording is in the list `make eval` counts and `evals/results.json` holds. Vaguer wording leaves the values on a line to chance, and there is one attempt.
+- **To undo:** rule attempt 5 out. Its numbers then count for nothing, and by the owner's limit there is no further attempt: the phase stands on attempt 4's miss.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: how the changes the owner approved after the challenge were built
+
+- **Decided:** four small readings while building the owner's answers to issue #7. (1) "Merely acceptable" in the new report lines means what the rubric's bands (`evals/table.py`) call acceptable for that input, on both sets, not what an open case's written call says; the open set gets totals only. (2) The list of prompt wording that places a line relative to a figure is found by words ("half", "twice", "multiple", "short of", "exactly" and a few more), sentence by sentence; it can list a sentence that is no threshold and miss one phrased another way. It is in `evals/results.json` and counted in `make eval`'s output. (3) A comma inside a number is accepted only as a thousands comma, so `20,48` drops the output, and so would a list written `3,4` with no space. (4) The disguise test is generated with plain loops over every format character and space in Unicode and a sample of combining marks, not with a property-testing library, so no dependency was added.
+- **Why:** each is the narrowest reading that does what was approved, and none changes a bar or a score.
+- **To undo:** (1) and (2) are in `backend/src/domain_health/evals/report.py` and `risks/prompt_rules.py`; (3) is `_GROUPED` in `risks/__init__.py`; (4) is the last four tests in `backend/tests/test_risk_output.py`.
+- **Status:** to review
+
 ## 2026-11-19, Phase 2: the committed results are `gpt-6.1-terra`'s
 
 - **Decided:** `evals/settings.toml` names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show attempt 4 (version 3 on Terra), not any of the three Luna attempts. The other option was to leave Luna as the configured model and report Terra beside it.

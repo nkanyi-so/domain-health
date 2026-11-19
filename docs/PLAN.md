@@ -20,8 +20,8 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $0.99 of $10 cap
-Decisions to review: 19 (`docs/DECISIONS_TO_REVIEW.md`)
+Spend: $2.19 of $10 cap
+Decisions to review: 21 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -1717,6 +1717,34 @@ The owner's answer, given in the session, word for word:
 
 So: 1A with a limit of exactly one attempt, 2A, 3A, 4A, 5 yes, 6 confirmed. Whatever attempt 5 gives, the pull request goes back to the owner; the challenger's `change needed` stands on cd7613f and the owner merges this phase either way.
 
+### 2026-11-19: after the answers: what changed before attempt 5
+
+Built on the owner's answers, before any new paid call:
+
+- **The report (answer 5).** `make eval` now prints, for each set, how many types were returned that the rubric's bands call merely acceptable, and the same runs scored with only the types the bands expect kept. On attempt 4 that reads 22 on the table set and 30 on the open set, and the kept-only line equals the rules-only baseline on both sets (the challenger's figures, now from the code). The table report shows "acceptable, not expected" beside missed, wrong and noise. A harmful count of zero is printed as "0 in 144 case-runs (48 cases, 3 runs that agreed on N)". Decision 0002 says the model is `gpt-6.1-terra` and why; the spec's rule reads "never run again on the same model".
+- **The output rules (answer 4).** Kept, and written into `docs/SPEC.md`. A comma inside a number is now only ever a thousands comma, so `20,48` drops the output. The disguise tests are generated: every pair of whole numbers the input holds, joined by every format character and every space in Unicode, a sample of combining marks, the apostrophes and a comma, must be dropped; ordinary separators between the same pairs must be accepted. The generated test fails when the joined-digits rule is switched off (2,200 texts pass), so it has teeth. It found no new bypass. Number words and `900.000` are left open and the spec says so.
+- **Version 3's wording (answer 2).** Allowed and shown: `relative_wording` lists the sentences of a prompt that place a line relative to a figure; `make eval` prints the count and `evals/results.json` holds the list. No pass or fail.
+- **The claim (answer 3).** The sentence is unchanged. `docs/SPEC.md` now says its limit stands beside it wherever a reader sees it, and Phases 5 and 6 each gained a checklist line for it.
+- **The old branch.** `git push origin --delete phase-1-checks-and-rules` ran and the remote reports it deleted.
+
+`docs/SPEC.md` is edited, so this phase is the owner's to merge on that ground too.
+
+### 2026-11-19: prompt version 4 (written before attempt 5 was run)
+
+Written by an agent with fresh context that was given a folder holding the rubric, the thirty table cases, the input model, the output rules, version 3, and version 3's table report on `gpt-6.1-terra` with the new "acceptable, not expected" lines, and nothing else. The brief: version 3 found every expected type on the table cases; the one change is that a type is raised only in the state the bands call Expected, because a merely-acceptable type earns nothing on any measure and the rubric says a written call can make it wrong; change as little else as possible.
+
+What it changed, by its report: `dmarc_policy_none` is not raised on a young domain or while an SPF or DKIM fix is open; `blocklist_recent` is not raised for a single listing that ended more than a month ago; `new_domain_volume` holds the week's volume against a definite count and is not raised past the first month; the low-volume line in the complaint, bounce and engagement checklists moved ahead of the rate lines (version 3 already said "not raised" there and the model raised them anyway on case 04); `volume_spike` lost "if you are unsure, raise". Six checklists and the output section are word for word version 3. It walked its checklists over the thirty table cases in code: 30 of 30 give exactly the expected list. The prompt check prints clean.
+
+**Three things about version 4's wording, said before the result is known.**
+
+1. It goes a step past what the owner ruled on. Version 3 placed lines relative to public figures the model recalls. Version 4 also takes a length from the name of an input field ("the lookback window... the name of `listings_90d` gives its length in days"), defines "a month" as exactly a third of it, and speaks of "the number of days in an ordinary year". Those are the rubric's day counts, reached without a digit. The build let it stand as the same kind of wording the owner allowed "and said plainly": it is in the list `make eval` counts (38 sentences in version 4, 24 in version 3), it is an entry in `docs/DECISIONS_TO_REVIEW.md`, and it is in the pull request for the owner, who can rule the attempt out on this ground.
+2. `new_domain_volume` rests on the model recalling the count by which the bulk-sender guidelines define a bulk sender, and on its not dividing the week by seven.
+3. `engagement_declining` still says "a substantial slice of the earlier rate" against "a modest dip". The writer could not sharpen it without stating the threshold, so a fall just under the line can still be raised.
+
+The writer's doubts on the table cases: case 04 (410 messages), where the model ignored version 3's low-volume line; case 30, which sits exactly on the month line.
+
+The worst case for the run, $1.20, was added to the Spend line first: $2.19 of the $10 cap. By the owner's limit this is the last attempt of the phase, whatever it gives.
+
 ---
 
 ## Phase 3: snapshots and the handled loop
@@ -1758,6 +1786,7 @@ So: 1A with a limit of exactly one attempt, 2A, 3A, 4A, 5 yes, 6 confirmed. What
 - [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
 - [ ] `make fallback` and the bundled fallback, with a test that it is current.
 - [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
+- [ ] Added after the Phase 2 challenge (the owner's answer 3, 2026-11-19): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence from decision 0012: on this project's evals a table of rules does as well on the risk list as the model does.
 - [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
@@ -1772,6 +1801,7 @@ So: 1A with a limit of exactly one attempt, 2A, 3A, 4A, 5 yes, 6 confirmed. What
 - [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
+- [ ] Added after the Phase 2 challenge (the owner's answers, 2026-11-19): the README puts the decision-0012 limit beside the claim sentence; says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
 - [ ] Every "Done when" line in `docs/SPEC.md` checked and shown.
 
