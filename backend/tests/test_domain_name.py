@@ -64,7 +64,7 @@ def test_there_are_eight_and_each_is_a_different_refusal() -> None:
         ("double..dot.example.com", Refusal.NOT_A_NAME),
         (".example.com", Refusal.NOT_A_NAME),
         ("a" * 64 + ".example.com", Refusal.NOT_A_NAME),
-        ("exämple.com", Refusal.NOT_A_NAME),
+        ("exämple.example.org", Refusal.NOT_A_NAME),
         ("example.com; rm -rf /", Refusal.PATH),
         ("example.123", Refusal.NOT_A_NAME),
         ("*.example.com", Refusal.NOT_A_NAME),
@@ -122,7 +122,7 @@ def test_an_accepted_name_holds_nothing_but_letters_digits_hyphens_and_dots() ->
     allowed = set(string.ascii_lowercase + string.digits + "-.")
     for code in [*range(0x250), 0x212A, 0x2126, 0xFF41, 0x3002, 0xFF0E]:
         for typed in (
-            f"exam{chr(code)}ple.com",
+            f"exam{chr(code)}ple.example.org",
             f"example.com{chr(code)}",
             f"{chr(code)}a.example.com",
         ):

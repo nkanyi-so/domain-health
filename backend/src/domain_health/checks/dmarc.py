@@ -36,6 +36,9 @@ def _policy(name: str, value: str) -> DmarcPolicy:
 
 def parse(record: str) -> tuple[DmarcPolicy, DmarcPolicy | None, int]:
     """The policy, the subdomain policy if one is set, and the percentage (100 when unset)."""
+    if not record.isascii():
+        # The standard's records are ASCII; digits and letters from other scripts are not read.
+        raise DmarcSyntaxError("the record holds a character outside ASCII")
     for part in record.split(";"):
         if part.strip() and "=" not in part:
             raise DmarcSyntaxError(f"cannot read {part.strip()!r}")

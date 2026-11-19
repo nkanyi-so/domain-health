@@ -957,7 +957,7 @@ Verdict as reported: "changes needed. All three fixes from the first review hold
 1. Blocking. "The DMARC walk-up never reaches the parent domain for names of five or more labels, so it reports a false `dmarc_missing`": the four names tried were the four nearest, so for `a.b.c.d.example.com` the two-label parent was never asked, and a test "locks the faulty order in place".
    - Done: a deep name is asked at itself, its two nearest parents and always the two-label parent; four names at most, as before. The test that held the wrong order now expects the parent last, and a new one checks that a name one, two, three, four, five and eight labels deep each inherits the parent's policy. The decisions entry says the same.
 2. Blocking. "Real, non-documentation domain names appear in tests" (an invented company name under `.com`, a short name under `.co.uk`, a one-letter `.com` name, and long names ending in `.com`), against the sentence in `docs/STANDING.md` that the only real domain names in the repository are the documentation ones. "None of these is ever resolved, so this is exposure only."
-   - Done: every one now sits under `example.com` or `example.org`; the 253 and 254 character test was re-measured for the longer ending. A search of the new code, tests and fixtures finds no other name outside `.example` and the three documentation domains.
+   - Done: every one now sits under `example.com` or `example.org`; the 253 and 254 character test was re-measured for the longer ending. (The search made then missed two garbled forms of "example" under `.com` in one test file; the fourth review found them, below.)
 
 Clean, as it reported: every ticked step implemented with a test that fails without it; no measure file, guard, `CLAUDE.md`, `docs/SPEC.md`, gate or checklist wording touched; rules 1, 5 and 6; no test calls a paid service, and the one test that builds the real DNS library's resolver uses only names that fail while being parsed; one domain costs at most about 27 lookups; a hostile DKIM key does not crash the check.
 
@@ -975,6 +975,19 @@ Verdict as reported: "changes needed (two blocking findings, one smaller one)". 
    - Done: each selector's probe says whether it answered with nothing but revoked keys, and the one-line summary is used only when all twelve did. A selector's revoked key is said once however many records hold it. Three tests: the two cases above, and a revoked key beside a live one.
 
 Tests: 417 in the backend outside the emulator.
+
+### 2026-11-19: review, fourth run, on 2e75ed2
+
+Verdict as reported: "no blocking findings. All three third-round fixes hold, on the code and on the branch history." It ran `make check` (417 and 1 passed), `make eval`, and the seeded listing twice (26 identical hashes); confirmed that `main..HEAD` is the one commit and that the earlier commits are not its ancestors; put five of the third-round defects back in a scratch copy and the suite failed on each (removing `re.ASCII` from the target-label pattern alone is not caught, "acceptable: the ASCII-only check on the whole record above it makes the flag redundant"); and attacked the checks through the fixture resolver (redirect loops and chains, mixed case, a trailing dot, odd typed names): "All gave the expected result." Rules 1, 5, 6 and 7, the guards, the step list's two statements, spend and the dependency record all held.
+
+Two findings it called non-blocking, both fixed:
+
+1. "A DMARC `pct` written in non-ASCII digits is accepted", the same class as the third round's SPF finding, against the decisions entry's "a bad `pct` does not parse".
+   - Done: a DMARC record with any character outside ASCII does not parse, as with SPF. Two more cases in the test of records that do not parse.
+2. Two garbled forms of "example" under `.com` in `backend/tests/test_domain_name.py` (one with an umlaut, one built in a loop), which "name no company or person" and are never looked up, but are outside the documentation domains, and made a sentence in this log false.
+   - Done in the tree: both now sit under `example.org`, and the false sentence above is corrected. Not done: a third branch. The commit 2e75ed2 keeps those two test lines in its history; they are misspellings of "example", not names, and the reviewer did not hold the merge for them. The decisions entry says so for the owner.
+
+Tests: 419 in the backend outside the emulator.
 
 ---
 

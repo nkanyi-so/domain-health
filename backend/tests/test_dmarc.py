@@ -59,8 +59,19 @@ def test_the_subdomain_policy_and_the_percentage_are_read() -> None:
         "v=DMARC1; p=none; pct=150",
         "v=DMARC1; p=none; pct=half",
         "v=DMARC1; p=none; quarantine",
+        "v=DMARC1; p=reject; pct=\u0665\u0660",
+        "v=DMARC1; p=re\u0458ect",
     ],
-    ids=["unknown policy", "no policy", "bad sp", "pct over 100", "pct not a number", "stray word"],
+    ids=[
+        "unknown policy",
+        "no policy",
+        "bad sp",
+        "pct over 100",
+        "pct not a number",
+        "stray word",
+        "pct in digits of another script",
+        "a look-alike letter",
+    ],
 )
 def test_a_record_that_does_not_parse(record: str) -> None:
     found = dmarc(record)
