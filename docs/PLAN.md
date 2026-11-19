@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -37,41 +37,7 @@ Estimated total: under $3.50. Everything else is free.
 
 ## Waiting on you
 
-**Phase 0 is built and waiting for you, for two reasons.** It is the phase you merge (pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1)): it sets the guards and the measure. And the challenger, the independent agent that reads the measure against the claim, says a change is needed before you sign it off. Nothing has been changed in answer to it; the choices are yours. Everything else in the phase passed: the review (fourth run, no blocking findings), the verifier (every command works), CI (all three jobs green).
-
-**What the challenger found, in short.** Every label in the twenty cases can be computed from the input by about 130 lines of if/else read straight from `evals/RUBRIC.md`. Two independent agents wrote such a script and each reproduced all 260 label slots exactly. So a rules engine with no model would score full marks, and passing the four bars would show that the model follows a written table, not that it makes judgment calls. That is the word the claim leans on. Its full report, with eight more points about what the bars would not show and how noisy they are, is in the Phase 0 log below ("challenger, on 2e989a7").
-
-**1. The claim and the measure: which way do you want to go?**
-
-- **A1. Keep the sentence, make the measure able to show judgment (recommended).** You write about ten more cases where the rubric deliberately leaves the call open and only a specialist can label it: no table gives the answer. Those ten are kept out of prompt tuning. The harness also scores a rules-only baseline (the threshold script) and reports it beside the model. The README then says: on the table cases rules and model agree, and on the open cases here is what the model does that rules cannot. Costs you an hour or two of labelling; costs the build about half a day; no money beyond a cent or two per eval run. If the model does no better than the baseline on your ten, that is found in Phase 2 and you can still fall back to A2.
-- **A2. Keep the measure, reword the sentence** to what is measured, for example "judgment-call risks picked by a model from a closed list and scored against a written rubric". Costs nothing to build. A reader who asks "why is this not just rules?" gets no answer from the evals.
-- **A3. Move the risk bands into rules** and give the model only the order and the wording, then score those. This redesigns Phase 2, reverses decision 0001 and needs a judge for wording. Not recommended: it is a different project.
-
-**2. Tighter definitions for the four measures. Each is yes or no; I recommend yes to all four. They change `docs/SPEC.md`, which is why they are yours.**
-
-- **B.** Count "harmful" over everything the model returns (up to eight), not only the first five. Risks six to eight become visible as soon as someone ticks a risk handled.
-- **C.** Output that fails validation counts as nothing found for coverage, never matches another run for stability, and a "dropped" count is printed beside the four measures.
-- **D.** Keep the name "harmful", and have the README state it as "0 in 60 case-runs" (it bounds the rate at about 5%; it does not show never). Accept that precision adds little on this set.
-- **F (rules for the paid runs).** The number that counts at the Phase 2 gate is the run of the final prompt version; every attempt is reported; an unchanged prompt is never re-run to get a pass; the prompt may not quote the rubric's thresholds.
-
-**3. More cases?** Twenty cases hold 27 expected items, so one item is 0.037 of coverage and a score of 0.81 has not really cleared 0.80. Four risk types are expected in only one case each.
-
-- **Recommended: go to about forty**, with every type expected in at least two, and report coverage per type. With A1, your ten are part of the forty and I draft the other ten from the rubric for you to read. Costs you about fifteen more minutes of reading; about $0.02 more per paid run.
-- Or stay at twenty and have the README say how coarse the number is (decision 0008 already says so).
-- The stability bar "18 of 20" would have to be restated for a different count. Recommended: keep it as a share, at least 90% of cases.
-
-**4. Checks in code the challenger asked for (recommended: yes to all; no money, about a day across phases):** a protected test that re-derives every table-case label from the rubric, so a hand edit cannot drift; a test that each case's fix list is what the fix table gives; validators on the model's input so an impossible case cannot be written (for example an earlier open rate on a 40-day-old domain); in Phase 4, a test that no recording for a seeded client contains a type the rubric calls wrong there; a test that only a case's `input` reaches the model.
-
-**5. Sign off the measure as drafted, apart from the above.** Three things the build decided because it had to, all in `docs/DECISIONS_TO_REVIEW.md`: the shape of the model's input; the twelve fix types and thirteen risk types; and a change to `spf_weak_all` made after the second read (`~all` is only ever "acceptable"). And six objections from the second reader that were not taken, listed in the log under "second read of the labels": the low-volume cut at 1,000 a week, low volume gating the thirty-day open rate, how much weight an open-rate fall deserves, `p=quarantine; pct=0`, case 16 counting one fact twice, and DKIM keys that may not be in use. You are the specialist: say "as drafted" or correct `evals/RUBRIC.md` and the cases by hand in the pull request.
-
-**6. Owner actions still open in `docs/STANDING.md`** (the preflight lists the first two as MISSING; the commands are in that file):
-
-- The OpenAI key: `cp .env.example .env`, then set `OPENAI_API_KEY=`.
-- The Google Cloud project: the `domain-health` gcloud configuration already exists and is signed in; it still needs the project created, billing linked, and `GCP_PROJECT_ID=` in `.env`.
-- Vercel: `npm i -g vercel@latest`, and give Vercel's GitHub app access to this repository.
-- Then `bash .claude/hooks/preflight.sh` must end with `preflight: ready`.
-
-**What happens once you answer.** Answer in a comment on the issue or in the session. For whatever you accept in 1 to 4, I write a decision record and the proposed edit to `docs/SPEC.md` (and `docs/CLAIM.md` if you choose A2) on this branch, make the changes, and run the reviewer, the verifier and the challenger again on the result. You then read the measure and merge pull request #1; that merge is the sign-off. If you decline everything, say so and merge as it is: the challenger's verdict line stays as it gave it. Nothing in Phase 1 starts before the merge.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -428,6 +394,69 @@ preflight: 4 thing(s) missing. Each MISSING line is a stop for the owner, asked 
 reviewer-verdict: no blocking findings @ 2e989a7
 verifier-verdict: pass @ 2e989a7
 challenger-verdict: change needed @ 2e989a7
+
+### 2026-11-19: the stop (issue #2) and the owner's answers
+
+The block as it was asked:
+
+> **Phase 0 is built and waiting for you, for two reasons.** It is the phase you merge (pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1)): it sets the guards and the measure. And the challenger, the independent agent that reads the measure against the claim, says a change is needed before you sign it off. Nothing has been changed in answer to it; the choices are yours. Everything else in the phase passed: the review (fourth run, no blocking findings), the verifier (every command works), CI (all three jobs green).
+>
+> **What the challenger found, in short.** Every label in the twenty cases can be computed from the input by about 130 lines of if/else read straight from `evals/RUBRIC.md`. Two independent agents wrote such a script and each reproduced all 260 label slots exactly. So a rules engine with no model would score full marks, and passing the four bars would show that the model follows a written table, not that it makes judgment calls. That is the word the claim leans on. Its full report, with eight more points about what the bars would not show and how noisy they are, is in the Phase 0 log below ("challenger, on 2e989a7").
+>
+> **1. The claim and the measure: which way do you want to go?**
+>
+> - **A1. Keep the sentence, make the measure able to show judgment (recommended).** You write about ten more cases where the rubric deliberately leaves the call open and only a specialist can label it: no table gives the answer. Those ten are kept out of prompt tuning. The harness also scores a rules-only baseline (the threshold script) and reports it beside the model. The README then says: on the table cases rules and model agree, and on the open cases here is what the model does that rules cannot. Costs you an hour or two of labelling; costs the build about half a day; no money beyond a cent or two per eval run. If the model does no better than the baseline on your ten, that is found in Phase 2 and you can still fall back to A2.
+> - **A2. Keep the measure, reword the sentence** to what is measured, for example "judgment-call risks picked by a model from a closed list and scored against a written rubric". Costs nothing to build. A reader who asks "why is this not just rules?" gets no answer from the evals.
+> - **A3. Move the risk bands into rules** and give the model only the order and the wording, then score those. This redesigns Phase 2, reverses decision 0001 and needs a judge for wording. Not recommended: it is a different project.
+>
+> **2. Tighter definitions for the four measures. Each is yes or no; I recommend yes to all four. They change `docs/SPEC.md`, which is why they are yours.**
+>
+> - **B.** Count "harmful" over everything the model returns (up to eight), not only the first five. Risks six to eight become visible as soon as someone ticks a risk handled.
+> - **C.** Output that fails validation counts as nothing found for coverage, never matches another run for stability, and a "dropped" count is printed beside the four measures.
+> - **D.** Keep the name "harmful", and have the README state it as "0 in 60 case-runs" (it bounds the rate at about 5%; it does not show never). Accept that precision adds little on this set.
+> - **F (rules for the paid runs).** The number that counts at the Phase 2 gate is the run of the final prompt version; every attempt is reported; an unchanged prompt is never re-run to get a pass; the prompt may not quote the rubric's thresholds.
+>
+> **3. More cases?** Twenty cases hold 27 expected items, so one item is 0.037 of coverage and a score of 0.81 has not really cleared 0.80. Four risk types are expected in only one case each.
+>
+> - **Recommended: go to about forty**, with every type expected in at least two, and report coverage per type. With A1, your ten are part of the forty and I draft the other ten from the rubric for you to read. Costs you about fifteen more minutes of reading; about $0.02 more per paid run.
+> - Or stay at twenty and have the README say how coarse the number is (decision 0008 already says so).
+> - The stability bar "18 of 20" would have to be restated for a different count. Recommended: keep it as a share, at least 90% of cases.
+>
+> **4. Checks in code the challenger asked for (recommended: yes to all; no money, about a day across phases):** a protected test that re-derives every table-case label from the rubric, so a hand edit cannot drift; a test that each case's fix list is what the fix table gives; validators on the model's input so an impossible case cannot be written (for example an earlier open rate on a 40-day-old domain); in Phase 4, a test that no recording for a seeded client contains a type the rubric calls wrong there; a test that only a case's `input` reaches the model.
+>
+> **5. Sign off the measure as drafted, apart from the above.** Three things the build decided because it had to, all in `docs/DECISIONS_TO_REVIEW.md`: the shape of the model's input; the twelve fix types and thirteen risk types; and a change to `spf_weak_all` made after the second read (`~all` is only ever "acceptable"). And six objections from the second reader that were not taken, listed in the log under "second read of the labels": the low-volume cut at 1,000 a week, low volume gating the thirty-day open rate, how much weight an open-rate fall deserves, `p=quarantine; pct=0`, case 16 counting one fact twice, and DKIM keys that may not be in use. You are the specialist: say "as drafted" or correct `evals/RUBRIC.md` and the cases by hand in the pull request.
+>
+> **6. Owner actions still open in `docs/STANDING.md`** (the preflight lists the first two as MISSING; the commands are in that file):
+>
+> - The OpenAI key: `cp .env.example .env`, then set `OPENAI_API_KEY=`.
+> - The Google Cloud project: the `domain-health` gcloud configuration already exists and is signed in; it still needs the project created, billing linked, and `GCP_PROJECT_ID=` in `.env`.
+> - Vercel: `npm i -g vercel@latest`, and give Vercel's GitHub app access to this repository.
+> - Then `bash .claude/hooks/preflight.sh` must end with `preflight: ready`.
+>
+> **What happens once you answer.** Answer in a comment on the issue or in the session. For whatever you accept in 1 to 4, I write a decision record and the proposed edit to `docs/SPEC.md` (and `docs/CLAIM.md` if you choose A2) on this branch, make the changes, and run the reviewer, the verifier and the challenger again on the result. You then read the measure and merge pull request #1; that merge is the sign-off. If you decline everything, say so and merge as it is: the challenger's verdict line stays as it gave it. Nothing in Phase 1 starts before the merge.
+
+The owner's answers, given in the session, as written:
+
+> 1. A1, with one change: I will not hand-label. Have an independent agent with fresh context, one that will never write, see or tune the prompt, draft the ten open cases. Each gets its label and a short reason, grounded in public deliverability guidance where it applies (Google and Yahoo sender requirements, M3AAWG). I review and sign them off at the merge. Keep those ten out of prompt tuning, and report the rules-only baseline beside the model. The README must state where the labels came from: drafted by AI against written guidance and reviewed by the engineer who built the original system, not by a deliverability specialist. If in Phase 2 the model does no better than the baseline on the open cases, propose the A2 wording and stop for me.
+> 2. Yes to B, C, D and F.
+> 3. Yes: about forty cases, every risk type expected in at least two, coverage reported per type, stability as a share of at least 90%.
+> 4. Yes to all the checks in code.
+> 5. As drafted. Record the six second-reader objections you did not take in a decision record, and name them in the README's limits.
+> 6. Owner actions are done: .env has both values, the Google Cloud project exists with billing linked, the Vercel CLI is updated and its GitHub app has access. Run preflight to confirm. The name list is at ~/.config/domain-health/names.txt.
+>
+> Make my review at the merge quick: put a one-page table in the pull request description with each open case, the call, and the reason in one line, plus anything in the measure you are least sure of. Then run the reviewer, verifier and challenger again, and tell me when #1 is ready to merge. Do not ask me anything else unless the stop list requires it.
+
+Preflight, run after the answers:
+
+```text
+$ bash .claude/hooks/preflight.sh | grep -vE "^ok:"
+preflight on this machine, in /Users/nkanyisonzimande/Documents/GitHub/domain-health
+warning: docs/STANDING.md is not on main yet, so the merge gate treats the project as gated
+warning: a script cannot confirm that Vercel's GitHub app can see this repository; the first deploy in Phase 5 will
+preflight: ready
+```
+
+Every other line was `ok:`, the OpenAI key for `gpt-6-luna`, the project, billing and the budget permission among them.
 
 ---
 
