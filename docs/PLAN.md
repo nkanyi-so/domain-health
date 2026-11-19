@@ -9,7 +9,7 @@ Kept current by the build at every change of state, so progress can be read here
 | Phase | State | Pull request |
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
-| 1: checks and rules | in review | |
+| 1: checks and rules | in review | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | not started | |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
