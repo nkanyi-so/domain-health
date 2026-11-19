@@ -12,3 +12,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T14:43:48Z	0	review	no blocking findings @ 2e989a7	0.00
 2026-11-19T14:49:01Z	0	verify	pass @ 2e989a7	0.00
 2026-11-19T14:49:01Z	0	challenge	change needed @ 2e989a7	0.00
+2026-11-19T14:51:06Z	0	stop-opened	issue=#2 questions=0 asked: Phase 0: challenger says change needed; read the measure, answer, merge #1	0.00
