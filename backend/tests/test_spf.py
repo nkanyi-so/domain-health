@@ -351,8 +351,9 @@ READ_BY_A_RECEIVER = [
     "v=spf1 mx unknown=anything-at-all:/! other.name=%{s} -all",
     "v=spf1 +mx ?a ~ptr -ip4:192.0.2.1 +all",
     "v=spf1 a:xn--bcher-kva.example.org a:1-2.example.org a:a1.example.o-g -all",
-    # The macro letter r, reversed: two letters, one macro.
-    "v=spf1 exists:%{rr}.example.org -all",
+    "v=spf1 exists:%{ir}.%{v}._spf.%{d2}.%{l10r-}.%{H}.%{o}.%{p}.%{s} -all",
+    # The letters c, r and t are for explanation text; a modifier nobody defined may hold them.
+    "v=spf1 mx note=%{c}.%{rr}.%{t} -all",
     # A modifier nobody defined may have any name, even this one: it is passed over.
     "v=spf1 all=x",
 ]
@@ -394,6 +395,18 @@ FAILED_BY_A_RECEIVER = [
     "v=spf1 include:%d.example.org -all",
     "v=spf1 include:%{d}{.example.org%} -all",
     "v=spf1 exists:%{i!}.example.org -all",
+    # The letters c, r and t in a name, and a digit of zero: a receiver fails each.
+    "v=spf1 exists:%{c}.bl.example.org -all",
+    "v=spf1 exists:%{rr}.example.org -all",
+    "v=spf1 a:%{t}.example.org -all",
+    "v=spf1 mx:%{R}.example.org -all",
+    "v=spf1 ptr:%{c}.example.org -all",
+    "v=spf1 redirect=%{t}.example.org",
+    "v=spf1 mx exp=%{c}.example.org -all",
+    "v=spf1 include:%{d0}.example.org -all",
+    "v=spf1 include:%{d00}.example.org -all",
+    "v=spf1 include:%{d01}.example.org -all",
+    "v=spf1 mx note=%{d0} -all",
     "v=spf1 redirect=a%b",
     "v=spf1 exp=%",
     "v=spf1 unknown=%{nope} -all",

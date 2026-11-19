@@ -19,9 +19,17 @@ from domain_health.resolver import Resolver, TxtStatus, normal_name
 LOOKUP_LIMIT = 10
 OVER_LIMIT = LOOKUP_LIMIT + 1
 
-# The standard's grammar (RFC 7208, section 12), piece by piece.
-_MACRO = r"%\{[slodiphcrtv][0-9]*r?[.\-+,/_=]*\}|%%|%_|%-"
-_MACRO_STRING = re.compile(rf"(?:{_MACRO}|[\x21-\x24\x26-\x7e])*", re.IGNORECASE | re.ASCII)
+# The standard's grammar (RFC 7208, section 12), piece by piece, with the two rules its prose
+# adds (section 7.3): a macro's digit is never zero, and the letters c, r and t belong to
+# explanation text only, never to a name.
+_MACRO_SHAPE = r"%\{{[{letters}](?:[1-9][0-9]*)?r?[.\-+,/_=]*\}}|%%|%_|%-"
+_MACRO = _MACRO_SHAPE.format(letters="slodiphv")
+_LITERAL = r"[\x21-\x24\x26-\x7e]"
+# What a name is made of, and what the value of a modifier nobody defined may hold.
+_MACRO_STRING = re.compile(rf"(?:{_MACRO}|{_LITERAL})*", re.IGNORECASE | re.ASCII)
+_ANY_MACRO_STRING = re.compile(
+    rf"(?:{_MACRO_SHAPE.format(letters='slodiphcrtv')}|{_LITERAL})*", re.IGNORECASE | re.ASCII
+)
 _TOP_LABEL = r"[a-z0-9]*[a-z][a-z0-9]*|[a-z0-9]+-[a-z0-9\-]*[a-z0-9]"
 # A name ends in a dot and a top label (with at most one more dot), or in a macro.
 _DOMAIN_END = re.compile(rf"(?:\.(?:{_TOP_LABEL})\.?|{_MACRO})$", re.IGNORECASE | re.ASCII)
@@ -154,7 +162,7 @@ def parse(record: str) -> Record:
                 target = _target(f"{name}=", value)
                 if name == "redirect":
                     redirect = target
-            elif not _MACRO_STRING.fullmatch(value):
+            elif not _ANY_MACRO_STRING.fullmatch(value):
                 raise SpfSyntaxError("a modifier with a value that cannot be read")
             continue
         mechanism = _MECHANISM.fullmatch(term)

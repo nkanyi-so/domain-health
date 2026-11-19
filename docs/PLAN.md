@@ -1043,14 +1043,25 @@ Verdict as reported: "changes needed. There are two blocking findings, both in `
 
 1. Blocking. "The `a` and `mx` prefix lengths are never range-checked": `a/99`, `mx//200` and `a:x.example.org/33` parsed as valid.
 2. Blocking. "A target name is cleaned up before it is checked, and a macro target is not checked at all": every trailing dot was stripped, so `include:inc.example.org..` was followed as a good name, and `include:%`, `include:%{z}x` and `redirect=a%b` parsed.
-   - Done, for both and for the class they belong to. Five rounds running had each found another SPF record a receiver fails and this parser read, one case at a time. So the term parser was rewritten against the standard's own grammar (RFC 7208, section 12) instead of being patched again: macros (`%{letter digits r delimiters}`, `%%`, `%_`, `%-`), a name that has to end in a top label with at most one trailing dot or in a macro, prefix lengths with their ranges (0 to 32, 0 to 128) and no leading zero, an address read strictly (no netmask form, no zone, no leading zeros), an unknown modifier's value, and a record that has to start with the version exactly. Counting and following are unchanged. The tests gained two tables: 24 records inside the grammar that must parse and 52 outside it that must not, with every one of the reviewer's examples among the 52. Writing the tables corrected two of the build's own guesses: `%{rr}` is a valid macro (the letter r, reversed), and `all=x` is a valid unknown modifier.
+   - Done, for both and for the class they belong to. Five rounds running had each found another SPF record a receiver fails and this parser read, one case at a time. So the term parser was rewritten against the standard's own grammar (RFC 7208, section 12) instead of being patched again: macros (`%{letter digits r delimiters}`, `%%`, `%_`, `%-`), a name that has to end in a top label with at most one trailing dot or in a macro, prefix lengths with their ranges (0 to 32, 0 to 128) and no leading zero, an address read strictly (no netmask form, no zone, no leading zeros), an unknown modifier's value, and a record that has to start with the version exactly. Counting and following are unchanged. The tests gained two tables: 24 records inside the grammar that must parse and 52 outside it that must not, with every one of the reviewer's examples among the 52. Writing the tables corrected one of the build's own guesses: `all=x` is a valid unknown modifier. (It was also taken to show that `%{rr}` is a valid macro. By the grammar alone it is; by the standard's prose it is not, as the tenth review found, below.)
    - The same pass over DMARC and DKIM, without waiting to be asked: `pct` is one to three digits (`0100` and `+50` no longer pass); a DKIM `v=` has to be the record's first tag. What is deliberately left looser than the standard's letter, because receivers are, is written in the decisions entry: DMARC's `p=` need not be the second tag, and its other tags are not checked.
 
 The evidence below was taken again after these fixes.
 
+### 2026-11-19: review, tenth run, on ffa6118
+
+Verdict as reported: "changes needed. There is one blocking finding." The ninth round's fixes hold, with eight more variants of its own refused; DMARC `pct` and the DKIM version rule "behave as the log says"; "200,000 random SPF terms and DMARC `pct` values raised nothing except the parsers' own syntax errors"; `make check` (534 and 1 passed), `make eval`, the gate evidence, the guards, the measure files, "Decisions to review: 15", the step list's statements and rules 1, 2, 5, 6 and 7 held.
+
+1. Blocking. "SPF accepts macros that RFC 7208 allows only in explanation text, and a digit transformer of zero": the grammar in section 12 allows the letters `c`, `r` and `t` and any digits; the prose of section 7.3 allows those three letters only in explanation text and says the digit is nonzero. So `exists:%{c}.bl.example.org`, `a:%{t}.example.org` and `include:%{d0}.example.org` parsed, a test held `exists:%{rr}.example.org` to be valid, and the log said so.
+   - Done: a name's macros take the letters `s l o d i p h v` only, and a digit that does not start with zero; the full set of letters is kept for the value of a modifier nobody defined, which is passed over. Eleven more records in the table that must not parse (the three letters in each kind of term, `redirect=` and `exp=` included, and three zero digits), and `%{rr}` moved into it; the table that must parse keeps a record with every allowed letter and one with the three letters inside an unknown modifier. The sentence above and the decisions entry are corrected.
+
+Its note, no change asked: the DMARC walk-up can ask a public suffix (`_dmarc.co.uk` for a name under it); it is the bounded walk the decisions entry describes and gives no wrong fix.
+
+The evidence below was taken again after this fix.
+
 ### 2026-11-19: gate evidence
 
-Run on the code as it stands after the ninth review's fixes. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+Run on the code as it stands after the tenth review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
 
 1. `make check` exits 0 (lines kept; the rest is tool chatter):
 
@@ -1059,13 +1070,13 @@ $ make check
 44 files already formatted
 All checks passed!
 Success: no issues found in 44 source files
-534 passed, 1 deselected in 2.33s
-1 passed, 534 deselected in 0.26s
+546 passed, 1 deselected in 2.59s
+1 passed, 546 deselected in 0.23s
 ✔  Script exited successfully (code 0)
 All matched files use Prettier code style!
  Test Files  1 passed (1)
       Tests  1 passed (1)
-✓ Compiled successfully in 179ms
+✓ Compiled successfully in 226ms
 make check exit=0
 ```
 
