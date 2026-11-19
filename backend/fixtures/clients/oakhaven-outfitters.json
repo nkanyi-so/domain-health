@@ -1,0 +1,73 @@
+{
+  "id": "oakhaven-outfitters",
+  "name": "Oakhaven Outfitters",
+  "domain": "oakhaven-outfitters.example",
+  "cycle": [
+    {
+      "zone": "oakhaven-outfitters",
+      "note": "No fix. DMARC has sat at p=none for years and DKIM signs with a 1,024-bit key.",
+      "sources": {
+        "reputation": {
+          "grade": "high",
+          "previous_grade": "high"
+        },
+        "complaint_rate_pct": 0.07,
+        "bounce_rate_pct": 1.2,
+        "volume_7d": 18000,
+        "volume_prev_7d": 17500,
+        "open_rate_pct": 27.0,
+        "open_rate_prev_pct": 28.0,
+        "blocklist": {
+          "listed": false,
+          "listings_90d": 0,
+          "days_since_delisted": null
+        },
+        "domain_age_days": 900
+      }
+    },
+    {
+      "zone": "oakhaven-outfitters",
+      "note": "No fix. Complaints drift above what mailbox providers ask for.",
+      "sources": {
+        "reputation": {
+          "grade": "high",
+          "previous_grade": "high"
+        },
+        "complaint_rate_pct": 0.12,
+        "bounce_rate_pct": 1.6,
+        "volume_7d": 19000,
+        "volume_prev_7d": 18000,
+        "open_rate_pct": 26.5,
+        "open_rate_prev_pct": 28.0,
+        "blocklist": {
+          "listed": false,
+          "listings_90d": 0,
+          "days_since_delisted": null
+        },
+        "domain_age_days": 901
+      }
+    },
+    {
+      "zone": "oakhaven-outfitters",
+      "note": "No fix. Complaints keep rising and the reputation grade drops.",
+      "sources": {
+        "reputation": {
+          "grade": "medium",
+          "previous_grade": "high"
+        },
+        "complaint_rate_pct": 0.18,
+        "bounce_rate_pct": 1.7,
+        "volume_7d": 21000,
+        "volume_prev_7d": 19000,
+        "open_rate_pct": 25.0,
+        "open_rate_prev_pct": 28.0,
+        "blocklist": {
+          "listed": false,
+          "listings_90d": 0,
+          "days_since_delisted": null
+        },
+        "domain_age_days": 902
+      }
+    }
+  ]
+}

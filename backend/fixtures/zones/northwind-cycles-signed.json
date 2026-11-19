@@ -1,0 +1,9 @@
+{
+  "northwind-cycles.example": [
+    "v=spf1 include:_spf.mailbarrow.example ~all",
+    "site-verification=northwind-cycles-signed"
+  ],
+  "default._domainkey.northwind-cycles.example": [
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1BkPiUMU+WqRMcWLqnh+zf18vFfAGiTnMaa+8tXTxWbK9EvztX7Wq66IDDI1o/d4/r7FTn+TUUKewPuQm04udeynblF6SdAppnkSXTEKC5pN7/+kp2fxwJawPPedOCrr5UpQR7cpNjvqvLtBr5SNkfNMFbOs+TdbPp127oq1iDnb+Xh6ymdreTra/jIUSl4Vil3x+ntwdiF6y9kuAvHsclzVCcgeVrWHOpNhJgHJ/wkq7kb7HgzytlX/SH7UBPhAJqRtrPfwN55YRsdvI3lq/CnLujqUpT2KF9bAULXTsrYZI1fscGoD6bo4dpu36mQ6RiuyF/vJPjJk5FPOHRlk+QIDAQAB"
+  ]
+}

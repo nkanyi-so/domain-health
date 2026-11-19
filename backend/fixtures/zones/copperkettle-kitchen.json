@@ -1,0 +1,12 @@
+{
+  "copperkettle-kitchen.example": [
+    "v=spf1 ip4:192.0.2.40 +all",
+    "site-verification=copperkettle-kitchen"
+  ],
+  "mail._domainkey.copperkettle-kitchen.example": [
+    "v=DKIM1; k=rsa; p=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMzGM4xY5kPaSfToznSN/v04XDSsXy3TG8GpQgrNJr7QhsTsIwugCJ8LY0hTJqmdqYnAB9NTHItbn+fGs/LAaO0CAwEAAQ=="
+  ],
+  "_dmarc.copperkettle-kitchen.example": [
+    "v=DMARC1; p=none; rua=mailto:dmarc-reports@copperkettle-kitchen.example"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "inkwell-and-vine.example": [
+    "v=spf1 include:_spf.mailbarrow.example ~all",
+    "v=spf1 include:_spf.postfinch.example ~all",
+    "site-verification=inkwell-and-vine"
+  ],
+  "k1._domainkey.inkwell-and-vine.example": [
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnshNy/5A5bWULdzzpaOZesewlJme/UyerteWh1iUfk++vINUyCtZAqi/amNFHHhBr+c4HztUkFQNiufrXRqGTYE+Zxqm7phDRS/ugnLJyp3sSTk1xQbkABqq2QrY85UENdY1Kqx8scdGhx5LbjWUhff/ZmcXr8D9c1JiLZJWiwJwJl38Hs+9cm/WtQvNaX6bBYXNaqmOfzj0r76HoE9d6jrLfNPEaC/zOPs+xKu3gddSXPtRoGngDfKuhqW9TAQXKfALDPNJkg+b4oH1bl+i5Qq3ZHjr1nOkQIUO7IzE38edDU0DFw88drBIlWPjadrchixZHAL1zfYpe2XbPwMbjQIDAQAB"
+  ],
+  "_dmarc.inkwell-and-vine.example": [
+    "v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@inkwell-and-vine.example"
+  ]
+}

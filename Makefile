@@ -28,8 +28,8 @@ endif
 	eval-live record seed infra deploy-backend fallback screens check-domain
 
 help:
-	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1]"
-	@echo "not built yet: eval-live record seed infra deploy-backend fallback screens check-domain"
+	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] | check-domain DOMAIN=<name>"
+	@echo "not built yet: eval-live record seed infra deploy-backend fallback screens"
 
 setup:
 	cd backend && uv sync --frozen
@@ -83,5 +83,12 @@ $(error $(filter $(GUARDED),$(MAKECMDGOALS)) is paid or writes to Google Cloud: 
 endif
 endif
 
-eval-live record seed infra deploy-backend fallback screens check-domain:
+# Free. Real DNS (TXT lookups only) for one domain: the three checks and the fix list. The name
+# reaches the program through the environment, never through the shell's command line.
+check-domain: export CHECK_DOMAIN := $(value DOMAIN)
+check-domain:
+	@test -n "$$CHECK_DOMAIN" || { echo "usage: make check-domain DOMAIN=<name>" >&2; exit 1; }
+	@cd backend && uv run --frozen python -m domain_health.check_domain -- "$$CHECK_DOMAIN"
+
+eval-live record seed infra deploy-backend fallback screens:
 	@echo "make $@: not built yet" >&2; exit 1

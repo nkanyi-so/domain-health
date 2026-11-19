@@ -1,0 +1,51 @@
+{
+  "id": "willowmere-pets",
+  "name": "Willowmere Pet Supplies",
+  "domain": "willowmere-pets.example",
+  "cycle": [
+    {
+      "zone": "willowmere-pets",
+      "note": "No fix. The SPF record costs 9 of its 10 lookups, and an old 1,024-bit key is still published.",
+      "sources": {
+        "reputation": {
+          "grade": "high",
+          "previous_grade": "high"
+        },
+        "complaint_rate_pct": 0.03,
+        "bounce_rate_pct": 0.5,
+        "volume_7d": 41000,
+        "volume_prev_7d": 40000,
+        "open_rate_pct": 32.0,
+        "open_rate_prev_pct": 32.5,
+        "blocklist": {
+          "listed": false,
+          "listings_90d": 0,
+          "days_since_delisted": null
+        },
+        "domain_age_days": 2600
+      }
+    },
+    {
+      "zone": "willowmere-pets",
+      "note": "No fix. A seasonal campaign more than doubles the week's volume.",
+      "sources": {
+        "reputation": {
+          "grade": "high",
+          "previous_grade": "high"
+        },
+        "complaint_rate_pct": 0.03,
+        "bounce_rate_pct": 0.6,
+        "volume_7d": 96000,
+        "volume_prev_7d": 41000,
+        "open_rate_pct": 31.5,
+        "open_rate_prev_pct": 32.5,
+        "blocklist": {
+          "listed": false,
+          "listings_90d": 0,
+          "days_since_delisted": null
+        },
+        "domain_age_days": 2601
+      }
+    }
+  ]
+}
