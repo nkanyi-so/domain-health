@@ -137,6 +137,7 @@ def test_the_comparison_itself_uses_the_mean_of_the_runs(monkeypatch: pytest.Mon
     base = OpenScore(found=10, expected=20, returned=10, precise=10, harmful=0, cases_gained=0)
     full = OpenScore(found=14, expected=20, returned=50, precise=50, harmful=0, cases_gained=3)
     noisy = OpenScore(found=14, expected=20, returned=10, precise=3, harmful=0, cases_gained=3)
+    # The comparison scores the baseline first, then the runs in the order given.
     scores = iter([base, full, full, noisy])
     monkeypatch.setattr(comparison, "score_open_run", lambda *_: next(scores))
 
@@ -259,3 +260,15 @@ def test_naming_everything_the_bands_allow_fails_only_on_the_open_cases() -> Non
 
     assert harmful_table == 0
     assert harmful_open == 6
+
+
+def test_the_bars_are_pooled_so_the_open_set_alone_can_sit_under_them() -> None:
+    """Pins the spec's sentence: the plain baseline meets the bars with 17 of 25 on the open set."""
+    found = expected = 0
+    for case in ALL.values():
+        if case.set == "open":
+            expected += len(case.label.expected)
+            found += len(set(plain_baseline(case)[:5]) & set(case.label.expected))
+
+    assert (found, expected) == (17, 25)
+    assert found / expected < BARS_FILE["coverage"]["value"]

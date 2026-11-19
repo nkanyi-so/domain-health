@@ -766,6 +766,27 @@ No stop was opened for this verdict. The owner's instruction after the fallback 
 
 Tests: 179 in the backend (one in the emulator).
 
+### 2026-11-19: review, eleventh run, and challenger, fifth run, both on 4870da3
+
+**The reviewer.** Verdict as reported: "blocking findings", two, with "The two blocking findings are both in the pull request description; the repository itself is right." It put the pooled-precision defect back in a scratch copy and the new test failed, traced that the test "isolates exactly the defect", recomputed every figure the new tests pin with its own script, and found the spec, `docs/CLAIM.md`, `CLAUDE.md`, decisions 0008 and 0010 and the decisions file agreeing and saying "no more than the measure shows". Blocking: the description still said meeting the bars shows the model picks "as the written rubric would have it", the wording the fourth challenger had asked to replace; and "What you approve by merging" left out three owner-level changes from that commit (the new spec paragraph, decision 0008's status line, the new tests in a measure path).
+
+- Done, in the description: the sentence is the spec's; the three changes are listed.
+- Its notes: the test that no-model tables meet the bars makes `make check` depend on the bar values in `evals/bars.toml`, which "differs from `docs/profiles/llm-app.md`" ("It does not fail on a threshold"), "whose concern is model scores, not a fixed table's". Kept, and said here: that test fails only if the owner changes a bar or a case so that the spec's sentence about tables stops being true, which is when the owner should hear of it; it judges no model score. The mean-of-runs test depends on the order the comparison scores in (a comment now says so). Decision 0008's status line said the labels "were reviewed"; it now says they are reviewed at the Phase 0 merge.
+
+**The challenger.** Verdict: **change needed**, for one sentence. It confirmed the three changes it had asked for were made and right, recomputing every figure, and that the claim "read as a description of how the system is built [...] can be true". In its words:
+
+"One sentence still claims more than the measure shows. docs/SPEC.md:115 says: 'Meeting the bars therefore shows this and nothing more: on these cases the model's picks agree, within the bars, with the rubric's bands on the thirty table cases and with the eighteen written calls on the open cases.' The bars are judged on all forty-eight cases together. Only harmful 0 holds within each set. Coverage and precision are pooled, so the sentence reads as if each set met the bars, and the spec's own example disproves that: the unchanged baseline meets all four bars, yet it finds only 17 of the 25 expected items on the open set. That is 0.68, under the 0.80 coverage bar. [...] a run that finds every table item meets the coverage bar with as few as 12 of 25 on the open set."
+
+"The smallest fix is to reword that sentence [...]. Pin 17 of 25 in test_comparison.py".
+
+On noise: "For that [what the claim now says], three runs pooled over 67 expected items are enough to read coverage and precision. [...] Treat a result within about 0.03 of 0.80 as not cleared. Harmful and stability are noisy, and that is already accepted". On code: a check that a risk's text does not repeat or contradict a fix, "for Phase 2 validation". Accepted notes, "no change asked": the breadth of "judgment-call", order not scored, decision 0001's reason, the noise of harmful and stability, and small stale wording (the definition of `expected` as what "a specialist would flag"; "ranks" in the spec's phase list, decision 0001 and `types.py`; the old figures in the superseded part of decision 0010; "twenty" in the Phase 0 gate).
+
+- Done: the sentence is reworded as it proposed (pooled over all forty-eight; only harmful 0 holds on each set; the baseline's 17 of 25, 0.68; each set's numbers reported with no bar), and a test pins 17 of 25 and that it is under the coverage bar.
+
+As said under the fourth run: no stop for this. The three checks run on the commit that carries this fix, and the pull request goes to the owner with what they say.
+
+Tests: 180 in the backend (one in the emulator).
+
 ---
 
 ## Phase 1: checks and rules
