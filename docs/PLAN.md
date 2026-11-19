@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -37,7 +37,15 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 0 is ready for your merge: pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1).** Nothing else is needed from you. On the final commit, 4ae1da8: the reviewer found nothing blocking, the verifier passed everything, the challenger's verdict is "no change", CI is green, and the preflight ends with `preflight: ready`.
+
+Merging is your sign-off of three things, all laid out in the pull request's description:
+
+1. **The claim sentence, which changed.** By your limit in the answers to #3 it now reads "judgment-call risks picked by a model from a closed list and scored against a written rubric". Three rounds could not build an eval that a model passes and a table of thresholds cannot; decision 0012 says what was tried and why it fell short.
+2. **The measure**: the rubric, thirty table cases, eighteen open cases (their one-line table is in the description, with the calls the readers found contestable: 40, 41, 44, 45, 46, 48), the four bars, and the rules-only baseline as evidence with no bar.
+3. **The owner-level edits the build made on your answers**, listed in the description under "What you approve by merging".
+
+To change a label or a call, edit the case file on the branch before merging; `make check` tells you if an edit breaks something the spec says. After the merge, `/next-phase` starts Phase 1.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -786,6 +794,51 @@ On noise: "For that [what the claim now says], three runs pooled over 67 expecte
 As said under the fourth run: no stop for this. The three checks run on the commit that carries this fix, and the pull request goes to the owner with what they say.
 
 Tests: 180 in the backend (one in the emulator).
+
+### 2026-11-19: the three checks on the final commit, 4ae1da8
+
+**Reviewer, twelfth run.** "Blocking: none." It recomputed the spec's new sentence with its own script (table set 42/42; open set 17/25, 0.68; pooled 59/67 = 0.88, precision 1.00, harmful 0), confirmed the new test pins it, confirmed decision 0008's status line, and found the pull request description matching the spec and naming every owner-level change. Notes, both about one sentence in the description (which tests read `evals/bars.toml` and when they fail), corrected there.
+
+**Challenger, sixth run.** Verdict: **no change**. "Was the one change made, and is it right? Yes." It recomputed every figure independently. "Read as a description of how the system is built, the claim can be true. [...] The widest reading is still 'a model makes judgment calls'. On this measure a table does as well. That is the residual breadth the owner accepted, and `docs/SPEC.md:7`, `:115`, `docs/CLAIM.md:15` and decision 0012 all say so." "What passing the Phase 2 gate would and would not show is now stated consistently". "I found no sentence that is false as read or that claims more than the measure can show." On noise: "There are no scores yet, so there is nothing to judge at this gate. [...] three runs pooled over 67 expected items are enough to read [coverage and precision]. The rough spread of a three-run mean is about ±0.03. Open-set figures: these rest on 25 items, so they move about ±0.09 per run. They carry no bar, and should be read as indicative only." On code: "Nothing new that blocks this phase." Two notes for later, not changes: `docs/CLAIM.md`'s row is terser than the spec (no "pooled"); and "Decision 0012:18 tells the README to say the bars show 'agreement with a written rubric on synthetic cases and not more'. It does not mention the two standards or the pooling. Phase 6 should write the README's limits from `SPEC.md:115`, not from that line."
+
+**Verifier.**
+
+| What it ran | Expected | What happened | Result |
+|---|---|---|---|
+| `make setup` | exit 0 | exit 0; `ok: Node 24`, `ok: JDK 23` | pass |
+| `make check` | exit 0, both toolchains, emulator test, cases load | exit 0; `179 passed, 1 deselected`; in the emulator `1 passed, 179 deselected`; vitest 1 passed; `next build` succeeded | pass |
+| `make format FILE=...` | exit 0, no edits | exit 0, tree unchanged | pass |
+| `make eval`, `make eval STRICT=1` | "no prompt yet: nothing to measure", exit 0 | both, exit 0 | pass |
+| `make dev` | healthz answers, page shows the claim | `{"status":"ok"}`; the page holds the sentence from `docs/CLAIM.md` exactly | pass |
+| SIGINT to `make dev`'s process group | clean stop | nothing listening on 8000, 3000, 8085 | pass |
+| `make fallback`, `screens`, `check-domain` | "not built yet", non-zero | each printed it; make exited 2 | pass |
+| `make -n` with each paid or cloud target beside another goal | refused | each stopped with "is paid or writes to Google Cloud: run it alone, as the only goal" | pass |
+| Commit with a new failing test | refused, non-zero | `commit exit 1`; `1 failed, 179 passed`; "pre-commit: make check failed. Fix the cause before committing."; file removed, HEAD unchanged | pass |
+| `bash .claude/hooks/preflight.sh` | ends `preflight: ready` | exit 0, `preflight: ready`; the only lines not `ok:` were the two known warnings | pass |
+| Cases, on a copy | 48: 30 table, 18 open | `n 48`, `table 30 open 18` | pass |
+| Labels | table equal the bands, open differ | both hold, compared as sets as the tests do (list order of `wrong` differs in places) | pass |
+| Three inputs that cannot happen | refused | each refused with a validator's message | pass |
+| The rules-only baseline | open: 17 of 25, harmful 0; all: 0.88, 1.00, 0 | `found 17 of 25 harmful 0`; 0.881 (59/67), 1.0 (62/62), 0 | pass |
+| `better_than_baseline` | False for the baseline three times, True for the written calls three times, an error for two runs | all three as expected | pass |
+| CI on 4ae1da8 | three jobs green | `secrets completed success`, `check completed success`, `eval completed success` | pass |
+
+Not exercised, in its words: "No browser tool was available, so I did not open http://localhost:3000 at desktop or phone width. The page was only fetched". (The page is the scaffold's single paragraph; the screens are Phase 5, where a real browser is part of the gate.)
+
+### 2026-11-19: gate evidence, on 4ae1da8
+
+Every part of the gate is shown on the final commit, by the verifier's run above and by the build's own:
+
+1. `make check` exits 0 with passing tests in each toolchain and the cases loading (forty-eight; the gate's "twenty" was written before the owner's answers): `179 passed, 1 deselected`, `1 passed, 179 deselected` in the emulator, vitest `1 passed`, `next build` compiled; exit 0.
+2. The pre-commit hook refuses a commit with a failing test: `commit exit 1`, `1 failed, 179 passed`, "pre-commit: make check failed. Fix the cause before committing." (the verifier on 4ae1da8; first shown by the build before the first commit).
+3. CI green on the first push, all three jobs (0a7b46b), and on 4ae1da8: `secrets completed success`, `check completed success`, `eval completed success`.
+4. Branch protection is on: `check` and `secrets` required, strict, administrators included, no force-push (above; the preflight on 4ae1da8 reads it the same).
+5. `bash .claude/hooks/preflight.sh` ends with `preflight: ready` (the verifier and the reviewer on 4ae1da8).
+
+The owner merges this phase: it changes the guards and sets the measure, and the merge is the sign-off of the claim sentence, the rubric and the forty-eight cases.
+
+reviewer-verdict: no blocking findings @ 4ae1da8
+verifier-verdict: pass @ 4ae1da8
+challenger-verdict: no change @ 4ae1da8
 
 ---
 
