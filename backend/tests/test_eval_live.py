@@ -273,3 +273,33 @@ def test_the_command_takes_the_lock_before_anything_that_can_spend(
     assert reached == []
     assert "another paid run is in progress" in capsys.readouterr().err
     assert (evals / LOCK_FILE).exists()
+
+
+def test_the_command_refuses_a_copied_prompt_before_any_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    evals = tmp_path / "evals"
+    (evals / "cases").mkdir(parents=True)
+    for path in CASES.glob("*.json"):
+        (evals / "cases" / path.name).write_text(path.read_text(encoding="utf-8"))
+    for name in ("RUBRIC.md", "bars.toml"):
+        (evals / name).write_text((EVALS / name).read_text(encoding="utf-8"))
+    (evals / "settings.toml").write_text(f'model = "{MODEL}"\ntemperature = 0\n')
+    third = write_prompt(tmp_path / "prompts", "risks-v3.md", "The third version.")
+    record_as_labelled(evals / "recordings", third, ALL)
+    before = sorted(path.read_bytes() for path in (evals / "recordings").rglob("*.json"))
+    write_prompt(tmp_path / "prompts", "risks-v4.md", third.text)
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-key")
+    called: list[object] = []
+    monkeypatch.setattr(live, "record_runs", lambda *args: called.append(args))
+    command = [
+        "--prompts", str(tmp_path / "prompts"),
+        "--evals", str(evals),
+        "--standing", str(REPO / "docs" / "STANDING.md"),
+    ]  # fmt: skip
+
+    assert live.main(command) == 1
+    assert "An unchanged prompt is never run again" in capsys.readouterr().err
+    assert called == []
+    assert sorted(path.read_bytes() for path in (evals / "recordings").rglob("*.json")) == before
+    assert not (evals / LOCK_FILE).exists()

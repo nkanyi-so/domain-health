@@ -191,3 +191,14 @@ def test_the_schema_sent_to_the_model_is_closed() -> None:
     assert schema["$defs"]["ModelRisk"]["additionalProperties"] is False
     assert sorted(schema["$defs"]["ModelRisk"]["required"]) == ["evidence", "title", "type", "why"]
     assert schema["$defs"]["RiskType"]["enum"] == [t.value for t in RiskType]
+
+
+def test_a_digit_led_word_in_the_input_does_not_excuse_invented_ones_in_the_output() -> None:
+    key = SNAPSHOT.checks.dkim.keys[0].model_copy(update={"selector": "2024a"})
+    dkim = SNAPSHOT.checks.dkim.model_copy(update={"keys": [key]})
+    checks = SNAPSHOT.checks.model_copy(update={"dkim": dkim})
+    odd = SNAPSHOT.model_copy(update={"checks": checks})
+
+    for why in ("Complaints at 3x the limit.", "About 18k messages.", "Up 10x in a week."):
+        with pytest.raises(InvalidOutputError, match="not in the input"):
+            validate(odd, output(risk("complaint_rate_elevated", why=why)))

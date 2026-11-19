@@ -147,7 +147,9 @@ def _numbers_of(value: object) -> set[Decimal]:
     if isinstance(value, int | float):
         return {Decimal(str(value)).normalize()}
     if isinstance(value, str):
-        return numbers_in(value)
+        # A word in the input that starts with a digit and is not a number (a selector named
+        # 2024a, say) is not a number the output may then match with any such word of its own.
+        return numbers_in(value) - {NOT_A_NUMBER}
     if isinstance(value, dict):
         return set().union(*(_numbers_of(item) for item in value.values()))
     if isinstance(value, list):

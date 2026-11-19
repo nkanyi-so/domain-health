@@ -1539,6 +1539,20 @@ Carried, "the owner's to rule": the first review's findings 4 and 5, with one th
 
 Tests: 667 in the backend outside the emulator. No eval number changed: the scoring code is untouched by these fixes.
 
+### 2026-11-19: review, third run, on 36db430
+
+Verdict as reported: "one blocking finding, and it is small: a missing test. Apart from it and the two items carried for the owner, nothing blocks. The results are honest and reproduce exactly." It broke each of the second round's five fixes in a scratch copy and a test failed for four; `make check`, `make eval` (byte-identical results file), strict mode, the three other attempts, the ledger against the recordings ($0.994686 in 577 lines), the guards and the measure files, rules 1 to 3 and the absence of live calls in tests all held. The schema the library really sends is 1,806 bytes against the 1,732 counted; "the 512 margin covers the gap".
+
+1. Blocking. "The paid command's refusal of a copied prompt has no test": with the call to the check deleted from the command, every test still passed, because the only test called the function directly.
+   - Done: a test through the command itself: a copy of a recorded prompt under a new version name stops it with exit 1 and "An unchanged prompt is never run again", no call is reached, the recordings are byte for byte as they were and the lock is released.
+
+Not blocking, "for the record":
+
+- A digit-led word in the input that is not a number (a selector named `2024a`) would have excused every invented `3x` or `18k` in the output. No input today holds such a word. Done all the same: such a word in the input is no longer a number the output can match, with a test.
+- The copy guard compares exact text, so one added newline makes a prompt count as new. That is how the edited-prompt guard treats a change too; what stops a deliberate near-copy is this log and the ledger, not the guard.
+
+Tests: 669 in the backend outside the emulator. No eval number changed.
+
 ---
 
 ## Phase 3: snapshots and the handled loop
