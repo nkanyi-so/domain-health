@@ -160,6 +160,42 @@ def test_a_key_type_that_does_not_exist_is_not_a_key() -> None:
     assert found.problems == ("the key at selector k1 cannot be read",)
 
 
+@pytest.mark.parametrize(
+    "record",
+    [
+        "v=DKIM1; k=ed25519; p=!!!notakey",
+        "k=ed25519; p=abc",
+        "v=DKIM1; k=ed25519; p=AAAA",
+        "v=DKIM1; k=ed25519; p=" + rsa_public_key(1024),
+        "v=DKIM1; k=r sa; p=" + rsa_public_key(2048),
+        "v=DKIM1; s=other; p=" + rsa_public_key(2048),
+    ],
+    ids=[
+        "not base64",
+        "too short",
+        "three bytes",
+        "not 32 bytes",
+        "a broken type",
+        "not for email",
+    ],
+)
+def test_a_record_no_receiver_could_use_is_not_a_key(record: str) -> None:
+    found = run(check_dkim(FixtureResolver({at("mail"): [record]}), D))
+
+    assert found.check.keys == []
+    assert found.other_keys == ()
+    assert found.problems == ("the key at selector mail cannot be read",)
+
+
+@pytest.mark.parametrize("services", ["*", "email", "other:email", " email "])
+def test_a_key_for_email_or_for_everything_is_a_key(services: str) -> None:
+    zone = {at("mail"): [f"v=DKIM1; s={services}; p={rsa_public_key(2048)}"]}
+
+    found = run(check_dkim(FixtureResolver(zone), D))
+
+    assert [key.key_bits for key in found.check.keys] == [2048]
+
+
 def test_a_txt_record_that_is_not_a_key_is_ignored() -> None:
     found = run(check_dkim(FixtureResolver({at("k1"): ["hello"]}), D))
 

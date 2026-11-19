@@ -164,7 +164,7 @@ def test_what_is_not_known_gives_no_fix() -> None:
     assert types(None, dkim(), None, None) == [FixType.DKIM_MISSING]
 
 
-def test_a_key_that_is_not_rsa_counts_as_a_key() -> None:
+def test_a_good_key_that_is_not_rsa_counts_as_a_key() -> None:
     assert types(None, dkim(), None, None, other_dkim_keys=1) == []
     assert types(None, dkim(512), None, None, other_dkim_keys=1) == [FixType.DKIM_WEAK_KEY]
 

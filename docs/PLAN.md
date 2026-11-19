@@ -297,6 +297,19 @@ Its report, in its own words. Verdict: **change needed**. Nothing below has been
 - **F. Noise rules.** "Raise the case count (preferred: about 60 cases, about $0.10 per three-run eval on Luna), or the runs. [...] Make the gate number the run of the final prompt version, report every attempt, and forbid re-running an unchanged prompt to pass. Keep a held-out split. Decide whether the prompt may quote the rubric's thresholds."
 - **G. Checks in code.** "G1. A label-reproduction test (protected). G2. A fix-list test, now and against the Phase 1 rules engine. G3. Input validators on `SnapshotInput`. G4. A Phase 4 test that seeded-client recordings contain no wrong-band type, or the run-time filter in A3. G5. A test that only `input` is sent to the model. Cost: about a day of build work in total, and no money. G1 and G3 touch measure files and are owner-merged."
 
+### 2026-11-19: review, seventh run, on 2e2e611
+
+Verdict as reported: "changes needed. There are two blocking findings. Both are the same kind of fault the fifth round found: a malformed record is read as a good one, so a fix the visitor needs is hidden." The sixth round's fix holds under its own attacks (terms and redirects behind `all`, `+all -all`, redirect loops, self-includes, macros, bad addresses). `make check`, `make eval` and the seeded hash matched the log; "Gate evidence: matches what the code does."; scope, spend, the step list's statements and rules 1, 2, 5, 6 and 7 held.
+
+1. Blocking. "DMARC: spaces inside a tag value are thrown away, so a broken record reads as a valid policy and `dmarc_invalid` is hidden": the tag reader shared with DKIM dropped all whitespace in a value, which is right for a DKIM key published in pieces and wrong for `p=re ject` and `pct=1 00`.
+   - Done: the tag reader trims around a value and keeps what is inside it. Only a DKIM key's own text has its inner spaces removed. Three more DMARC records that must not parse.
+2. Blocking. "DKIM: any `k=ed25519` record counts as a key, whatever its `p=` holds, so `dkim_missing` is hidden."
+   - Done: one function decides what a key record is. An RSA key gives its length; an Ed25519 key has to decode to exactly 32 bytes; anything else (a key that does not decode, a type that does not exist, and, asked without waiting for another round, a record that says it is not for email) is not a key and is said to be unreadable. Six records that are not keys, four that are.
+
+The evidence below was taken again after these two fixes.
+
+Tests: 448 in the backend outside the emulator.
+
 ### 2026-11-19: gate evidence
 
 The gate is **not ticked**. Four of its five parts are shown below; the fifth, `preflight: ready`, needs the owner's key and project. And the challenger's verdict is "change needed", which stops the phase whatever the gate says. The checklist boxes above are ticked because each artefact exists as the item describes it; the challenger's changes, if taken, change some of them again.
@@ -1015,7 +1028,7 @@ Tests: 435 in the backend outside the emulator.
 
 ### 2026-11-19: gate evidence
 
-Run on the code as it stands after the sixth review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+Run on the code as it stands after the seventh review's fixes. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
 
 1. `make check` exits 0 (lines kept; the rest is tool chatter):
 
@@ -1024,13 +1037,13 @@ $ make check
 44 files already formatted
 All checks passed!
 Success: no issues found in 44 source files
-435 passed, 1 deselected in 2.09s
-1 passed, 435 deselected in 0.19s
+448 passed, 1 deselected in 2.59s
+1 passed, 448 deselected in 0.25s
 ✔  Script exited successfully (code 0)
 All matched files use Prettier code style!
  Test Files  1 passed (1)
       Tests  1 passed (1)
-✓ Compiled successfully in 202ms
+✓ Compiled successfully in 199ms
 make check exit=0
 ```
 

@@ -31,15 +31,19 @@ SELECTORS: tuple[str, ...] = (
 )
 
 _SEQUENCE, _INTEGER, _BIT_STRING = 0x30, 0x02, 0x03
+ED25519_KEY_BYTES = 32
 
 
 def tags(record: str) -> dict[str, str]:
-    """A `name=value; name=value` list as a mapping. Whitespace inside a value is dropped."""
+    """A `name=value; name=value` list as a mapping, the first of a repeated name kept.
+
+    Spaces around a name and around a value are trimmed. A space inside a value stays, so that
+    `p=re ject` is not read as `reject`."""
     found: dict[str, str] = {}
     for part in record.split(";"):
         name, sep, value = part.partition("=")
         if sep and name.strip():
-            found.setdefault(name.strip().lower(), "".join(value.split()))
+            found.setdefault(name.strip().lower(), value.strip())
     return found
 
 
@@ -80,6 +84,25 @@ def rsa_key_bits(der: bytes) -> int:
     return int.from_bytes(der[inner_start:inner_end]).bit_length()
 
 
+def _key_bits(found: dict[str, str]) -> int | None:
+    """The RSA length of a key record, or None for a good key that is not RSA.
+
+    Raises `ValueError` for anything a receiver could not check a signature with: a key that does
+    not decode, a key type that does not exist, a record that says it is not for email.
+    """
+    services = found.get("s", "*").split(":")
+    if not any(service.strip() in ("*", "email") for service in services):
+        raise ValueError("not for email")
+    # A long key is published in pieces, so spaces inside it are allowed; nowhere else.
+    key = base64.b64decode("".join(found["p"].split()), validate=True)
+    kind = found.get("k", "rsa").lower()
+    if kind == "rsa":
+        return rsa_key_bits(key)
+    if kind == "ed25519" and len(key) == ED25519_KEY_BYTES:
+        return None
+    raise ValueError("not a key type receivers read")
+
+
 class _Probe(NamedTuple):
     keys: list[DkimKey]
     other: list[str]
@@ -103,17 +126,16 @@ async def _probe(resolver: Resolver, domain: str, selector: str) -> _Probe:
             continue
         if not found["p"]:
             revoked = True
-        elif found.get("k", "rsa").lower() == "ed25519":
-            other.append(selector)
-        elif found.get("k", "rsa").lower() != "rsa":
-            # A key type that does not exist: no receiver can use it.
+            continue
+        try:
+            bits = _key_bits(found)
+        except ValueError, binascii.Error:
             unreadable = True
+            continue
+        if bits is None:
+            other.append(selector)
         else:
-            try:
-                bits = rsa_key_bits(base64.b64decode(found["p"], validate=True))
-                keys.append(DkimKey(selector=selector, key_bits=bits))
-            except ValueError, binascii.Error:
-                unreadable = True
+            keys.append(DkimKey(selector=selector, key_bits=bits))
     problems = [f"the key at selector {selector} has been revoked"] if revoked else []
     if unreadable:
         problems.append(f"the key at selector {selector} cannot be read")

@@ -84,6 +84,9 @@ def test_the_subdomain_policy_and_the_percentage_are_read() -> None:
         "v=DMARC1; p=none; pct=half",
         "v=DMARC1; p=none; quarantine",
         "v=DMARC1; p=reject; pct=\u0665\u0660",
+        "v=DMARC1; p=re ject",
+        "v=DMARC1; p=reject; pct=1 00",
+        "v=DMARC1; p=reject; sp=no ne",
         "v=DMARC1; p=re\u0458ect",
     ],
     ids=[
@@ -94,6 +97,9 @@ def test_the_subdomain_policy_and_the_percentage_are_read() -> None:
         "pct not a number",
         "stray word",
         "pct in digits of another script",
+        "a space inside the policy",
+        "a space inside pct",
+        "a space inside sp",
         "a look-alike letter",
     ],
 )
