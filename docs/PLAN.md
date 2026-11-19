@@ -9,7 +9,7 @@ Kept current by the build at every change of state, so progress can be read here
 | Phase | State | Pull request |
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
-| 1: checks and rules | building | |
+| 1: checks and rules | in review | |
 | 2: the model and the evals (checkpoint) | not started | |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
@@ -1068,9 +1068,32 @@ Verdict as reported: "changes needed. There is one blocking finding. The tenth r
 
 The evidence below was taken again after this fix.
 
+### 2026-11-19: review, twelfth run, on 10f4114
+
+Verdict as reported: "no blocking findings. The eleventh round's fix in commit 10f4114 holds, and the gate evidence in the log matches what the code produces." It sent seven more hostile zones through the limits (a too-large DMARC parent, a too-large name in the middle of the walk, exactly 100 records holding two SPF records, a 4,099-character SPF record, a too-large include behind `-all`, a too-large redirect target, 5,000 escape bytes): "All of these gave the right result." With the record limit switched off in a scratch copy, four tests fail. It took the gate evidence again on this commit (`make check` 552 and 1 passed, `make eval` both ways, the seeded hash, the three gate selections 12, 3 and 8, the name search) and checked scope: the only lines removed from this file are the answered "Waiting on you" block, the status rows and the six boxes going from unticked to ticked; "Decisions to review: 15" matches, "and none of them should have been a stop"; rules 1, 2, 5, 6 and 7; no paid path.
+
+One note, "doc wording, the code is right": `docs/ARCHITECTURE.md`'s interface row and the first line of `backend/src/domain_health/resolver/__init__.py` still say a lookup gives "records, no-such-name or timeout", and there is now a fourth outcome, "too large", which the fixture resolver gives as well as the live one.
+   - Not done in this phase, on purpose: either edit changes a file the reviewer and the verifier have passed and would make both verdicts stale for one sentence. The paragraph added to `docs/ARCHITECTURE.md` in this phase and the decisions entry already describe the fourth outcome. The two lines are corrected in Phase 2's first commit.
+
+### 2026-11-19: verifier, on 10f4114
+
+| What it did | Expected | What happened | Result |
+|---|---|---|---|
+| `make check` | exit 0 | exit 0; ruff clean, 552 backend tests passed (1 deselected), the emulator test passed, vitest 1 passed, `next build` succeeded | pass |
+| `make check-domain DOMAIN=example.com` (real DNS) | real results | "live DNS checks (14 TXT lookups)"; SPF one record `v=spf1 -all`, 0 of 10 lookups; DKIM none at the 12 selectors, "every selector probed answers with a revoked (empty) key"; DMARC `v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s`; Fixes (1): `dkim_missing [dns]`; exit 0 | pass |
+| The same for `example.org` | the same kind of result | the same shape, 14 lookups | pass |
+| `make check-domain` with each input the spec refuses | refused, exit 2 | exit 2 each time with a plain message: `192.0.2.1` (IP address), `com` (single label), a name over 253 characters, `localhost`, `internal.example` and `foo.test` (reserved), `x.local` and `mail.corp` (internal), `http://example.com` (scheme), `example.com/path` (path), `example.com:8080` (port), `not a domain` (not a domain name) | pass |
+| `make check-domain` with no DOMAIN and with an empty one | usage, non-zero | "usage: make check-domain DOMAIN=<name>", non-zero | pass |
+| `python -m domain_health.seeded` twice, then `cmp` | the same output, 12 clients | byte-identical; 26 client-day lines, 12 clients, each with a hash and its fixes | pass |
+| `make eval`, `make eval STRICT=1` | runs; exits 0 | both print "no prompt yet: nothing to measure". Its caveat: the exit code it printed for the second was its own pipe's, not `make`'s. (The build's and the reviewer's runs both saw exit 0.) | pass, with that caveat |
+| `make dev`, then both addresses, then stopped | both start | emulator started; `localhost:3000` 200; `/healthz` 200; everything it started was stopped | pass |
+| `git status` at the end | as found | only `docs/RUN_LOG.md` modified, as at the start | pass |
+
+Not exercised, in its words: "I confirmed refusals by their message and exit code only. I did not trace that no DNS query is sent." (A test does: a refused name reaches no resolver, and the command refuses before it builds one.) "I did not run the named gate tests separately... Those ran only inside the 552 passing tests in `make check`." (They are run by name in the evidence below, and again by the reviewer.) The paid and cloud targets, which this phase does not build. "I fetched the frontend at `localhost:3000` (200) but did not open it in a browser at desktop and phone width. This phase adds no screen." "Real-world SPF chains and DKIM keys were not tried": only the documentation domains were looked up, as it was told.
+
 ### 2026-11-19: gate evidence
 
-Run on the code as it stands after the eleventh review's fix. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+Run on 10f4114, the commit the reviewer and the verifier passed.
 
 1. `make check` exits 0 (lines kept; the rest is tool chatter):
 
@@ -1205,6 +1228,14 @@ $ grep -rnoE '[A-Za-z0-9._%{}\\-]*\.(com|net|org|uk)\b' tests src fixtures | gre
 src/domain_health/domain_name.py:19:.net
 src/domain_health/domain_name.py:19:.org
 ```
+
+The gate is ticked: every part of it is shown above on 10f4114, the reviewer's twelfth run found nothing blocking on that commit, and the verifier passed it. The challenger was not needed, as the step list said before the work began and as each of the twelve reviews confirmed: the phase holds no eval result and touches no measure file.
+
+What twelve review rounds were about, for the retro: one was clean. The other eleven each found something real. Two were faults of design (a name check a line break could pass; a resolver that cut long answers and read the rest as the whole), two were the build's own slips while fixing (a crash, a log entry in the wrong place, both from the round before), three were names that are not documentation names, and the rest were one family: a record a receiver fails that this parser read as good. That family ended when the parser was rewritten against the standard's grammar and its prose, with tables of records on both sides of the line, instead of being patched a case at a time.
+
+reviewer-verdict: no blocking findings @ 10f4114
+verifier-verdict: pass @ 10f4114
+challenger-verdict: not needed @ 10f4114
 
 ---
 
