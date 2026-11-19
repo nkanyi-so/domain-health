@@ -66,6 +66,7 @@ The owner merges this phase, so it carries everything the owner must sign off on
 - [x] Branch protection on `main`: no force-push, status checks required with this project's CI jobs picked as the required checks (`check`, `secrets`; not `eval`), and it applies to administrators too (a classic rule with "Do not allow bypassing", or a ruleset with an empty bypass list). The deny rules in settings are a courtesy; this is the guard. In run-through mode the merge gate checks it and merges nothing without it, so if it cannot be turned on, say so under "Waiting on you".
 - [x] After the challenge (decision 0010, the owner's answers to issue #2): forty cases, thirty table and ten open; the open ten drafted by an agent that never sees the prompt; every risk type expected in at least two; `backend/src/domain_health/evals/table.py` (the rubric as a table, the rules-only baseline) with tests that re-derive every table label and fix list and that an open label departs from the bands; validators on the model's input; decisions 0010 and 0011.
 - [x] After the second challenge (the owner's answers to issue #3): eighteen open cases, forty-eight in all; the comparison with the baseline as code (`backend/src/domain_health/evals/comparison.py`) and a test that no loosened table passes it; `docs/CLAIM.md` says what its test checks.
+- [x] After the third challenge (the owner's limit in the answers to issue #3): the claim sentence is the fallback wording, in `docs/CLAIM.md`, `docs/SPEC.md` and the page; the comparison with the baseline is evidence, not a bar; decision 0012.
 - [x] `docs/STANDING.md` is filled in and lands on `main` with this phase. Every owner action in it is ticked or listed under "Waiting on you". `bash .claude/hooks/preflight.sh` output is in the log.
 
 **Gate:** `make check` exits 0 with at least one passing test in each toolchain and the twenty cases loading. The pre-commit hook refuses a commit when a test is made to fail (show it, then undo). CI runs green on the first push, all three jobs. Branch protection is shown to be on. `bash .claude/hooks/preflight.sh` ends with `preflight: ready`. The owner merges this phase in both modes: it changes the guards and sets the measure.
@@ -696,6 +697,54 @@ $ make eval
 no prompt yet: nothing to measure
 ```
 
+### 2026-11-19: review, ninth run, and challenger, third run, both on fb8ea98
+
+**The reviewer.** Verdict as reported: "blocking findings". What was built matched the owner's answers to #3, and every count and figure agreed across the documents, the pull request and the code. Three blocking findings:
+
+1. "A table with one threshold moved passes the comparison, so three sentences in the diff are false": the baseline plus `volume_spike` when the ratio is at least 1.3 and the week's volume at least 1,000 "scores found 21/25, precise 24/24, harmful 0, with gains in four cases", and on all 48 cases "coverage 0.940, precision 0.971, harmful 0. Every bar is met." The committed test "does what the owner literally asked", but "the stated purpose ('no loosening reaches it') is not met." Its fix: reword to what is proved, state the counterexample, and "let the challenger judge claim against measure."
+2. `test_harmful_is_counted_past_the_first_five` did not test that: its wrong type landed inside the first five.
+3. The comparison pooled precision over the runs; the spec defines it as the mean of the runs.
+
+Worth noting, as it put it: only one open case (45) carries the loosened-table test alone, not two; the rule did not check it was given three runs; open cases 41, 44, 45, 46 and 48 are the weaker calls (detail by number in its file); "Was the set built to pass the test rather than to be right? Partly. Each call can be defended on its own. But the traps are paired one to one with the promotions to defeat exactly the family the test enumerates."
+
+**The challenger.** Verdict: **change needed**, on claim against measure. In its words:
+
+"The owner asked for 'a test that no loosened table can pass'. The test checks only one kind of loosening: it adds a band's 'acceptable' in every case where it applies. A table loosened by moving a single number still passes."
+
+"Is the claim true as an absolute? No. The spec says 'So beating the baseline cannot be done by moving thresholds'. That is false. How I defeated it. In `table.py` change the `volume_spike` line `ratio >= 2.0` to `1.5` (or 1.6). Keep the rubric's own condition that the domain's standing cannot absorb the jump. The open labels are never read. On the open set: found 19 of 25 per run (baseline 17), with the gain from two cases (34, 35). Precision is 22/22 and harmful is 0. `better_than_baseline` returns True. Line at 1.3 or 1.2: found 21 of 25, gained from four cases. On all 48 cases: coverage 0.91, precision 1.00, harmful 0, stability 1.00. So a table with no model passes every bar in the Phase 2 gate and the comparison."
+
+"The four bars alone. The plain baseline already meets all four bars on the 48 cases: coverage 0.881, precision 1.00, harmful 0, stability 1.00. Only the comparison stands behind 'judgment-call', and the comparison does not hold."
+
+"Are the open cases open and defensible? Each one departs from the bands (tested), and most calls are defensible. Contestable: 41, 46, 40, 44 [detail by number in its file]. Built to pass the test? In part. The traps are placed one per promoted type, which defeats exactly the tested family and not the next-simplest one."
+
+"Is the measurement too noisy? There are no runs yet, so I cannot measure spread. The margins are thin: the pass mark is 18 per run against the baseline's 17, out of 25. [...] a swing of 1-2 items per run is plausible, which is as large as the whole margin." Coverage and stability margins on the forty-eight cases it called adequate. "Harmful: the zero bar on all 48 cases now includes 18 trap case-runs (37, 40, 45-48), where the rubric given to the prompt writer calls the type acceptable. One mention there, including on the contestable 40 or 46, fails the whole Phase 2 gate."
+
+"Could anything still be checked in code? (a) Widen the loosened-table test: move each numeric line across its acceptable or noise range [...]. This is deterministic and fails today. (b) Arithmetic in the notes [...] all correct today. (c) Implausible inputs: a validator flagging a previous open rate of 0.0 alongside a large previous-week volume (as in case 41). (d) Pin 'cannot be done by moving thresholds' to test (a), so the sentence cannot outrun the test."
+
+"Must change before sign-off: 1. Claim versus measure (this triggers the owner's fallback). [...] This is the same kind of finding as round 2, with a narrower loosening. When the fallback is applied, it must also remove or correct those three sentences and the last sentence of `evals/RUBRIC.md:188` [...]. The fix that keeps the claim would be another measure round [...]. The owner ruled out another round."
+
+The build reproduced the table with one number moved, totals only:
+
+```text
+one number moved, open set: found 21 of 25 precise 24 of 24 harmful 0 cases gained 4 passes: True
+all 48: coverage 0.940 precision 0.971 harmful 0
+plain baseline, all 48: coverage 0.881 precision 1.000 harmful 0
+```
+
+### 2026-11-19: the owner's fallback, applied
+
+The owner's limit in the answers to issue #3 covers exactly this: "If the challenger still says change needed on the claim-versus-measure question after this round, do not stop to ask again. Apply option C's wording [...], keep the cases and the baseline as evidence, say in the README's limits what was tried and why it fell short, run the three checks again, and bring me the pull request to merge." So no stop was opened. What was done:
+
+- **The claim sentence** is now: "A daily email-domain health check for many clients: clear-cut fixes from rules, judgment-call risks picked by a model from a closed list and scored against a written rubric, a human handled loop, and an eval harness for the model's list." Changed together in `docs/CLAIM.md`, `docs/SPEC.md` and `frontend/src/content/claim.ts`; the claim tests in both toolchains pass on it.
+- **`docs/decisions/0012-the-claim-says-what-is-measured.md`**: what was tried in three rounds, why each fell short and why the approach cannot get there with this input, and what the README's limits have to say. A line is added to the Phase 6 README item so it is not forgotten.
+- **The sentences that were false** are removed or corrected: in `docs/SPEC.md` ("The model beside the baseline" and a new paragraph "What the comparison does not show", which states the one-number table and that the plain baseline alone meets the four bars), `docs/CLAIM.md` (the row for the model), `evals/RUBRIC.md` (the last paragraph), and decision 0010 (two sentences, and a status line pointing at 0012).
+- **The cases and the baseline stay as evidence.** The comparison is still computed and reported, and is not a bar. The Phase 2 gate says so; if the model does not do better than the baseline, the phase is left for the owner to merge.
+- **The known defeat is a test**: `test_a_table_with_one_number_moved_does_beat_the_baseline` asserts the 21 of 25 and the pass, so no document can later claim otherwise without a test failing. The loosened-table test is renamed to say which family it covers.
+- **The reviewer's findings 2 and 3**: the harmful test now really places the wrong type sixth; precision in the comparison is the mean of the runs' ratios, as the spec defines it, with a test on plain numbers; the rule refuses anything but three runs.
+- Not done: the challenger's wider loosened-table test and the validator for case 41's input. With the claim no longer resting on the comparison they would be another round on the measure, which the owner ruled out. The contestable open calls (40, 41, 44, 45, 46, 48 by the two readers' lists) are named in the pull request for the owner's sign-off.
+
+Tests: 173 in the backend (one in the emulator). `make eval` still prints "no prompt yet: nothing to measure".
+
 ---
 
 ## Phase 1: checks and rules
@@ -725,7 +774,7 @@ no prompt yet: nothing to measure
 - [ ] One real failure from these runs and its fix are written down for the README.
 - [ ] From decision 0010: the harness scores the rules-only baseline beside the model, for the table set and the open set; prints coverage per risk type and the dropped count; counts harmful over everything returned. Tests: only a case's `input` reaches the model; a prompt quotes none of the rubric's thresholds. The prompt is written and changed by an agent with fresh context that is given the rubric and the table cases only; it does not read the open cases, the Phase 0 pull request's description or any per-case result on the open set.
 
-**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty-eight cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. On the open cases the model does better than the baseline as `docs/SPEC.md` defines it; if it does not, stop for the owner with the weaker claim wording proposed. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
+**Gate:** `make check` exits 0. `make eval-live` output, pasted, shows over three runs of the forty-eight cases: coverage at least 0.80, precision at least 0.80, harmful exactly 0 (over everything returned), stability at least 0.90 of the cases, with the dropped count, coverage per risk type, and the rules-only baseline beside the model for the table set and the open set. The numbers are those of one run of the final prompt version, and every attempt is in the log. Whether the model does better than the baseline on the open cases, as `docs/SPEC.md` defines it, is in the output and the log whichever way it comes out; it is evidence and not a bar (decision 0012), and if it does not, the phase is left for the owner to merge. `make eval STRICT=1` on the committed recordings prints the same four scores and exits 0. Recorded spend is under the cap. If every measure is at its maximum on the first live run, the set is too easy: stop for the owner with proposed harder cases (they touch the labels).
 
 **Log:**
 
@@ -781,7 +830,7 @@ no prompt yet: nothing to measure
 ## Phase 6: report, README, release checks
 
 - [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", and names the six limits in decision 0011.
+- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison.
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.

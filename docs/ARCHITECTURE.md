@@ -57,7 +57,7 @@ Both read what they overwrite, so Firestore retries whichever commits second. `v
 
 A risk: `{id: "<type>:<domain>", type, title, why, evidence: [input field names]}`. A fix: `{type, source: "dns" | "seeded", instruction}`.
 
-An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exactly what the model receives>, label: {expected: [...], acceptable: [...], wrong: [...]}, note}`. The input is `SnapshotInput` in `backend/src/domain_health/models.py`, whose validators refuse a combination that cannot happen. `backend/src/domain_health/evals/table.py` is the rubric read as a table: it checks the cases and is the rules-only baseline. It is never an input to the model, a prompt or the pipeline (decision 0010). `backend/src/domain_health/evals/comparison.py` holds the rule for "the model does better than the baseline on the open cases".
+An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exactly what the model receives>, label: {expected: [...], acceptable: [...], wrong: [...]}, note}`. The input is `SnapshotInput` in `backend/src/domain_health/models.py`, whose validators refuse a combination that cannot happen. `backend/src/domain_health/evals/table.py` is the rubric read as a table: it checks the cases and is the rules-only baseline. It is never an input to the model, a prompt or the pipeline (decision 0010). `backend/src/domain_health/evals/comparison.py` holds the rule for "the model does better than the baseline on the open cases", which is reported and is not a bar (decision 0012).
 
 ## Stack and why
 
@@ -73,6 +73,7 @@ An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exac
 | Evals scored in code against four bars, labels signed off in Phase 0 | [0008](decisions/0008-evals.md) |
 | Two sets of cases, a rules-only baseline, tighter definitions | [0010](decisions/0010-measure-after-the-challenge.md) |
 | Rubric objections not taken | [0011](decisions/0011-rubric-objections-not-taken.md) |
+| The claim says what is measured; the baseline comparison is evidence | [0012](decisions/0012-the-claim-says-what-is-measured.md) |
 | Auth: OIDC for machines, a proxy secret, an admin session, a visitor sandbox | [0009](decisions/0009-auth.md) |
 | Each runtime dependency | [dependencies](decisions/dependencies.md) |
 

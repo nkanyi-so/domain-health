@@ -1,14 +1,18 @@
-"""The comparison with the rules-only baseline, and the proof that a looser table cannot pass it.
+"""The comparison with the rules-only baseline, and what is and is not proved about it.
 
 Part of the measure: the owner changes this file.
 """
 
 from itertools import combinations
 
+import pytest
+
 from domain_health.evals.cases import load_cases
 from domain_health.evals.comparison import (
+    OpenScore,
     baseline_run,
     better_than_baseline,
+    mean_precision,
     score_open_run,
 )
 from domain_health.evals.table import table_label
@@ -42,10 +46,10 @@ def test_the_written_calls_beat_the_baseline() -> None:
     assert better_than_baseline(OPEN, [perfect()] * 3)
 
 
-def test_no_loosened_table_beats_the_baseline() -> None:
+def test_no_table_that_also_returns_acceptable_bands_beats_the_baseline() -> None:
     """Every table made by also returning any set of "acceptable" bands must fail.
 
-    If one passed, beating the baseline would show a moved threshold, not judgment.
+    This is one family of looser tables, not all of them: see the test after this one.
     """
     passing = [
         sorted(risk.value for risk in subset)
@@ -55,6 +59,27 @@ def test_no_loosened_table_beats_the_baseline() -> None:
     ]
 
     assert passing == []
+
+
+def test_a_table_with_one_number_moved_does_beat_the_baseline() -> None:
+    """The known limit (decision 0012), kept as a test so no document can claim otherwise.
+
+    The baseline, raising `volume_spike` from a ratio of 1.3 at 1,000 messages a week or more,
+    passes the comparison with no model. If this ever fails, the cases changed and the
+    sentences in docs/SPEC.md and decision 0012 that quote it need the owner.
+    """
+    run: dict[str, list[RiskType]] = {}
+    for name, case in OPEN.items():
+        sources = case.input.sources
+        ratio = sources.volume_7d / sources.volume_prev_7d if sources.volume_prev_7d else 2.0
+        risks = list(BASELINE[name])
+        if ratio >= 1.3 and sources.volume_7d >= 1000 and RiskType.VOLUME_SPIKE not in risks:
+            risks.append(RiskType.VOLUME_SPIKE)
+        run[name] = risks
+    score = score_open_run(OPEN, run, BASELINE)
+
+    assert (score.found, score.expected, score.harmful) == (21, 25, 0)
+    assert better_than_baseline(OPEN, [run] * 3)
 
 
 def test_one_good_run_out_of_three_is_not_enough() -> None:
@@ -81,12 +106,38 @@ def test_one_harmful_answer_fails_the_comparison() -> None:
 
 
 def test_harmful_is_counted_past_the_first_five() -> None:
-    trap = next(name for name, case in OPEN.items() if case.label.wrong)
-    padding = [risk for risk in TYPES if risk not in OPEN[trap].label.wrong][:5]
+    trap, padding = next(
+        (name, not_wrong[:5])
+        for name, case in OPEN.items()
+        if case.label.wrong
+        and len(not_wrong := [risk for risk in TYPES if risk not in case.label.wrong]) >= 5
+    )
     run = dict(BASELINE)
     run[trap] = [*padding, OPEN[trap].label.wrong[0]]
 
+    assert len(padding) == 5
+    assert run[trap][5] in OPEN[trap].label.wrong
     assert score_open_run(OPEN, run, BASELINE).harmful == 1
+
+
+def test_precision_is_the_mean_of_the_runs_not_pooled() -> None:
+    full = OpenScore(found=10, expected=10, returned=10, precise=10, harmful=0, cases_gained=2)
+    one_noise = OpenScore(found=0, expected=10, returned=1, precise=0, harmful=0, cases_gained=0)
+
+    # Pooled this would be 20 of 21; as the mean of the runs it is two thirds, under the bar.
+    assert mean_precision([full, full, one_noise]) == pytest.approx(2 / 3)
+    assert mean_precision([full, full, full]) == 1.0
+
+
+def test_a_run_that_returns_nothing_has_no_precision() -> None:
+    empty = OpenScore(found=0, expected=10, returned=0, precise=0, harmful=0, cases_gained=0)
+
+    assert mean_precision([empty, empty, empty]) is None
+
+
+def test_the_comparison_is_defined_over_three_runs() -> None:
+    with pytest.raises(ValueError, match="3 runs"):
+        better_than_baseline(OPEN, [perfect()] * 2)
 
 
 def test_the_gain_can_come_from_several_open_cases() -> None:
