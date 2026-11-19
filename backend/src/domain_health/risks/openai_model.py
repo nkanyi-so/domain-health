@@ -65,8 +65,12 @@ class ResponsesClient(Protocol):
 
 
 def client_from_environment() -> ResponsesClient:
-    """The library's client. It reads `OPENAI_API_KEY` from the environment itself."""
-    client: ResponsesClient = openai.AsyncOpenAI(max_retries=2, timeout=REQUEST_SECONDS)  # type: ignore[assignment]
+    """The library's client. It reads `OPENAI_API_KEY` from the environment itself.
+
+    No retries inside the library: each request is one reservation in the ledger, so a retry it
+    made by itself would be a paid call the ledger never saw. A failed call is retried by
+    running the command again."""
+    client: ResponsesClient = openai.AsyncOpenAI(max_retries=0, timeout=REQUEST_SECONDS)  # type: ignore[assignment]
     return client
 
 
@@ -105,6 +109,7 @@ class OpenAIRiskModel:
         text: str | None = None
         detail: str | None = None
         tokens_in = tokens_out = 0
+        unknown_cost = False
         try:
             response = await self._client.responses.parse(
                 model=self._model,
@@ -122,10 +127,17 @@ class OpenAIRiskModel:
             self._ledger.settle(reserved, None)
             raise
         except API_ERROR as error:
-            detail = type(error).__name__
+            # A timeout or a dropped connection: the model may have answered and been billed.
+            status, detail, unknown_cost = "error", type(error).__name__, True
+        except ValueError as error:
+            # The library parses the model's text into the schema and raises if it does not fit
+            # (text cut short, for one). The model did answer, so this is its answer: unusable.
+            status, detail, unknown_cost = "incomplete", type(error).__name__, True
         else:
             if response.usage is not None:
                 tokens_in, tokens_out = response.usage.input_tokens, response.usage.output_tokens
+            else:
+                unknown_cost = True
             text = response.output_text or None
             if response.status == "completed" and text:
                 status = "completed"
@@ -134,7 +146,8 @@ class OpenAIRiskModel:
             else:
                 status, detail = "refused", f"status {response.status}, no text"
         at = datetime.now(UTC).isoformat(timespec="seconds")
-        cost = cost_usd(self._model, tokens_in, tokens_out)
+        # Where what was billed is not known, the ledger takes the most it could have been.
+        cost = reserved if unknown_cost else cost_usd(self._model, tokens_in, tokens_out)
         entry = LedgerEntry(
             at=at,
             purpose=self._purpose,
@@ -143,8 +156,6 @@ class OpenAIRiskModel:
             output_tokens=tokens_out,
             cost_usd=cost,
         )
-        # A call that failed before the model answered is still written down, at no cost: the
-        # ledger is the list of calls made, not only of calls paid for.
         self._ledger.settle(reserved, entry)
         return ModelCall(
             prompt_version=self._prompt.version,

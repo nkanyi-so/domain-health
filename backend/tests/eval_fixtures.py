@@ -63,3 +63,11 @@ def record_as_labelled(
         for case in cases.values():
             text = output_text(*case.label.expected)
             save_call(folder, recorded_call(prompt, case.input, text, model=model))
+
+
+def put_call(folder: Path, call: ModelCall) -> None:
+    """Write a recording straight to its file, replacing whatever is there. For tests that set up
+    a particular recorded answer; `save_call` itself never replaces one."""
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{call.input_hash[:16]}.json"
+    path.write_text(call.model_dump_json(indent=2) + "\n", encoding="utf-8")

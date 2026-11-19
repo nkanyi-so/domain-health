@@ -96,6 +96,11 @@ def test_eight_are_accepted_and_a_ninth_is_rejected() -> None:
         "Rotate within 30 days.",
         "Version 1.2.3 of the record.",
         "Since 2026-11-19 it has been falling.",
+        "Volume rose x37 in a week.",
+        "Complaints near \uff10.\uff17\uff17 percent.",
+        "Complaints near \u0660.\u0667 percent.",
+        "The limit is v9 of the policy.",
+        "Sent 18K messages, a Q4 peak.",
     ],
 )
 def test_a_number_that_is_not_in_the_input_is_rejected(why: str) -> None:
@@ -120,8 +125,15 @@ def test_numbers_from_the_input_may_be_cited_however_they_are_written() -> None:
     assert len(validate(SNAPSHOT, output(risk("complaint_rate_elevated", why=why)))) == 1
 
 
-def test_words_that_only_hold_a_digit_are_not_numbers() -> None:
-    assert numbers_in("spf1, s1, DKIM1, sha256 and p=none v2") == set()
+def test_a_protocols_name_and_a_word_the_input_uses_are_not_numbers() -> None:
+    assert numbers_in("spf1, DKIM1, sha256, IPv6 and p=none") == set()
+    # A selector the input names, and the lists' own names, may be written.
+    assert numbers_in("the key at s1", frozenset({"s1"})) == set()
+    key = SNAPSHOT.checks.dkim.keys[0]
+    named = f"The key at {key.selector}; see dkim_key_1024, volume_7d and listings_90d."
+    assert len(validate(SNAPSHOT, output(risk("dkim_key_1024", why=named)))) == 1
+    # Any other word that holds digits states them.
+    assert numbers_in("x37 and v2") == {Decimal("37"), Decimal("2")}
     assert numbers_in("0.120 and 18,400 and 1,024-bit.") == {
         Decimal("0.12"),
         Decimal("18400"),

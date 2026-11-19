@@ -8,6 +8,7 @@ from domain_health.evals.cases import load_cases
 from domain_health.risks.model import (
     FixtureRiskModel,
     RecordedRiskModel,
+    RecordingExistsError,
     RisksUnavailableError,
     call_key,
     input_hash,
@@ -103,3 +104,24 @@ def test_the_fixture_model_answers_from_its_script_and_validates_it() -> None:
 
 def test_the_message_sent_for_an_input_is_the_input_and_nothing_else() -> None:
     assert ONE.model_validate_json(user_message(ONE)) == ONE
+
+
+def test_a_recorded_answer_is_never_overwritten_but_a_failed_call_is(tmp_path: Path) -> None:
+    prompt = write_prompt(tmp_path / "prompts")
+    folder = tmp_path / "run-1"
+    first = recorded_call(prompt, ONE, output_text(RiskType.VOLUME_SPIKE))
+    save_call(folder, first)
+
+    for again in (output_text(), "not json", None):
+        status = "completed" if again is not None else "error"
+        with pytest.raises(RecordingExistsError):
+            save_call(folder, recorded_call(prompt, ONE, again, status=status))
+    assert load_calls(folder) == [first]
+
+    # A call that never got an answer left nothing worth keeping.
+    failed = recorded_call(prompt, OTHER, None, status="error")
+    save_call(folder, failed)
+    answered = recorded_call(prompt, OTHER, output_text())
+    save_call(folder, answered)
+    assert answered in load_calls(folder)
+    assert failed not in load_calls(folder)

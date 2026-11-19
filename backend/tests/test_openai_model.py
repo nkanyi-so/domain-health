@@ -51,6 +51,10 @@ class _Responses:
         self.requests.append(request)
         if isinstance(self.outcome, Exception):
             raise self.outcome
+        if self.outcome.status == "completed" and self.outcome.output_text:
+            # As the library does: the text is parsed into the schema, and text that does not
+            # fit raises here, inside the call.
+            ModelOutput.model_validate_json(self.outcome.output_text)
         return self.outcome
 
 
@@ -144,13 +148,36 @@ def test_rank_gives_validated_risks_with_ids_built_in_code(tmp_path: Path) -> No
     assert [risk.id for risk in risks] == [f"dkim_key_1024:{CASE.input.domain}"]
 
 
-def test_invalid_output_is_paid_for_and_dropped(tmp_path: Path) -> None:
-    model, _, ledger = model_with(tmp_path, _Response('{"risks": "many"}'))
+def test_output_the_schema_allows_but_a_rule_forbids_is_paid_for_and_dropped(
+    tmp_path: Path,
+) -> None:
+    twice = output_text(RiskType.VOLUME_SPIKE, RiskType.VOLUME_SPIKE)
+    model, _, ledger = model_with(tmp_path, _Response(twice))
 
     with pytest.raises(RisksUnavailableError, match="invalid output dropped"):
         run(model.rank(CASE.input))
 
     assert ledger.spent() == pytest.approx(0.0005)
+
+
+def test_text_the_library_cannot_parse_is_recorded_and_charged_at_the_worst_case(
+    tmp_path: Path,
+) -> None:
+    """The library raises when the model's text does not fit the schema (cut short, say). That
+    is an answer, not a crash: it is recorded, never asked again, and the ledger takes the most
+    the call could have cost, because what was billed is not known."""
+    model, _, ledger = model_with(tmp_path, _Response('{"risks": [{"type": "volume_sp'))
+
+    call = run(model.call(CASE.input))
+
+    assert call.status == "incomplete"
+    assert call.output_text is None
+    assert call.cost_usd > 0.001
+    assert ledger.spent() == pytest.approx(call.cost_usd)
+    assert len(ledger.entries()) == 1
+    # Nothing is left reserved: the next call is judged against what was written down.
+    worst = ledger.reserve(MODEL, 1, 1)
+    assert ledger.spent() + worst < 1.0
 
 
 @pytest.mark.parametrize(
@@ -168,16 +195,27 @@ def test_an_answer_with_no_usable_text_is_recorded_as_what_it_was(
     assert call.output_text is None
 
 
-def test_a_failed_call_is_recorded_as_an_error_at_no_cost(tmp_path: Path) -> None:
+def test_a_failed_call_is_recorded_as_an_error_at_the_most_it_could_have_cost(
+    tmp_path: Path,
+) -> None:
+    # A timeout can come after the model has answered and been billed.
     model, _, ledger = model_with(tmp_path, live.API_ERROR("the connection dropped"))
 
     call = run(model.call(CASE.input))
 
     assert call.status == "error"
     assert call.output_text is None
-    assert call.cost_usd == 0
-    assert ledger.spent() == 0
+    assert call.cost_usd > 0.001
+    assert ledger.spent() == pytest.approx(call.cost_usd)
     assert len(ledger.entries()) == 1
+
+
+def test_the_library_makes_no_retry_of_its_own(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-key")
+
+    client = live.client_from_environment()
+
+    assert client.max_retries == 0  # type: ignore[attr-defined]
 
 
 def test_a_refused_request_is_raised_not_recorded(tmp_path: Path) -> None:

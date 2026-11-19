@@ -10,7 +10,7 @@ import re
 from collections.abc import Iterable
 
 from domain_health.models import SnapshotInput
-from domain_health.risks import numbers_in
+from domain_health.risks import NAMES, numbers_in
 from domain_health.risks.model import input_hash
 
 SHINGLE = 6  # words in a row
@@ -43,7 +43,8 @@ def band_lines(rubric: str) -> list[str]:
 def problems_with(prompt_text: str, rubric: str, inputs: Iterable[SnapshotInput]) -> list[str]:
     """Everything in a prompt that the rules for the paid runs forbid. Empty when it is clean."""
     found: list[str] = []
-    quoted = numbers_in(prompt_text) & numbers_in(rubric_rules(rubric))
+    # The closed lists' names and the input's field names hold digits and are not thresholds.
+    quoted = numbers_in(prompt_text, NAMES) & numbers_in(rubric_rules(rubric), NAMES)
     if quoted:
         found.append(f"numbers from the rubric: {sorted(str(n) for n in quoted)}")
     prompt_shingles = shingles(prompt_text)

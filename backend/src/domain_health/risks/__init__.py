@@ -7,6 +7,7 @@ repaired. Model output is untrusted input.
 
 import json
 import re
+import unicodedata
 from decimal import Decimal, InvalidOperation
 from typing import Literal, get_args
 
@@ -85,25 +86,58 @@ def risk_id(risk_type: RiskType, domain: str) -> str:
     return f"{risk_type.value}:{domain}"
 
 
-# A word is a run of letters, digits and underscores, with dots and commas inside it. A word that
-# starts with a digit is read as a number: 0.12, 18,000, 2048. One that starts with a letter is
-# not (spf1, s1, DKIM1). A word that starts with a digit and is not a number (18k, 2x, 1.2.3) is
-# something the input cannot hold, and counts as invented.
+# A word is a run of letters, digits and underscores, with dots and commas inside it.
+#
+# - A word that starts with a digit is read as a number: 0.12, 18,000, 2048. If it is not one
+#   (18k, 2x, 1.2.3) it is something the input cannot hold, and counts as invented.
+# - A word that starts with a letter and holds digits (x37, v2) is checked too: each run of digits
+#   in it is a number, unless the whole word is one the input itself uses (a selector such as s1,
+#   a field or type name) or a protocol's name.
+# - Text is first folded to its plain form, so full-width digits are digits; a digit from any
+#   other script cannot be in the input and counts as invented.
 _WORD = re.compile(r"[A-Za-z0-9_](?:[A-Za-z0-9_.,]*[A-Za-z0-9_])?")
+_DIGITS = re.compile(r"[0-9]+")
 NOT_A_NUMBER = Decimal("NaN")
+PROTOCOL_WORDS = frozenset(
+    {"spf1", "dkim1", "dmarc1", "ipv4", "ipv6", "ip4", "ip6", "sha1", "sha256"}
+)
 
 
-def numbers_in(text: str) -> set[Decimal]:
+def _plain(text: str) -> str:
+    return unicodedata.normalize("NFKC", text)
+
+
+def words_in(text: str) -> set[str]:
+    """Every word of a text, lower case: what the input's own text is made of."""
+    return {word.lower() for word in _WORD.findall(_plain(text))}
+
+
+def numbers_in(text: str, known_words: frozenset[str] = frozenset()) -> set[Decimal]:
+    """Every number a text states. `known_words` are letter-led words that may hold digits."""
+    text = _plain(text)
     found: set[Decimal] = set()
+    if any(ch.isdigit() and not ch.isascii() for ch in text):
+        found.add(NOT_A_NUMBER)
     for word in _WORD.findall(text):
-        if not word[0].isdigit():
-            continue
-        try:
-            number = Decimal(word.replace(",", ""))
-        except InvalidOperation:
-            number = NOT_A_NUMBER
-        found.add(number.normalize() if number.is_finite() else NOT_A_NUMBER)
+        if word[0].isdigit():
+            try:
+                number = Decimal(word.replace(",", ""))
+            except InvalidOperation:
+                number = NOT_A_NUMBER
+            found.add(number.normalize() if number.is_finite() else NOT_A_NUMBER)
+        elif word.lower() not in known_words | PROTOCOL_WORDS:
+            found |= {Decimal(digits).normalize() for digits in _DIGITS.findall(word)}
     return found
+
+
+def _strings_of(value: object) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [text for item in value.values() for text in _strings_of(item)]
+    if isinstance(value, list):
+        return [text for item in value for text in _strings_of(item)]
+    return []
 
 
 def _numbers_of(value: object) -> set[Decimal]:
@@ -121,6 +155,15 @@ def _numbers_of(value: object) -> set[Decimal]:
     return set()
 
 
+# Names a risk's text may use that hold digits and are not the input's values: the closed lists
+# and the input's field names.
+NAMES = frozenset(
+    {risk.value for risk in RiskType}
+    | {part for field in EVIDENCE_FIELDS for part in field.split(".")}
+    | {field.lower() for field in EVIDENCE_FIELDS}
+)
+
+
 def validate(snapshot: SnapshotInput, output_text: str) -> list[Risk]:
     """The model's raw output as a ranked list of risks, or `InvalidOutputError`.
 
@@ -136,14 +179,16 @@ def validate(snapshot: SnapshotInput, output_text: str) -> list[Risk]:
     types = [risk.type for risk in output.risks]
     if len(set(types)) != len(types):
         raise InvalidOutputError("a risk type appears twice")
-    known = _numbers_of(snapshot.model_dump(mode="json"))
+    data = snapshot.model_dump(mode="json")
+    known = _numbers_of(data)
+    known_words = NAMES | frozenset(word for text in _strings_of(data) for word in words_in(text))
     for risk in output.risks:
         title, why = risk.title.strip(), risk.why.strip()
         if not title or not why:
             raise InvalidOutputError(f"{risk.type.value}: an empty title or reason")
         if len(title) > MAX_TITLE_CHARS or len(why) > MAX_WHY_CHARS:
             raise InvalidOutputError(f"{risk.type.value}: a title or reason that is too long")
-        if not numbers_in(f"{title} {why}") <= known:
+        if not numbers_in(f"{title} {why}", known_words) <= known:
             raise InvalidOutputError(f"{risk.type.value}: a number that is not in the input")
     return [
         Risk(

@@ -6,12 +6,24 @@ import pytest
 
 from domain_health.evals import live
 from domain_health.evals.cases import load_cases
-from domain_health.evals.live import record_runs, still_to_record
+from domain_health.evals.live import (
+    PromptChangedError,
+    record_runs,
+    refuse_an_edited_prompt,
+    still_to_record,
+)
 from domain_health.evals.report import load_runs, run_folder
 from domain_health.models import SnapshotInput
-from domain_health.risks.model import ModelCall, input_hash, load_calls, save_call
+from domain_health.risks.model import ModelCall, input_hash, load_calls
 from tests.dns_fixtures import run
-from tests.eval_fixtures import MODEL, output_text, record_as_labelled, recorded_call, write_prompt
+from tests.eval_fixtures import (
+    MODEL,
+    output_text,
+    put_call,
+    record_as_labelled,
+    recorded_call,
+    write_prompt,
+)
 from tests.paths import CASES, EVALS, REPO
 
 ALL = load_cases(CASES)
@@ -46,8 +58,8 @@ def test_an_answer_is_never_asked_for_again_but_a_failed_call_is(tmp_path: Path)
     invalid, failed = (ALL[name].input for name in list(ALL)[:2])
     folder = run_folder(recordings, prompt.version, MODEL, 2)
     # Output that fails validation is still the model's answer. A call that never got one is not.
-    save_call(folder, recorded_call(prompt, invalid, "not json"))
-    save_call(folder, recorded_call(prompt, failed, None, status="error"))
+    put_call(folder, recorded_call(prompt, invalid, "not json"))
+    put_call(folder, recorded_call(prompt, failed, None, status="error"))
 
     todo = still_to_record(ALL, prompt, MODEL, recordings)
 
@@ -129,3 +141,42 @@ def test_a_prompt_that_breaks_a_rule_is_refused_before_any_call(
     assert live.main(arguments(tmp_path)) == 1
     assert "breaks a rule for prompts, so it was not run" in capsys.readouterr().err
     assert called == []
+
+
+def test_a_prompt_edited_after_it_was_run_is_refused_and_nothing_is_overwritten(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    recordings = tmp_path / "evals" / "recordings"
+    prompt = write_prompt(tmp_path / "prompts")
+    record_as_labelled(recordings, prompt, ALL)
+    before = sorted(path.read_bytes() for path in recordings.rglob("*.json"))
+    refuse_an_edited_prompt(prompt, MODEL, recordings)  # unchanged: nothing to refuse
+
+    edited = write_prompt(tmp_path / "prompts", text=prompt.text + "\n")
+
+    with pytest.raises(PromptChangedError, match="new version file"):
+        refuse_an_edited_prompt(edited, MODEL, recordings)
+    # A model with nothing recorded under this name is not affected.
+    refuse_an_edited_prompt(edited, "gpt-6.1-terra", recordings)
+
+    # Through the command: it stops before any call, and the recordings are as they were.
+    evals = tmp_path / "evals"
+    (evals / "cases").mkdir()
+    for path in CASES.glob("*.json"):
+        (evals / "cases" / path.name).write_text(path.read_text(encoding="utf-8"))
+    for name in ("RUBRIC.md", "bars.toml"):
+        (evals / name).write_text((EVALS / name).read_text(encoding="utf-8"))
+    (evals / "settings.toml").write_text(f'model = "{MODEL}"\ntemperature = 0\n')
+    monkeypatch.setenv("OPENAI_API_KEY", "not-a-key")
+    called: list[object] = []
+    monkeypatch.setattr(live, "record_runs", lambda *args: called.append(args))
+    command = [
+        "--prompts", str(tmp_path / "prompts"),
+        "--evals", str(evals),
+        "--standing", str(REPO / "docs" / "STANDING.md"),
+    ]  # fmt: skip
+
+    assert live.main(command) == 1
+    assert "A changed prompt is a new version file" in capsys.readouterr().err
+    assert called == []
+    assert sorted(path.read_bytes() for path in recordings.rglob("*.json")) == before

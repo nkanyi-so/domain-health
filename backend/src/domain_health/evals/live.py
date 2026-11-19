@@ -41,6 +41,24 @@ class AlreadyRecordedError(Exception):
     """All three runs of this prompt version on this model are recorded. It is not run again."""
 
 
+class PromptChangedError(Exception):
+    """Recordings exist under this version's name for another text of the prompt."""
+
+
+def refuse_an_edited_prompt(prompt: Prompt, model: str, recordings: Path) -> None:
+    """A change to a prompt is a new version file. If anything is recorded under this version's
+    name with another text, the file was edited after it was run: nothing is called, and the
+    recordings stay as they are."""
+    for number in range(1, RUNS + 1):
+        folder = run_folder(recordings, prompt.version, model, number)
+        calls = load_calls(folder) if folder.is_dir() else []
+        if any(call.prompt_sha256 != prompt.sha256 for call in calls):
+            raise PromptChangedError(
+                f"{prompt.version} has recordings on {model} made with another text of the "
+                "prompt. A changed prompt is a new version file; this one was not run."
+            )
+
+
 def still_to_record(
     cases: Mapping[str, EvalCase], prompt: Prompt, model: str, recordings: Path
 ) -> dict[int, list[SnapshotInput]]:
@@ -139,6 +157,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             print("\n".join(f"  {problem}" for problem in broken), file=sys.stderr)
             return 1
+        refuse_an_edited_prompt(prompt, model, args.evals / "recordings")
         todo = still_to_record(cases, prompt, model, args.evals / "recordings")
         if not todo:
             raise AlreadyRecordedError(
@@ -161,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
             f"{made} call(s) on {date.today().isoformat()}, ${ledger.spent() - before:.4f}; "
             f"spent in all ${ledger.spent():.4f}"
         )
-    except (SpendCapError, AlreadyRecordedError) as stopped:
+    except (SpendCapError, AlreadyRecordedError, PromptChangedError) as stopped:
         print(f"stopped: {stopped}", file=sys.stderr)
         return 1
     scored = ["--prompts", str(args.prompts), "--evals", str(args.evals), "--table-report"]

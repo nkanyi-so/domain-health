@@ -81,9 +81,19 @@ def load_calls(folder: Path) -> list[ModelCall]:
     ]
 
 
+class RecordingExistsError(Exception):
+    """There is already an answer recorded for this input in this run. It is not replaced."""
+
+
 def save_call(folder: Path, call: ModelCall) -> Path:
+    """Write one recording. An answer already recorded is evidence and is never overwritten;
+    only a call that failed before the model answered (status "error") may be replaced."""
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{call.input_hash[:16]}.json"
+    if path.exists():
+        existing = ModelCall.model_validate_json(path.read_text(encoding="utf-8"))
+        if existing.status != "error":
+            raise RecordingExistsError(f"{path.name} in {folder.name} already holds an answer")
     path.write_text(call.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return path
 

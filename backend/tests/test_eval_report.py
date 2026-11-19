@@ -17,11 +17,11 @@ from domain_health.evals.report import (
     table_report,
 )
 from domain_health.evals.scoring import load_bars
-from domain_health.risks.model import save_call
 from domain_health.types import RiskType
 from tests.eval_fixtures import (
     MODEL,
     output_text,
+    put_call,
     record_as_labelled,
     recorded_call,
     write_prompt,
@@ -61,11 +61,11 @@ def test_a_dropped_output_and_a_wrong_type_show_in_the_numbers(tmp_path: Path) -
     record_as_labelled(recordings, prompt, ALL)
     case = ALL[TABLE_CASE]
     wrong = case.label.wrong[0]
-    save_call(
+    put_call(
         run_folder(recordings, prompt.version, MODEL, 1),
         recorded_call(prompt, case.input, "not json"),
     )
-    save_call(
+    put_call(
         run_folder(recordings, prompt.version, MODEL, 2),
         recorded_call(prompt, case.input, output_text(*case.label.expected, wrong)),
     )
@@ -200,7 +200,7 @@ def test_strict_fails_on_a_missed_bar_and_plain_does_not(tmp_path: Path) -> None
     record_as_labelled(evals / "recordings", prompt, ALL)
     case = ALL[TABLE_CASE]
     harmful = output_text(*case.label.expected, case.label.wrong[0])
-    save_call(
+    put_call(
         run_folder(evals / "recordings", prompt.version, MODEL, 1),
         recorded_call(prompt, case.input, harmful),
     )
