@@ -99,7 +99,7 @@ Risks seen:
 
 ### 2026-11-19: what was built
 
-- `backend/`: uv project on Python 3.14; FastAPI app with `/healthz`; the two closed lists (`types.py`); the model's input (`models.py`); the eval case and its loader (`evals/cases.py`); `python -m domain_health.evals` behind `make eval`. Ruff, mypy strict (with the pydantic plugin), pytest. 40 tests, one of them marked `emulator`.
+- `backend/`: uv project on Python 3.14; FastAPI app with `/healthz`; the two closed lists (`types.py`); the model's input (`models.py`); the eval case and its loader (`evals/cases.py`); `python -m domain_health.evals` behind `make eval`. Ruff, mypy strict (with the pydantic plugin), pytest. 41 tests, one of them marked `emulator`.
 - `frontend/`: Next.js 16.4.6, React 19.3, TypeScript strict, ESLint (explicit types on exports are an error), Prettier, Tailwind 4.3, vitest. One page showing the claim; one test that the page's claim is the line in `docs/CLAIM.md`.
 - `emulator/`: pinned `firebase-tools` 15.37.0 and `firebase.json`.
 - `Makefile` and `scripts/` (`dev.sh`, `format-one.sh`, `toolchain-check.sh`, `preflight-project.sh`). `.gitignore`, `.env.example`.
@@ -109,7 +109,7 @@ Changes to the harness layer, all of them (none removes or loosens a check):
 
 - `.claude/settings.json`: five lines added to the allow list, each an exact command with no wildcard: `make eval`, `make eval STRICT=1`, `make dev`, `make screens`, `make fallback`. (Two more, `make format *` and `make check-domain *`, were in the first commit and were taken out after the review below.) Not added, so they always ask: `eval-live`, `record`, `infra`, `deploy-backend`, `seed`. Deny list and hooks unchanged.
 - `.claude/hooks/protected-paths.txt`: four generated paths added (`evals/results.json`, `evals/recordings/*`, `frontend/src/data/fallback.json`, `docs/RUN_LOG.md`).
-- `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; three added: `frontend/src/content/claim.test.ts`, and after the second review `backend/src/domain_health/types.py` and `backend/tests/test_rubric_types.py`.
+- `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; four added: `frontend/src/content/claim.test.ts`; after the second review `backend/src/domain_health/types.py` and `backend/tests/test_rubric_types.py`; after the third `backend/tests/paths.py`.
 - `.claude/hooks/preflight.sh`: calls `scripts/preflight-project.sh` and adds its MISSING count to its own; a missing project script is itself MISSING.
 - `.github/workflows/ci.yml`: the `check` job's placeholder is replaced by setup for uv, pnpm, Node 24 and JDK 21 and the three installs; a third job, `eval`, runs `make eval STRICT=1`. `secrets` is unchanged. Actions pinned by commit: `astral-sh/setup-uv` v10.3.3, `pnpm/action-setup` v6.1.1, `actions/setup-node` v7.1.0, `actions/setup-java` v6.3.0, beside the existing `actions/checkout` pin.
 - `.githooks/pre-commit`, the agents and the skill: unchanged.
@@ -193,11 +193,22 @@ Verdict as reported: "one blocking finding. The preflight gate cannot pass on th
 2. Not blocking. The log said 39 tests; the review-fix commit made it 40.
    - Done: corrected above.
 3. Not blocking, for the owner. "The labels can be produced by a fixed threshold table": the reviewer wrote "a mechanical reading of `evals/RUBRIC.md`, about 100 lines of if/else" that "reproduces every label in all 20 cases exactly" and every fix list. "So a rules engine with no model would score full marks on coverage, precision and harmful. Passing the bars would then not show 'judgment-call risks from a model'." It set this against the sentence in the risks above, "The rubric keeps the judgment in the context clauses".
-   - Not changed, by its own instruction and the working loop's: this is a question about the measure, so it is the owner's. It is true, and the build's own drafting confirms it: the labels were drafted by applying the rubric mechanically. The risk sentence above was written before the work and is left as written; the fact is that the context clauses are themselves fixed conditions on other fields. It is question 1 under "Waiting on you". The reviewer's run is also a second reading of the five cases changed after the label check: "They all agree with the rubric as written."
+   - Not changed, by its own instruction and the working loop's: this is a question about the measure, so it is the owner's. It is true, and the build's own drafting confirms it: the labels were drafted by applying the rubric mechanically. The risk sentence above was written before the work and is left as written; the fact is that the context clauses are themselves fixed conditions on other fields. It goes to the owner as question 1 of the stop block that is written under "Waiting on you" once the verifier and the challenger have run. The reviewer's run is also a second reading of the five cases changed after the label check: "They all agree with the rubric as written."
 4. Not blocking. `measure-paths.txt` did not list `backend/src/domain_health/types.py` or `backend/tests/test_rubric_types.py`, so a later phase could change the closed lists and the test that pins them together and be merged by the gate.
    - Done: both added.
 5. Not blocking. The preflight put the OpenAI key and the gcloud token on `curl` command lines, readable by other local processes while the call runs.
    - Done: both headers go in on standard input (`curl -H @-`).
+
+### 2026-11-19: review, third run, on ec5aa41
+
+Verdict as reported: "one blocking finding, and it is a one-line doc fix. Everything else holds up, including the fixes from both earlier reviews."
+
+1. Blocking. This log said of the mechanical-labels finding "It is question 1 under 'Waiting on you'" while that section still said "Nothing.": "no sentence in the log should name a block that does not exist". It also asked that the block carry the finding as the reviewer wrote it, the six objections not taken, the three decisions that set the measure, and the two missing owner values.
+   - Done: the sentence now says where the question will go. The block is written at the stop, after the verifier and the challenger, and carries all four.
+2. Not blocking. `backend/tests/paths.py` feeds the two protected tests their paths and was not itself protected.
+   - Done: added to `measure-paths.txt`.
+3. Not blocking. The newest prompt was picked by text order, so `risks-v9.md` would beat `risks-v10.md`.
+   - Done: sorted by number, with a test; a file that is not exactly `risks-v<number>.md` is a stray and fails.
 
 ---
 

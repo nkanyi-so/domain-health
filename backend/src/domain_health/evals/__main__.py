@@ -6,14 +6,22 @@ it cannot score.
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 NOTHING = "no prompt yet: nothing to measure"
 
 
+VERSION_FILE = re.compile(r"risks-v(\d+)\.md")
+
+
 def prompt_versions(folder: Path) -> list[Path]:
-    return sorted(folder.glob("risks-v*.md")) if folder.is_dir() else []
+    """Prompt version files, oldest first by number, so v10 comes after v9."""
+    if not folder.is_dir():
+        return []
+    numbered = [(m, path) for path in folder.iterdir() if (m := VERSION_FILE.fullmatch(path.name))]
+    return [path for m, path in sorted(numbered, key=lambda pair: int(pair[0].group(1)))]
 
 
 def unversioned(folder: Path) -> list[Path]:

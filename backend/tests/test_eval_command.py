@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from domain_health.evals.__main__ import NOTHING, main
+from domain_health.evals.__main__ import NOTHING, main, prompt_versions
 
 
 def test_with_no_prompt_there_is_nothing_to_measure(
@@ -27,3 +27,14 @@ def test_a_prompt_under_another_name_is_not_nothing_to_measure(tmp_path: Path) -
 
     assert main(["--prompts", str(tmp_path)]) == 1
     assert main(["--prompts", str(tmp_path), "--strict"]) == 1
+
+
+def test_version_ten_is_newer_than_version_nine(tmp_path: Path) -> None:
+    for name in ("risks-v10.md", "risks-v9.md", "risks-v2.md"):
+        (tmp_path / name).write_text("a prompt", encoding="utf-8")
+
+    assert [p.name for p in prompt_versions(tmp_path)] == [
+        "risks-v2.md",
+        "risks-v9.md",
+        "risks-v10.md",
+    ]
