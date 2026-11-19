@@ -228,6 +228,12 @@ HOSTILE_TEXT = [
     "\U0001d7cf\U0001d7d0\U0001d7d1",
     "\u2460\u2461\u2462",
     "\u00bd",
+    "half a pair \ud800 here",
+    "\udfff",
+    "a tab\there",
+    "a line\nbreak",
+    "an escape \x1b[31m",
+    "a zero-width\u200bjoiner and \u202e an override",
 ]
 
 
@@ -237,7 +243,18 @@ def test_no_text_the_model_can_write_makes_validation_raise_anything_else(why: s
     text = output(risk("complaint_rate_elevated", why=why[:400]))
 
     with contextlib.suppress(InvalidOutputError):
-        validate(SNAPSHOT, text)
+        for accepted in validate(SNAPSHOT, text):
+            # Whatever is accepted has to be usable: stored, sent and shown.
+            accepted.model_dump_json().encode("utf-8")
+
+
+@pytest.mark.parametrize(
+    "bad", ["half a pair \ud800", "\udfff", "a tab\there", "two\nlines", "\x1b[31mred", "nul\x00"]
+)
+def test_a_character_that_cannot_be_stored_or_shown_drops_the_output(bad: str) -> None:
+    for broken in (risk("volume_spike", why=bad), risk("volume_spike", title=bad)):
+        with pytest.raises(InvalidOutputError, match="cannot be shown"):
+            validate(SNAPSHOT, json.dumps({"risks": [broken]}))
 
 
 def test_a_number_too_large_to_hold_is_dropped_and_leaves_the_caller_its_usual_error(

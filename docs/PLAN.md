@@ -1564,6 +1564,15 @@ Carried for the owner, as before, with its example: a number written partly as a
 
 Tests: 691 in the backend outside the emulator. No eval number changed (`make eval` and the results file are as they were).
 
+### 2026-11-19: review, fifth run, on 3ab0b30
+
+Verdict as reported: "one blocking finding apart from the two carried for the owner. It is small and cheap to fix." The fourth round's fix holds (with the old file put back, three of the new tests fail), and six more hostile outputs of its own were each dropped and none raised. `make check` (691 tests), `make eval` byte for byte, strict mode, the ledger, the gate and the plan's diff, the guarded and measure files, rules 1 to 3, the open-set totals: all held again.
+
+1. Blocking. "A risk's title or reason can hold a lone surrogate, and validation accepts it": such a risk cannot be written out, so Phase 3's worker would fail when it saves the snapshot, where it expects "risks unavailable". The log's sentence that every hostile text is "accepted or dropped and never raises anything else" was "true of `validate` alone, but this accepted output is not usable".
+   - Done: an output whose title or reason holds half a surrogate pair or a control character is dropped. The sweep now also asserts that whatever is accepted can be written out as JSON and encoded, and six such characters each drop the output, in the reason and in the title. This is one more rule than the spec's four, and it joins the question already carried for the owner. All four attempts were scored again and no number moved.
+
+Tests: 703 in the backend outside the emulator.
+
 ---
 
 ## Phase 3: snapshots and the handled loop

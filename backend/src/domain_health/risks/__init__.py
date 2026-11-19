@@ -77,6 +77,10 @@ class Risk(Frozen):
     evidence: list[EvidenceField]
 
 
+# Unicode categories a title or reason may not hold: control characters and lone surrogates.
+_UNUSABLE = frozenset({"Cc", "Cs"})
+
+
 class InvalidOutputError(ValueError):
     """The model's output broke a rule. It is dropped whole."""
 
@@ -196,6 +200,10 @@ def validate(snapshot: SnapshotInput, output_text: str) -> list[Risk]:
             raise InvalidOutputError(f"{risk.type.value}: an empty title or reason")
         if len(title) > MAX_TITLE_CHARS or len(why) > MAX_WHY_CHARS:
             raise InvalidOutputError(f"{risk.type.value}: a title or reason that is too long")
+        if any(unicodedata.category(ch) in _UNUSABLE for ch in title + why):
+            # Half a surrogate pair cannot be stored or sent; a control character has no place
+            # in a sentence shown to a person.
+            raise InvalidOutputError(f"{risk.type.value}: a character that cannot be shown")
         if not numbers_in(f"{title} {why}", known_words) <= known:
             raise InvalidOutputError(f"{risk.type.value}: a number that is not in the input")
     return [
