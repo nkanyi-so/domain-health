@@ -1037,9 +1037,20 @@ Verdict as reported: "changes needed (two blocking findings)". The seventh round
 
 The evidence below was taken again after these fixes.
 
+### 2026-11-19: review, ninth run, on 65194d3
+
+Verdict as reported: "changes needed. There are two blocking findings, both in `backend/src/domain_health/checks/spf.py`. They are the same kind of fault the fifth and seventh rounds called blocking: a malformed SPF record is read as valid". The eighth round's fixes hold (with the old DKIM code put back, three tests fail). It sent "20,000 random hostile zones" through the counting resolver, the checks and the output: "None raised." It took the gate evidence again on 65194d3 and items 1, 2, 3, 4 and 6 match; guards, measure files, the `Makefile`, rules 1, 2, 5, 6 and 7 and the step list's statements held.
+
+1. Blocking. "The `a` and `mx` prefix lengths are never range-checked": `a/99`, `mx//200` and `a:x.example.org/33` parsed as valid.
+2. Blocking. "A target name is cleaned up before it is checked, and a macro target is not checked at all": every trailing dot was stripped, so `include:inc.example.org..` was followed as a good name, and `include:%`, `include:%{z}x` and `redirect=a%b` parsed.
+   - Done, for both and for the class they belong to. Five rounds running had each found another SPF record a receiver fails and this parser read, one case at a time. So the term parser was rewritten against the standard's own grammar (RFC 7208, section 12) instead of being patched again: macros (`%{letter digits r delimiters}`, `%%`, `%_`, `%-`), a name that has to end in a top label with at most one trailing dot or in a macro, prefix lengths with their ranges (0 to 32, 0 to 128) and no leading zero, an address read strictly (no netmask form, no zone, no leading zeros), an unknown modifier's value, and a record that has to start with the version exactly. Counting and following are unchanged. The tests gained two tables: 24 records inside the grammar that must parse and 52 outside it that must not, with every one of the reviewer's examples among the 52. Writing the tables corrected two of the build's own guesses: `%{rr}` is a valid macro (the letter r, reversed), and `all=x` is a valid unknown modifier.
+   - The same pass over DMARC and DKIM, without waiting to be asked: `pct` is one to three digits (`0100` and `+50` no longer pass); a DKIM `v=` has to be the record's first tag. What is deliberately left looser than the standard's letter, because receivers are, is written in the decisions entry: DMARC's `p=` need not be the second tag, and its other tags are not checked.
+
+The evidence below was taken again after these fixes.
+
 ### 2026-11-19: gate evidence
 
-Run on the code as it stands after the eighth review's fixes. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
+Run on the code as it stands after the ninth review's fixes. The gate is ticked only once the reviewer and the verifier have passed that code; their verdict lines close this log.
 
 1. `make check` exits 0 (lines kept; the rest is tool chatter):
 
@@ -1048,13 +1059,13 @@ $ make check
 44 files already formatted
 All checks passed!
 Success: no issues found in 44 source files
-452 passed, 1 deselected in 2.17s
-1 passed, 452 deselected in 0.22s
+534 passed, 1 deselected in 2.33s
+1 passed, 534 deselected in 0.26s
 ✔  Script exited successfully (code 0)
 All matched files use Prettier code style!
  Test Files  1 passed (1)
       Tests  1 passed (1)
-✓ Compiled successfully in 165ms
+✓ Compiled successfully in 179ms
 make check exit=0
 ```
 

@@ -124,8 +124,10 @@ async def _probe(resolver: Resolver, domain: str, selector: str) -> _Probe:
     unreadable = revoked = False
     for record in answer.records:
         found = tags(record)
-        if "p" not in found or found.get("v", "DKIM1") != "DKIM1":
-            # Not a key record, or one of a version receivers do not read.
+        if "p" not in found:
+            continue
+        if "v" in found and (found["v"] != "DKIM1" or next(iter(found)) != "v"):
+            # A version receivers do not read, or a version that is not the record's first tag.
             continue
         if not found["p"]:
             revoked = True

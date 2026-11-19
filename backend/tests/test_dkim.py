@@ -150,6 +150,14 @@ def test_a_record_of_another_version_is_not_a_key() -> None:
     assert found.other_keys == ()
 
 
+def test_a_version_tag_that_is_not_first_makes_the_record_no_key() -> None:
+    key = rsa_public_key(2048)
+
+    found = run(check_dkim(FixtureResolver({at("k1"): [f"k=rsa; v=DKIM1; p={key}"]}), D))
+
+    assert found.check.keys == []
+
+
 def test_a_key_type_that_does_not_exist_is_not_a_key() -> None:
     key = rsa_public_key(2048)
 

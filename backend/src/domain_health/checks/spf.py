@@ -19,11 +19,21 @@ from domain_health.resolver import Resolver, TxtStatus, normal_name
 LOOKUP_LIMIT = 10
 OVER_LIMIT = LOOKUP_LIMIT + 1
 
-_MODIFIER = re.compile(r"^([a-z][a-z0-9_.\-]*)=(.*)$", re.IGNORECASE | re.ASCII)
-_MECHANISM = re.compile(r"^([+\-~?]?)([a-z0-9]+)(?::([^/]*))?(/.*)?$", re.IGNORECASE | re.ASCII)
+# The standard's grammar (RFC 7208, section 12), piece by piece.
+_MACRO = r"%\{[slodiphcrtv][0-9]*r?[.\-+,/_=]*\}|%%|%_|%-"
+_MACRO_STRING = re.compile(rf"(?:{_MACRO}|[\x21-\x24\x26-\x7e])*", re.IGNORECASE | re.ASCII)
+_TOP_LABEL = r"[a-z0-9]*[a-z][a-z0-9]*|[a-z0-9]+-[a-z0-9\-]*[a-z0-9]"
+# A name ends in a dot and a top label (with at most one more dot), or in a macro.
+_DOMAIN_END = re.compile(rf"(?:\.(?:{_TOP_LABEL})\.?|{_MACRO})$", re.IGNORECASE | re.ASCII)
+_MODIFIER = re.compile(r"([a-z][a-z0-9_.\-]*)=(.*)", re.IGNORECASE | re.ASCII)
+_MECHANISM = re.compile(r"([+\-~?]?)([a-z][a-z0-9]*)(.*)", re.IGNORECASE | re.ASCII)
+_V4_LENGTH, _V6_LENGTH = r"/(0|[1-9][0-9]?)", r"/(0|[1-9][0-9]{0,2})"
+# What may follow `a` or `mx`: a name, then a prefix length for each kind of address.
+_NAME_AND_LENGTHS = re.compile(rf"(?::(.*?))?(?:{_V4_LENGTH})?(?:/{_V6_LENGTH})?")
+_ADDRESS_AND_LENGTH = re.compile(r":([^/]*)(?:/(0|[1-9][0-9]{0,2}))?")
 # A name another record is looked up at: dot-separated labels of letters, digits, "-" and "_".
 _TARGET_LABEL = re.compile(r"[a-z0-9_\-]{1,63}", re.IGNORECASE | re.ASCII)
-_CIDR = re.compile(r"^(/\d{1,3})?(//\d{1,3})?$")
+_MAX_LENGTH = {4: 32, 6: 128}
 _COSTS_A_LOOKUP = {"include", "a", "mx", "ptr", "exists"}
 _QUALIFIERS: dict[str, AllQualifier] = {q[0]: q for q in get_args(AllQualifier)}
 
@@ -53,33 +63,72 @@ class _Walk:
 
 
 def is_spf(record: str) -> bool:
-    text = record.strip().lower()
+    """A record is SPF when it is exactly `v=spf1` or starts with that and a space."""
+    text = record.lower()
     return text == "v=spf1" or text.startswith("v=spf1 ")
 
 
 def _target(term: str, value: str | None) -> str:
-    """The domain a term names, or `SpfSyntaxError`. A name with a macro (%{...}) is left as is:
-    it depends on the message, and is never looked up here."""
-    if not value:
-        raise SpfSyntaxError(f"{term} needs a domain")
+    """The domain a term names, or `SpfSyntaxError`.
+
+    The value has to fit the standard's grammar for a name: its macros well formed, and its end
+    either a top label or a macro. A name with a macro in it depends on the message and is never
+    looked up here. Any other name also has to be one DNS can hold (no empty label, 63 characters
+    a label, 253 in all): a term that names anything else can be used by no receiver.
+    """
+    if not value or not _MACRO_STRING.fullmatch(value) or not _DOMAIN_END.search(value):
+        raise SpfSyntaxError(f"{term} names something that is not a domain")
     if "%" in value:
         return value
-    name = normal_name(value)
-    labels = name.split(".")
-    if len(name) > 253 or not all(_TARGET_LABEL.fullmatch(label) for label in labels):
+    name = value.removesuffix(".").lower()
+    if len(name) > 253 or not all(_TARGET_LABEL.fullmatch(label) for label in name.split(".")):
         raise SpfSyntaxError(f"{term} names something that is not a domain")
     return name
 
 
-def _network(kind: str, value: str | None, cidr: str | None) -> None:
+def _length(kind: str, text: str | None, version: int) -> None:
+    if text is not None and int(text) > _MAX_LENGTH[version]:
+        raise SpfSyntaxError(f"{kind} has a prefix length over {_MAX_LENGTH[version]}")
+
+
+def _network(kind: str, rest: str) -> None:
+    version = 4 if kind == "ip4" else 6
+    parts = _ADDRESS_AND_LENGTH.fullmatch(rest)
+    if not parts:
+        raise SpfSyntaxError(f"{kind} needs an address")
     try:
-        if not value:
-            raise ValueError("no address")
-        network = ipaddress.ip_network(value + (cidr or ""), strict=False)
+        address = ipaddress.ip_address(parts.group(1))
     except ValueError as error:
-        raise SpfSyntaxError(f"{kind} needs an address: {error}") from error
-    if network.version != (4 if kind == "ip4" else 6):
-        raise SpfSyntaxError(f"{kind} holds an address of the other kind")
+        raise SpfSyntaxError(f"{kind} needs an address") from error
+    if address.version != version or "%" in parts.group(1):
+        raise SpfSyntaxError(f"{kind} needs an address of its own kind")
+    _length(kind, parts.group(2), version)
+
+
+def _mechanism(name: str, rest: str) -> str | None:
+    """Check one mechanism's argument against the grammar; give back the name it includes."""
+    if name == "all":
+        if rest:
+            raise SpfSyntaxError("all takes no value")
+    elif name in ("ip4", "ip6"):
+        _network(name, rest)
+    elif name in ("include", "exists"):
+        target = _target(name, rest[1:] if rest.startswith(":") else None)
+        return target if name == "include" else None
+    elif name in ("a", "mx"):
+        parts = _NAME_AND_LENGTHS.fullmatch(rest)
+        if not parts:
+            raise SpfSyntaxError(f"cannot read what follows {name}")
+        if parts.group(1) is not None:
+            _target(name, parts.group(1))
+        _length(name, parts.group(2), 4)
+        _length(name, parts.group(3), 6)
+    elif name == "ptr":
+        if rest:
+            _target(name, rest[1:] if rest.startswith(":") else None)
+    else:
+        raise SpfSyntaxError("a mechanism that does not exist")
+    return None
 
 
 def parse(record: str) -> Record:
@@ -94,8 +143,8 @@ def parse(record: str) -> Record:
         # different name from the one the record states.
         raise SpfSyntaxError("the record holds a character outside ASCII")
     # Terms are separated by spaces and nothing else; a tab or a line break is part of a term.
-    for term in [term for term in record.strip().split(" ") if term][1:]:
-        modifier = _MODIFIER.match(term)
+    for term in [term for term in record.split(" ") if term][1:]:
+        modifier = _MODIFIER.fullmatch(term)
         if modifier:
             name, value = modifier.group(1).lower(), modifier.group(2)
             if name in ("redirect", "exp"):
@@ -103,38 +152,26 @@ def parse(record: str) -> Record:
                     raise SpfSyntaxError(f"{name}= appears more than once")
                 seen_modifiers.add(name)
                 target = _target(f"{name}=", value)
-            if name == "redirect":
-                redirect = target
+                if name == "redirect":
+                    redirect = target
+            elif not _MACRO_STRING.fullmatch(value):
+                raise SpfSyntaxError("a modifier with a value that cannot be read")
             continue
-        mechanism = _MECHANISM.match(term)
+        mechanism = _MECHANISM.fullmatch(term)
         if not mechanism:
             raise SpfSyntaxError("cannot read one of the terms")
-        qualifier, name, value, cidr = mechanism.groups()
+        qualifier, name, rest = mechanism.groups()
         name = name.lower()
+        included = _mechanism(name, rest)
         # A receiver never reaches a term behind `all`. It still has to parse, but it costs no
         # lookup and nothing it names is followed.
-        reached = all_qualifier is None
+        if all_qualifier is not None:
+            continue
         if name == "all":
-            if value is not None or cidr:
-                raise SpfSyntaxError("all takes no value")
-            if all_qualifier is None:
-                all_qualifier = _QUALIFIERS[qualifier or "+"]
-        elif name in ("ip4", "ip6"):
-            _network(name, value, cidr)
-        elif name in ("include", "exists"):
-            if cidr:
-                raise SpfSyntaxError(f"{name} needs a domain")
-            target = _target(name, value)
-            if name == "include" and reached:
-                includes.append(target)
-        elif name in ("a", "mx", "ptr"):
-            if not _CIDR.match(cidr or "") or (name == "ptr" and cidr):
-                raise SpfSyntaxError(f"cannot read the term {name!r}")
-            if value is not None:
-                _target(name, value)
-        else:
-            raise SpfSyntaxError(f"unknown mechanism {name!r}")
-        if name in _COSTS_A_LOOKUP and reached:
+            all_qualifier = _QUALIFIERS[qualifier or "+"]
+        if included is not None:
+            includes.append(included)
+        if name in _COSTS_A_LOOKUP:
             lookups += 1
     # A redirect is only followed when no `all` ends the record first.
     if all_qualifier is not None:

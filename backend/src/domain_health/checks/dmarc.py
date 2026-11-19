@@ -5,6 +5,7 @@ its two-label parent, four names at most: for a deeper name, the nearest three a
 What is reported is the policy that applies to the name that was asked about.
 """
 
+import re
 from typing import get_args
 
 from domain_health.checks import DmarcFinding, LookupFailedError
@@ -13,6 +14,7 @@ from domain_health.models import DmarcCheck, DmarcPolicy
 from domain_health.resolver import Resolver, TxtStatus, normal_name
 
 MAX_NAMES_TRIED = 4
+_PCT = re.compile(r"[0-9]{1,3}")
 _POLICIES: tuple[str, ...] = get_args(DmarcPolicy)
 
 _MISSING = DmarcCheck(present=False, valid=None, policy=None, subdomain_policy=None, pct=None)
@@ -52,7 +54,7 @@ def parse(record: str) -> tuple[DmarcPolicy, DmarcPolicy | None, int]:
     subdomain = _policy("sp", found["sp"]) if "sp" in found else None
     pct = 100
     if "pct" in found:
-        if not found["pct"].isdecimal() or not 0 <= int(found["pct"]) <= 100:
+        if not _PCT.fullmatch(found["pct"]) or int(found["pct"]) > 100:
             raise DmarcSyntaxError(f"pct={found['pct']} is not a number from 0 to 100")
         pct = int(found["pct"])
     return policy, subdomain, pct

@@ -325,3 +325,124 @@ def test_terms_behind_all_in_an_included_record_cost_nothing_either() -> None:
 
     assert found.check.valid is True
     assert found.check.lookup_count == 1
+
+
+# The standard's grammar (RFC 7208, section 12), term by term: what a receiver reads...
+READ_BY_A_RECEIVER = [
+    "v=spf1",
+    "V=SPF1 -ALL",
+    "v=spf1  mx   -all ",
+    "v=spf1 a/0 mx/32 -all",
+    "v=spf1 a//0 mx//128 -all",
+    "v=spf1 a/24//64 -all",
+    "v=spf1 a:mail.example.org/24//64 -all",
+    "v=spf1 a:mail.example.org. -all",
+    "v=spf1 include:_spf.example.org. -all",
+    "v=spf1 ptr ptr:example.org -all",
+    "v=spf1 ip4:192.0.2.1 ip4:192.0.2.0/0 ip4:192.0.2.0/32 -all",
+    "v=spf1 ip6:2001:db8::1 ip6:2001:db8::/0 ip6:2001:db8::/128 ip6:::ffff:192.0.2.1 -all",
+    "v=spf1 exists:%{ir}.%{l1r+-}._spf.%{d} -all",
+    "v=spf1 exists:%{i}.%%.%_.%-.bl.example.org -all",
+    "v=spf1 include:%{d2}.trusted.example.org -all",
+    "v=spf1 a:%{d} -all",
+    "v=spf1 redirect=_spf.example.org",
+    "v=spf1 redirect=%{d}._spf.example.org",
+    "v=spf1 mx exp=explain.%{d} -all",
+    "v=spf1 mx unknown=anything-at-all:/! other.name=%{s} -all",
+    "v=spf1 +mx ?a ~ptr -ip4:192.0.2.1 +all",
+    "v=spf1 a:xn--bcher-kva.example.org a:1-2.example.org a:a1.example.o-g -all",
+    # The macro letter r, reversed: two letters, one macro.
+    "v=spf1 exists:%{rr}.example.org -all",
+    # A modifier nobody defined may have any name, even this one: it is passed over.
+    "v=spf1 all=x",
+]
+# ...and what a receiver fails the whole record for.
+FAILED_BY_A_RECEIVER = [
+    "v=spf1 a/33 -all",
+    "v=spf1 a/99 -all",
+    "v=spf1 mx//129 -all",
+    "v=spf1 mx//200 -all",
+    "v=spf1 a:x.example.org/33 -all",
+    "v=spf1 a/024 -all",
+    "v=spf1 a//064 -all",
+    "v=spf1 a/ -all",
+    "v=spf1 a// -all",
+    "v=spf1 a/24/64 -all",
+    "v=spf1 a//64/24 -all",
+    "v=spf1 a/1234 -all",
+    "v=spf1 ptr/24 -all",
+    "v=spf1 ptr: -all",
+    "v=spf1 all/24",
+    "v=spf1 include:example.org/24 -all",
+    "v=spf1 ip4:192.0.2.0/33 -all",
+    "v=spf1 ip4:192.0.2.0/024 -all",
+    "v=spf1 ip4:192.0.2.0/255.255.255.0 -all",
+    "v=spf1 ip4:192.0.2 -all",
+    "v=spf1 ip4:192.0.02.1 -all",
+    "v=spf1 ip4:192.0.2.1/ -all",
+    "v=spf1 ip4:192.0.2.1//64 -all",
+    "v=spf1 ip6:2001:db8::/129 -all",
+    "v=spf1 ip6:192.0.2.1 -all",
+    "v=spf1 ip6:fe80::1%eth0 -all",
+    "v=spf1 ip6:2001:db8::/064 -all",
+    "v=spf1 include:inc.example.org.. -all",
+    "v=spf1 redirect=inc.example.org...",
+    "v=spf1 a:mail.example.org.. -all",
+    "v=spf1 include:% -all",
+    "v=spf1 include:%{z}x.example.org -all",
+    "v=spf1 include:%{d -all",
+    "v=spf1 include:%d.example.org -all",
+    "v=spf1 include:%{d}{.example.org%} -all",
+    "v=spf1 exists:%{i!}.example.org -all",
+    "v=spf1 redirect=a%b",
+    "v=spf1 exp=%",
+    "v=spf1 unknown=%{nope} -all",
+    "v=spf1 unknown=50% -all",
+    "v=spf1 include:localhost -all",
+    "v=spf1 include:example.123 -all",
+    "v=spf1 a:example.-org -all",
+    "v=spf1 a:example.org- -all",
+    "v=spf1 include:example.org:25 -all",
+    "v=spf1 -",
+    "v=spf1 +",
+    "v=spf1 --all",
+    "v=spf1 1a -all",
+    "v=spf1 a: -all",
+    "v=spf1 mx: -all",
+    "v=spf1 =value -all",
+]
+
+
+@pytest.mark.parametrize("record", READ_BY_A_RECEIVER)
+def test_a_record_inside_the_standards_grammar_parses(record: str) -> None:
+    parse(record)
+
+    assert spf({D: [record]}, timeouts=[]).check.present is True
+
+
+@pytest.mark.parametrize("record", FAILED_BY_A_RECEIVER)
+def test_a_record_outside_the_standards_grammar_does_not_parse(record: str) -> None:
+    with pytest.raises(SpfSyntaxError):
+        parse(record)
+
+    assert spf({D: [record]}).check.valid is False
+
+
+def test_a_name_is_looked_up_with_one_trailing_dot_removed_and_never_cleaned_further() -> None:
+    zone = {
+        D: ["v=spf1 include:One.Example. -all"],
+        "one.example": ["v=spf1 ip4:192.0.2.2 -all"],
+    }
+    resolver = FixtureResolver(zone)
+
+    found = run(check_spf(resolver, D))
+
+    assert found.check.valid is True
+    assert resolver.asked == [D, "one.example"]
+
+
+def test_a_txt_record_with_anything_in_front_of_the_version_is_not_spf() -> None:
+    assert not is_spf(" v=spf1 -all")
+    assert not is_spf("\tv=spf1 -all")
+    assert not is_spf("v=spf1\t-all")
+    assert spf({D: [" v=spf1 -all"]}).check.present is False
