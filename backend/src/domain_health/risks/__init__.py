@@ -111,10 +111,18 @@ PROTOCOL_WORDS = frozenset(
 # hyphen) and combining marks. Left in, they would split 9000 into 900 and 0 for the reader of
 # this code and for nobody else.
 _INVISIBLE = frozenset({"Cf", "Mn", "Me", "Mc"})
-# A digit with anything but plain ASCII beside it, or two numbers with only spaces between them
-# (9 000), reads as one number on the page that this code would take for another, or for two.
-_ODD_NEIGHBOUR = re.compile(r"[0-9][^\x00-\x7f]|[^\x00-\x7f][0-9]")
-_SPLIT_NUMBER = re.compile(r"[0-9][.,]?\s+[0-9]")
+# Two digits with something between them that makes the page show one number where this code
+# would read two: spaces only (9 000), an apostrophe (900'000), or a character outside ASCII
+# that is not a dash (a separator or sign from another script). A dash between numbers is a
+# range (40000-42000, with any kind of dash), and ordinary punctuation after a number (a comma
+# and a space, a full stop, a quote mark) is just a sentence.
+_BETWEEN_DIGITS = re.compile(r"(?<=[0-9])([^0-9A-Za-z.,_]+)(?=[0-9])")
+
+
+def _joins_digits(gap: str) -> bool:
+    if gap.isspace() or gap in ("'", "`"):
+        return True
+    return any(not ch.isascii() and unicodedata.category(ch) != "Pd" for ch in gap)
 
 
 def _plain(text: str) -> str:
@@ -142,10 +150,8 @@ def numbers_in(text: str, known_words: frozenset[str] = frozenset()) -> set[Deci
     """Every number a text states. `known_words` are letter-led words that may hold digits."""
     text = _plain(text)
     found: set[Decimal] = set()
-    if (
-        any(ch.isdigit() and not ch.isascii() for ch in text)
-        or _ODD_NEIGHBOUR.search(text)
-        or _SPLIT_NUMBER.search(text)
+    if any(ch.isdigit() and not ch.isascii() for ch in text) or any(
+        _joins_digits(gap) for gap in _BETWEEN_DIGITS.findall(text)
     ):
         found.add(NOT_A_NUMBER)
     for word in _WORD.findall(text):

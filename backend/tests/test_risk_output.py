@@ -112,8 +112,9 @@ def test_eight_are_accepted_and_a_ninth_is_rejected() -> None:
         "Volume rose to 42 000 messages.",
         "Volume rose to 900\u2009000 messages.",
         "Open rate 31\u066b0\u066b4 percent.",
-        "About 900\u00d7 the usual.",
-        "Roughly \u00b142000 messages.",
+        "Volume rose to 900'000 messages.",
+        "Volume rose to 900\u2019000 messages.",
+        "Volume rose to 900\u00a0000 messages.",
     ],
 )
 def test_a_number_that_is_not_in_the_input_is_rejected(why: str) -> None:
@@ -321,3 +322,33 @@ def test_what_is_accepted_states_only_the_inputs_numbers_however_it_is_dressed()
                 shown = "".join(c for c in shown if unicodedata.category(c)[0] not in "CM")
                 joined = re.sub(r"(?<=[0-9])\s+(?=[0-9])", "", shown)
                 assert numbers_in(joined) <= known, repr(why)
+
+
+@pytest.mark.parametrize(
+    "why",
+    [
+        "The 2048\u2011bit key is short.",
+        "Volume went 40000\u201342000 messages.",
+        "Volume went 40000-42000 messages.",
+        "The \u20182048\u2019 key is short.",
+        "Complaints 0.02, 900 days of history.",
+        "The key is 2048. 900 days of history.",
+        "Complaints at 0.02%; volume 42,000 (was 40,000).",
+        "Volume: 42000/40000 this week against last.",
+        "About 900\u00d7 nothing: just 900.",
+        "Roughly \u00b10.02 either way.",
+        "\u201c42000\u201d messages \u2014 900 days in.",
+    ],
+)
+def test_ordinary_punctuation_around_the_inputs_numbers_is_accepted(why: str) -> None:
+    """A dash of any kind, a quote mark, a list comma or a full stop beside a number is a
+    sentence, not a disguise."""
+    assert len(validate(SNAPSHOT, output(risk("complaint_rate_elevated", why=why)))) == 1
+
+
+def test_case_06_holds_the_numbers_those_sentences_use() -> None:
+    from domain_health.risks import _numbers_of
+
+    known = _numbers_of(SNAPSHOT.model_dump(mode="json"))
+
+    assert {Decimal(n) for n in ("2048", "40000", "42000", "0.02", "900")} <= known
