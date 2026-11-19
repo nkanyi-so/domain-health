@@ -1,0 +1,28 @@
+# One glob per line. Files that state this project's claim or define how it is measured:
+# eval cases and thresholds, judge prompts, hand labels, the test that pins the claim's wording.
+# A phase whose diff touches one of these is never merged by the run itself: the owner merges it.
+# docs/SPEC.md and docs/STANDING.md are always treated this way and need no line here.
+# A line may be a file, a glob, or a folder (everything under it counts). Case does not matter.
+# The intake fills this in; Phase 0 corrects it once the files exist. Examples:
+#   evals
+#   prompts/judge.md
+#   tests/test_claim_wording.*
+# The list must say something. If the project truly has no such file, write the one word: none
+# Until it does, the merge gate merges nothing.
+evals/cases
+evals/RUBRIC.md
+evals/bars.toml
+docs/CLAIM.md
+backend/tests/test_claim_wording.py
+frontend/src/content/claim.test.ts
+backend/src/domain_health/types.py
+backend/tests/test_rubric_types.py
+backend/tests/paths.py
+backend/src/domain_health/models.py
+backend/src/domain_health/evals/cases.py
+backend/src/domain_health/evals/table.py
+backend/tests/test_eval_cases.py
+backend/tests/test_rubric_table.py
+backend/tests/test_input_validation.py
+backend/src/domain_health/evals/comparison.py
+backend/tests/test_comparison.py

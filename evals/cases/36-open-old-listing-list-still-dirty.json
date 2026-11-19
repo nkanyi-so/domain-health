@@ -1,0 +1,71 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "tamarind-street-kitchen.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 3,
+        "all_qualifier": "~all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "quarantine",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.07,
+      "bounce_rate_pct": 4.3,
+      "volume_7d": 18000,
+      "volume_prev_7d": 17500,
+      "open_rate_pct": 24.0,
+      "open_rate_prev_pct": 25.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 1,
+        "days_since_delisted": 52
+      },
+      "domain_age_days": 800
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "bounce_rate_elevated",
+      "blocklist_recent"
+    ],
+    "acceptable": [
+      "spf_weak_all",
+      "reputation_poor"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "dkim_key_1024",
+      "reputation_declining",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining"
+    ]
+  },
+  "note": "Open: the bands call `blocklist_recent` only acceptable, because the single listing ended more than 30 days ago. The call is that it is expected: bounces are still at 4.3% on steady volume, so the list that most likely earned the listing has not been cleaned and the cause is still there. A specialist would tie the two together and warn that the listing can return. It rests on the list-hygiene advice in M3AAWG's sender best practices."
+}

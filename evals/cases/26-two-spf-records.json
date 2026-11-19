@@ -1,0 +1,77 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "marlowe-and-finch.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 2,
+        "valid": null,
+        "lookup_count": null,
+        "all_qualifier": null
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "quarantine",
+        "subdomain_policy": "none",
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": [
+      {
+        "type": "spf_multiple",
+        "source": "dns",
+        "instruction": "Merge the SPF records into one: receivers treat more than one as an error."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "dmarc_partial_enforcement"
+    ],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Two SPF records is a fix, so both SPF risks are wrong: there is no single record to judge. DMARC quarantines but exempts subdomains, which is expected and has nothing to do with the SPF fault."
+}

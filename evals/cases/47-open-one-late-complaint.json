@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "tarn-edge-running.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.16,
+      "bounce_rate_pct": 0.3,
+      "volume_7d": 640,
+      "volume_prev_7d": 46000,
+      "open_rate_pct": 35.0,
+      "open_rate_prev_pct": 34.5,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1900
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call `complaint_rate_elevated` acceptable, because 0.16% is over the 0.10% line but the week is low volume. The call is that it is wrong here: the rate is one complaint in 640 messages, the week before carried a mailing of 46,000, and people report mail days after it arrives, so that one report almost certainly belongs to last week's mailing, where it is a rate near zero; the grade is steady at high and opens are flat. Raising it would send the client to clean a list that drew one complaint from 46,000 messages. The 0.10% line comes from the bulk-sender requirements published by Google; the lag in complaints is general practice."
+}

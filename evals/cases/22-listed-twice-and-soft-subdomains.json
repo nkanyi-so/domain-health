@@ -1,0 +1,72 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "kestrel-point-marina.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": "quarantine",
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 2,
+        "days_since_delisted": 45
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "blocklist_recent"
+    ],
+    "acceptable": [
+      "dmarc_partial_enforcement"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining"
+    ]
+  },
+  "note": "Two blocklist listings in 90 days, the last ended 45 days ago: a repeat is expected even though it is not recent. Subdomains are quarantined under a reject policy, which is still enforcement and only acceptable to mention."
+}

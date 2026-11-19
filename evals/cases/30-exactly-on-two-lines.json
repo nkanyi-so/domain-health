@@ -1,0 +1,72 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "wrenfield-garden-supply.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 4,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "medium",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 80000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 1,
+        "days_since_delisted": 30
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "volume_spike",
+      "blocklist_recent"
+    ],
+    "acceptable": [
+      "reputation_poor"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "new_domain_volume",
+      "engagement_declining"
+    ]
+  },
+  "note": "Hard: values exactly on thresholds. Volume is exactly double on a domain whose grade is not high, and the one blocklist listing ended exactly 30 days ago: both lines include their boundary, so both are expected."
+}

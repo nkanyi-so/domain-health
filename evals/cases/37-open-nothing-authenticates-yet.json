@@ -1,0 +1,83 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "ferncliff-surveyors.example",
+    "checks": {
+      "spf": {
+        "present": false,
+        "record_count": 0,
+        "valid": null,
+        "lookup_count": null,
+        "all_qualifier": null
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 768
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "low",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.03,
+      "bounce_rate_pct": 4.1,
+      "volume_7d": 3200,
+      "volume_prev_7d": 3100,
+      "open_rate_pct": 24.0,
+      "open_rate_prev_pct": 28.5,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1600
+    },
+    "fixes": [
+      {
+        "type": "spf_missing",
+        "source": "dns",
+        "instruction": "Publish an SPF record for this domain that lists every service that sends its mail."
+      },
+      {
+        "type": "dkim_weak_key",
+        "source": "dns",
+        "instruction": "Rotate the DKIM key to 2,048 bits: a key under 1,024 bits is rejected by receivers."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "reputation_declining",
+      "reputation_poor",
+      "bounce_rate_elevated"
+    ],
+    "acceptable": [
+      "engagement_declining"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "complaint_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call `dmarc_policy_none` acceptable, as they do whenever an SPF or DKIM fix is open. The call is that it is wrong here: there is no SPF record and the only DKIM key is too short for receivers to accept, so no message can pass DMARC at all, and the bounces at 4.1% and the grade falling to low show receivers already refusing some of this mail. A client who acts on a warning about p=none would have all of its own mail quarantined or rejected. With one of the two working the bands' answer would stand; with neither, staying at p=none is the correct state until both fixes are done. The other types follow the bands. It rests on the DMARC RFC, under which a message passes only when SPF or DKIM passes in alignment."
+}

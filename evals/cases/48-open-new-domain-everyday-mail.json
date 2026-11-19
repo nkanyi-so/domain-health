@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "fennimore-and-sloe.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 1,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.0,
+      "bounce_rate_pct": 0.0,
+      "volume_7d": 95,
+      "volume_prev_7d": 90,
+      "open_rate_pct": 71.0,
+      "open_rate_prev_pct": null,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 24
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [
+      "dmarc_policy_none"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call `new_domain_volume` acceptable, because the domain is under 30 days old. The call is that it is wrong here: it sends about 95 messages a week, level week on week, opened at 71% with no complaints or bounces, which is person-to-person mail and not a stream that can be warmed up. The type is about real volume sent before there is a history, and a warm-up warning would have this client hold back or stagger ordinary correspondence for no gain; with a mailing list behind it, even a small one, the bands' answer would stand. General practice; the warm-up advice in M3AAWG's sender best practices is written for bulk mail."
+}

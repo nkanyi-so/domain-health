@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "lanternfish-books.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 2,
+        "all_qualifier": "~all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "k1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 9000,
+      "volume_prev_7d": 7000,
+      "open_rate_pct": 46.0,
+      "open_rate_prev_pct": 61.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 72
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [
+      "dmarc_policy_none",
+      "spf_weak_all",
+      "new_domain_volume",
+      "engagement_declining"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands expect `engagement_declining`, because the open rate fell by about a quarter at real volume. The call is that it is only acceptable: on a domain 72 days old the earlier window is the first weeks of warm-up, when mail goes to the most engaged people first, so the rate settling as the list widens is the plan working, not the list tiring. Reputation has improved, complaints are minimal and 46% is still a strong open rate. It rests on the warm-up advice in M3AAWG's sender best practices."
+}

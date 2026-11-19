@@ -1,0 +1,72 @@
+{
+  "set": "table",
+  "input": {
+    "domain": "foxglove-apothecary.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 8,
+        "all_qualifier": "?all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.4,
+      "volume_7d": 42000,
+      "volume_prev_7d": 40000,
+      "open_rate_pct": 31.0,
+      "open_rate_prev_pct": 32.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1500
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [
+      "dmarc_policy_none",
+      "spf_weak_all"
+    ],
+    "acceptable": [
+      "spf_near_lookup_limit"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "The SPF record ends in ?all and DMARC is at p=none, so nothing tells receivers to refuse other senders: both expected on an established domain. Eight lookups is acceptable to mention."
+}

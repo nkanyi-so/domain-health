@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "skerry-light-studio.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 2,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "none",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "medium"
+      },
+      "complaint_rate_pct": 0.02,
+      "bounce_rate_pct": 0.3,
+      "volume_7d": 3400,
+      "volume_prev_7d": 3000,
+      "open_rate_pct": 43.0,
+      "open_rate_prev_pct": 45.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 1,
+        "days_since_delisted": 58
+      },
+      "domain_age_days": 70
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [
+      "dmarc_policy_none"
+    ],
+    "wrong": [
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call `blocklist_recent` acceptable, because the one listing in 90 days ended more than 30 days ago. The call is that it is wrong here: the domain is 70 days old and the listing ended when it was 12 days old, which is the pattern of a list that holds every newly registered domain for its first days and then lets it go, whatever it sends; since then the grade has risen to high and complaints and bounces are minimal. The type warns that the cause may not be fixed, but here the cause was the domain's age, and raising it would send the client looking for a list or content problem that was never there. Had the listing come after weeks of sending, the bands' answer would stand; this reading is general practice."
+}

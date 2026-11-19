@@ -1,0 +1,70 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "aldersyke-architects.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 3,
+        "all_qualifier": "-all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "reject",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "high",
+        "previous_grade": "high"
+      },
+      "complaint_rate_pct": 0.0,
+      "bounce_rate_pct": 0.0,
+      "volume_7d": 140,
+      "volume_prev_7d": 80,
+      "open_rate_pct": 62.0,
+      "open_rate_prev_pct": 60.0,
+      "blocklist": {
+        "listed": false,
+        "listings_90d": 0,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 2600
+    },
+    "fixes": []
+  },
+  "label": {
+    "expected": [],
+    "acceptable": [],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "spf_weak_all",
+      "dkim_key_1024",
+      "reputation_declining",
+      "reputation_poor",
+      "complaint_rate_elevated",
+      "bounce_rate_elevated",
+      "volume_spike",
+      "new_domain_volume",
+      "engagement_declining",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands call `volume_spike` acceptable, because volume rose by three quarters week on week. The call is that it is wrong here: the rise is from 80 messages to 140 on a domain seven years old with a grade of high, no complaints, no bounces and well-opened mail, which is ordinary correspondence, and sixty more messages is not a change any receiver measures. A spike warning would have this client spreading out or holding back everyday mail to guard against nothing; at real volume the bands' answer would stand. General practice; the bulk-sender requirements published by Google and by Yahoo are written for bulk senders, which this is not."
+}

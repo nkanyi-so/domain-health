@@ -1,0 +1,76 @@
+{
+  "set": "open",
+  "input": {
+    "domain": "hollin-brook-furniture.example",
+    "checks": {
+      "spf": {
+        "present": true,
+        "record_count": 1,
+        "valid": true,
+        "lookup_count": 5,
+        "all_qualifier": "~all"
+      },
+      "dkim": {
+        "selectors_probed": 12,
+        "keys": [
+          {
+            "selector": "s1",
+            "key_bits": 2048
+          }
+        ]
+      },
+      "dmarc": {
+        "present": true,
+        "valid": true,
+        "policy": "quarantine",
+        "subdomain_policy": null,
+        "pct": 100
+      }
+    },
+    "sources": {
+      "reputation": {
+        "grade": "low",
+        "previous_grade": "low"
+      },
+      "complaint_rate_pct": 0.06,
+      "bounce_rate_pct": 2.6,
+      "volume_7d": 47000,
+      "volume_prev_7d": 35000,
+      "open_rate_pct": 21.0,
+      "open_rate_prev_pct": 22.5,
+      "blocklist": {
+        "listed": true,
+        "listings_90d": 1,
+        "days_since_delisted": null
+      },
+      "domain_age_days": 1100
+    },
+    "fixes": [
+      {
+        "type": "blocklist_listed",
+        "source": "seeded",
+        "instruction": "Fix the cause of the blocklist listing, then request delisting."
+      }
+    ]
+  },
+  "label": {
+    "expected": [
+      "reputation_poor",
+      "bounce_rate_elevated",
+      "volume_spike"
+    ],
+    "acceptable": [
+      "spf_weak_all"
+    ],
+    "wrong": [
+      "dmarc_policy_none",
+      "dmarc_partial_enforcement",
+      "spf_near_lookup_limit",
+      "dkim_key_1024",
+      "reputation_declining",
+      "new_domain_volume",
+      "blocklist_recent"
+    ]
+  },
+  "note": "Open: the bands leave `volume_spike` unlisted, because a rise of about a third is under their line of one and a half times. The call is that it is expected: the domain is on a blocklist now, its grade is low and bounces are at 2.6%, and it sent 12,000 more messages into that than the week before. Growth during a listing reads as the behaviour that earned it carrying on and makes delisting harder; the fix covers the listing itself, and the growth is a separate thing the client should stop. General practice, in line with the advice in M3AAWG's sender best practices to bring volume up only as reputation allows."
+}
