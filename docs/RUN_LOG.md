@@ -31,3 +31,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T16:42:39Z	0	review	no blocking findings @ 4ae1da8	0.00
 2026-11-19T16:42:39Z	0	challenge	no change @ 4ae1da8	0.00
 2026-11-19T16:45:18Z	0	verify	pass @ 4ae1da8	0.00
+2026-11-19T16:46:21Z	0	stop-opened	issue=#4 questions=3 asked: Phase 0 is ready: read the measure and merge #1	0.00
