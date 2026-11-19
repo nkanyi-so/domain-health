@@ -20,3 +20,10 @@ def test_a_prompt_that_cannot_be_scored_is_a_failure_not_a_pass(tmp_path: Path) 
     (tmp_path / "risks-v1.md").write_text("a prompt", encoding="utf-8")
 
     assert main(["--prompts", str(tmp_path)]) == 1
+
+
+def test_a_prompt_under_another_name_is_not_nothing_to_measure(tmp_path: Path) -> None:
+    (tmp_path / "risks.md").write_text("a prompt", encoding="utf-8")
+
+    assert main(["--prompts", str(tmp_path)]) == 1
+    assert main(["--prompts", str(tmp_path), "--strict"]) == 1

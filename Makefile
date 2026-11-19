@@ -69,5 +69,15 @@ format:
 eval:
 	@cd backend && uv run --frozen python -m domain_health.evals --prompts ../prompts $(if $(STRICT),--strict,)
 
+# Paid, or writes to Google Cloud. Each must be the only goal on the command line, so that it can
+# never ride along behind an allowed command such as `make eval record`. Keep this guard when a
+# phase builds the target.
+GUARDED := eval-live record seed infra deploy-backend
+ifneq ($(filter $(GUARDED),$(MAKECMDGOALS)),)
+ifneq ($(words $(MAKECMDGOALS)),1)
+$(error $(filter $(GUARDED),$(MAKECMDGOALS)) is paid or writes to Google Cloud: run it alone, as the only goal)
+endif
+endif
+
 eval-live record seed infra deploy-backend fallback screens check-domain:
 	@echo "make $@: not built yet" >&2; exit 1

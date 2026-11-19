@@ -26,9 +26,12 @@ value_of() {
 if out=$(make -s -C "$ROOT" --eval 'toolchain: ; @bash scripts/toolchain-check.sh' toolchain 2>/dev/null); then
   printf '%s\n' "$out"
 else
+  seen=0
   while IFS= read -r line; do
-    case "$line" in WARNING:*) need "${line#WARNING: }" ;; *) [ -n "$line" ] && echo "$line" ;; esac
+    case "$line" in WARNING:*) need "${line#WARNING: }"; seen=1 ;; *) [ -n "$line" ] && echo "$line" ;; esac
   done <<<"$out"
+  # A failure that names no tool means the check itself did not run. That is not a pass.
+  [ "$seen" = "1" ] || need "the Node and JDK check did not run (make failed before it could)"
 fi
 
 # --- OpenAI: the key answers for the model the evals use (a free call) ----------------------------

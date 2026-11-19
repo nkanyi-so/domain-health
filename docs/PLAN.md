@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | building | |
+| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -107,7 +107,7 @@ Risks seen:
 
 Changes to the harness layer, all of them (none removes or loosens a check):
 
-- `.claude/settings.json`: seven lines added to the allow list: `make format *`, `make eval`, `make eval STRICT=1`, `make dev`, `make check-domain *`, `make screens`, `make fallback`. Not added, so they always ask: `eval-live`, `record`, `infra`, `deploy-backend`, `seed`. Deny list and hooks unchanged.
+- `.claude/settings.json`: five lines added to the allow list, each an exact command with no wildcard: `make eval`, `make eval STRICT=1`, `make dev`, `make screens`, `make fallback`. (Two more, `make format *` and `make check-domain *`, were in the first commit and were taken out after the review below.) Not added, so they always ask: `eval-live`, `record`, `infra`, `deploy-backend`, `seed`. Deny list and hooks unchanged.
 - `.claude/hooks/protected-paths.txt`: four generated paths added (`evals/results.json`, `evals/recordings/*`, `frontend/src/data/fallback.json`, `docs/RUN_LOG.md`).
 - `.claude/hooks/measure-paths.txt`: the five intake lines all name files that now exist; one added, `frontend/src/content/claim.test.ts`.
 - `.claude/hooks/preflight.sh`: calls `scripts/preflight-project.sh` and adds its MISSING count to its own; a missing project script is itself MISSING.
@@ -155,6 +155,34 @@ no prompt yet: nothing to measure
 ```
 
 No results file is written before a prompt exists, so there is none to commit in this phase.
+
+### 2026-11-19: review, first run, on 0a7b46b
+
+Verdict as reported: "one blocking finding. The code, tests and measure are sound. One guard in `.claude/settings.json` does not do what the checklist says it does."
+
+Findings as reported, then what was done:
+
+1. Blocking. "The allow list lets a paid or cloud target run without asking." `Bash(make format *)` and `Bash(make check-domain *)`: "the `*` also matches extra make goals and flags", so `make format FILE=Makefile eval-live` runs `eval-live` too, and `-f` or `--eval` run any recipe. Harmless only while those targets are stubs.
+   - Done: both lines removed. Every `make` line left in the allow list is an exact command. (`make format` is run by the edit hook, which needs no allow line; `make check-domain` will ask.) The reviewer also proposed deny rules for the paid targets; those were not added, because a deny rule would stop the run-through from running the paid steps the plan lists at all. Instead the Makefile now refuses any of `eval-live`, `record`, `seed`, `infra`, `deploy-backend` unless it is the only goal:
+
+   ```text
+   $ make -n format FILE=Makefile eval-live
+   Makefile:78: *** eval-live is paid or writes to Google Cloud: run it alone, as the only goal.  Stop.
+   $ make -n check-domain DOMAIN=example.com record
+   Makefile:78: *** record is paid or writes to Google Cloud: run it alone, as the only goal.  Stop.
+   $ make -n -k seed infra
+   Makefile:78: *** seed infra is paid or writes to Google Cloud: run it alone, as the only goal.  Stop.
+   $ make eval-live
+   make eval-live: not built yet
+   ```
+2. Not blocking. "Preflight can skip the Node and JDK check without saying so": if `make` fails before the toolchain script prints a warning, nothing is counted missing.
+   - Done: `scripts/preflight-project.sh` now counts that as MISSING ("the Node and JDK check did not run").
+3. Not blocking. "`make eval STRICT=1` only sees prompts named `risks-v*.md`": a prompt under another name prints "nothing to measure" and CI's `eval` stays green.
+   - Done: anything in `prompts/` that is not a version file is an error, with or without `STRICT`. One test added.
+4. Not blocking. "The import test that `CLAUDE.md` rule 1 describes does not exist yet." Nothing imports `dns`, `openai` or `google.cloud` yet; `backend/tests/test_emulator_smoke.py` imports `urllib.request` and must be a named exception when the test is written.
+   - Not done here: Phase 1 adds the first outside system (DNS) and writes the import test with it, with the smoke test as a named exception until Phase 3 replaces it.
+
+It also confirmed: the harness-change list matches the diff of `.claude`, `.githooks` and `.github`; the counts in this log; that no gate, checklist item or heading in this file was edited; and that the verifier and challenger statements at the top of this log are true.
 
 ---
 

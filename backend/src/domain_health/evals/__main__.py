@@ -16,6 +16,13 @@ def prompt_versions(folder: Path) -> list[Path]:
     return sorted(folder.glob("risks-v*.md")) if folder.is_dir() else []
 
 
+def unversioned(folder: Path) -> list[Path]:
+    """Anything in the prompts folder that is not a version file."""
+    if not folder.is_dir():
+        return []
+    return sorted(path for path in folder.iterdir() if path not in prompt_versions(folder))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="make eval")
     parser.add_argument("--prompts", type=Path, required=True, help="the folder of prompt versions")
@@ -23,6 +30,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     versions = prompt_versions(args.prompts)
+    strays = unversioned(args.prompts)
+    if strays:
+        # A prompt under another name would otherwise be reported as "nothing to measure".
+        names = ", ".join(path.name for path in strays)
+        print(f"not a prompt version (expected risks-v<number>.md): {names}", file=sys.stderr)
+        return 1
     if not versions:
         print(NOTHING)
         return 0
