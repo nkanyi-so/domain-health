@@ -60,3 +60,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T20:01:42Z	2	review	no blocking findings apart from the two carried for the owner @ cd7613f	0.99
 2026-11-19T20:03:38Z	2	verify	pass @ cd7613f	0.99
 2026-11-19T20:09:07Z	2	challenge	change needed @ cd7613f	0.99
+2026-11-19T20:11:25Z	2	checkpoint	Phase 2 the model and the evals, pr=#6	0.99
