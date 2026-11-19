@@ -8,7 +8,7 @@ Kept current by the build at every change of state, so progress can be read here
 
 | Phase | State | Pull request |
 |---|---|---|
-| 0: scaffold, process layer and the measure | building | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
+| 0: scaffold, process layer and the measure | waiting on you | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | not started | |
 | 2: the model and the evals | not started | |
 | 3: snapshots and the handled loop | not started | |
@@ -37,7 +37,41 @@ Estimated total: under $3.50. Everything else is free.
 
 ## Waiting on you
 
-Nothing.
+**Phase 0 is built and waiting for you, for two reasons.** It is the phase you merge (pull request [#1](https://github.com/nkanyi-so/domain-health/pull/1)): it sets the guards and the measure. And the challenger, the independent agent that reads the measure against the claim, says a change is needed before you sign it off. Nothing has been changed in answer to it; the choices are yours. Everything else in the phase passed: the review (fourth run, no blocking findings), the verifier (every command works), CI (all three jobs green).
+
+**What the challenger found, in short.** Every label in the twenty cases can be computed from the input by about 130 lines of if/else read straight from `evals/RUBRIC.md`. Two independent agents wrote such a script and each reproduced all 260 label slots exactly. So a rules engine with no model would score full marks, and passing the four bars would show that the model follows a written table, not that it makes judgment calls. That is the word the claim leans on. Its full report, with eight more points about what the bars would not show and how noisy they are, is in the Phase 0 log below ("challenger, on 2e989a7").
+
+**1. The claim and the measure: which way do you want to go?**
+
+- **A1. Keep the sentence, make the measure able to show judgment (recommended).** You write about ten more cases where the rubric deliberately leaves the call open and only a specialist can label it: no table gives the answer. Those ten are kept out of prompt tuning. The harness also scores a rules-only baseline (the threshold script) and reports it beside the model. The README then says: on the table cases rules and model agree, and on the open cases here is what the model does that rules cannot. Costs you an hour or two of labelling; costs the build about half a day; no money beyond a cent or two per eval run. If the model does no better than the baseline on your ten, that is found in Phase 2 and you can still fall back to A2.
+- **A2. Keep the measure, reword the sentence** to what is measured, for example "judgment-call risks picked by a model from a closed list and scored against a written rubric". Costs nothing to build. A reader who asks "why is this not just rules?" gets no answer from the evals.
+- **A3. Move the risk bands into rules** and give the model only the order and the wording, then score those. This redesigns Phase 2, reverses decision 0001 and needs a judge for wording. Not recommended: it is a different project.
+
+**2. Tighter definitions for the four measures. Each is yes or no; I recommend yes to all four. They change `docs/SPEC.md`, which is why they are yours.**
+
+- **B.** Count "harmful" over everything the model returns (up to eight), not only the first five. Risks six to eight become visible as soon as someone ticks a risk handled.
+- **C.** Output that fails validation counts as nothing found for coverage, never matches another run for stability, and a "dropped" count is printed beside the four measures.
+- **D.** Keep the name "harmful", and have the README state it as "0 in 60 case-runs" (it bounds the rate at about 5%; it does not show never). Accept that precision adds little on this set.
+- **F (rules for the paid runs).** The number that counts at the Phase 2 gate is the run of the final prompt version; every attempt is reported; an unchanged prompt is never re-run to get a pass; the prompt may not quote the rubric's thresholds.
+
+**3. More cases?** Twenty cases hold 27 expected items, so one item is 0.037 of coverage and a score of 0.81 has not really cleared 0.80. Four risk types are expected in only one case each.
+
+- **Recommended: go to about forty**, with every type expected in at least two, and report coverage per type. With A1, your ten are part of the forty and I draft the other ten from the rubric for you to read. Costs you about fifteen more minutes of reading; about $0.02 more per paid run.
+- Or stay at twenty and have the README say how coarse the number is (decision 0008 already says so).
+- The stability bar "18 of 20" would have to be restated for a different count. Recommended: keep it as a share, at least 90% of cases.
+
+**4. Checks in code the challenger asked for (recommended: yes to all; no money, about a day across phases):** a protected test that re-derives every table-case label from the rubric, so a hand edit cannot drift; a test that each case's fix list is what the fix table gives; validators on the model's input so an impossible case cannot be written (for example an earlier open rate on a 40-day-old domain); in Phase 4, a test that no recording for a seeded client contains a type the rubric calls wrong there; a test that only a case's `input` reaches the model.
+
+**5. Sign off the measure as drafted, apart from the above.** Three things the build decided because it had to, all in `docs/DECISIONS_TO_REVIEW.md`: the shape of the model's input; the twelve fix types and thirteen risk types; and a change to `spf_weak_all` made after the second read (`~all` is only ever "acceptable"). And six objections from the second reader that were not taken, listed in the log under "second read of the labels": the low-volume cut at 1,000 a week, low volume gating the thirty-day open rate, how much weight an open-rate fall deserves, `p=quarantine; pct=0`, case 16 counting one fact twice, and DKIM keys that may not be in use. You are the specialist: say "as drafted" or correct `evals/RUBRIC.md` and the cases by hand in the pull request.
+
+**6. Owner actions still open in `docs/STANDING.md`** (the preflight lists the first two as MISSING; the commands are in that file):
+
+- The OpenAI key: `cp .env.example .env`, then set `OPENAI_API_KEY=`.
+- The Google Cloud project: the `domain-health` gcloud configuration already exists and is signed in; it still needs the project created, billing linked, and `GCP_PROJECT_ID=` in `.env`.
+- Vercel: `npm i -g vercel@latest`, and give Vercel's GitHub app access to this repository.
+- Then `bash .claude/hooks/preflight.sh` must end with `preflight: ready`.
+
+**What happens once you answer.** Answer in a comment on the issue or in the session. For whatever you accept in 1 to 4, I write a decision record and the proposed edit to `docs/SPEC.md` (and `docs/CLAIM.md` if you choose A2) on this branch, make the changes, and run the reviewer, the verifier and the challenger again on the result. You then read the measure and merge pull request #1; that merge is the sign-off. If you decline everything, say so and merge as it is: the challenger's verdict line stays as it gave it. Nothing in Phase 1 starts before the merge.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -52,19 +86,19 @@ block goes into the phase log with the answers, and this section says "Nothing."
 
 The owner merges this phase, so it carries everything the owner must sign off once: the guards, the commands, the measure.
 
-- [ ] Project scaffold: `backend/` (Python 3.14, uv, ruff, mypy strict, pytest) and `frontend/` (Next.js 16, TypeScript strict, ESLint, Tailwind 4, pnpm), each with one real passing test.
-- [ ] `Makefile` with `setup` (installs both toolchains, runs `git config core.hooksPath .githooks`, warns if gitleaks is missing or no JDK of 21 or later is found), `dev`, `check` (both toolchains, emulator tests included), `format` (formats the one file passed as `FILE=`), `eval` (prints "no prompt yet: nothing to measure" until Phase 2), and stubs that fail with "not built yet" for `eval-live`, `record`, `seed`, `infra`, `deploy-backend`, `fallback`, `screens`.
-- [ ] Harness layer adapted to this stack: allow list in `.claude/settings.json` (never `eval-live`, `record`, `infra`, `deploy-backend`, `seed`), `protected-paths.txt`, `measure-paths.txt` corrected to the files that now exist, CI setup steps for both toolchains and the emulator, actions pinned by commit. List every change in the log.
-- [ ] CI has three jobs: `check`, `secrets`, and `eval` (runs `make eval STRICT=1`).
-- [ ] `.gitignore` (with `.env`), `.env.example` naming every variable from `docs/STANDING.md` and the deploy.
-- [ ] No `*.harness-new` file left: each one merged by hand and deleted.
-- [ ] `evals/RUBRIC.md`: the closed list of risk types (about twelve), each with when a specialist flags it, when it is acceptable and when it is wrong; the same for the line between a fix and a risk. A test asserts the code's list of types equals the rubric's.
-- [ ] `evals/cases/`: twenty labelled snapshots in the shape in `docs/ARCHITECTURE.md`, at least six hard, at least four healthy; every risk type expected in at least one case and wrong in at least one. A schema test loads all twenty. Labels second-read by a separate agent against the rubric; what it changed is in the log.
-- [ ] `evals/bars.toml` with the four bars from `docs/SPEC.md`.
-- [ ] `docs/CLAIM.md` and `backend/tests/test_claim_wording.py`, which checks the sentence in `README.md`, `frontend/src/content/claim.ts` and `backend/src/domain_health/report/templates/` wherever those exist.
-- [ ] `scripts/preflight-project.sh`, called by `.claude/hooks/preflight.sh`: confirms every owner action in `docs/STANDING.md` that a script can confirm (the OpenAI key answers for `gpt-6-luna`; the `domain-health` gcloud configuration exists, is signed in with a user account and points at `GCP_PROJECT_ID`; billing is enabled on that project; the login may create budgets; `vercel whoami` answers; Node 24 and a JDK of 21 or later are present). It reads names, never prints values.
-- [ ] Branch protection on `main`: no force-push, status checks required with this project's CI jobs picked as the required checks (`check`, `secrets`; not `eval`), and it applies to administrators too (a classic rule with "Do not allow bypassing", or a ruleset with an empty bypass list). The deny rules in settings are a courtesy; this is the guard. In run-through mode the merge gate checks it and merges nothing without it, so if it cannot be turned on, say so under "Waiting on you".
-- [ ] `docs/STANDING.md` is filled in and lands on `main` with this phase. Every owner action in it is ticked or listed under "Waiting on you". `bash .claude/hooks/preflight.sh` output is in the log.
+- [x] Project scaffold: `backend/` (Python 3.14, uv, ruff, mypy strict, pytest) and `frontend/` (Next.js 16, TypeScript strict, ESLint, Tailwind 4, pnpm), each with one real passing test.
+- [x] `Makefile` with `setup` (installs both toolchains, runs `git config core.hooksPath .githooks`, warns if gitleaks is missing or no JDK of 21 or later is found), `dev`, `check` (both toolchains, emulator tests included), `format` (formats the one file passed as `FILE=`), `eval` (prints "no prompt yet: nothing to measure" until Phase 2), and stubs that fail with "not built yet" for `eval-live`, `record`, `seed`, `infra`, `deploy-backend`, `fallback`, `screens`.
+- [x] Harness layer adapted to this stack: allow list in `.claude/settings.json` (never `eval-live`, `record`, `infra`, `deploy-backend`, `seed`), `protected-paths.txt`, `measure-paths.txt` corrected to the files that now exist, CI setup steps for both toolchains and the emulator, actions pinned by commit. List every change in the log.
+- [x] CI has three jobs: `check`, `secrets`, and `eval` (runs `make eval STRICT=1`).
+- [x] `.gitignore` (with `.env`), `.env.example` naming every variable from `docs/STANDING.md` and the deploy.
+- [x] No `*.harness-new` file left: each one merged by hand and deleted.
+- [x] `evals/RUBRIC.md`: the closed list of risk types (about twelve), each with when a specialist flags it, when it is acceptable and when it is wrong; the same for the line between a fix and a risk. A test asserts the code's list of types equals the rubric's.
+- [x] `evals/cases/`: twenty labelled snapshots in the shape in `docs/ARCHITECTURE.md`, at least six hard, at least four healthy; every risk type expected in at least one case and wrong in at least one. A schema test loads all twenty. Labels second-read by a separate agent against the rubric; what it changed is in the log.
+- [x] `evals/bars.toml` with the four bars from `docs/SPEC.md`.
+- [x] `docs/CLAIM.md` and `backend/tests/test_claim_wording.py`, which checks the sentence in `README.md`, `frontend/src/content/claim.ts` and `backend/src/domain_health/report/templates/` wherever those exist.
+- [x] `scripts/preflight-project.sh`, called by `.claude/hooks/preflight.sh`: confirms every owner action in `docs/STANDING.md` that a script can confirm (the OpenAI key answers for `gpt-6-luna`; the `domain-health` gcloud configuration exists, is signed in with a user account and points at `GCP_PROJECT_ID`; billing is enabled on that project; the login may create budgets; `vercel whoami` answers; Node 24 and a JDK of 21 or later are present). It reads names, never prints values.
+- [x] Branch protection on `main`: no force-push, status checks required with this project's CI jobs picked as the required checks (`check`, `secrets`; not `eval`), and it applies to administrators too (a classic rule with "Do not allow bypassing", or a ruleset with an empty bypass list). The deny rules in settings are a courtesy; this is the guard. In run-through mode the merge gate checks it and merges nothing without it, so if it cannot be turned on, say so under "Waiting on you".
+- [x] `docs/STANDING.md` is filled in and lands on `main` with this phase. Every owner action in it is ticked or listed under "Waiting on you". `bash .claude/hooks/preflight.sh` output is in the log.
 
 **Gate:** `make check` exits 0 with at least one passing test in each toolchain and the twenty cases loading. The pre-commit hook refuses a commit when a test is made to fail (show it, then undo). CI runs green on the first push, all three jobs. Branch protection is shown to be on. `bash .claude/hooks/preflight.sh` ends with `preflight: ready`. The owner merges this phase in both modes: it changes the guards and sets the measure.
 
@@ -209,6 +243,191 @@ Verdict as reported: "one blocking finding, and it is a one-line doc fix. Everyt
    - Done: added to `measure-paths.txt`.
 3. Not blocking. The newest prompt was picked by text order, so `risks-v9.md` would beat `risks-v10.md`.
    - Done: sorted by number, with a test; a file that is not exactly `risks-v<number>.md` is a stray and fails.
+
+### 2026-11-19: review, fourth run, on 2e989a7
+
+Verdict as reported: "no blocking findings." It checked the fixes from all three earlier reviews and the whole diff, ran the backend tests (40 passed, 1 deselected), `make eval` both ways and the preflight. One note, not blocking: the three decisions in `docs/DECISIONS_TO_REVIEW.md` that set the measure (input shape, type lists, the `spf_weak_all` change) are covered only because the owner merges this phase, and "that block must actually list them when the stop is written. If it does not, this becomes blocking." They are question 5 under "Waiting on you".
+
+### 2026-11-19: verifier, on 2e989a7
+
+| What it ran | Expected | What happened | Result |
+|---|---|---|---|
+| `make setup` | both toolchains installed, hooks path set, Node and JDK ok | hooks path is `.githooks`; printed `ok: Node 24`, `ok: JDK 23`; exit code not captured | pass |
+| `make check` | exit 0, both toolchains, an emulator test | exit 0; `40 passed, 1 deselected`; emulator started and `1 passed, 40 deselected` ran inside it; frontend format, lint, typecheck, vitest (1 passed), `next build` | pass |
+| `make format FILE=<a probe file>`; `make format` | formats the one file; usage error without FILE | `x=1` became `x = 1`; without FILE: `usage: make format FILE=<path>`, exit 2 | pass |
+| `make eval`, `make eval STRICT=1` | "no prompt yet: nothing to measure", exit 0 | both printed it, exit 0 | pass |
+| `make fallback`, `screens`, `check-domain` | "not built yet" | each printed `make <target>: not built yet`, exit 2 | pass |
+| `make -n` with a paid or cloud target beside another goal (five pairs) | refused | each stopped with "is paid or writes to Google Cloud: run it alone, as the only goal" | pass |
+| `make dev`, then both URLs | backend ok, page shows the claim | `/healthz` 200 `{"status":"ok"}`; the page holds the exact sentence from `docs/CLAIM.md` | pass |
+| Stop `make dev` as Ctrl-C would | nothing left on 8000, 3000, 8085 | nothing left. (Its first try signalled only the parent, which left two processes; "That was my method, not the script's.") | pass |
+| Commit with a deliberately failing test | refused | `FAILED tests/test_health.py::test_deliberate_break`, `1 failed, 40 passed`, "pre-commit: make check failed. Fix the cause before committing.", commit exit 1 | pass |
+| Undo | tree as found | `git status` as at the start, HEAD still 2e989a7 | pass |
+| `bash .claude/hooks/preflight.sh` | Node and JDK ok; the owner's two values missing | as expected; exit 1; "It cannot read [`preflight: ready`] today, because of the owner's missing variables." | pass for what was asked; the gate line is open |
+| The case loader on a copy outside the repository | 20 load; broken cases refused | `loaded 20`; an unknown risk type and a case with missing fields were each refused with a validation error | pass |
+
+Not exercised, in its words: a fresh-clone `make setup`; the page in a browser (HTML only was fetched); the paid stubs run alone; "the label quality of the twenty cases, which is a content review and not something to run."
+
+### 2026-11-19: challenger, on 2e989a7
+
+Its report, in its own words. Verdict: **change needed**. Nothing below has been acted on: it is the owner's to decide (question 1 to 4 under "Waiting on you").
+
+**The bars.** "The Phase 0 gate has no eval bar. The four bars in evals/bars.toml are first judged at the Phase 2 gate." The pasted output and the code match; no results file exists, "consistent with the code, and the log says so"; "Bars met or missed this phase: not applicable, because there are no scores."
+
+**1. Is the claim true as an absolute, or only for what the code can see?**
+
+"The claim says 'judgment-call risks from a model … and an eval harness for the model's list.' Read at its widest: the model makes calls that need judgment, which a rule could not make; the harness shows that the list a reader sees is a good one."
+
+"What passing all four bars would show. On these 20 hand-built synthetic inputs: in the first five types returned, the model finds at least 80% of the 27 expected types, pooled over cases; it never names a type from the rubric's `wrong` band in 60 case-runs; the same five-type set comes back three times in at least 18 cases. All of this is agreement with a decision table that the build drafted and the owner signs off."
+
+"What it would not show:
+
+1. Judgment. Every label and every fix list can be computed from the input. My script (about 130 lines read straight from evals/RUBRIC.md) reproduces all 260 label slots (20 cases × 13 types) and all 20 `input.fixes` lists exactly. [...] A rules engine with no model would score coverage 1.00, precision 1.00, harmful 0 and stability 20/20, which beats any model. Passing the bars therefore shows that the model follows a written table. It does not show 'judgment-call' risks. The risk sentence in PLAN.md ('The rubric keeps the judgment in the context clauses') is false: the context clauses are fixed conditions on other fields. By the project's own rule (docs/profiles/llm-app.md: 'Anything that can be computed … in code is'), these risks belong in rules unless the measure is changed.
+2. What the reader reads. The model writes a title and a reason for each risk, and the reader sees them. Scoring looks only at the type. A right type with a wrong or alarming reason scores as perfect.
+3. What the reader sees after a click. The model returns up to eight risks, and the visible list is the first five not suppressed. So positions 6-8 move up once a risk is marked handled. Harmful is scored on the first five only. A wrong type at position 6-8 is invisible to the measure but shown to the reader after one click on the handled loop the claim advertises.
+4. Order. The spec says the model 'ranks', but order is not scored.
+5. Every type. Coverage is pooled. Four types are expected in only one case each: `spf_near_lookup_limit` (case 10), `spf_weak_all` (12), `new_domain_volume` (16) and `blocklist_recent` (17). A model that never raises any of those four, and misses one more item, still scores 22/27 = 0.815 and meets the bar.
+6. Dropped output. The spec does not say how output that fails validation is scored. [...] Under the precision definition, failing validation on an uncertain case costs no precision. It costs only coverage, and stability is undefined for it.
+7. What the hosted demo shows. Visitors see recorded output for the 12 seeded clients. Those inputs are not the 20 eval cases and are never scored.
+8. Who wrote the labels. An agent drafted them. [...] The five cases changed after the second read had only the reviewer's read since then.
+9. The name 'harmful'. The `wrong` bands include harmless padding, for example `spf_near_lookup_limit` at 4 lookups, or `engagement_declining` on a 3% fall. 'Harmful 0' reads as 'said nothing damaging', but it means 'named no type outside its band in the first five, in 60 case-runs'."
+
+"Wording that would be true under the measure as it stands: '…judgment-call risks picked by a model from a closed list and scored against a written rubric…' Alternatively, keep the wording and change the measure."
+
+**2. Is the measurement too noisy to trust?**
+
+"Coverage sits on a single item. The denominator is 27 per run, so each item is 0.037. Per run, 22/27 = 0.815 meets the bar and 21/27 = 0.778 misses it. Over three runs, 65/81 = 0.802 meets it and 64/81 = 0.790 misses it. If each item is hit independently at p = 0.8, one run has a standard deviation of about 0.077, and the mean of three about 0.044. That is larger than any likely margin over the bar, so a result like 0.81 has not cleared 0.80. Case 20 alone holds 5 of the 27 items (18.5%), and only 14 cases have any expected item. Uncertainty from which cases happen to be in the set is larger than the run-to-run noise, and more runs do not reduce it."
+
+"Precision is in practice decided by the other two bars. Only 5 of the 260 label slots are noise: case 07 (2), case 15 (2) and case 16 (1). So with harmful at 0, at most 5 returns per run can be imprecise. [...] The precision bar adds almost nothing, and in this set 'noise' is not a real category."
+
+"Harmful == 0 over 60 case-runs. With a true per-case-run rate of 1%, the chance of passing is 55%. At 2% it is 30%; at 5% it is 5%. Passing bounds the rate at about 5%. It does not show 'never'."
+
+"Stability with temperature 0. [...] If that is accepted, three identical runs are likely, and stability then mostly measures the API's nondeterminism. [...] It also says nothing about stability when the input changes a little from day to day, which is what the handled loop depends on."
+
+"Picking the best of several tries. PLAN.md budgets up to six `eval-live` runs on Luna. Prompt versions are tuned against the same 20 cases, with no held-out cases. Nothing says that re-running an unchanged prompt until it passes is forbidden. Nothing says whether the prompt may contain the rubric's thresholds. If it does, the eval measures how well the model follows a table."
+
+"What more data costs. About $0.03 per 60-call Luna run. Five runs of the 20 cases: about $0.15. 60 cases × 3 runs: about $0.10, and labels are free, because [the script] produces them. [...] More cases do more than more runs."
+
+**3. Could what the labels or a human caught be checked in code instead?**
+
+"Yes, for every kind of fault found so far.
+
+1. Label errors. The second read, three reviews and my own check all re-derived labels by hand. Check: a protected test that runs a code reading of RUBRIC.md and asserts every case's three lists. [...] It also makes the mechanical nature of the rubric visible.
+2. Fix lists in case inputs. [...] Check now: a test that each case's fix types equal the fix table applied to its input. From Phase 1: equal to the rules engine's output on that input.
+3. Unrealistic inputs. [...] models.py has no validators, so a case can break these rules silently. Pydantic validators on `SnapshotInput` could enforce: `open_rate_prev_pct` is null exactly when `domain_age_days` is under 60; listed now means `listings_90d` is at least 1 and `days_since_delisted` is null; `listings_90d` of 0 means `days_since_delisted` is null, and `days_since_delisted` is at most 90; the SPF fields `valid`, `lookup_count` and `all_qualifier` are null unless there is exactly one record; DMARC `policy`, `subdomain_policy` and `pct` are null unless the record is valid, and `pct` is set when it is.
+4. Whether a case is hard. 'Hard:' is a note prefix the author sets. Code could confirm it: a case is hard if a small change to one field flips a label.
+5. Wrong-band types at run time (the biggest). Because `wrong` is a function of the input, production code can drop any wrong-band type before it is shown, on every input, including the 12 seeded clients that visitors see and that are never scored. That makes harmful 0 by construction [...]. Short of a filter, a Phase 4 test can run every committed seeded-client recording through the same code and fail on any wrong-band type.
+6. Inputs the model must not see. Code can check that only `input` reaches the model, never `note`, `label` or the file name."
+
+**Its list of changes** ("each can be accepted or declined"):
+
+- **A. Claim against the measure. Pick one.** "A1. Keep the wording and change the measure so it can show judgment: score a rules-only baseline with the same harness and report it beside the model; add about 10 cases labelled by the owner in which the rubric deliberately leaves the call open (labels that cannot be derived from a table); keep those cases out of prompt tuning. Cost: a few hours of the owner's labelling. A2. Reword the claim to what is measured, for example 'judgment-call risks picked by a model from a closed list and scored against a written rubric'. Cost: a weaker sentence. A3. Accept that rules can produce the list. Move the risk bands into rules (or a run-time filter) and give the model the order and the wording, then score those. Cost: a redesign of Phase 2 and probably the claim."
+- **B. Score what the reader sees.** "Count harmful over all returned risks (up to eight), not just the first five. Cost: a definition change, no money. Optionally, report order agreement for positions 1-5."
+- **C. Define invalid output in scoring.** "A dropped output counts as zero found for coverage. Report a 'dropped' count beside the four measures. In stability, a dropped run never matches another run."
+- **D. Names and redundancy.** "Rename 'harmful' to 'outside the rubric', or split it into damaging and out-of-band. Require the README to say '0 in 60 case-runs'. Either accept that precision is effectively redundant here, or redraw the bands so that noise is a real category."
+- **E. Coverage for each type.** "Report coverage per type, and have each type expected in at least 2-3 cases, or set a floor per type. Cost: about 10-20 more cases."
+- **F. Noise rules.** "Raise the case count (preferred: about 60 cases, about $0.10 per three-run eval on Luna), or the runs. [...] Make the gate number the run of the final prompt version, report every attempt, and forbid re-running an unchanged prompt to pass. Keep a held-out split. Decide whether the prompt may quote the rubric's thresholds."
+- **G. Checks in code.** "G1. A label-reproduction test (protected). G2. A fix-list test, now and against the Phase 1 rules engine. G3. Input validators on `SnapshotInput`. G4. A Phase 4 test that seeded-client recordings contain no wrong-band type, or the run-time filter in A3. G5. A test that only `input` is sent to the model. Cost: about a day of build work in total, and no money. G1 and G3 touch measure files and are owner-merged."
+
+### 2026-11-19: gate evidence
+
+The gate is **not ticked**. Four of its five parts are shown below; the fifth, `preflight: ready`, needs the owner's key and project. And the challenger's verdict is "change needed", which stops the phase whatever the gate says. The checklist boxes above are ticked because each artefact exists as the item describes it; the challenger's changes, if taken, change some of them again.
+
+1. `make check` exits 0 with a passing test in each toolchain and the twenty cases loading (on 2e989a7; lines kept, the rest of the output is tool chatter):
+
+```text
+$ make check
+15 files already formatted
+All checks passed!
+Success: no issues found in 15 source files
+40 passed, 1 deselected in 0.18s
+1 passed, 40 deselected in 0.13s
+✔  Script exited successfully (code 0)
+All matched files use Prettier code style!
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+✓ Compiled successfully in 167ms
+✓ Generating static pages using 4 workers (3/3) in 172ms
+make check exit=0
+```
+
+`test_twenty_cases_load` is among the 40; the second line of counts is the test inside the Firestore emulator.
+
+2. The pre-commit hook refuses a commit when a test is made to fail. The health test's expected body was changed to `{"status": "broken on purpose"}` and a commit attempted:
+
+```text
+$ git commit -m "this commit must be refused"
+cd backend && uv run --frozen pytest -m "not emulator"
+.................................F....                                   [100%]
+>       assert response.json() == {"status": "broken on purpose"}
+E       AssertionError: assert {'status': 'ok'} == {'status': 'b...n on purpose'}
+FAILED tests/test_health.py::test_health_route_answers_ok - AssertionError: a...
+1 failed, 37 passed, 1 deselected in 0.19s
+make: *** [check-backend] Error 1
+pre-commit: make check failed. Fix the cause before committing.
+$ git log --oneline | head -1
+9ac3c37 docs: blueprint from the intake (spec, architecture, plan, decisions, standing answers)
+```
+
+The line was put back before the first real commit. The verifier repeated the test on 2e989a7 with the same result.
+
+3. CI ran green on the first push, all three jobs (commit 0a7b46b, run 44544363571), and on the commit the checks ran on:
+
+```text
+$ gh api repos/nkanyi-so/domain-health/commits/0a7b46b/check-runs -q '.check_runs[] | "\(.name)\t\(.conclusion)"'
+secrets	success
+check	success
+eval	success
+$ gh api repos/nkanyi-so/domain-health/commits/2e989a7/check-runs -q '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)"'
+check	completed	success
+secrets	completed	success
+eval	completed	success
+```
+
+4. Branch protection is on:
+
+```text
+$ gh api repos/nkanyi-so/domain-health/branches/main/protection -q '...'
+required: check, secrets; strict: true; enforce_admins: true; allow_force_pushes: false; allow_deletions: false; required reviews: false
+```
+
+5. `bash .claude/hooks/preflight.sh` does not end with `preflight: ready` yet:
+
+```text
+$ bash .claude/hooks/preflight.sh
+preflight on this machine, in /Users/nkanyisonzimande/Documents/GitHub/domain-health
+ok:      git is installed
+ok:      make is installed
+ok:      python3 is installed
+ok:      gh is installed
+ok:      gitleaks is installed
+ok:      the pre-commit hook is on
+ok:      mode: run-through
+ok:      owner: nkanyi-so
+ok:      spend-cap-usd: 10
+ok:      checkpoints: none
+MISSING: OPENAI_API_KEY is not set. Owner: put it in .env or the shell, as the project's README says
+MISSING: GCP_PROJECT_ID is not set. Owner: put it in .env or the shell, as the project's README says
+ok:      measure-paths.txt names something
+ok:      GitHub answers for nkanyi-so/domain-health over REST
+ok:      this login can push to nkanyi-so/domain-health
+ok:      the repository allows the 'merge' merge method
+ok:      main is protected: status checks are required, administrators included (check, secrets). The merge gate also wants one of them to be a job of this project's CI
+warning: docs/STANDING.md is not on main yet, so the merge gate treats the project as gated
+ok:      Node 24
+ok:      JDK 23
+MISSING: the OpenAI key cannot be checked: OPENAI_API_KEY is not set
+ok:      the gcloud configuration domain-health exists
+ok:      the domain-health configuration is signed in with a user account
+MISSING: the Google Cloud project cannot be checked: GCP_PROJECT_ID is not set
+ok:      vercel whoami answers
+warning: a script cannot confirm that Vercel's GitHub app can see this repository; the first deploy in Phase 5 will
+ok:      the name list exists (not read here)
+preflight: 4 thing(s) missing. Each MISSING line is a stop for the owner, asked once, together.
+```
+
+reviewer-verdict: no blocking findings @ 2e989a7
+verifier-verdict: pass @ 2e989a7
+challenger-verdict: change needed @ 2e989a7
 
 ---
 
