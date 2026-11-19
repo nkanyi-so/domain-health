@@ -22,7 +22,7 @@ seeded sources ─────┼─> rules ─> fixes ────────�
 
 | Outside system | Interface | Implementations |
 |---|---|---|
-| DNS | `Resolver` (`txt(name)` returns records, no-such-name or timeout) | `LiveResolver` (real DNS, TXT only; a server failure reads as a timeout; an answer of more than 100 records or with a record over 4,096 characters is "too large", never cut), `FixtureResolver` (zone data in `backend/fixtures/zones/`). `CountingResolver` wraps either and refuses the forty-first lookup for one domain |
+| DNS | `Resolver` (`txt(name)` returns records, no-such-name, timeout or too-large: an answer of more than 100 records or with a record over 4,096 characters is never cut and read in part) | `LiveResolver` (real DNS, TXT only; a server failure reads as a timeout), `FixtureResolver` (zone data in `backend/fixtures/zones/`). `CountingResolver` wraps either and refuses the forty-first lookup for one domain |
 | Language model | `RiskModel` (`rank(snapshot_input)` returns a validated ranked list) | `OpenAIRiskModel` (live; only `make eval-live` and `make record` build it), `RecordedRiskModel` (replays committed recordings by input hash; the deployed worker and `make eval` use it), `FixtureRiskModel` (scripted; tests) |
 | Database | `SnapshotStore` (read snapshot, write daily snapshot, mark handled, reopen, counters) | `FirestoreStore` (production and the emulator), `MemoryStore` (unit tests) |
 | Task queue | `TaskQueue` (`enqueue(client_id, delay)`) | `CloudTasksQueue`, `FakeQueue` |

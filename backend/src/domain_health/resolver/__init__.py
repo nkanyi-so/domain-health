@@ -1,4 +1,4 @@
-"""DNS behind one interface: a TXT lookup that gives records, no such name, or a timeout.
+"""DNS behind one interface: a TXT lookup gives records, no such name, a timeout or too large.
 
 Nothing outside `resolver/live.py` imports a DNS library. The checks only ever see `Resolver`.
 """

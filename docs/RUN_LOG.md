@@ -48,3 +48,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T18:24:18Z	1	review	blocking findings @ 285e74d	0.00
 2026-11-19T18:28:22Z	1	review	no blocking findings @ 10f4114	0.00
 2026-11-19T18:31:10Z	1	verify	pass @ 10f4114	0.00
+2026-11-19T18:34:09Z	1	gate-merged	pr=#5 phase-1-checks-and-rules-clean ed6c4706734111a9fc6b0ffd5960ce014009a5bb into main	0.00
