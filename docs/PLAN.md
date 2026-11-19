@@ -10,7 +10,7 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
-| 2: the model and the evals (checkpoint) | waiting on you | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
+| 2: the model and the evals (checkpoint) | building | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | not started | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
@@ -37,31 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 2 is back with you, as you asked: the one further attempt missed, and nothing more was tried.** The pull request is [#6](https://github.com/nkanyi-so/domain-health/pull/6). You can merge it as it stands. The challenger read the new result and again says a change is needed; none of what it asks for has been done, because that is yours to decide. Six short questions follow, each with a recommendation, and none needs a paid call.
-
-**The result.** Three runs of the forty-eight cases on `gpt-6.1-terra`:
-
-| Attempt | Prompt | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
-|---|---|---|---|---|---|
-| 4 | version 3 | 0.896 | 0.962 | 9 in 144 | 0.979 |
-| 5 | version 4 | 0.881 | 0.940 | **12 in 144** | **0.812** |
-
-Version 4 did what it was written for: no merely-acceptable risk came back, and harmful on the open cases fell from 9 to 2. But it began raising a complaint-rate risk at random, about one call in seven, on table cases whose complaint rate is a fifth of the level that matters: ten harmful answers on the table cases, where version 3 had none, and nine cases that differ between runs. The cause is not established. No attempt of the five met all four bars; the rules-only table meets them all. `docs/SPEC.md` now says so under "The Phase 2 result", `make eval STRICT=1` exits 2, and CI's `eval` job is red on #6. Spend is $1.85 of the $10 cap. The old branch `phase-1-checks-and-rules` is deleted.
-
-**Questions.** "Recommended for all" is enough.
-
-1. **Version 4's wording goes past your ruling on version 3.** It has no figure, but it pins the rubric's lines at their exact boundaries: 90 days through the name of the field `listings_90d`; 30 days as "exactly a third" of that; 365 as "the number of days in an ordinary year"; the low-volume line as "has not reached the thousands"; the new-domain volume line as the count by which the bulk-sender guidelines define a bulk sender. I let it stand before the paid run and recorded that as a decision; the reviewer says it should have come to you first. It is listed in `evals/results.json` (42 sentences).
-   - **A (recommended). Attempt 5 counts as the final attempt, with this wording disclosed** boundary by boundary in the decision entry and the README. It missed, so nothing is gained by it.
-   - **B. Rule attempt 5 out.** The phase then stands on attempt 4 (harmful 9 in 144, the other three bars met), and version 4 is reported as an attempt that did not count.
-2. **Which prompt is in use from here on.** Today the newest file wins, so version 4, the worse one, drives the results file, the README table and Phase 4's recordings for the seeded clients.
-   - **A (recommended, and the challenger's). Version 3 is the prompt in use**, named by a `prompt` line in `evals/settings.toml` with a test that the results file matches it. The results file and the README table then show version 3 (one bar missed), with version 4 reported beside it as the final attempt that did worse. Phase 4 records with version 3.
-   - **B. Version 4 stays in use.** Its random complaint answers would probably trip Phase 4's check that no recording names a wrong type, and cost paid re-recordings.
-3. **Confirm the lines I added to the checklists of Phases 5 and 6** (the limit beside the claim sentence; what the README must say). They follow from your answers and only add duties, but checklist lines are yours. Recommended: confirm.
-4. **The limit sentence beside the claim.** I wrote "a table of rules does as well on the risk list as the model does". The challenger says that is now too soft. Recommended: "on this project's evals a table of rules does better on the risk list than the model: it meets all four bars, and no prompt version did", with the caveat that on the thirty table cases the labels are that table's own output.
-5. **Corrections to what the README will say and to my own records** (recommended: yes to all): drop "a narrow change" (version 4 rewrote seven checklists and is 457 words longer); say the cause of the complaint fault is not known; say the wording shown to a reader was false in all twelve harmful answers ("above the recommended level" on a rate a fifth of it) and that no check reads wording; name the coverage drop's own cause; fix two stale entries in `docs/DECISIONS_TO_REVIEW.md`.
-6. **The Phase 6 gate says `make eval STRICT=1` exits 0, and no version can meet that.** Gate lines are yours. Recommended: I put a reworded line in #6 for you to read, "`make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed". Also recommended, for Phase 4: a seeded client's recording is kept only when three calls agree on its first five, and `make eval` prints how many returned types the bands call wrong. Not recommended: a filter that drops such types from the model's list, which would make the model the table outright.
-
-**What I will do once you answer.** For "recommended for all": the edits above on #6's branch (a settings line, a test, wording in the spec, the plan and the decision entries; no paid call), one reviewer pass over that diff, and #6 is yours to merge. If you would rather merge #6 now, do: I then carry the same edits into Phase 3's first commit, and you merge Phase 3 as well, since it would touch the spec and a gate line. The case-level detail behind the open-set numbers is in a file for you only, which I have not opened: `~/.config/domain-health/challenger-phase2-detail.md`.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -1934,6 +1910,50 @@ The phase is at its checkpoint again, with the challenger's `change needed` on c
 reviewer-verdict: blocking findings, one, in the plan's wording and corrected there @ c6f7f0e
 verifier-verdict: pass @ c6f7f0e
 challenger-verdict: change needed @ c6f7f0e
+
+### 2026-11-20: the second stop (issue #8) and the owner's answers
+
+The block as it stood under "Waiting on you":
+
+> **Phase 2 is back with you, as you asked: the one further attempt missed, and nothing more was tried.** The pull request is [#6](https://github.com/nkanyi-so/domain-health/pull/6). You can merge it as it stands. The challenger read the new result and again says a change is needed; none of what it asks for has been done, because that is yours to decide. Six short questions follow, each with a recommendation, and none needs a paid call.
+>
+> **The result.** Three runs of the forty-eight cases on `gpt-6.1-terra`:
+>
+> | Attempt | Prompt | coverage (bar 0.80) | precision (bar 0.80) | harmful (bar 0) | stability (bar 0.90) |
+> |---|---|---|---|---|---|
+> | 4 | version 3 | 0.896 | 0.962 | 9 in 144 | 0.979 |
+> | 5 | version 4 | 0.881 | 0.940 | **12 in 144** | **0.812** |
+>
+> Version 4 did what it was written for: no merely-acceptable risk came back, and harmful on the open cases fell from 9 to 2. But it began raising a complaint-rate risk at random, about one call in seven, on table cases whose complaint rate is a fifth of the level that matters: ten harmful answers on the table cases, where version 3 had none, and nine cases that differ between runs. The cause is not established. No attempt of the five met all four bars; the rules-only table meets them all. `docs/SPEC.md` now says so under "The Phase 2 result", `make eval STRICT=1` exits 2, and CI's `eval` job is red on #6. Spend is $1.85 of the $10 cap. The old branch `phase-1-checks-and-rules` is deleted.
+>
+> **Questions.** "Recommended for all" is enough.
+>
+> 1. **Version 4's wording goes past your ruling on version 3.** It has no figure, but it pins the rubric's lines at their exact boundaries: 90 days through the name of the field `listings_90d`; 30 days as "exactly a third" of that; 365 as "the number of days in an ordinary year"; the low-volume line as "has not reached the thousands"; the new-domain volume line as the count by which the bulk-sender guidelines define a bulk sender. I let it stand before the paid run and recorded that as a decision; the reviewer says it should have come to you first. It is listed in `evals/results.json` (42 sentences).
+>    - **A (recommended). Attempt 5 counts as the final attempt, with this wording disclosed** boundary by boundary in the decision entry and the README. It missed, so nothing is gained by it.
+>    - **B. Rule attempt 5 out.** The phase then stands on attempt 4 (harmful 9 in 144, the other three bars met), and version 4 is reported as an attempt that did not count.
+> 2. **Which prompt is in use from here on.** Today the newest file wins, so version 4, the worse one, drives the results file, the README table and Phase 4's recordings for the seeded clients.
+>    - **A (recommended, and the challenger's). Version 3 is the prompt in use**, named by a `prompt` line in `evals/settings.toml` with a test that the results file matches it. The results file and the README table then show version 3 (one bar missed), with version 4 reported beside it as the final attempt that did worse. Phase 4 records with version 3.
+>    - **B. Version 4 stays in use.** Its random complaint answers would probably trip Phase 4's check that no recording names a wrong type, and cost paid re-recordings.
+> 3. **Confirm the lines I added to the checklists of Phases 5 and 6** (the limit beside the claim sentence; what the README must say). They follow from your answers and only add duties, but checklist lines are yours. Recommended: confirm.
+> 4. **The limit sentence beside the claim.** I wrote "a table of rules does as well on the risk list as the model does". The challenger says that is now too soft. Recommended: "on this project's evals a table of rules does better on the risk list than the model: it meets all four bars, and no prompt version did", with the caveat that on the thirty table cases the labels are that table's own output.
+> 5. **Corrections to what the README will say and to my own records** (recommended: yes to all): drop "a narrow change" (version 4 rewrote seven checklists and is 457 words longer); say the cause of the complaint fault is not known; say the wording shown to a reader was false in all twelve harmful answers ("above the recommended level" on a rate a fifth of it) and that no check reads wording; name the coverage drop's own cause; fix two stale entries in `docs/DECISIONS_TO_REVIEW.md`.
+> 6. **The Phase 6 gate says `make eval STRICT=1` exits 0, and no version can meet that.** Gate lines are yours. Recommended: I put a reworded line in #6 for you to read, "`make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed". Also recommended, for Phase 4: a seeded client's recording is kept only when three calls agree on its first five, and `make eval` prints how many returned types the bands call wrong. Not recommended: a filter that drops such types from the model's list, which would make the model the table outright.
+>
+> **What I will do once you answer.** For "recommended for all": the edits above on #6's branch (a settings line, a test, wording in the spec, the plan and the decision entries; no paid call), one reviewer pass over that diff, and #6 is yours to merge. If you would rather merge #6 now, do: I then carry the same edits into Phase 3's first commit, and you merge Phase 3 as well, since it would touch the spec and a gate line. The case-level detail behind the open-set numbers is in a file for you only, which I have not opened: `~/.config/domain-health/challenger-phase2-detail.md`.
+
+The owner's answer, given in the session, word for word:
+
+> Recommended for all six.
+>
+> Two additions:
+>
+> 1. In the product, the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. Write this into the spec on #6's branch for me to merge, and into the Phase 5 checklist. The README should lead with the finding: the eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way.
+>
+> 2. From Phase 3 on, keep the build moving. If a phase needs more than three review rounds, stop and tell me what is still open instead of continuing. Wording that has already passed is not reopened unless it is false.
+>
+> Make the edits, run the one reviewer pass, and tell me when #6 is ready for me to merge.
+
+So: 1A, 2A, 3 confirmed, 4, 5 and 6 as recommended, and two instructions. The second is a standing one for Phases 3 to 6: a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has passed is reopened only if it is false.
 
 ---
 
