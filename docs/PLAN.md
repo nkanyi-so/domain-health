@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 27 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 28 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -2222,9 +2222,9 @@ The reviewer's verdict line above names `c425242`, the last commit the whole pha
 - [x] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
 - [x] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
 - [x] Added after the Phase 2 challenge (the owner, 2026-11-20): `make record` uses the prompt in use (`evals/settings.toml`), and a seeded state's recording is kept only when three calls agree on its first five; a state where they do not is reported and shown as "risks unavailable". The worst case in the paid-steps table is three times the calls it assumed and is corrected before the step runs.
-- [ ] Added after the Phase 3 challenge (the owner, 2026-11-20): a test flags a seeded recording whose text says a value is "above" a line or "elevated" when the input's value is below the rubric's line for that risk type; and for each seeded state the build counts the risk types returned that the bands call merely acceptable, and shows the counts to the owner before the recordings are kept.
-- [ ] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
-- [ ] `make seed`, then one scheduled run triggered by hand.
+- [x] Added after the Phase 3 challenge (the owner, 2026-11-20): a test flags a seeded recording whose text says a value is "above" a line or "elevated" when the input's value is below the rubric's line for that risk type; and for each seeded state the build counts the risk types returned that the bands call merely acceptable, and shows the counts to the owner before the recordings are kept.
+- [x] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
+- [x] `make seed`, then one scheduled run triggered by hand.
 - [x] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
 
 **Gate:** `make check` exits 0. In CI, the six worker-auth cases pass: a valid token gets 200; a missing token, a wrong audience, a wrong service account, an expired token and a bad signature each get 401. Ten live checks fired at once from one address give at most 5 successes. With the day's counter set to 200, the next check is refused. On the deployed service, shown with pasted commands and output: `gcloud run services describe` reports a maximum of 1 instance; an unauthenticated call to the worker gets 401; one run of the Scheduler job leaves 12 snapshot documents dated today; a second run leaves 12; a live check of `example.com` through the API returns real DNS results; the budget exists. `docs/DESIGN.md` exists.
@@ -2367,6 +2367,106 @@ The block as it stood under "Waiting on you":
 3. **Keep the recordings.**
 
 Also: three service accounts and `/health` are fine. For the Phase 5 state that needs six risks: the build's call, "prefer a real seeded state if it is cheap and reliable, otherwise use the render-only flag. Record which and do not stop for it." Then: finish the infra, seeding, deployed checks, review and verifier, take Phase 4 through the merge gate, and carry on into Phase 5.
+
+### 2026-11-20: after the answers: the deploy finished, and the deployed checks
+
+**Two faults found on the way, both fixed at the cause.**
+
+- The commit that closed the stop failed its pre-commit check once: `test_ten_live_checks_fired_at_once_from_one_address_give_at_most_five` raised `StoreBusyError` in the emulator. Ten transactions that all hold the day's counter can abort each other until the store's eight tries run out. Raising the number of tries did not cure it (tried, twelve, still failed once in three; reverted). Live checks in one process now take their slot one at a time, around the same transaction; the service is one instance. A new emulator test fires ten from ten separate stores and holds "never more than five" on the transaction alone, allowing a busy answer. The two tests then passed in five runs out of five.
+- The first scheduled run on the deployed service answered 500 three times: "RuntimeError: Task ... got Future ... attached to a different loop", from `cloud_tasks.py`. The Cloud Tasks client was made while the service was being imported, before the server's event loop existed. It is now made on the first enqueue, and a test holds that building the queue makes no client. Nothing local could have shown it: it needs the real client under the real server. Both are in `docs/DECISIONS_TO_REVIEW.md`.
+
+**The deploy.** `make deploy-backend` with `--no-invoker-iam-check` (decision 0014), twice after the answers (revisions `domain-health-00003-5n8`, then `domain-health-00004-c8w` with the queue fix; the service's annotations show `run.googleapis.com/invoker-iam-disabled=true`). The second `make infra` made the Scheduler job (`0 6 * * *`, UTC) and ended "infra: done". `make seed` printed "seeded: 12 clients in domain-health-demo-4821". The service's environment holds six names and no model key: `GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_URL`, `INVOKER_EMAIL`, `TASKS_QUEUE`, `PROXY_SECRET`. The checklist line says two service accounts; there are three, which the owner has said is fine. Builds so far are inside the free tier, so the spend line is unchanged.
+
+**The gate's deployed checks, on revision `domain-health-00004-c8w` (commit `4e3e5b0`).**
+
+One run of the Scheduler job by hand (`gcloud scheduler jobs run domain-health-daily --location=us-central1`, 08:59 UTC), then:
+
+```
+$ make seed COUNT=2026-11-20
+snapshot documents dated 2026-11-20: 12
+  clients/brindle-and-oak/snapshots/2026-11-20
+  clients/copperkettle-kitchen/snapshots/2026-11-20
+  clients/driftwood-coffee/snapshots/2026-11-20
+  clients/emberglow-events/snapshots/2026-11-20
+  clients/fernhollow-garden/snapshots/2026-11-20
+  clients/harbourlight-books/snapshots/2026-11-20
+  clients/inkwell-and-vine/snapshots/2026-11-20
+  clients/northwind-cycles/snapshots/2026-11-20
+  clients/oakhaven-outfitters/snapshots/2026-11-20
+  clients/silverbrook-dental/snapshots/2026-11-20
+  clients/tamberline-travel/snapshots/2026-11-20
+  clients/willowmere-pets/snapshots/2026-11-20
+```
+
+The service's request log for that run (the tasks are two seconds apart):
+
+```
+2026-11-20T08:59:12.488181Z	POST	200	/internal/dispatch
+2026-11-20T08:59:13.118723Z	POST	200	/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T08:59:15.070627Z	POST	200	/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T08:59:17.158609Z	POST	200	/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T08:59:19.240272Z	POST	200	/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T08:59:21.334662Z	POST	200	/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T08:59:23.447213Z	POST	200	/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T08:59:25.528893Z	POST	200	/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T08:59:27.610906Z	POST	200	/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T08:59:29.678272Z	POST	200	/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T08:59:31.746271Z	POST	200	/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T08:59:33.821884Z	POST	200	/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T08:59:35.907834Z	POST	200	/internal/worker/willowmere-pets?day=2026-11-20
+```
+
+The second run, and the other checks:
+
+```
+$ gcloud scheduler jobs run domain-health-daily --location=us-central1   # second run
+triggered 2026-11-20T09:08:17Z
+
+$ gcloud run services describe domain-health --region=us-central1 --format="value(spec.template.metadata.annotations)"
+autoscaling.knative.dev/maxScale=1
+
+$ curl -s -w " %{http_code}" -X POST https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak
+{"detail":"not allowed"} 401
+
+$ gcloud billing budgets list (display name, amount)
+domain-health monthly	5	USD
+```
+
+```
+$ make seed COUNT=2026-11-20   # after the second run
+snapshot documents dated 2026-11-20: 12
+```
+
+The request log for the second run (the 401 in the middle is the unauthenticated call above):
+
+```
+2026-11-20T09:08:17.658638Z	200	/internal/dispatch
+2026-11-20T09:08:17.817822Z	200	/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T09:08:19.801178Z	200	/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T09:08:20.421020Z	401	/internal/worker/brindle-and-oak
+2026-11-20T09:08:21.884473Z	200	/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T09:08:23.976346Z	200	/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T09:08:26.049309Z	200	/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T09:08:28.154723Z	200	/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T09:08:30.218681Z	200	/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T09:08:32.298576Z	200	/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T09:08:34.388791Z	200	/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T09:08:36.492049Z	200	/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T09:08:38.586205Z	200	/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T09:08:40.662699Z	200	/internal/worker/willowmere-pets?day=2026-11-20
+```
+
+A live check of `example.com` through the API, with the proxy secret read from Secret Manager into the command and never shown:
+
+```
+$ curl -s -X POST https://domain-health-992953709092.us-central1.run.app/api/live-check -H "X-Proxy-Secret: <from Secret Manager, not shown>" -H "X-Actor: sandbox:<session>" -H "X-Client-Address: 203.0.113.7" -d {"domain":"example.com"}
+{"domain":"example.com","checks":{"domain":"example.com","spf":{"check":{"present":true,"record_count":1,"valid":true,"lookup_count":0,"all_qualifier":"-all"},"records":["v=spf1 -all"],"problems":[]},"dkim":{"check":{"selectors_probed":12,"keys":[]},"other_keys":[],"problems":["every selector probed answers with a revoked (empty) key"]},"dmarc":{"check":{"present":true,"valid":true,"policy":"reject","subdomain_policy":"reject","pct":100},"record":"v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s","found_at":"example.com","problems":[]}},"fixes":[{"type":"dkim_missing","source":"dns","instruction":"Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors."}],"checked_at":"2026-11-20T09:08:34.871778Z","cached":false,"queries":14}
+HTTP 200
+```
+
+Those are real DNS answers: fourteen queries, `example.com`'s own SPF and DMARC records. Without the secret the same service answers `{"detail":"not allowed"}` 401 on `/api/clients`, and `/health` answers 200.
+
+**`make eval` again on this commit** exits 0 and leaves the results file as committed (`git status` clean after it); its output is the one pasted above in this log.
 
 ---
 

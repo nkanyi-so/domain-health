@@ -15,6 +15,13 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-20, Phase 4: two fixes the deployed service and a slow run of the checks asked for
+
+- **Decided:** (1) Live checks in one process take their slot one at a time (a lock in `FirestoreStore`), around the same transaction as before. (2) The Cloud Tasks client is made on the first enqueue, not when the service is built.
+- **Why:** (1) every live check reads and writes the day's counter; ten transactions holding it at once could abort each other until the store's eight tries ran out, which one run of `make check` showed. The service is one instance, so queueing in the process removes it. A new emulator test fires ten from ten separate stores, as ten processes would, and holds "never more than five" on the transaction alone. (2) the first scheduled run on the deployed service answered 500: the client ties itself to the event loop running when it is made, and the service is built before the server's loop exists. No local test could see it; a test now holds that building the queue makes no client.
+- **To undo:** (1) remove `_slots` in `backend/src/domain_health/store/firestore.py`. (2) do not undo.
+- **Status:** to review
+
 ## 2026-11-20, Phase 4: how the API, the limits and the alert were built
 
 - **Decided:** (1) The frontend's server tells the API who is asking with two headers beside the proxy secret: `X-Actor` (`admin` or `sandbox:<session>`) and, for the live check, `X-Client-Address`. A call with no actor is refused, and so is a live check with no address. (2) "Five per address per ten minutes" is counted in fixed ten-minute windows, not a sliding one: a visitor can make five at the end of one window and five at the start of the next. The address is hashed before it names a counter, so no address is stored. (3) A live check answered from the ten-minute cache takes no slot from either counter. (4) When today has no snapshot the API says so (404, or `today: null` in the list); it does not serve an earlier day in its place. (5) Dispatch tries every client and then fails as a whole (502) if any could not be enqueued, so the scheduler's own retry runs it again. (6) The change alert compares the three checks' fields and the fix list with yesterday's snapshot; a failed send is logged and never fails the run; a dry run only logs the message. (7) The health route is `/health`, because Cloud Run answers `/healthz` itself. (8) A token that names no key ID is checked against every current key; one that names an unknown key is refused. (9) The HTTP client is `httpx2`, not `httpx` as the dependency list planned.
