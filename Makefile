@@ -31,8 +31,8 @@ endif
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
 	@echo "generated files: fallback | api-types | eval-summary"
+	@echo "screenshots and their checks: screens"
 	@echo "paid: eval-live [MODEL=<name>] [PROBE=1]"
-	@echo "not built yet: screens"
 
 setup:
 	cd backend && uv sync --frozen
@@ -149,5 +149,11 @@ api-types:
 eval-summary:
 	@cd backend && uv run --frozen python -m domain_health.eval_summary
 
+# Free. 68 screenshots into docs/screens/: the 17 states of docs/DESIGN.md, light and dark, 1440
+# and 390 wide, with three checks computed on each (text contrast, no sideways scroll, a focus
+# style on every control) and written to docs/screens/README.md. Starts the backend on the
+# emulator and the frontend itself and stops them after; exits non-zero if a check fails. Needs
+# the Chromium build that the pinned playwright-core expects in Playwright's cache; downloads
+# nothing. Not part of `make check`.
 screens:
-	@echo "make $@: not built yet" >&2; exit 1
+	@bash scripts/screens.sh $(EMULATOR_PROJECT)

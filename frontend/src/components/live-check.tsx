@@ -79,8 +79,8 @@ function Result({
   return (
     <div className="flex flex-col gap-8 wide:gap-12">
       <div className="flex flex-col gap-3">
-        <h2 className="t-title t-mono flex flex-wrap items-center gap-2">
-          {result.domain}
+        <h2 className="t-title flex flex-wrap items-center gap-2">
+          <span className="t-mono">{result.domain}</span>
           <span className="chip chip-live">Live DNS</span>
         </h2>
         <Facts

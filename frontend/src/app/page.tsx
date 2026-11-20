@@ -7,7 +7,8 @@ import { loadClientList } from "@/lib/server/data";
 import { demoName } from "@/lib/view/demo";
 import { clientListView } from "@/lib/view/screens";
 
-export const metadata: Metadata = { title: "Clients" };
+// The layout's "%s - domain-health" reaches the screens below this one, not this one itself.
+export const metadata: Metadata = { title: { absolute: "Clients - domain-health" } };
 
 async function Clients({
   searchParams,

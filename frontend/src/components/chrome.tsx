@@ -19,7 +19,7 @@ export const CONTAINER = "w-full max-w-content px-4 wide:px-8";
 export function SiteHeader(): ReactElement {
   return (
     <header className="border-b border-line bg-page">
-      <div className={`${CONTAINER} header-row flex flex-wrap items-center gap-x-6`}>
+      <div className={`${CONTAINER} header-row flex flex-wrap items-center gap-x-6 py-2 wide:py-0`}>
         <Link href="/" className="wordmark tap order-1">
           domain-health
         </Link>
@@ -45,7 +45,7 @@ export async function AdminBar(): Promise<ReactElement | null> {
   }
   return (
     <div className="strip">
-      <div className={`${CONTAINER} flex flex-wrap items-center gap-x-4 gap-y-1 py-1`}>
+      <div className={`${CONTAINER} flex flex-wrap items-center gap-x-4 gap-y-1 py-1 wide:py-0`}>
         <p className="flex items-start gap-2 py-2 wide:py-0">
           <span className="mt-1">
             <InfoCircle />
@@ -97,8 +97,8 @@ function SiteFooter({ demo }: { demo: string | null }): ReactElement {
       <div className={`${CONTAINER} t-small flex flex-col gap-2 py-4 text-ink-3`}>
         {demo ? (
           <p className="rounded-sheet border border-notice-line bg-notice-wash px-3 py-2 text-ink">
-            {demoNotice(demo)} Remove <code className="t-mono">?demo</code> from the address for
-            live data.
+            {demoNotice(demo)} Remove <code className="t-mono whitespace-nowrap">?demo</code> from
+            the address for live data.
           </p>
         ) : null}
         <p>A public rebuild on seeded data. The twelve clients are invented.</p>

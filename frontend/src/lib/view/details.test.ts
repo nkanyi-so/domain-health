@@ -95,6 +95,13 @@ describe("what was checked", () => {
     expect(rows[2].notes).toEqual(["No DMARC record was found."]);
   });
 
+  it("keeps a record's own tag in the case it was read in", () => {
+    const { snapshot } = FALLBACK.snapshots["fernhollow-garden"];
+    const dmarc = checkRows(snapshot.checks, snapshot.fixes)[2];
+
+    expect(dmarc.notes).toEqual(["p=monitor is not one of none, quarantine, reject."]);
+  });
+
   it("marks a check with a fix as a problem even when the check lists none in words", () => {
     for (const page of pages) {
       const rows = checkRows(page.snapshot.checks, page.snapshot.fixes);

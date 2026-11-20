@@ -14,7 +14,15 @@ export function generateStaticParams(): { id: string }[] {
   return FALLBACK.clients.clients.map((client) => ({ id: client.id }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  // A demo state draws its own client whatever the address names, so the tab says that one.
+  const demo = demoName("client", (await searchParams).demo);
+  if (demo) {
+    const view = demoClientPage(demo);
+    if (view.kind === "snapshot") {
+      return { title: view.page.name };
+    }
+  }
   const { id } = await params;
   const client = FALLBACK.clients.clients.find((entry) => entry.id === id);
   return { title: client ? client.name : "No such client" };

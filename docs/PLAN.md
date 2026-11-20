@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 28 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 30 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -3146,6 +3146,25 @@ challenger-verdict: not needed @ 8d56481
 **Verifier and challenger.** The verifier is needed: there are screens to run, in a real browser at two widths. The challenger is needed: the page states the claim, its limit and the eval result, and how a reader meets those is part of what the project claims.
 
 **Set up at the start.** The Vercel project `domain-health` in team `nkanyi-so` (root `frontend/`, Node 24, connected to the repository, production branch `main`), as `docs/STANDING.md` allows. The command-line tool's link step also wrote a token file and two lines into `.gitignore`; both were removed.
+
+**What was built, steps 1 to 3 and 6.** By three agents given the plan, the design document and the rules, one after another in the same folder; each finished with `make check` at exit 0. The fallback (`make fallback`, for the fixed day 2026-01-04, when every seeded client is on the first day of its cycle) and the API's types (`make api-types`), each with a test that the committed file is current. The frontend's server side, the six screens and the seventeen states, with 110 frontend tests. What differs from the design document and how the server side was built are the two Phase 5 entries in `docs/DECISIONS_TO_REVIEW.md`. `scripts/deploy-backend.sh` now reads the service-level maximum back and stops unless it is 1, and passes its token to curl on standard input; a deploy with it ended "service-level maximum: 1 / deployed".
+
+**A secret was printed, and replaced.** While setting the Vercel project's environment variables, a command of the build's meant to show only an error also printed the proxy secret into the session's own output. It was never in the repository, a commit or a file of the project. Because the session's transcript now held it, it was replaced at once: a new value went into Secret Manager (version 2) and into Vercel's production environment without being shown, the backend was deployed again (revision `domain-health-00009-vzb`), and version 1 was disabled. Checked after: `/api/clients` with the new secret 200, without it 401. Nothing but the backend used the old value. The session secret and the admin passphrase were not printed. From here on a secret is only ever read into a variable or a pipe, never through a filter that can echo it.
+
+**Vercel.** Production holds the backend's address and the three secrets from Secret Manager; preview holds an address that reaches nothing and random secrets. The project's first deployment, built from this branch's push, was made a production deployment by Vercel (its rule for a project's first deployment); `docs/STANDING.md` allows production deployments and a public URL, so it stands until the merge replaces it. Vercel protects preview deployments behind its own sign-in by default; that setting is left as it is.
+
+**`make screens`** (step 4). It starts the emulator, today's local snapshots, the backend and the frontend's dev server, takes the 68 screenshots with a pinned browser-driving library and the browser build already on this machine (nothing was downloaded), and stops everything. States 1 to 15 and 17 use their `?demo=` address; state 16 signs in for real with the local passphrase and makes one handled click. On every page it also computes the three things the gate names and fails on any: text contrast against the ground behind it, sideways scroll, and a focus style on every control reached by Tab. Its last lines:
+
+```
+contrast: 0 below 4.5:1 of 4670 pieces of text
+sideways scroll: 0 of 76 pages (68 screenshots and 8 more)
+focus: 0 controls without a focus style of 1004
+68 screenshots
+```
+
+The lowest contrast measured is 4.99:1 in the light theme and 6.09:1 in the dark. The agent that built it read all 68 files and fixed eleven defects it found (a capitalised DMARC tag, the admin bar's height, the phone header's height, the tab titles, the refused field's focus, the "What was checked" table at both widths, and others); the build then looked at a sample itself (state 5 at 1440 in the light theme, state 15 at 390 in the dark). Two things in the design document are not met and are in `docs/DECISIONS_TO_REVIEW.md`: twelve rows in the first 900 pixels, and the live-check result's box, which has no "Advisory, unproven." opening because no model runs on a typed domain.
+
+**`make eval` on this phase's code** exits 0 and leaves the results file as committed; this phase's gate has no measured bar. Its output is unchanged from the Phase 4 log.
 
 ---
 

@@ -86,7 +86,7 @@ export function Facts({ facts }: { facts: readonly Fact[] }): ReactElement {
     <dl className="t-small flex flex-col gap-1 wide:flex-row wide:flex-wrap wide:gap-x-8">
       {facts.map((fact) => (
         <div key={fact.label} className="flex gap-2">
-          <dt className="text-ink-3">{fact.label}</dt>
+          <dt className="shrink-0 whitespace-nowrap text-ink-3">{fact.label}</dt>
           <dd className="text-ink">{fact.value}</dd>
         </div>
       ))}

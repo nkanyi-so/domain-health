@@ -69,7 +69,10 @@ function row(
 /** A problem as the check wrote it, made to read as a sentence. */
 function sentence(text: string): string {
   const trimmed = text.trim();
-  const capital = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  // A problem that opens with the record's own text ("p=monitor is not ...") keeps its case: a
+  // tag is written in lower case in the record, and "P=monitor" is not what was read.
+  const quotesRecord = /^[a-z0-9_]+[=:]/.test(trimmed);
+  const capital = quotesRecord ? trimmed : trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   return /[.!?]$/.test(capital) ? capital : `${capital}.`;
 }
 

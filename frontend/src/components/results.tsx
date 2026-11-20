@@ -44,20 +44,26 @@ export function FixesSection({ fixes, seeded, empty }: FixesSectionProps): React
   );
 }
 
-function Status({ row }: { row: CheckRow }): ReactElement {
+function StatusWords({ row }: { row: CheckRow }): ReactElement {
   const tone = row.state === "ok" ? "text-ok" : row.state === "problem" ? "text-ink" : "text-ink-3";
   return (
-    <div>
-      <p className={`flex items-center gap-1 font-medium ${tone}`}>
-        {row.state === "ok" ? (
-          <TickCircle />
-        ) : row.state === "problem" ? (
-          <CrossCircle />
-        ) : (
-          <DashCircle />
-        )}
-        {row.words}
-      </p>
+    <p className={`flex items-center gap-1 font-medium ${tone}`}>
+      {row.state === "ok" ? (
+        <TickCircle />
+      ) : row.state === "problem" ? (
+        <CrossCircle />
+      ) : (
+        <DashCircle />
+      )}
+      {row.words}
+    </p>
+  );
+}
+
+/** The problems in plain words, or why the check was not made. */
+function StatusNotes({ row }: { row: CheckRow }): ReactElement {
+  return (
+    <>
       {row.notes.map((note) => (
         <p
           key={note}
@@ -66,7 +72,7 @@ function Status({ row }: { row: CheckRow }): ReactElement {
           {note}
         </p>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -108,16 +114,16 @@ export function ChecksSection({ rows, tag }: ChecksSectionProps): ReactElement {
       <h2 id="checks-heading" className="t-heading">
         What was checked
       </h2>
-      <table className="sheet mt-3 hidden w-full border-separate border-spacing-0 text-left wide:table">
+      <table className="sheet mt-3 hidden w-full table-fixed border-separate border-spacing-0 text-left wide:table">
         <thead>
           <tr className="t-small bg-sunk text-ink-2">
-            <th scope="col" className="px-4 py-2 font-medium">
+            <th scope="col" className="w-1/4 px-4 py-2 font-medium">
               Check
             </th>
-            <th scope="col" className="px-4 py-2 font-medium">
+            <th scope="col" className="w-1/4 px-4 py-2 font-medium">
               Status
             </th>
-            <th scope="col" className="px-4 py-2 font-medium">
+            <th scope="col" className="w-1/2 px-4 py-2 font-medium">
               Records as read
             </th>
           </tr>
@@ -129,9 +135,10 @@ export function ChecksSection({ rows, tag }: ChecksSectionProps): ReactElement {
                 <CheckName row={row} tag={tag} />
               </th>
               <td className="border-t border-line px-4 py-3 align-top">
-                <Status row={row} />
+                <StatusWords row={row} />
+                <StatusNotes row={row} />
               </td>
-              <td className="w-1/2 border-t border-line px-4 py-3 align-top">
+              <td className="border-t border-line px-4 py-3 align-top">
                 <Records row={row} />
               </td>
             </tr>
@@ -148,8 +155,14 @@ export function ChecksSection({ rows, tag }: ChecksSectionProps): ReactElement {
               <CheckName row={row} tag={tag} />
             </dt>
             <dd>
-              <Status row={row} />
+              <StatusWords row={row} />
             </dd>
+            {/* Name and status share the first line; what was wrong goes under both. */}
+            {row.notes.length > 0 ? (
+              <dd className="w-full">
+                <StatusNotes row={row} />
+              </dd>
+            ) : null}
             {row.records.length > 0 ? (
               <dd className="w-full">
                 <Records row={row} />

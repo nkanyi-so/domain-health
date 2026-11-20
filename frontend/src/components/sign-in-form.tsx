@@ -27,7 +27,8 @@ export function SignInForm({ initial, demo }: SignInFormProps): ReactElement {
   const [passphrase, setPassphrase] = useState("");
   const [busy, setBusy] = useState(false);
   const field = useRef<HTMLInputElement>(null);
-  const refocus = useRef(false);
+  // A page that opens already refused (the demo state) gives the field focus as a real one does.
+  const refocus = useRef(initial === "refused");
   const router = useRouter();
 
   // After a refused sign-in the emptied field takes focus.
