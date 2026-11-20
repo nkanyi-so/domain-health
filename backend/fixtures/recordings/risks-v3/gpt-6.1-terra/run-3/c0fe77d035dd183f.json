@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c0fe77d035dd183f7531ea212a4fed0ec922c8e09e26349a0cfd73afb7d1da81",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC enforcement is partial\",\"why\":\"The quarantine policy applies to only part of failing mail, leaving some messages outside enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4877,
+  "output_tokens": 79,
+  "cost_usd": 0.005272,
+  "latency_ms": 2255,
+  "recorded_at": "2026-11-20T05:47:12+00:00"
+}

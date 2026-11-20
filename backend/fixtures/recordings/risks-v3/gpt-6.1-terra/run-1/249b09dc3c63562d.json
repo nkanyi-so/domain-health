@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "249b09dc3c63562da60106a272ed4d8a15dfdc05184d3e770cd867d25429ac84",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The domain's reputation has fallen from high to medium, which may affect inbox placement.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can harm deliverability.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key uses older strength\",\"why\":\"The only DKIM key found is shorter than current practice, leaving less cryptographic protection for signed mail.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is in monitoring mode\",\"why\":\"The DMARC policy monitors authentication failures but does not ask receivers to reject or quarantine spoofed mail.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4878,
+  "output_tokens": 231,
+  "cost_usd": 0.006033,
+  "latency_ms": 4421,
+  "recorded_at": "2026-11-20T05:46:54+00:00"
+}

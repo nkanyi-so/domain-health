@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "d43f7ccfd79ce8760d67cafd4aa357b1123df5bedd6d594ce0f79831d36d46e8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"Subdomains lack DMARC enforcement\",\"why\":\"The main domain has an enforcing DMARC policy, but subdomains are set to monitoring only, leaving them exposed to spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4914,
+  "output_tokens": 97,
+  "cost_usd": 0.005399,
+  "latency_ms": 2873,
+  "recorded_at": "2026-11-20T05:47:25+00:00"
+}

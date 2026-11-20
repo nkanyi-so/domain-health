@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "a2a258673e579f3f3a50c6c89f0d7a399714affb3d0cdbb12da1bb5bd4e735e7",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain was recently delisted and has had multiple listings in the lookback window. This history may still affect delivery.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 80,
+  "cost_usd": 0.005279,
+  "latency_ms": 2527,
+  "recorded_at": "2026-11-20T05:46:55+00:00"
+}

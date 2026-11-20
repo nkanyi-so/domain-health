@@ -20,7 +20,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
-Spend: $1.85 of $10 cap
+Spend: $2.27 of $10 cap
 Decisions to review: 24 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
@@ -30,7 +30,7 @@ Paid steps this plan lists (they run without asking while the worst case stays u
 | 2 | one call to test whether `temperature` is accepted | $0.01 |
 | 2 | `make eval-live`, up to six times on `gpt-6-luna` (144 calls each, after decision 0010) | $0.72 |
 | 2 | `make eval-live`, up to four times on `gpt-6.1-terra`, only if Luna misses a bar | $4.80 |
-| 4 | `make record` for every seeded client state, up to three times | $0.20 |
+| 4 | `make record`: 26 seeded states, three calls each (78 calls on `gpt-6.1-terra`, counted at $1.20 per 144), up to three times. Corrected before the step ran (the owner, 2026-11-20): it read "up to three times, $0.20", which assumed one call a state on the cheaper model | $1.95 |
 | 4 to 6 | Google Cloud outside the free tier (image storage, builds) | $1.00 |
 
 Estimated total: under $7 (it was under $3.50 before the set went from twenty cases to forty-eight). Everything else is free.

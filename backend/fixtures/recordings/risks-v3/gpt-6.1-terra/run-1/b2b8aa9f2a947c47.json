@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "b2b8aa9f2a947c47b7ca426a5388ef96dc5954c45d5f6515ba71064139986851",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"Subdomains lack DMARC enforcement\",\"why\":\"The main domain rejects failing mail, but the subdomain policy only monitors it, leaving subdomains exposed to spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 95,
+  "cost_usd": 0.005354,
+  "latency_ms": 2552,
+  "recorded_at": "2026-11-20T05:46:56+00:00"
+}

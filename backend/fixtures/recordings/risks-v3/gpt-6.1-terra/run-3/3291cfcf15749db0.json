@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "3291cfcf15749db0cfa3556b20f20aa4f5beef7121821bd9b452692f5b2880bd",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is still in its first few weeks but is already sending thousands of messages a week, which can strain its developing sender reputation.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4917,
+  "output_tokens": 73,
+  "cost_usd": 0.005282,
+  "latency_ms": 3046,
+  "recorded_at": "2026-11-20T05:47:18+00:00"
+}

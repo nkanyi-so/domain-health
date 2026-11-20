@@ -25,7 +25,7 @@ endif
 endif
 
 .PHONY: help setup dev check check-backend check-frontend format eval toolchain \
-	eval-live record seed infra deploy-backend fallback screens check-domain
+	eval-live record record-report seed infra deploy-backend fallback screens check-domain
 
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
@@ -102,5 +102,17 @@ check-domain:
 	@test -n "$$CHECK_DOMAIN" || { echo "usage: make check-domain DOMAIN=<name>" >&2; exit 1; }
 	@cd backend && uv run --frozen python -m domain_health.check_domain -- "$$CHECK_DOMAIN"
 
-record seed infra deploy-backend fallback screens:
+# Paid. Three calls to the live model for every state of every seeded client, with the prompt
+# version in use, behind the spend ledger. An answer already recorded is never asked for again.
+# Prints the report of what the recordings say against the rubric. The key comes from the shell
+# or from .env, and is only ever in this command's own environment.
+record:
+	@cd backend && set -a && { [ ! -f ../.env ] || . ../.env; } && set +a && \
+		uv run --frozen python -m domain_health.seeded.record
+
+# Free. What the committed seeded recordings say against the rubric.
+record-report:
+	@cd backend && uv run --frozen python -m domain_health.seeded.recording_report
+
+seed infra deploy-backend fallback screens:
 	@echo "make $@: not built yet" >&2; exit 1

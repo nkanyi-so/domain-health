@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "57401bfeef86a80c52d7733e819aed6cccd9b649d4ece2581fa579ce170404f3",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The domain's reputation fell from high to medium, which may make inbox placement less reliable.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rate has fallen substantially\",\"why\":\"Opens have lost a substantial share of their earlier level, suggesting weaker recipient engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has spiked\",\"why\":\"Weekly sending volume rose several-fold while the domain's reputation is below high, increasing the risk of delivery problems.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4980,
+  "output_tokens": 183,
+  "cost_usd": 0.005895,
+  "latency_ms": 4822,
+  "recorded_at": "2026-11-20T05:47:17+00:00"
+}
