@@ -12,7 +12,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | building | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
+| 4: schedule, worker, API, first backend deploy | in review | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
@@ -3078,6 +3078,24 @@ The block as it stood under "Waiting on you":
 > Once answered: with A, the reviewer pass, then the merge gate, then Phase 5. With B, Phase 5 starts after your merge.
 
 **The owner's answer (in the session, 2026-11-20).** "A. One reviewer pass on e343425 and 1aa64b4 only. If nothing is blocking, take #12 through the merge gate and carry on into Phase 5 without stopping. The render-only flag for the six-risk state is fine, and so is leaving the ten-minute window as it is."
+
+### 2026-11-20: review, the one further pass the owner allowed, on e343425 and 1aa64b4 only (head 8d56481)
+
+"No blocking findings. Both commits do what they say, and what the log says about them holds."
+
+What it ran: `make check` (exit 0: 1014 tests outside the emulator, 32 inside). It put the old code back twice to see whether the new tests catch it, and restored it: with `asyncio.run(states())` back, two of the three tests in `test_serve.py` fail with the error the verifier saw; with the old address handling back, three tests in `test_api.py` fail. It sent hostile addresses through `counted_address` and "found no spelling that gets a new counter for the same visitor".
+
+**Not blocking**, all three left for the next change to the deploy script or the address code, so that the reviewed and verified code is what merges:
+
+1. `scripts/deploy-backend.sh`: the change to the service-level maximum is accepted and then finished in the background, and the script only checks that it was accepted. It took effect (the verifier's row 20). To do in Phase 5, when the script is next touched: read the value back and stop unless it is 1.
+2. The same line passes the short-lived access token on curl's command line, where another user of the machine could see it while the request runs. To do with item 1: pass the header on standard input.
+3. Three special IPv6 ranges that carry an IPv4 address each fall into one shared /64, which makes the limit stricter and never looser. Not changed.
+
+The gate's evidence is the entry "gate evidence, on revision `domain-health-00008-lwx` (commit 1aa64b4)" above. The verdict lines that follow replace the ones written at the stop.
+
+reviewer-verdict: no blocking findings @ 8d56481
+verifier-verdict: pass @ 1aa64b4
+challenger-verdict: not needed @ 8d56481
 
 ---
 
