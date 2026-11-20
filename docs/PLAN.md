@@ -3122,6 +3122,31 @@ challenger-verdict: not needed @ 8d56481
 
 **Log:**
 
+### Phase 5, started 2026-11-20
+
+**Before the phase.** Phase 4 was merged through the merge gate (pull request #12) after the owner allowed one further reviewer pass. The owner then said to carry on into Phase 5 without stopping, that the render-only flag for the six-risk state is fine, and that the ten-minute window stays as it is.
+
+**Step list.**
+
+1. `make fallback`: the bundled snapshots, built by the worker's own code from the fixtures and the kept recordings, and a test that the committed file is current. The API's types for the frontend, written from the backend's schema, with a test that fails if they drift.
+2. The frontend's server side: the signed visitor session and admin session, sign-in and sign-out, the routes that proxy to the backend with the proxy secret, the actor and the visitor's address, the `Origin` check on writes, and the fallback when the backend cannot be reached.
+3. The screens in `docs/DESIGN.md`: client list, client page, live check, eval table, about this demo, admin sign-in; the seventeen states, each reachable from seeded data or the `?demo=` flag.
+4. `make screens`: 68 screenshots (17 states, two themes, two widths) into `docs/screens/`, and a look at every one.
+5. The Vercel project, its environment variables, a preview deployment with the backend URL pointed at nothing; after the merge, the production checks in a real browser.
+6. Two things the last Phase 4 review left for the next change to the deploy script: read the service-level maximum back after setting it, and keep the access token off curl's command line.
+
+**Risks seen at the start.**
+
+- The gate's last lines can only be shown after the merge, on the production URL. They are checked straight after it; if one fails, Phase 6 does not start.
+- The state "a handled risk with the next one moved up" needs six ranked risks and no seeded client has more than four. It is shown through the design document's render-only flag, as the owner agreed.
+- Vercel protects preview deployments behind a sign-in by default. The preview check with the backend pointed at nothing is made through the command-line tool's own signed-in access; the protection setting is not changed.
+- `make screens` needs a browser driven by a script. The browser builds it needs are already on this machine; the library is a development dependency of the frontend, with its line in `docs/decisions/dependencies.md`. It is not run in CI, so CI does not change.
+- `frontend/src/content/claim.test.ts` is a measure file and is not touched. The limit sentence goes in a new file, copied from the spec word for word, with a test that it equals the spec's.
+
+**Verifier and challenger.** The verifier is needed: there are screens to run, in a real browser at two widths. The challenger is needed: the page states the claim, its limit and the eval result, and how a reader meets those is part of what the project claims.
+
+**Set up at the start.** The Vercel project `domain-health` in team `nkanyi-so` (root `frontend/`, Node 24, connected to the repository, production branch `main`), as `docs/STANDING.md` allows. The command-line tool's link step also wrote a token file and two lines into `.gitignore`; both were removed.
+
 ---
 
 ## Phase 6: report, README, release checks

@@ -25,12 +25,14 @@ endif
 endif
 
 .PHONY: help setup dev check check-backend check-frontend format eval toolchain \
-	eval-live record record-report seed infra deploy-backend fallback screens check-domain
+	eval-live record record-report seed infra deploy-backend fallback api-types eval-summary \
+	screens check-domain
 
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
+	@echo "generated files: fallback | api-types | eval-summary"
 	@echo "paid: eval-live [MODEL=<name>] [PROBE=1]"
-	@echo "not built yet: record seed infra deploy-backend fallback screens"
+	@echo "not built yet: screens"
 
 setup:
 	cd backend && uv sync --frozen
@@ -44,6 +46,8 @@ setup:
 toolchain:
 	@bash scripts/toolchain-check.sh
 
+# The backend on the Firestore emulator and the frontend, together. The emulator starts empty, so
+# today's snapshots for the twelve seeded clients are written first (seeded/dev_snapshots.py).
 dev:
 	bash scripts/dev.sh $(EMULATOR_PROJECT)
 
@@ -127,5 +131,23 @@ deploy-backend:
 seed:
 	@{ [ ! -f .env ] || . ./.env; } && GCP_PROJECT_ID="$$GCP_PROJECT_ID" GCP_REGION="$$GCP_REGION" COUNT="$(COUNT)" bash scripts/seed.sh
 
-fallback screens:
+# Free. The snapshots the frontend bundles for when the backend cannot be reached: the two read
+# routes' answers for the twelve seeded clients on one fixed day, from the fixtures and the kept
+# recordings. The same bytes on any date; a backend test fails when the committed file is stale.
+fallback:
+	@cd backend && uv run --frozen python -m domain_health.seeded.fallback
+
+# Free. The frontend's API types, written from the backend's OpenAPI schema. A backend test fails
+# when the committed file and the schema differ.
+api-types:
+	@cd backend && uv run --frozen python -m domain_health.api_types
+
+# Free. The totals the frontend's eval page shows, copied out of evals/results.json (the file
+# `make eval` writes): measures, bars, each set beside the rules-only baseline, counts, prompt
+# version and model. No row for a single case. A backend test fails when the committed file is
+# stale, so run this after `make eval` changes the results.
+eval-summary:
+	@cd backend && uv run --frozen python -m domain_health.eval_summary
+
+screens:
 	@echo "make $@: not built yet" >&2; exit 1

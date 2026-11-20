@@ -33,9 +33,19 @@ gcloud run deploy "$SERVICE" --image="$IMAGE:$TAG" --region="$REGION" \
 # which the platform sets to 20 and this gcloud has no flag for, so it is set through the API:
 # one instance in all. It changes no revision.
 say "service-level maximum: 1"
-curl -sS --fail -o /dev/null -X PATCH \
-  -H "Authorization: Bearer $(gcloud auth print-access-token)" -H 'Content-Type: application/json' \
+# The token goes to curl on standard input, not on its command line, where the process list
+# would show it.
+curl -sS --fail -o /dev/null -X PATCH -H @- -H 'Content-Type: application/json' \
   "https://run.googleapis.com/v2/projects/$PROJECT/locations/$REGION/services/$SERVICE?updateMask=scaling.maxInstanceCount" \
-  -d '{"scaling":{"maxInstanceCount":1}}'
+  -d '{"scaling":{"maxInstanceCount":1}}' <<<"Authorization: Bearer $(gcloud auth print-access-token)"
+# The change is accepted first and made a moment later, so it is read back before "deployed".
+ceiling=""
+for _ in 1 2 3 4 5 6; do
+  ceiling="$(gcloud run services describe "$SERVICE" --region="$REGION" \
+    --format='value(metadata.annotations["run.googleapis.com/maxScale"])')"
+  [ "$ceiling" = "1" ] && break
+  sleep 5
+done
+[ "$ceiling" = "1" ] || die "the service-level maximum reads '$ceiling', not 1"
 
 say "deployed: $SERVICE_URL"

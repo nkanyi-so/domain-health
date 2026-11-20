@@ -149,8 +149,8 @@ def test_only_the_paid_commands_load_the_live_model() -> None:
 
 def test_the_deployed_service_never_loads_a_model_library_or_the_paid_commands() -> None:
     """Rule 3 again, from the other side: nothing the service imports at start-up, directly or
-    through another module of this project, is the live model, a paid command or the rubric's
-    table."""
+    through another module of this project, is the live model, a paid command, the rubric's
+    table or a command that writes a generated file."""
     forbidden = (
         "domain_health.risks.openai_model",
         "domain_health.evals.live",
@@ -159,6 +159,12 @@ def test_the_deployed_service_never_loads_a_model_library_or_the_paid_commands()
         "domain_health.evals.table",
         "domain_health.seeded.recording_report",
         "domain_health.seeded.record",
+        # Commands that write the frontend's generated files: run on a developer's machine only.
+        "domain_health.seeded.fallback",
+        "domain_health.api_types",
+        "domain_health.eval_summary",
+        # Writes snapshots into the local emulator for `make dev`: never part of the service.
+        "domain_health.seeded.dev_snapshots",
     )
     seen: set[str] = set()
     todo = ["domain_health.serve"]

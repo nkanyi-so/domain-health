@@ -11,6 +11,10 @@ if [ "${DEV_INSIDE_EMULATOR:-}" != "1" ]; then
     "bash '$ROOT/scripts/dev.sh' '$project'"
 fi
 
+# The emulator starts empty and nothing runs the daily job locally, so today's snapshots for the
+# twelve seeded clients are written first, by the worker's own code with the kept recordings.
+(cd "$ROOT/backend" && uv run --frozen python -m domain_health.seeded.dev_snapshots)
+
 pids=()
 stop() {
   trap - INT TERM EXIT
