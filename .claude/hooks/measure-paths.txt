@@ -29,3 +29,4 @@ backend/tests/test_comparison.py
 evals/settings.toml
 backend/src/domain_health/evals/scoring.py
 evals/expected-misses.toml
+backend/src/domain_health/evals/__main__.py

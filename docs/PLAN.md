@@ -2210,6 +2210,8 @@ Two items, not blocking:
 
 The reviewer's verdict line above names `c425242`, the last commit the whole phase was reviewed on; this pass covered everything since. The verifier and the challenger last ran on `c425242` and did not see the changes to the eval command, the Makefile, CI, the guard list or the spec.
 
+**After the hand-over (the owner, 2026-11-20).** "Add backend/src/domain_health/evals/__main__.py to the guard list on #9. Everything else you flagged is fine as it is. No further review pass." Done: one line added to `.claude/hooks/measure-paths.txt`, which closes the gap the reviewer's pass left for the owner (the code that decides the `eval` job's result). Nothing else changed, and no agent was run on it.
+
 ---
 
 ## Phase 4: schedule, worker, API, first backend deploy
