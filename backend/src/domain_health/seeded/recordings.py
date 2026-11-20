@@ -14,6 +14,7 @@ recordings say against the rubric is `recording_report.py`'s.
 
 import asyncio
 import tomllib
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from pathlib import Path
 from typing import Literal
@@ -126,10 +127,21 @@ def kept_calls(found: list[State], runs: list[list[ModelCall]]) -> list[ModelCal
     return kept
 
 
+def _all_states() -> list[State]:
+    """`states()`, for a caller that is not async: the service, while it is being built.
+
+    The server imports the service outside its event loop in one mode and inside it in another
+    (with `--reload`, as `make dev` runs it), and `asyncio.run` refuses inside a loop. So the
+    states are worked out on a thread of their own, with a loop of their own, either way.
+    """
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, states()).result()
+
+
 def recorded_model(
     repo: Path = REPO, recordings: Path = RECORDINGS
 ) -> tuple[RecordedRiskModel, Prompt, str]:
     """The model the deployed worker is built with: the kept answers, replayed."""
     prompt, model = settings(repo)
-    kept = kept_calls(asyncio.run(states()), recorded_runs(prompt, model, recordings))
+    kept = kept_calls(_all_states(), recorded_runs(prompt, model, recordings))
     return RecordedRiskModel(prompt, model, kept), prompt, model
