@@ -110,13 +110,14 @@ An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exac
 | Rubric objections not taken | [0011](decisions/0011-rubric-objections-not-taken.md) |
 | The claim says what is measured; the baseline comparison is evidence | [0012](decisions/0012-the-claim-says-what-is-measured.md) |
 | Auth: OIDC for machines, a proxy secret, an admin session, a visitor sandbox | [0009](decisions/0009-auth.md) |
+| The service is opened by turning off Cloud Run's invoker check | [0014](decisions/0014-the-service-is-opened-by-turning-off-the-invoker-check.md) |
 | Each runtime dependency | [dependencies](decisions/dependencies.md) |
 
 ## Security
 
 The reviewer's checklist in security mode.
 
-- **Machine auth.** `/internal/*` verifies a Google-signed OIDC token: signature against Google's keys, issuer, audience equal to the service URL, email equal to the invoker service account. Tested in CI with locally signed tokens and a fake key set. The Cloud Run service allows unauthenticated invocations at the platform level because the frontend cannot mint Google tokens; the app refuses everything it should.
+- **Machine auth.** `/internal/*` verifies a Google-signed OIDC token: signature against Google's keys, issuer, audience equal to the service URL, email equal to the invoker service account. Tested in CI with locally signed tokens and a fake key set. The Cloud Run service is open at the platform level because the frontend cannot mint Google tokens; the app refuses everything it should. It is opened by turning off Cloud Run's invoker check (`--no-invoker-iam-check`), not by granting `allUsers`, which the project's organisation policy refuses (decision 0014): the app-level checks are the only gate.
 - **Public API.** `/api/*` requires the proxy secret header, compared in constant time. Shared-state writes also require the admin actor, which only the frontend's server routes can assert after checking the admin session cookie.
 - **Sessions.** Cookies are signed, `HttpOnly`, `Secure`, `SameSite=Lax`. Write routes check the `Origin` header. The admin passphrase is compared in constant time and sign-in attempts are rate limited.
 - **Untrusted input.** The typed domain is validated as a public host name before any lookup and is only ever used as a DNS query name; the backend makes no HTTP request to it. DNS answers are untrusted text: length-capped, parsed, never rendered as HTML. Model output is untrusted: validated against the schema and the rules in the spec, rendered as text.

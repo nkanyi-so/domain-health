@@ -12,7 +12,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | waiting on you | |
+| 4: schedule, worker, API, first backend deploy | building | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
@@ -37,29 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 4 is built and deployed, and stopped part way through the deployed checks.** The code, the tests, the seeded recordings and the design document are done and `make check` is green. Three things need you: one step only you can do, one decision, and one look at the recordings.
-
-1. **Sign the `domain-health` gcloud configuration in again.** Its session expired during the deploy, and gcloud will not re-authenticate without a browser. In a terminal:
-
-   ```
-   CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud auth login
-   ```
-
-   Choose the same personal account as before. Nothing else on the machine is touched.
-
-2. **How the frontend reaches the backend.** The design has the Cloud Run service open at the platform level, with the app refusing every call that lacks the proxy secret or a Google-signed machine token. Your project's organisation policy refuses the grant that opens it (`allUsers` as invoker). The service is deployed closed for now: only the project's own invoker account and you can reach it.
-
-   You should know what I did here. To test, I turned off Cloud Run's invoker check on the service, which opens it the same way. It worked: unauthenticated calls got the app's own 401. When I went to make that the deploy script's default, the session's permission check refused it as going around a control you had not decided on. I turned the invoker check back on within a few minutes, and the service answers 403 to the public again.
-
-   - **A (recommended). Turn off the invoker check** (`--no-invoker-iam-check` in the deploy script). It is Cloud Run's own supported setting for a public service where the organisation restricts `allUsers`. The app-level checks are then the only gate, as decision 0009 planned, and the gate's "an unauthenticated call to the worker gets 401" can be shown. Costs nothing. If your organisation also forbids this setting it will fail, and I will tell you.
-   - **B. You add an exception to the organisation policy** for this project so `allUsers` can be granted. Same result; your step, in the organisation's console.
-   - **C. Keep the service closed** and have the frontend prove a Google identity on every call, through workload identity federation from Vercel. No long-lived key, and the service is never public. Costs about half a day more in Phase 5, a change to decision 0009, and the gate line becomes "gets 403 from the platform".
-
-3. **The seeded recordings: keep them?** The plan asks that you see these counts before they are kept. 78 calls, $0.42. All 26 seeded states' three answers agree, so all 26 are kept. Of 36 risks returned, 4 are of a type the rubric's bands call merely acceptable: all `dmarc_policy_none`, on both days of `brindle-and-oak` and `copperkettle-kitchen`. None is of a type the bands call wrong, and none says a rate is elevated when it is under the rubric's line. The full table is in the Phase 4 log, and `make record-report` prints it.
-   - **Keep (recommended).** They are what the deployed worker replays.
-   - **Do not keep.** Tell me what to change; a new recording run costs about $0.42.
-
-Once answered: I run the second `make infra` (the daily job), `make seed`, the scheduled run by hand and a second one, and the deployed checks; then the review and the verifier; then the merge gate. With 2A or 2B the phase goes through the gate. Spend so far: $2.27 of $10.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -2353,6 +2331,42 @@ This phase's gate has no measured bar. `make eval EXPECTED=1` exits 0: the harmf
 - Third deploy (revision `domain-health-00002-s5k`, closed): done. The second `make infra`, which creates the Scheduler job and lets the invoker account call the service, and `make seed`, then failed: "There was a problem refreshing your current auth tokens: Reauthentication failed. cannot prompt during non-interactive execution." The `domain-health` gcloud sign-in has expired and needs the owner at a browser.
 
 **Not done yet, and waiting on the two things above:** the Scheduler job; `make seed`; the scheduled run by hand and the second run; the deployed checks of the gate; the review and the verifier.
+
+### 2026-11-20: the stop (issue #11) and the owner's answers
+
+The block as it stood under "Waiting on you":
+
+> **Phase 4 is built and deployed, and stopped part way through the deployed checks.** The code, the tests, the seeded recordings and the design document are done and `make check` is green. Three things need you: one step only you can do, one decision, and one look at the recordings.
+>
+> 1. **Sign the `domain-health` gcloud configuration in again.** Its session expired during the deploy, and gcloud will not re-authenticate without a browser. In a terminal:
+>
+>    ```
+>    CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud auth login
+>    ```
+>
+>    Choose the same personal account as before. Nothing else on the machine is touched.
+>
+> 2. **How the frontend reaches the backend.** The design has the Cloud Run service open at the platform level, with the app refusing every call that lacks the proxy secret or a Google-signed machine token. Your project's organisation policy refuses the grant that opens it (`allUsers` as invoker). The service is deployed closed for now: only the project's own invoker account and you can reach it.
+>
+>    You should know what I did here. To test, I turned off Cloud Run's invoker check on the service, which opens it the same way. It worked: unauthenticated calls got the app's own 401. When I went to make that the deploy script's default, the session's permission check refused it as going around a control you had not decided on. I turned the invoker check back on within a few minutes, and the service answers 403 to the public again.
+>
+>    - **A (recommended). Turn off the invoker check** (`--no-invoker-iam-check` in the deploy script). It is Cloud Run's own supported setting for a public service where the organisation restricts `allUsers`. The app-level checks are then the only gate, as decision 0009 planned, and the gate's "an unauthenticated call to the worker gets 401" can be shown. Costs nothing. If your organisation also forbids this setting it will fail, and I will tell you.
+>    - **B. You add an exception to the organisation policy** for this project so `allUsers` can be granted. Same result; your step, in the organisation's console.
+>    - **C. Keep the service closed** and have the frontend prove a Google identity on every call, through workload identity federation from Vercel. No long-lived key, and the service is never public. Costs about half a day more in Phase 5, a change to decision 0009, and the gate line becomes "gets 403 from the platform".
+>
+> 3. **The seeded recordings: keep them?** The plan asks that you see these counts before they are kept. 78 calls, $0.42. All 26 seeded states' three answers agree, so all 26 are kept. Of 36 risks returned, 4 are of a type the rubric's bands call merely acceptable: all `dmarc_policy_none`, on both days of `brindle-and-oak` and `copperkettle-kitchen`. None is of a type the bands call wrong, and none says a rate is elevated when it is under the rubric's line. The full table is in the Phase 4 log, and `make record-report` prints it.
+>    - **Keep (recommended).** They are what the deployed worker replays.
+>    - **Do not keep.** Tell me what to change; a new recording run costs about $0.42.
+>
+> Once answered: I run the second `make infra` (the daily job), `make seed`, the scheduled run by hand and a second one, and the deployed checks; then the review and the verifier; then the merge gate. With 2A or 2B the phase goes through the gate. Spend so far: $2.27 of $10.
+
+**The owner's answers (in the session, 2026-11-20).**
+
+1. Done: the `domain-health` gcloud configuration is signed in again.
+2. **A.** "Use --no-invoker-iam-check in the deploy script and record it as a decision, including that the organisation policy refused the allUsers grant and that the app-level checks are the only gate. From now on, do not change access settings on a live service to test something before I have decided; ask first." Recorded as decision 0014. The rule is kept from here on: an access setting on a live service is not changed to test something before the owner has decided.
+3. **Keep the recordings.**
+
+Also: three service accounts and `/health` are fine. For the Phase 5 state that needs six risks: the build's call, "prefer a real seeded state if it is cheap and reliable, otherwise use the render-only flag. Record which and do not stop for it." Then: finish the infra, seeding, deployed checks, review and verifier, take Phase 4 through the merge gate, and carry on into Phase 5.
 
 ---
 

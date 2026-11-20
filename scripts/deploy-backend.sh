@@ -3,12 +3,12 @@
 #
 # At most one instance, none when idle, billed per request.
 #
-# The design has the service open at the platform level, because the frontend cannot mint Google
-# tokens, with every route refusing at the app level. The project's organisation policy refuses
-# the grant that opens it (`allUsers` as invoker), so for now the service is deployed closed:
-# only the project's invoker account (Scheduler and Tasks) and the owner can reach it. How the
-# frontend reaches it is the owner's decision; see the Phase 4 log in docs/PLAN.md. The only secret
-# the service gets is the proxy secret. No model key is set, and the image has no model library.
+# The service is open at the platform level, because the frontend cannot mint Google tokens, and
+# every route refuses at the app level: the proxy secret on /api/*, a Google-signed machine token
+# on /internal/*. The project's organisation policy refuses the usual grant (`allUsers` as
+# invoker), so the service is opened by turning off Cloud Run's invoker check instead: the owner's
+# decision, docs/decisions/0014. The only secret the service gets is the proxy secret. No model
+# key is set, and the image has no model library.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 . scripts/cloud-common.sh
@@ -23,7 +23,7 @@ gcloud builds submit . --config=backend/cloudbuild.yaml --substitutions="_IMAGE=
 
 say "deploying"
 gcloud run deploy "$SERVICE" --image="$IMAGE:$TAG" --region="$REGION" \
-  --service-account="$RUNTIME_EMAIL" --no-allow-unauthenticated \
+  --service-account="$RUNTIME_EMAIL" --no-invoker-iam-check \
   --min-instances=0 --max-instances=1 --concurrency=20 --cpu=1 --memory=512Mi --timeout=60 \
   --cpu-throttling \
   --set-env-vars="GCP_PROJECT_ID=$PROJECT,GCP_REGION=$REGION,SERVICE_URL=$SERVICE_URL,INVOKER_EMAIL=$INVOKER_EMAIL,TASKS_QUEUE=$QUEUE" \

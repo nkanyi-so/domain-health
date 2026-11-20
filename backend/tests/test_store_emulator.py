@@ -16,7 +16,15 @@ import pytest
 from domain_health.clock import FixedClock
 from domain_health.risks.model import FixtureRiskModel
 from domain_health.seeded import load_clients
-from domain_health.store import SHARED, Scope, Slot, Snapshot, SnapshotStore, live_check
+from domain_health.store import (
+    SHARED,
+    Scope,
+    Slot,
+    Snapshot,
+    SnapshotStore,
+    StoreBusyError,
+    live_check,
+)
 from domain_health.store.firestore import FirestoreStore, connect
 from domain_health.worker import ModelFacts, run_client
 from tests import store_fixtures as scenarios
@@ -333,6 +341,33 @@ def test_ten_live_checks_fired_at_once_from_one_address_give_at_most_five(
     with capsys.disabled():
         taken = sum(slot is Slot.TAKEN for slot in given)
         print(f"\nlive check: 10 fired at once from one address, {taken} succeeded")
+
+
+def test_ten_live_checks_from_ten_processes_never_give_more_than_five() -> None:
+    """Ten stores, as ten processes would be: nothing queues them, only the transaction counts.
+
+    Some may be turned away busy, which the API answers with "try again"; what must never
+    happen is a sixth success.
+    """
+
+    async def go() -> list[Slot | None]:
+        key = uuid4().hex
+
+        async def one() -> Slot | None:
+            try:
+                return await store().take_live_check_slot(key, noon(DAY0))
+            except StoreBusyError:
+                return None
+
+        return list(await asyncio.gather(*(one() for _ in range(10))))
+
+    given = run(go())
+
+    taken = sum(slot is Slot.TAKEN for slot in given)
+    assert taken <= 5
+    assert all(slot in (Slot.TAKEN, Slot.ADDRESS_LIMIT, None) for slot in given)
+    if None not in given:
+        assert taken == 5
 
 
 def test_with_the_days_counter_at_200_the_next_live_check_is_refused(

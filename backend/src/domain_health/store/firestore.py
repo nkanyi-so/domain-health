@@ -78,6 +78,12 @@ def _marks_field(marks: dict[str, HandledMark]) -> dict[str, Any]:
 class FirestoreStore:
     def __init__(self, db: AsyncClient) -> None:
         self.db = db
+        # Live checks in this process take their slot one at a time. Every one of them reads and
+        # writes the day's counter, and ten transactions that all hold it for reading can only
+        # abort each other until the retries run out. The service is one instance, so queueing
+        # here removes that; the transaction is still what keeps the count right against any
+        # other process.
+        self._slots = asyncio.Lock()
 
     async def _transact[T](self, body: Callable[[AsyncTransaction], Awaitable[T]]) -> T:
         """Run one change as a transaction, again from the start if the database aborts it.
@@ -207,7 +213,8 @@ class FirestoreStore:
                 )
             return given
 
-        return await self._transact(take)
+        async with self._slots:
+            return await self._transact(take)
 
     async def seed_clients(self, clients: list[ClientRecord]) -> None:
         for client in clients:

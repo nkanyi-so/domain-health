@@ -100,8 +100,8 @@ if gcloud run services describe "$SERVICE" --region="$REGION" >/dev/null 2>&1; t
     --time-zone='Etc/UTC' --uri="$SERVICE_URL/internal/dispatch" --http-method=POST \
     --oidc-service-account-email="$INVOKER_EMAIL" --oidc-token-audience="$SERVICE_URL" \
     --attempt-deadline=60s --max-retry-attempts=3 --quiet >/dev/null
-  # The invoker may call the service at the platform level too, which matters while Cloud Run's
-  # own invoker check is on.
+  # The invoker may call the service at the platform level too. It does nothing while Cloud Run's
+  # own invoker check is off (decision 0014) and keeps the schedule working if it is turned on.
   gcloud run services add-iam-policy-binding "$SERVICE" --region="$REGION" \
     --member="serviceAccount:$INVOKER_EMAIL" --role=roles/run.invoker --quiet >/dev/null
   say "the daily job calls $SERVICE_URL/internal/dispatch"
