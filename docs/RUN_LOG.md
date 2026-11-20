@@ -110,3 +110,5 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T13:00:57Z	6	phase-started	6: report, README, release checks	2.27
 2026-11-20T13:35:19Z	6	review	blocking findings, three, all wording @ fafdf70	2.27
 2026-11-20T13:35:19Z	6	verify	pass @ fafdf70	2.27
+2026-11-20T13:40:10Z	6	review	no blocking findings, the three closed @ 8957bcf	2.27
+2026-11-20T13:40:10Z	6	verify	pass @ 8957bcf	2.27

@@ -14,7 +14,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
 | 5: the screens | merged, checked live | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
-| 6: report, README, release checks | building | |
+| 6: report, README, release checks | in review | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
 
@@ -3383,15 +3383,15 @@ A first run of the same script reported the click lost after a reload. That was 
 
 ## Phase 6: report, README, release checks
 
-- [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144; reworded by the owner after the Phase 3 challenge, 2026-11-20: it read "0 in 144 case-runs", which is not the result), names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
-- [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
-- [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
-- [ ] Added by the owner, 2026-11-20: the README leads with the finding: the eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way, with the model's risks advisory.
-- [ ] Added after the Phase 2 challenges (the owner's answers, 2026-11-19 and 2026-11-20, confirmed): the README puts the limit sentence beside the claim sentence, in the words of `docs/SPEC.md`; names version 3 as the prompt in use and shows version 4 beside it as the final attempt, which did worse for a reason that is not established; says the risk wording shown was false in the harmful answers of version 4, the final attempt, that in version 3's harmful answers the wording was accurate and the call was wrong, and that no check reads wording (tied to the versions by the owner after the Phase 3 challenge, 2026-11-20); says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; lists version 4's wording boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` does and from the results file's `not_in_use` list, and says it went a step past the owner's ruling on version 3; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
-- [ ] Added after the Phase 3 challenge (the owner, 2026-11-20): a test fails if any "N in 144" in the README differs from the results file.
-- [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
-- [ ] Every "Done when" line in `docs/SPEC.md` checked and shown.
+- [x] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
+- [x] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144; reworded by the owner after the Phase 3 challenge, 2026-11-20: it read "0 in 144 case-runs", which is not the result), names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
+- [x] The reviewer in security mode over the whole repository; every finding fixed or listed.
+- [x] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
+- [x] Added by the owner, 2026-11-20: the README leads with the finding: the eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way, with the model's risks advisory.
+- [x] Added after the Phase 2 challenges (the owner's answers, 2026-11-19 and 2026-11-20, confirmed): the README puts the limit sentence beside the claim sentence, in the words of `docs/SPEC.md`; names version 3 as the prompt in use and shows version 4 beside it as the final attempt, which did worse for a reason that is not established; says the risk wording shown was false in the harmful answers of version 4, the final attempt, that in version 3's harmful answers the wording was accurate and the call was wrong, and that no check reads wording (tied to the versions by the owner after the Phase 3 challenge, 2026-11-20); says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; lists version 4's wording boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` does and from the results file's `not_in_use` list, and says it went a step past the owner's ruling on version 3; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
+- [x] Added after the Phase 3 challenge (the owner, 2026-11-20): a test fails if any "N in 144" in the README differs from the results file.
+- [x] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
+- [x] Every "Done when" line in `docs/SPEC.md` checked and shown.
 
 **Gate:** `make check` exits 0. `make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed (reworded for the owner to merge with Phase 2, 2026-11-20: it read "exits 0", which no prompt version can meet). The reviewer finds no sentence in the README that the code or the result files do not back (its list is in the log, with 0 open). The security review has 0 open blocking findings. `gitleaks git` over the full history reports 0 leaks. The name scan reports 0 hits. After merge: CI is green on `main`; the hosted page loads in a real browser in both themes at 1440 and 390 wide; the report opens for one client in both formats.
 
@@ -3452,7 +3452,7 @@ One pass with three jobs: the phase diff, the README sentence by sentence, and s
 
 **Security mode: no blocking finding beyond item 3.** No key, token or private key is tracked; `gitleaks git` reports no leaks. The cookies are signed, compared in constant time, `HttpOnly`, `SameSite=Lax` and `Secure`; production refuses a missing or development secret; every write checks `Origin`; the sign-in attempt is one step; only validated values are forwarded to the backend; download filenames are reduced to letters, digits and hyphens; DNS and model text is rendered as text. The proxy secret is compared in constant time and must be 32 characters; the OIDC check covers signature, expiry, audience, issuer and verified email; a typed domain is checked, then limited, then looked up, TXT records only. The deploy scripts grant least-privilege roles and print nothing secret. CI pins its actions.
 
-**Not blocking: two fixed because they were false statements, the rest recorded and left.** Fixed: "a quarter to a third of the cases" is now "a fifth to a third" (10, 16 and 15 of 48); and a decision entry that said the report is drawn "by the same components as the site". Also done, being small and about the scan: the name scan now strips a Windows line ending from an entry, and issue and pull request text was scanned once against the list (607 lines, 0 entries found). Left, in `docs/DECISIONS_TO_REVIEW.md`: the report's two routes have no route-level tests (the model and both renderers do; the verifier exercised the routes); text from a snapshot is only partly neutralised in the Markdown download (seeded text only); the sign-in limit is per server instance and an admin session cannot be revoked before its twelve hours (both already recorded in Phase 5); `docs/VIDEO.md` paraphrases the limit without a test. One slip of the reviewer's own, reported by it: a search printed truncated note lines from some open cases; it says it did not use them, and none reached this log.
+**Not blocking: two fixed because they were false statements, the rest recorded and left.** Fixed: "a quarter to a third of the cases" is now "a fifth to a third" (10, 16 and 15 of 48); and a decision entry that said the report is drawn "by the same components as the site". Also done, being small and about the scan: the name scan now strips a Windows line ending from an entry, and issue and pull request text was scanned once against the list (607 lines, 0 entries found). Left, in `docs/DECISIONS_TO_REVIEW.md`: the report's two routes have no route-level tests (the model and both renderers do; the verifier exercised the routes); text from a snapshot is only partly neutralised in the Markdown download (seeded text only); the sign-in limit is per server instance (in `docs/ARCHITECTURE.md`) and an admin session cannot be revoked before its twelve hours (in `docs/DECISIONS_TO_REVIEW.md`), both written down in Phase 5; `docs/VIDEO.md` paraphrases the limit without a test. One slip of the reviewer's own, reported by it: a search printed truncated note lines from some open cases; it says it did not use them, and none reached this log.
 
 ### 2026-11-20: the verifier run, on fafdf70: pass
 
@@ -3469,3 +3469,68 @@ One pass with three jobs: the phase diff, the README sentence by sentence, and s
 | 7 | The hosted site in a real browser, both themes, 1440 and 390: 12 clients, no sideways scroll, no fallback notice | pass |
 
 Not exercised: a real printer; the hosted site's report, which is on `main` only after the merge.
+
+### 2026-11-20: the two confirmations on the final commit, 8957bcf
+
+The owner asked for one reviewer pass and one verifier run. Both were made on fafdf70. The fixes that followed changed the README, two documents and one line of the scan script, and the merge gate reads a verdict as stale once anything but this file and the run log has changed after it. So each check was asked one short question on the final commit, and nothing more.
+
+- **The reviewer**, on `fafdf70..8957bcf` only: "All three blocking findings from my Phase 6 review are closed at 8957bcf." "New blocking findings: none." It noted that the figure for the scan of issue and pull request text cannot be confirmed from the repository, since the list is kept outside it, and that one pointer in this log named the wrong file; the pointer is corrected.
+- **The verifier**: only the six named files changed; `make check` exits 0; `make readme` says "already current" and leaves the tree clean; `make eval STRICT=1` exits non-zero with harmful the only missed bar; the name scan finds its made-up entry with Unix and with Windows line endings and prints no entry's text; the README's retry sentence agrees with the queue's setting; every relative link in the README resolves. Pass.
+
+### 2026-11-20: gate evidence, on 8957bcf
+
+Taken once, on the final commit:
+
+```
+$ git rev-parse --short HEAD
+8957bcf
+
+$ make eval STRICT=1; echo "exit $?"
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 22, wrong: 0 | with only the types the bands expect kept: coverage 1.000, precision 1.000, harmful 0, stability 1.000
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 30, wrong: 0 | with only the types the bands expect kept: coverage 0.680, precision 1.000, harmful 0, stability 1.000
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  prompt sentences that place a line relative to a figure, a field's name or a span of time: 26 (the results file lists them for the version in use and for each version not in use)
+  not in use, recorded on the same model: risks-v4: coverage 0.881, precision 0.940, harmful 12 in 144, stability 0.812
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+make: *** [eval] Error 1
+exit 2
+
+$ bash scripts/name-scan.sh; echo "exit $?"
+name scan: 55 entries, 117 commits, 17 branch and tag names; 0 with a hit
+exit 0
+
+$ gitleaks git --no-banner --redact 2>&1 | grep -o "[0-9]* commits scanned\|no leaks found\|leaks found: [0-9]*"
+110 commits scanned
+no leaks found
+```
+
+- `make check` exits 0: the verifier's confirmation above, and CI on the pull request.
+- `make eval STRICT=1` exits non-zero and misses exactly the bars the README names as missed: harmful, and only harmful, above. The README's table marks that bar and no other as missed; a test holds the table to the results file.
+- The reviewer finds no sentence in the README that the code or the result files do not back: its list had two such sentences, both corrected, and it confirmed them closed. 0 open.
+- The security review has 0 open blocking findings: its one was the spend sentence; closed.
+- `gitleaks git` over the full history reports 0 leaks: above.
+- The name scan reports 0 hits: above; and 0 in issue and pull request text.
+- **After the merge, not yet shown:** CI green on `main`; the hosted page in a real browser in both themes at 1440 and 390 wide; the report opening for one client in both formats. Checked straight after the merge and written below.
+
+**Every "Done when" line in the spec.**
+
+- "A real domain typed on the hosted page gets live DNS checks and a fix list." Shown on the production address after Phase 5's merge: a typed `example.com`, one press, "Live DNS" and its SPF record on the page (the end of the Phase 5 log).
+- "After one scheduled run, all twelve seeded clients have today's snapshot in Firestore." Shown in Phase 4: each run of the Scheduler job was followed by twelve worker calls and a count of 12 documents dated that day. The production client list today shows all twelve with today's snapshot and no fallback notice.
+- "The eval table is in the README with the prompt version, the model and the date, and all four bars are met. Not met as written": the table is in the README, generated from the results file, with `risks-v3`, `gpt-6.1-terra` and 2026-11-19, and the harmful bar marked missed, as the spec says is done instead.
+- "CI is green on `main`. No key in the repository or its history. No real client, company or person in the tree or the history." CI on `main` is checked after the merge; gitleaks over the history reports no leaks; the name scan reports 0 hits over the tree, 117 commits and 17 branch and tag names.
+- "The hosted page loads in a real browser with no key on the visitor's side, in both themes, at desktop and phone width." The verifier's row 7, on the production address; checked again after the merge.
+- "Left to the owner: the walkthrough video, and making the repository public." `docs/VIDEO.md` is the script. The repository is private; making it public is the owner's, and the run stops there.
+
+reviewer-verdict: no blocking findings @ 8957bcf
+verifier-verdict: pass @ 8957bcf
+challenger-verdict: not needed @ 8957bcf
