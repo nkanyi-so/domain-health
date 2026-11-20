@@ -95,3 +95,14 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:23:44Z	4	review	no blocking findings, on e343425 and 1aa64b4 only @ 8d56481	2.27
 2026-11-20T10:24:58Z	4	gate-refused	exit=2 reason=checkout pr=#12: the local checkout is not the pull request's head commit (8d56481ec68fa2a8a56de4ad288e2b7d84d630ea). Push, or check out the branch	2.27
 2026-11-20T10:25:32Z	4	gate-refused	exit=2 reason=spend pr=#12: docs/PLAN.md must have exactly one 'Spend: $X of ...' line	2.27
+2026-11-20T10:30:08Z	4	gate-merged	pr=#12 phase-4-schedule-worker-api-deploy 50bd25cb11f4234c566a9d4ee904b74a33910b91 into main	2.27
+2026-11-20T10:30:41Z	5	phase-started	5: the screens	2.27
+2026-11-20T11:48:02Z	5	review	blocking findings, two @ 1724d55	2.27
+2026-11-20T11:55:29Z	5	review	blocking findings, one, a regression from the first fix @ 530fe05	2.27
+2026-11-20T12:07:10Z	5	review	blocking findings, one, the second fix did not work in the production build @ 62d66ab	2.27
+2026-11-20T12:21:40Z	5	verify	fail, an admin's tick is not seen by other visitors though the page says it is @ 9617bf5	2.27
+2026-11-20T12:21:41Z	5	challenge	change needed @ 9617bf5	2.27
+2026-11-20T12:23:47Z	5	stop-opened	issue=#15 questions=4 asked: Phase 5: four questions before your merge of #14	2.27
+2026-11-20T12:31:07Z	5	stop-closed	issue=#15 opened=2026-11-20T12:23:47Z	2.27
+2026-11-20T12:49:04Z	5	review	no blocking findings, on 62d66ab..73e360f @ 73e360f	2.27
+2026-11-20T12:49:04Z	5	verify	pass @ 73e360f	2.27

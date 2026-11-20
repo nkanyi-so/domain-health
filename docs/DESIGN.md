@@ -502,7 +502,7 @@ At 390 the header is two rows, 104 high: row one, the wordmark and the theme swi
 
 **Footer.** 48 above it, a 1 px `line` rule, `text-small`, `ink-3`: "A public rebuild on seeded data. The twelve clients are invented." then the links "About this demo", "Source" (the repository address from an environment variable; left out if unset) and "Admin sign-in". Links are 44 high at 390.
 
-**Admin bar.** Only when signed in as admin, directly under the header, full width, `notice-wash` ground, `notice-line` rule below, 40 high at 1440 (wraps at 390): the "i" icon, "Signed in as admin. Handled and reopen change the shared list that every visitor sees." and a quiet button "Sign out".
+**Admin bar.** Only when signed in as admin, directly under the header, full width, `notice-wash` ground, `notice-line` rule below, 40 high at 1440 (wraps at 390): the "i" icon, "Signed in as admin. Handled and reopen change the shared list, not a visitor's own." and a quiet button "Sign out".
 
 ### Components
 
@@ -564,7 +564,7 @@ Phase 5 fills this table from the real field names in `SnapshotInput`; a field w
 - If a sixth risk was waiting, it appears at the end of the list and a line under the list says: "1 handled. The next risk moved into the list."
 - "Reopen" puts the risk back in its place. The live region says "Reopened."
 - If the save fails, the change is undone and an error banner appears above the list: "That did not save, so nothing changed. Try again."
-- Under the "Handled" heading, one line says whose list it is. A visitor: "Only you see these ticks. They reset a day after your first one." Admin: "These ticks are shared: every visitor sees them."
+- Under the "Handled" heading, one line says whose list it is. A visitor: "Only you see these ticks. They reset a day after your first one." Admin: "These ticks are on the shared list. Visitors do not see it: each has a list of their own."
 
 ### Wireframes
 
@@ -750,7 +750,7 @@ Nothing is looked up, and the banner's last line says so: "No lookup was made."
 
 **15. Backend unreachable (fallback).** The fallback banner, full width under the header on every page while it lasts: first line "Showing saved data", then "The live service cannot be reached. These are the snapshots saved with this page on 20 Nov 2026. Marking handled and the live check are switched off until it is back." The client list and client pages render from the bundled snapshots, and the snapshot fact shows the saved date. "Mark handled" and "Reopen" are disabled. The live-check button is disabled, with the line "Switched off while the live service cannot be reached." under the form. `/evals` and `/about` are unaffected.
 
-**16. Admin signed in.** The admin bar under the header. The "Admin" chip after the client's name. Under "Handled": "These ticks are shared: every visitor sees them." Everything else is the same page. After signing out, the page returns to `/` with a live-region message "Signed out."
+**16. Admin signed in.** The admin bar under the header. The "Admin" chip after the client's name. Under "Handled": "These ticks are on the shared list. Visitors do not see it: each has a list of their own." Everything else is the same page. After signing out, the page returns to `/` with a live-region message "Signed out."
 
 **17. Sign-in refused.** The field is emptied, gets a 2 px `error` edge and `aria-invalid`, and takes focus. An error banner above the form: first line "That passphrase is not right", then "Nothing was changed. Try again." After too many tries the banner is a notice: first line "Too many tries", then "Wait a few minutes before trying again." The message never says how close the passphrase was.
 

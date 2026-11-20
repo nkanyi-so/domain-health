@@ -12,8 +12,8 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | in review | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | not started | |
+| 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
+| 5: the screens | in review | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
 | 6: report, README, release checks | not started | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 28 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 31 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -3109,18 +3109,255 @@ challenger-verdict: not needed @ 8d56481
 
 ## Phase 5: the screens
 
-- [ ] Server routes that proxy to the backend, the visitor session, admin sign-in and sign-out.
-- [ ] Client list; client page with fixes above risks, handled and reopen, seeded labels, snapshot facts (date, prompt version, recorded); live check; eval table; about this demo.
-- [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
-- [ ] `make fallback` and the bundled fallback, with a test that it is current.
-- [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
-- [ ] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
-- [ ] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
+- [x] Server routes that proxy to the backend, the visitor session, admin sign-in and sign-out.
+- [x] Client list; client page with fixes above risks, handled and reopen, seeded labels, snapshot facts (date, prompt version, recorded); live check; eval table; about this demo.
+- [x] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
+- [x] `make fallback` and the bundled fallback, with a test that it is current.
+- [x] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
+- [x] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
+- [x] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
 - [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
 
 **Log:**
+
+### Phase 5, started 2026-11-20
+
+**Before the phase.** Phase 4 was merged through the merge gate (pull request #12) after the owner allowed one further reviewer pass. The owner then said to carry on into Phase 5 without stopping, that the render-only flag for the six-risk state is fine, and that the ten-minute window stays as it is.
+
+**Step list.**
+
+1. `make fallback`: the bundled snapshots, built by the worker's own code from the fixtures and the kept recordings, and a test that the committed file is current. The API's types for the frontend, written from the backend's schema, with a test that fails if they drift.
+2. The frontend's server side: the signed visitor session and admin session, sign-in and sign-out, the routes that proxy to the backend with the proxy secret, the actor and the visitor's address, the `Origin` check on writes, and the fallback when the backend cannot be reached.
+3. The screens in `docs/DESIGN.md`: client list, client page, live check, eval table, about this demo, admin sign-in; the seventeen states, each reachable from seeded data or the `?demo=` flag.
+4. `make screens`: 68 screenshots (17 states, two themes, two widths) into `docs/screens/`, and a look at every one.
+5. The Vercel project, its environment variables, a preview deployment with the backend URL pointed at nothing; after the merge, the production checks in a real browser.
+6. Two things the last Phase 4 review left for the next change to the deploy script: read the service-level maximum back after setting it, and keep the access token off curl's command line.
+
+**Risks seen at the start.**
+
+- The gate's last lines can only be shown after the merge, on the production URL. They are checked straight after it; if one fails, Phase 6 does not start.
+- The state "a handled risk with the next one moved up" needs six ranked risks and no seeded client has more than four. It is shown through the design document's render-only flag, as the owner agreed.
+- Vercel protects preview deployments behind a sign-in by default. The preview check with the backend pointed at nothing is made through the command-line tool's own signed-in access; the protection setting is not changed.
+- `make screens` needs a browser driven by a script. The browser builds it needs are already on this machine; the library is a development dependency of the frontend, with its line in `docs/decisions/dependencies.md`. It is not run in CI, so CI does not change.
+- `frontend/src/content/claim.test.ts` is a measure file and is not touched. The limit sentence goes in a new file, copied from the spec word for word, with a test that it equals the spec's.
+
+**Verifier and challenger.** The verifier is needed: there are screens to run, in a real browser at two widths. The challenger is needed: the page states the claim, its limit and the eval result, and how a reader meets those is part of what the project claims.
+
+**Set up at the start.** The Vercel project `domain-health` in team `nkanyi-so` (root `frontend/`, Node 24, connected to the repository, production branch `main`), as `docs/STANDING.md` allows. The command-line tool's link step also wrote a token file and two lines into `.gitignore`; both were removed.
+
+**What was built, steps 1 to 3 and 6.** By three agents given the plan, the design document and the rules, one after another in the same folder; each finished with `make check` at exit 0. The fallback (`make fallback`, for the fixed day 2026-01-04, when every seeded client is on the first day of its cycle) and the API's types (`make api-types`), each with a test that the committed file is current. The frontend's server side, the six screens and the seventeen states, with 110 frontend tests. What differs from the design document and how the server side was built are the two Phase 5 entries in `docs/DECISIONS_TO_REVIEW.md`. `scripts/deploy-backend.sh` now reads the service-level maximum back and stops unless it is 1, and passes its token to curl on standard input; a deploy with it ended "service-level maximum: 1 / deployed".
+
+**A secret was printed, and replaced.** While setting the Vercel project's environment variables, a command of the build's meant to show only an error also printed the proxy secret into the session's own output. It was never in the repository, a commit or a file of the project. Because the session's transcript now held it, it was replaced at once: a new value went into Secret Manager (version 2) and into Vercel's production environment without being shown, the backend was deployed again (revision `domain-health-00009-vzb`), and version 1 was disabled. Checked after: `/api/clients` with the new secret 200, without it 401. Nothing but the backend used the old value. The session secret and the admin passphrase were not printed. From here on a secret is only ever read into a variable or a pipe, never through a filter that can echo it.
+
+**Vercel.** Production holds the backend's address and the three secrets from Secret Manager; preview holds an address that reaches nothing and random secrets. The project's first deployment, built from this branch's push, was made a production deployment by Vercel (its rule for a project's first deployment); `docs/STANDING.md` allows production deployments and a public URL, so it stands until the merge replaces it. Vercel protects preview deployments behind its own sign-in by default; that setting is left as it is.
+
+**`make screens`** (step 4). It starts the emulator, today's local snapshots, the backend and the frontend's dev server, takes the 68 screenshots with a pinned browser-driving library and the browser build already on this machine (nothing was downloaded), and stops everything. States 1 to 15 and 17 use their `?demo=` address; state 16 signs in for real with the local passphrase and makes one handled click. On every page it also computes the three things the gate names and fails on any: text contrast against the ground behind it, sideways scroll, and a focus style on every control reached by Tab. Its last lines:
+
+```
+contrast: 0 below 4.5:1 of 4670 pieces of text
+sideways scroll: 0 of 76 pages (68 screenshots and 8 more)
+focus: 0 controls without a focus style of 1004
+68 screenshots
+```
+
+The lowest contrast measured is 4.99:1 in the light theme and 6.09:1 in the dark. The agent that built it read all 68 files and fixed eleven defects it found (a capitalised DMARC tag, the admin bar's height, the phone header's height, the tab titles, the refused field's focus, the "What was checked" table at both widths, and others); the build then looked at a sample itself (state 5 at 1440 in the light theme, state 15 at 390 in the dark). Two things in the design document are not met and are in `docs/DECISIONS_TO_REVIEW.md`: twelve rows in the first 900 pixels, and the live-check result's box, which has no "Advisory, unproven." opening because no model runs on a typed domain.
+
+**`make eval` on this phase's code** exits 0 and leaves the results file as committed; this phase's gate has no measured bar. Its output is unchanged from the Phase 4 log.
+
+### 2026-11-20: review, first run, on 1724d55
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 111; the "110" earlier in this log was one short). Its findings, then what was done.
+
+**Blocking.**
+
+1. "The admin sign-in limit can be bypassed by sending many wrong tries at once." The limit was asked, then the request's body was awaited, then a wrong try was counted; it showed 200 tries from one address all reaching the passphrase comparison. **Done:** everything that waits now comes first, and the attempt (ask the limit, compare, count a wrong one) is one step with nothing awaited inside it. Tests: fifty wrong tries at once reach the comparison five times; past the limit the passphrase is not looked at; a right passphrase is not counted.
+2. "Opening a link to `/check?domain=…` runs a live check without any click, but the docs say opening it spends nothing." A prefetch was safe; a link opened in a browser, or a crawler that runs scripts, was not. **Done:** an address with a domain fills the field and nothing more; the check runs only on a press of "Check domain". The comment, the architecture line and the decision entry now say what the code does.
+
+**Not blocking.**
+
+3. "The claim appears without its limit in the site's meta description." **Done:** the description is no longer the claim sentence.
+4. The test count in the log (said above), and that a copied admin cookie stays good for its twelve hours after sign-out. **Done:** the session entry in `docs/DECISIONS_TO_REVIEW.md` says so.
+
+Checked and in order, in its words: the proxy secret, the actor and the client address are added only on the server; every POST checks `Origin` against `Host`; both cookies are `HttpOnly`, `SameSite=Lax` and `Secure`, signed, compared in constant time, with expiry; production fails closed and 4xx never falls back; no client component imports the server code and there is no public environment variable; fixes are rendered before the advisory panel and the list is sorted by fixes only; every advisory box opens with "Advisory, unproven." and the eval link; the limit stands beside the claim and is tied to the spec by a test; the eval page's figures agree with the limit sentence. It agreed the verifier and the challenger are both needed.
+
+### 2026-11-20: review, second run, on 530fe05
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 114) and found all four first-round findings fixed: "the new tests fail on the old ordering".
+
+**Blocking.**
+
+1. "The home page's 'Check domain' button no longer starts a check": a regression from the fix for the first review's second finding. The form on the first screen went to `/check?domain=…`, which now only filled the field, so a second press was needed. **Done:** pressing the button leaves a one-shot marker for that tab and opens the address; the check page starts the check only when it finds the marker for exactly that domain, and removes it. An address alone still starts nothing. The decision is a pure function with tests. Tried in a real browser against the local servers (*this was the development server; the third review showed the fix did not work in the production build, so the lines below prove less than they say; see the next entry*):
+
+```
+opened the address alone: POSTs 0 | field: example.com
+typed on the first screen and pressed once: POSTs 1 | result shown: true
+after a reload: POSTs 1
+```
+
+**Not blocking.**
+
+2. A stale comment in `frontend/src/app/check/page.tsx`. **Done.**
+
+It also found no gate, checklist item or heading changed, the Phase 5 decision entries recording nothing that should have been a stop, and the two screenshots it sampled in order.
+
+### 2026-11-20: review, third and last run, on 62d66ab
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 117) and found everything in order but one thing.
+
+**Blocking.**
+
+1. "The marker is used up by the page's loading placeholder before the real check page reads it." In the production build the check page first draws a placeholder with no domain, which is itself the live-check component; its effect read and removed the marker, and the real page then found nothing. It showed this with the production build in a real browser: one press, no POST. "The browser trace the log gives as evidence ... does not hold for the code that is deployed. It was most likely run on `next dev`." It was: the build tested the second fix on the development server only. **Done:** taking the marker is one function with tests: a page with no domain neither reads nor removes it; a page with a domain removes whatever it finds and starts only if the marker is for that domain and was left in the last thirty seconds. Tests cover the placeholder first and the real page after, a reload, another domain, an old press and a marker that is not one. Tried again, this time on the production build (`next build`, `next start`) with a stand-in backend that answers the live check with "rate limited", so no DNS lookup is made:
+
+```
+production build; opened the address alone: POSTs 0 | field: example.com
+typed on the first screen and pressed once: POSTs 1 | the backend's answer is shown: true
+after a reload: POSTs 1
+```
+
+No other finding. This was the third review, and the owner's rule is that a phase needing more than three stops for the owner. The fix above has not been reviewed.
+
+### 2026-11-20: verifier, on 9617bf5: fail, on one check
+
+It ran `make check` (exit 0), `make screens` (exit 0, "68 screenshots", the three computed checks at zero, and `git status` empty after it, so the committed files are reproduced byte for byte), read all 68 screenshots, and drove a real browser at 1440 and 390 wide against `make dev` and against the production build. Its table, shortened to one line a row; every row passed but 5k.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `make check` exits 0 (backend 1050 and 32, frontend 119) | pass |
+| 2 | `make screens`: 68 screenshots; contrast 0 below 4.5:1 of 4670; sideways scroll 0 of 76 pages; focus 0 of 1004 without a style; tree clean | pass |
+| 3 | All 68 files read: every state present, nothing clipped, overlapping or unreadable, no sideways scroll | pass |
+| 4a | The rules' fixes drive the action list and come first | pass |
+| 4b | The model's risks are marked "Advisory risks", "Advisory, unproven." and the sentence, on every client page | pass (not on the typed-domain result, which has no model risks) |
+| 4c | No model risk is placed above a rules finding, at 1440 or 390 | pass |
+| 4d | The plain link "See the eval result" is in the advisory box | pass (same exception) |
+| 4e | The claim has its limit beside it in the same block, on the client list and on "About this demo" | pass |
+| 5a | The client list loads with 12 clients, both widths | pass |
+| 5b to 5d | "Mark handled" hides the risk and survives a reload; "Reopen" brings it back; a second browser with no cookies does not see the click | pass |
+| 5e to 5g | Opening `/check?domain=example.com` makes no POST; typing on the first screen and pressing once makes exactly one and shows DNS results; a reload makes none | pass |
+| 5h | An IP address is refused with the documented message and "No lookup was made." | pass |
+| 5i, 5j, 5l | A wrong passphrase is refused; the local passphrase signs in; sign-out returns to `/` | pass |
+| 5k | "As admin, 'Mark handled' on Oakhaven, then open the page in a separate cookie-less context: the admin's click did not reach the anonymous context" | **fail** |
+| 5m, 5n | Tab reaches every control, each with a 2 px outline; the theme switch changes the theme and it survives a reload | pass |
+| 6a to 6c | The production build with an empty environment serves the fallback with "Showing saved data"; the three POSTs answer 503; no secret name or development secret in the client chunks or the page source | pass |
+| 7 | The public production address answers 200 with the client list and "Showing saved data" (an earlier build of this branch) | pass |
+
+**On 5k.** The backend does what the spec says: "two scopes for the same code: the shared state (admin) and a per-visitor sandbox". A visitor reads their own sandbox and never the shared marks, and the gate itself asks that a second browser profile not see a click. What is wrong is the page's wording, which came from the design document: "These ticks are shared: every visitor sees them" and the admin bar's "the shared list that every visitor sees". Whether to correct the words or to change what a visitor sees is asked of the owner below; nothing was changed.
+
+Its other notes: the typed-domain result has no "Advisory, unproven." line or eval link (it has no model risks; in `docs/DECISIONS_TO_REVIEW.md`); in the running and cap-reached states the read-only field is greyed; the fixes-only state shows Fernhollow and the fallback notice says 4 Jan 2026, both as this log says. Not exercised: the public address in a browser (it serves an earlier build), the sign-in lock-out, the rate-limit and cap states with real data, a screen reader.
+
+### 2026-11-20: challenger, on 9617bf5: change needed
+
+Its reading of the bars, for the prompt in use over 3 runs of 48 cases: coverage 0.896, met; precision 0.962, met; harmful 9 (3, 3, 3), **missed**, as `evals/expected-misses.toml` names; stability 0.979, met. "The Phase 5 gate has no eval bar." This phase changes nothing under `evals/`, the spec, the claim or the measure files.
+
+**1. Are the eval figures and statements on the page equal to the results file and the spec?** "Copying is safe": a test fails if the committed summary differs from what the results file gives. The bars table and the per-set table are correct and agree with the limit sentence. "The missed bar is stated plainly", in bold under the table. "Nothing says or suggests the model's list passed." Two discrepancies: version 4's stability shows as 0.813 where the spec, the log and `make eval` say 0.812 (JavaScript rounds 0.8125 up); and the "Not in use" row does not mark version 4's harmful and stability as missed. And: "No test ties the limit sentence's numbers to the results file", so a later change to the results would leave the sentence wrong with every test passing. One recommendation, not a fault: three "Met" chips sit beside scores over all 48 cases, 30 of them labelled by the rules table's own output, while on the open cases alone the model's coverage is 0.720.
+
+**2. Does the page keep the owner's rule?** The claim appears only through one component, always with its limit, word for word, in two places; "I found no place where a reader meets the claim without its limit." Clients sort by fixes only; fixes are drawn before the advisory panel; every advisory box opens with "Advisory, unproven." and the eval link. "Kept, except for the one demo state" below.
+
+**3. Does anything on the page say more than the measure supports?** Yes, one thing: "'Recorded from a real model run, not generated on this visit' is false on state 6 (`?demo=handled-one`)." That state shows Oakhaven with four risks recorded for other clients, under that line; in the screenshot four of them contradict the figures on the same page (a complaint rate "above the level mailbox providers recommend" at 0.07%, and three like it). "It shows the model making errors it did not make on this data." "Real DNS lookups", the seeded labels and the provenance of the labels are stated as the spec has them.
+
+Its list:
+
+1. State 6: replace the "Recorded from a real model run" line on that state with a plain statement, on the page, that four of the risks were recorded for other seeded clients and moved here to show six, and that their wording does not describe this client. A test for it; new screenshots for state 6.
+2. Version 4's stability shows 0.812.
+3. The "Not in use" row marks version 4's harmful and stability as missed, and says it was the final attempt.
+4. A test ties the figures in the limit sentence to the eval summary.
+5. Recommended, the owner's call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
+
+None of these is made here: the verdict is a stop, the list goes to the owner with a recommendation on each, and the owner merges this phase.
+
+reviewer-verdict: blocking findings, one, fixed after the pass and not reviewed again @ 62d66ab
+verifier-verdict: fail @ 9617bf5
+challenger-verdict: change needed @ 9617bf5
+
+### 2026-11-20: the stop (issue #15) and the owner's answers
+
+The block as it stood under "Waiting on you":
+
+> **Phase 5 is built and stopped before its merge. You merge this one, whatever you answer:** the challenger read the page against the eval and said "change needed", and the rules give that phase to you. Pull request: [#14](https://github.com/nkanyi-so/domain-health/pull/14). The screens exist and work: 68 screenshots in `docs/screens/`, `make check` green, and the verifier passed every check but one in a real browser at both widths.
+>
+> Four questions. "Recommended for all" is a complete answer.
+>
+> 1. **The challenger's list.** It found the eval figures on the page correct and the claim never shown without its limit. Five changes:
+>    - a. The demo state that shows six risks (`?demo=handled-one`) is put together from Oakhaven's two risks and four recorded for other clients, under the line "Recorded from a real model run". Those four contradict the figures on the same page, so the screenshot shows the model making errors it did not make. Change: on that state, replace the line with a plain statement that four of the risks were moved here from other seeded clients to show six, and do not describe this one.
+>    - b. Version 4's stability shows as 0.813 on the eval page; the spec and `make eval` say 0.812. Change: 0.812.
+>    - c. The "Not in use" row does not say version 4 missed harmful and stability, or that it was the final attempt. Change: say so.
+>    - d. No test ties the numbers in the limit sentence to the results file. Change: add one.
+>    - e. Its recommendation, your call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 of them labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
+>    - **Recommended: all five.** Each is small, and e is the honest reading of the three "Met" chips. None touches the spec, the claim or the measure files.
+> 2. **What other visitors see of the admin's ticks.** The verifier's one failed check: the page says of the admin's handled ticks "These ticks are shared: every visitor sees them", and they do not. The backend does what the spec says (a shared state for the admin, a sandbox of their own for each visitor), and the gate itself asks that a second browser not see a click. The sentence came from the design document.
+>    - **A (recommended). Correct the words:** the admin's ticks are the shared list; each visitor has a copy of their own and does not see it. Costs a few lines and the design document's sentence.
+>    - **B. Change what a visitor sees:** a visitor's page starts from the admin's ticks, with their own on top. Costs a change to the store's rules from Phase 3 and their tests, about half a day, and a visitor could then not reopen what the admin handled.
+> 3. **The fallback check on a Vercel preview.** The gate asks that a preview deployment with the backend address pointed at nothing shows the fallback. The preview exists and is set up that way, but Vercel keeps previews behind its own sign-in.
+>    - **A (recommended). I use the command-line tool's `vercel curl`,** which creates a bypass secret on the project for automated access to protected deployments. It is an access setting, so I am asking first. It opens nothing to the public.
+>    - **B. You open the preview yourself** while signed in to Vercel and tell me what you see: https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app
+>    - **C. Count the public production address as the evidence.** It already shows the fallback notice, because it was built before its settings existed.
+> 4. **The reviews.** The phase has had its three. The third found one fault (my second fix worked on the development server and not in the production build); it is fixed, tested on the production build, and not reviewed. **Recommended:** after the changes from 1 and 2, one reviewer pass on everything since the third review and one more verifier run; then I tell you #14 is ready and you merge.
+>
+> For you to know, with nothing to decide:
+>
+> - **A secret was printed, and replaced.** While setting Vercel's variables, a command of mine printed the backend's proxy secret into this session's output. It was never in the repository. I replaced it at once: new value in Secret Manager and Vercel, backend redeployed, old version disabled, and checked (200 with the new one, 401 without).
+> - **The public address is live already:** https://domain-health-rose.vercel.app. Vercel made the project's first deployment a production one, from this branch. It shows the bundled fallback. Your standing answers allow a public production deployment, so I left it; your merge replaces it with `main`.
+> - **The admin passphrase** is a random value in Secret Manager. To read it: `CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud secrets versions access latest --secret=admin-passphrase`
+> - The typed-domain result has no "Advisory, unproven." line, because no model runs on a typed domain. The fixes-only state is shown on Fernhollow Garden Supply, not the client the design expected. Twelve rows do not fit in the first screen at 1440 with the claim and its limit above them. All three are in `docs/DECISIONS_TO_REVIEW.md`.
+> - The gate's last lines (12 clients, a handled click that survives a reload, a second profile, a typed `example.com`) can only be shown on the production address after your merge. I check them straight after it.
+> - Spend: $2.27 of $10.
+>
+> Once answered: I make the changes you approve, run the reviewer pass and the verifier, and tell you when #14 is ready to merge. After your merge I check the production address in a real browser, then start Phase 6.
+
+**The owner's answers (in the session, 2026-11-20).** "Recommended for all four, and yes to the lighter way of working. From here the goal is to finish." So: all five of the challenger's changes; the words about the admin's ticks are corrected, not the behaviour; `vercel curl` may be used for the preview check; one reviewer pass and one verifier run after the changes. For Phase 5: the changes in one commit, then the reviewer and the verifier once each, "fix only what is blocking, in one more commit", tell the owner in one line when #14 is ready, and no challenger rerun. For Phase 6: as few commits as possible, one reviewer pass, one verifier run, evidence taken once at the end, no challenger unless the claim sentence changes; anything not blocking, and not about security, spend or a false statement, goes into `docs/DECISIONS_TO_REVIEW.md` and is left; stop only for going public.
+
+The owner had asked whether the build was overdoing things. The answer given: partly yes. Most of the time is the process itself (a five-minute check on every commit, fresh-context reviews); some found real faults; some was the build's own mistakes; and some was over-doing, namely re-taking the deployed evidence after every fix and fixing findings that were not blocking.
+
+### 2026-11-20: the approved changes, in one commit
+
+1. **The challenger's five.** (a) The six-risk demo state no longer says "Recorded from a real model run": its "Model output" fact reads "Put together for this demo state: four of these risks were recorded for other seeded clients and moved here to show six. Their wording does not describe this client.", driven by a count on the view, with a test that no view with borrowed risks shows the recorded line. (b) Scores round an exact half to the even side, as `make eval` prints them: 0.8125 is 0.812. (c) Under the "Not in use" table: "Prompt version 4, the final attempt, missed two bars: harmful and stability." The missed bars are computed against the bars. (d) A test holds every figure in the limit sentence to the eval summary; the summary gained per-run totals for the open set and the rules-only baseline, aggregates only. (e) Under the bars table: "Coverage and precision are over all 48 cases, 30 of them labelled by the rules table's own output; on the 18 open cases alone the model's coverage is 0.720."
+2. **The admin's ticks.** The words now say what happens: "These ticks are on the shared list. Visitors do not see it: each has a list of their own." and, in the admin bar, "Signed in as admin. Handled and reopen change the shared list, not a visitor's own." The design document's sentences are corrected to match.
+3. **The preview check**, with the command-line tool's access as the owner allowed. The preview deployment of this branch has its backend address pointed at nothing:
+
+```
+$ vercel curl / --deployment https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app --scope nkanyi-so > preview.html
+$ grep -o "Showing saved data\|The live service cannot be reached\|Twelve invented clients\|Harbourlight Books" preview.html | sort | uniq -c
+   4 Harbourlight Books
+   2 Showing saved data
+   2 The live service cannot be reached
+   5 Twelve invented clients
+$ curl -s -o /dev/null -w "%{http_code}" https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app/     # with no sign-in
+302
+```
+
+`make check` exits 0 (backend 1051 and 32, frontend 134). `make screens` exits 0: "contrast: 0 below 4.5:1 of 4678 pieces of text", "sideways scroll: 0 of 76 pages", "focus: 0 controls without a focus style of 1004", "68 screenshots"; the files for states 6 and 16 changed and are committed.
+
+### 2026-11-20: the one reviewer pass and the one verifier run after the changes, on 73e360f
+
+**Reviewer**, on everything since the third review (`62d66ab..73e360f`), reading only: "No blocking findings." It found true: the marker fix (a page with no domain neither reads nor removes the marker; an address alone, a reload, another domain or an old marker starts nothing; the tests would fail if the old behaviour came back); the rounding (0.8125 shows as 0.812, as `make eval` prints it); the "Not in use" sentence, worked out from the scores against the bars; the sentence under the bars table; the summary's new totals, which use only free code and hold totals only; the test on the limit sentence; the six-risk state's line and its guard; the admin wording, which "now say[s] what the backend does"; and the log's counts. Three things not blocking, recorded in `docs/DECISIONS_TO_REVIEW.md` and left.
+
+**Verifier**, in a real browser at 1440 and 390 wide: pass, every check.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `make check` exits 0 (backend 1051 and 32, frontend 134). `make screens` exits 0: "contrast: 0 below 4.5:1 of 4678 pieces of text", "sideways scroll: 0 of 76 pages", "focus: 0 controls without a focus style of 1004", "68 screenshots"; `git status` empty after it | pass |
+| 2 | State 6: five risks, "1 handled. The next risk moved into the list.", the "Put together for this demo state" line, no "Recorded from a real model run". State 16: the admin bar and the "Handled" sentence as now worded. Nothing clipped or overlapping | pass |
+| 3 | The product rule on the screenshots: fixes first and on the left; the risk column starts lower at 1440 and sits below at 390; "Advisory, unproven." and the sentence; the plain link "See the eval result" | pass |
+| 4 | With `make dev`: 12 clients; "Mark handled" hides the risk and survives a reload; a second cookie-less browser does not see it; an admin's tick changes the admin's page and a visitor does not see it, as the page now says; opening `/check?domain=example.com` makes no POST; one press makes exactly one and shows DNS results; a reload makes none | pass |
+| 4h | `/evals`: 0.812 and not 0.813; the version 4 sentence; the coverage sentence; "One bar is missed: harmful. The model returned a risk the label calls wrong 9 times in 144 case-runs."; no sideways scroll at 390 | pass |
+| 5 | The production build with an empty environment serves the fallback with "Showing saved data". With a stand-in backend: a direct open makes no POST, one press makes exactly one and shows the backend's answer, a reload makes none, at both widths | pass |
+
+Not exercised: the deployed site and the preview (the preview's fallback is shown above, fetched with the command-line tool); 62 of the 68 screenshots were covered in this run by the computed checks only, having been read in full in the first run.
+
+### 2026-11-20: gate evidence, on 73e360f
+
+- `make check` exits 0: the verifier's row 1, and CI on the pull request.
+- `make screens` writes 4 screenshots for each of the 17 states: "68 screenshots"; `ls docs/screens/*.png | wc -l` gives 68.
+- The verifier has looked at all of them (its first run read all 68; its second read the eight that changed and four more) and reports no state missing; no text below 4.5:1, computed (0 of 4678); no horizontal scroll at 390 (0 of 76 pages); no control without a focus style (0 of 1004).
+- With the backend address pointed at nothing in a preview deployment, the page loads the fallback and shows the notice: the `vercel curl` output in the entry "the approved changes, in one commit".
+- **After the merge, not yet shown:** on the production address in a real browser with no key, the client list loads with 12 clients; a handled click hides the risk and survives a reload; a second browser profile does not see it; a typed `example.com` returns checks. The checklist line "Deployed to Vercel from `main`; checked in a real browser" stays unticked until then. They are checked straight after the owner's merge, before Phase 6's first commit.
+
+The challenger's verdict stays as it gave it, on the commit it read; its five changes were made afterwards at the owner's word, and the owner asked for no rerun. The owner merges this phase.
+
+reviewer-verdict: no blocking findings @ 73e360f
+verifier-verdict: pass @ 73e360f
+challenger-verdict: change needed @ 9617bf5
 
 ---
 

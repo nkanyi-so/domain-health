@@ -1,25 +1,703 @@
 @import "tailwindcss";
 
-/* Placeholder tokens for the scaffold. docs/DESIGN.md (Phase 4) replaces them. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  color-scheme: light;
+  --page: #f1f4f2;
+  --surface: #ffffff;
+  --sunk: #e6ebe8;
+  --ink: #15201c;
+  --ink-2: #44514c;
+  --ink-3: #59665f;
+  --on-ink: #ffffff;
+  --line: #cdd5d1;
+  --line-strong: #77857f;
+  --pencil-line: #77857f;
+  --accent: #2446c4;
+  --accent-hover: #1b3599;
+  --on-accent: #ffffff;
+  --ok: #1b6a3c;
+  --ok-wash: #e2f1e7;
+  --error: #a8231c;
+  --error-wash: #fbe9e7;
+  --seeded: #84286a;
+  --seeded-wash: #f6e8f1;
+  --notice: #5c4200;
+  --notice-wash: #fcefc4;
+  --notice-line: #8f6a00;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #131c1a;
+    --surface: #1b2724;
+    --sunk: #0d1513;
+    --ink: #e8eeeb;
+    --ink-2: #b7c3be;
+    --ink-3: #98a6a0;
+    --on-ink: #131c1a;
+    --line: #2f3d39;
+    --line-strong: #71827b;
+    --pencil-line: #71827b;
+    --accent: #9db2ff;
+    --accent-hover: #bdcbff;
+    --on-accent: #0e1740;
+    --ok: #74d39c;
+    --ok-wash: #143524;
+    --error: #ff9a8f;
+    --error-wash: #42191a;
+    --seeded: #e79acd;
+    --seeded-wash: #3a1b31;
+    --notice: #f3d172;
+    --notice-wash: #3a2e0a;
+    --notice-line: #b8942e;
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #131c1a;
+  --surface: #1b2724;
+  --sunk: #0d1513;
+  --ink: #e8eeeb;
+  --ink-2: #b7c3be;
+  --ink-3: #98a6a0;
+  --on-ink: #131c1a;
+  --line: #2f3d39;
+  --line-strong: #71827b;
+  --pencil-line: #71827b;
+  --accent: #9db2ff;
+  --accent-hover: #bdcbff;
+  --on-accent: #0e1740;
+  --ok: #74d39c;
+  --ok-wash: #143524;
+  --error: #ff9a8f;
+  --error-wash: #42191a;
+  --seeded: #e79acd;
+  --seeded-wash: #3a1b31;
+  --notice: #f3d172;
+  --notice-wash: #3a2e0a;
+  --notice-line: #b8942e;
+}
+
+@theme inline {
+  /* Drop Tailwind's own palette, radii, shadows and breakpoints: only these tokens exist. */
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-on-ink: var(--on-ink);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-pencil-line: var(--pencil-line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-ok-wash: var(--ok-wash);
+  --color-error: var(--error);
+  --color-error-wash: var(--error-wash);
+  --color-seeded: var(--seeded);
+  --color-seeded-wash: var(--seeded-wash);
+  --color-notice: var(--notice);
+  --color-notice-wash: var(--notice-wash);
+  --color-notice-line: var(--notice-line);
+
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-model: var(--font-newsreader), ui-serif, serif;
+  --font-mono: ui-monospace, monospace;
+
+  --radius-sheet: 3px;
+  --radius-control: 6px;
+  --radius-chip: 999px;
+
+  /* One breakpoint. Below it everything is one column. */
+  --breakpoint-wide: 64rem;
+
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.875rem;
+  --text-heading: 1.125rem;
+  --text-heading--line-height: 1.625rem;
+  --text-lead: 1rem;
+  --text-lead--line-height: 1.5rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.125rem;
+  --text-tag: 0.75rem;
+  --text-tag--line-height: 1rem;
+  --text-model-title: 1.0625rem;
+  --text-model-title--line-height: 1.5rem;
+  --text-model: 0.9375rem;
+  --text-model--line-height: 1.4375rem;
+  --text-record: 0.8125rem;
+  --text-record--line-height: 1.25rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+}
+
+/* The three sizes that grow at the wide breakpoint. */
+@media (width >= 64rem) {
+  :root {
+    --text-title: 1.875rem;
+    --text-title--line-height: 2.25rem;
+    --text-heading: 1.25rem;
+    --text-heading--line-height: 1.75rem;
+    --text-lead: 1.0625rem;
+    --text-lead--line-height: 1.625rem;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Everything below is built from the tokens above, as docs/DESIGN.md describes each part.
+   Component heights (40, 44, 56 ...) live here, so class names in the markup only ever use the
+   eight spacing steps.
+   --------------------------------------------------------------------------------------------- */
+
+@theme inline {
+  /* Content 1184 wide plus 32 of padding on each side; the field and the sign-in column are 420. */
+  --container-content: 78rem;
+  --container-field: 26.25rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+a,
+button,
+input {
+  transition:
+    color 120ms ease-out,
+    background-color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+
+/* The type scale. `text-title`, `text-heading` and `text-lead` grow at the wide breakpoint; they
+   are written out here because an inline theme value cannot be changed from a media query. */
+@utility t-title {
+  font-size: 1.5rem;
+  line-height: 1.875rem;
+  font-weight: 600;
+  font-stretch: 82%;
+  @media (width >= 64rem) {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+@utility t-heading {
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  font-weight: 600;
+  font-stretch: 88%;
+  @media (width >= 64rem) {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+@utility t-lead {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  @media (width >= 64rem) {
+    font-size: 1.0625rem;
+    line-height: 1.625rem;
+  }
+}
+
+@utility t-body {
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+}
+
+@utility t-small {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+@utility t-tag {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+/* Only text a model wrote is set in the serif. */
+@utility t-model-title {
+  font-family: var(--font-newsreader), ui-serif, serif;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  max-width: 62ch;
+}
+
+@utility t-model {
+  font-family: var(--font-newsreader), ui-serif, serif;
+  font-size: 0.9375rem;
+  line-height: 1.4375rem;
+  font-weight: 400;
+  max-width: 62ch;
+}
+
+@utility t-record {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+@utility t-mono {
+  font-family: ui-monospace, monospace;
+  overflow-wrap: anywhere;
+}
+
+@utility measure {
+  max-width: 68ch;
+}
+
+@layer components {
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Buttons: 44 high on a phone, 40 at the wide breakpoint. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+  }
+  @media (width >= 64rem) {
+    .btn {
+      min-height: 2.5rem;
+    }
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  .btn-secondary {
+    background: var(--surface);
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+  .btn-secondary:hover {
+    border-color: var(--ink);
+  }
+  .btn-quiet {
+    padding: 0;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .btn-quiet:hover {
+    color: var(--accent-hover);
+  }
+  /* Disabled, whatever kind it was: it stays focusable and a sentence nearby says why. */
+  .btn[aria-disabled="true"],
+  .btn[aria-disabled="true"]:hover {
+    background: var(--page);
+    border: 1px dashed var(--line-strong);
+    color: var(--ink-3);
+    text-decoration: none;
+    cursor: not-allowed;
+  }
+  .btn-theme {
+    min-height: 2.75rem;
+  }
+  @media (width >= 64rem) {
+    .btn-theme {
+      min-height: 2.25rem;
+    }
+  }
+
+  .field {
+    display: block;
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: ui-monospace, monospace;
+    font-size: 1rem;
+  }
+  .field-plain {
+    font-family: inherit;
+  }
+  .field::placeholder {
+    color: var(--ink-3);
+  }
+  .field[aria-invalid="true"] {
+    border: 2px solid var(--error);
+  }
+  .field[readonly] {
+    background: var(--page);
+    color: var(--ink-3);
+  }
+
+  /* Status chips: say a status, cannot be pressed. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 1.5rem;
+    padding: 0 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    font-weight: 500;
+    font-stretch: 100%;
+    white-space: nowrap;
+  }
+  .chip svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .chip-fixes {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .chip-ok {
+    background: var(--ok-wash);
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+  .chip-advisory {
+    border: 1px dashed var(--pencil-line);
+    color: var(--ink-2);
+  }
+  .chip-muted {
+    border: 1px dashed var(--pencil-line);
+    color: var(--ink-3);
+  }
+  .chip-missed {
+    background: var(--error-wash);
+    border-color: var(--error);
+    color: var(--error);
+  }
+  .chip-live {
+    background: var(--surface);
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+  .chip-admin {
+    background: var(--notice-wash);
+    border-color: var(--notice-line);
+    color: var(--notice);
+  }
+
+  /* The one colour that means "made up for the demo". */
+  .tag-seeded {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.25rem;
+    padding: 0 0.375rem;
+    background: var(--seeded-wash);
+    border: 1px dotted var(--seeded);
+    border-radius: 999px;
+    color: var(--seeded);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    font-stretch: 100%;
+    white-space: nowrap;
+  }
+
+  /* Ink: what the rules found. */
+  .sheet {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+  }
+  .fix-item {
+    padding: 1rem;
+    border-left: 4px solid var(--ink);
+  }
+  .fix-item + .fix-item {
+    border-top: 1px solid var(--line);
+  }
+
+  /* Pencil: what the model picked. Straight on the page ground, dashed. */
+  .pencil {
+    border: 1px dashed var(--pencil-line);
+    border-radius: 3px;
+  }
+  .pencil > * {
+    padding: 1rem;
+  }
+  .pencil > * + * {
+    border-top: 1px dashed var(--pencil-line);
+  }
+  /* Unavailable: a strip of hatch down the left edge, never behind text. */
+  .hatch {
+    padding-left: 1.75rem;
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+    background-size: 12px 100%;
+    background-repeat: no-repeat;
+  }
+
+  .banner {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid;
+    border-radius: 3px;
+  }
+  @media (width >= 64rem) {
+    .banner {
+      padding: 1rem;
+    }
+  }
+  .banner > svg {
+    flex: none;
+    margin-top: 0.1875rem;
+  }
+  .banner-title {
+    font-weight: 600;
+  }
+  .banner-notice {
+    background: var(--notice-wash);
+    border-color: var(--notice-line);
+  }
+  .banner-notice > svg,
+  .banner-notice .banner-title {
+    color: var(--notice);
+  }
+  .banner-error {
+    background: var(--error-wash);
+    border-color: var(--error);
+  }
+  .banner-error > svg,
+  .banner-error .banner-title {
+    color: var(--error);
+  }
+  .banner-ok {
+    background: var(--ok-wash);
+    border-color: var(--ok);
+  }
+  .banner-ok > svg,
+  .banner-ok .banner-title {
+    color: var(--ok);
+  }
+
+  /* Full-width strips under the header: the admin bar and the fallback notice. */
+  .strip {
+    background: var(--notice-wash);
+    border-bottom: 1px solid var(--notice-line);
+  }
+  .strip svg {
+    flex: none;
+    color: var(--notice);
+  }
+
+  .well {
+    background: var(--sunk);
+    border-radius: 3px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .placeholder-bar {
+    height: 0.75rem;
+    background: var(--sunk);
+    border-radius: 3px;
+    animation: placeholder 1.2s ease-in-out infinite alternate;
+  }
+
+  /* A client list row: 56 high at the wide breakpoint, 96 or more on a phone. */
+  .client-row {
+    position: relative;
+    min-height: 6rem;
+  }
+  @media (width >= 64rem) {
+    .client-row {
+      min-height: 3.5rem;
+    }
+  }
+  .client-row:hover {
+    background: var(--surface);
+  }
+  .client-row:has(a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  /* The ring is drawn around the whole row instead of around the name alone. */
+  .client-row a:focus-visible {
+    outline: none;
+  }
+  .client-row a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* A hit area 44 high on a phone for links that stand alone (header, footer). */
+  .tap {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  @media (width >= 64rem) {
+    .tap {
+      min-height: 0;
+    }
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    z-index: 10;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    color: var(--ink);
+    transform: translateY(-200%);
+  }
+  .skip-link:focus-visible {
+    transform: none;
+  }
+
+  /* The header is 56 high at the wide breakpoint; on a phone it is two rows. */
+  @media (width >= 64rem) {
+    .header-row {
+      min-height: 3.5rem;
+    }
+  }
+
+  .wordmark {
+    font-weight: 600;
+    font-stretch: 82%;
+    color: var(--ink);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    border-bottom: 2px solid transparent;
+    color: var(--ink-2);
+  }
+  .nav-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .nav-link[aria-current="page"] {
+    border-bottom-color: var(--ink);
+    color: var(--ink);
+  }
+  @media (width >= 64rem) {
+    .nav-link {
+      min-height: 2.25rem;
+    }
+  }
+
+  /* The theme switch names what it will do, so its words follow the theme without any script. */
+  .when-dark {
+    display: none;
+  }
+  :root[data-theme="dark"] .when-dark {
+    display: inline;
+  }
+  :root[data-theme="dark"] .when-light {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .when-dark {
+      display: inline;
+    }
+    :root:not([data-theme="light"]) .when-light {
+      display: none;
+    }
+  }
+
+  /* The client list's fixed columns: two chips at 176 and the snapshot at 152. */
+  .col-chip {
+    width: 11rem;
+  }
+  .col-snapshot {
+    width: 9.5rem;
+  }
+
+  /* A row that has just changed lists opens in 160 ms. */
+  .row-in {
+    animation: row-in 160ms ease-out;
+  }
+}
+
+@keyframes placeholder {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

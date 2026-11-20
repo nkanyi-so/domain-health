@@ -1,0 +1,1535 @@
+{
+  "clients": {
+    "clients": [
+      {
+        "domain": "brindle-and-oak.example",
+        "id": "brindle-and-oak",
+        "name": "Brindle & Oak Furniture",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 1
+        }
+      },
+      {
+        "domain": "copperkettle-kitchen.example",
+        "id": "copperkettle-kitchen",
+        "name": "Copperkettle Kitchen",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 2,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 1
+        }
+      },
+      {
+        "domain": "driftwood-coffee.example",
+        "id": "driftwood-coffee",
+        "name": "Driftwood Coffee Roasters",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 1
+        }
+      },
+      {
+        "domain": "emberglow-events.example",
+        "id": "emberglow-events",
+        "name": "Emberglow Events",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 2,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 3
+        }
+      },
+      {
+        "domain": "fernhollow-garden.example",
+        "id": "fernhollow-garden",
+        "name": "Fernhollow Garden Supply",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 0
+        }
+      },
+      {
+        "domain": "harbourlight-books.example",
+        "id": "harbourlight-books",
+        "name": "Harbourlight Books",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 0,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 0
+        }
+      },
+      {
+        "domain": "inkwell-and-vine.example",
+        "id": "inkwell-and-vine",
+        "name": "Inkwell & Vine Press",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 0
+        }
+      },
+      {
+        "domain": "northwind-cycles.example",
+        "id": "northwind-cycles",
+        "name": "Northwind Cycles",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 2,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 2
+        }
+      },
+      {
+        "domain": "oakhaven-outfitters.example",
+        "id": "oakhaven-outfitters",
+        "name": "Oakhaven Outfitters",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 0,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 2
+        }
+      },
+      {
+        "domain": "silverbrook-dental.example",
+        "id": "silverbrook-dental",
+        "name": "Silverbrook Dental Group",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 4
+        }
+      },
+      {
+        "domain": "tamberline-travel.example",
+        "id": "tamberline-travel",
+        "name": "Tamberline Travel",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 1,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 1
+        }
+      },
+      {
+        "domain": "willowmere-pets.example",
+        "id": "willowmere-pets",
+        "name": "Willowmere Pet Supplies",
+        "seeded": true,
+        "today": {
+          "day": "2026-01-04",
+          "fixes": 0,
+          "risks_handled": 0,
+          "risks_status": "ranked",
+          "risks_visible": 1
+        }
+      }
+    ],
+    "day": "2026-01-04"
+  },
+  "generated_for_day": "2026-01-04",
+  "snapshots": {
+    "brindle-and-oak": {
+      "handled": {},
+      "id": "brindle-and-oak",
+      "name": "Brindle & Oak Furniture",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "s1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "none",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "brindle-and-oak.example",
+            "problems": [],
+            "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@brindle-and-oak.example"
+          },
+          "domain": "brindle-and-oak.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "~all",
+              "lookup_count": 11,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": ["more than 10 DNS lookups"],
+            "records": [
+              "v=spf1 include:_spf.mailbarrow.example include:_spf.sendwillow.example include:_spf.inboxorchard.example mx ~all"
+            ]
+          }
+        },
+        "client_id": "brindle-and-oak",
+        "day": "2026-01-04",
+        "domain": "brindle-and-oak.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Reduce the SPF record to 10 DNS lookups or fewer by removing or flattening includes.",
+            "source": "dns",
+            "type": "spf_too_many_lookups"
+          }
+        ],
+        "input_hash": "e2c022ffe33e3881f381d299763b68f94eee576e68d0a222e7a1a15b4c0c0dfa",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "fixes"
+            ],
+            "id": "dmarc_policy_none:brindle-and-oak.example",
+            "title": "DMARC is monitoring only",
+            "type": "dmarc_policy_none",
+            "why": "The DMARC policy does not protect the domain from spoofing. Monitoring is the right stage for now; enforcement follows once authentication is ready."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.9,
+          "complaint_rate_pct": 0.05,
+          "domain_age_days": 1500,
+          "open_rate_pct": 24.0,
+          "open_rate_prev_pct": 24.5,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 27000,
+          "volume_prev_7d": 26000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "fixes"
+            ],
+            "id": "dmarc_policy_none:brindle-and-oak.example",
+            "title": "DMARC is monitoring only",
+            "type": "dmarc_policy_none",
+            "why": "The DMARC policy does not protect the domain from spoofing. Monitoring is the right stage for now; enforcement follows once authentication is ready."
+          }
+        ]
+      }
+    },
+    "copperkettle-kitchen": {
+      "handled": {},
+      "id": "copperkettle-kitchen",
+      "name": "Copperkettle Kitchen",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 512,
+                  "selector": "mail"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "none",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "copperkettle-kitchen.example",
+            "problems": [],
+            "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@copperkettle-kitchen.example"
+          },
+          "domain": "copperkettle-kitchen.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "+all",
+              "lookup_count": 0,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 ip4:192.0.2.40 +all"]
+          }
+        },
+        "client_id": "copperkettle-kitchen",
+        "day": "2026-01-04",
+        "domain": "copperkettle-kitchen.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Replace +all in the SPF record with ~all or -all: +all lets any server send as this domain.",
+            "source": "dns",
+            "type": "spf_plus_all"
+          },
+          {
+            "instruction": "Rotate the DKIM key to 2,048 bits: a key under 1,024 bits is rejected by receivers.",
+            "source": "dns",
+            "type": "dkim_weak_key"
+          }
+        ],
+        "input_hash": "04185e6480a376a3b988f43fd0b89dafe66af7eb91eae86b11c34b1d70f50971",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "fixes"
+            ],
+            "id": "dmarc_policy_none:copperkettle-kitchen.example",
+            "title": "DMARC is in monitoring mode",
+            "type": "dmarc_policy_none",
+            "why": "DMARC monitors rather than protects the domain from spoofing. Monitoring is the right stage for now; enforcement is the step that follows."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 1.3,
+          "complaint_rate_pct": 0.09,
+          "domain_age_days": 700,
+          "open_rate_pct": 18.0,
+          "open_rate_prev_pct": 19.0,
+          "reputation": {
+            "grade": "medium",
+            "previous_grade": "medium"
+          },
+          "volume_7d": 3200,
+          "volume_prev_7d": 3100
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "fixes"
+            ],
+            "id": "dmarc_policy_none:copperkettle-kitchen.example",
+            "title": "DMARC is in monitoring mode",
+            "type": "dmarc_policy_none",
+            "why": "DMARC monitors rather than protects the domain from spoofing. Monitoring is the right stage for now; enforcement is the step that follows."
+          }
+        ]
+      }
+    },
+    "driftwood-coffee": {
+      "handled": {},
+      "id": "driftwood-coffee",
+      "name": "Driftwood Coffee Roasters",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "default"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 50,
+              "policy": "quarantine",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "driftwood-coffee.example",
+            "problems": [],
+            "record": "v=DMARC1; p=quarantine; pct=50; rua=mailto:dmarc-reports@driftwood-coffee.example"
+          },
+          "domain": "driftwood-coffee.example",
+          "spf": {
+            "check": {
+              "all_qualifier": null,
+              "lookup_count": null,
+              "present": false,
+              "record_count": 0,
+              "valid": null
+            },
+            "problems": [],
+            "records": []
+          }
+        },
+        "client_id": "driftwood-coffee",
+        "day": "2026-01-04",
+        "domain": "driftwood-coffee.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Publish an SPF record for this domain that lists every service that sends its mail.",
+            "source": "dns",
+            "type": "spf_missing"
+          }
+        ],
+        "input_hash": "ebfe6e44461a877cefdd1da79751c4fb08f1b54a14891144cf1040bfc537143e",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "checks.dmarc.pct"
+            ],
+            "id": "dmarc_partial_enforcement:driftwood-coffee.example",
+            "title": "DMARC enforcement is partial",
+            "type": "dmarc_partial_enforcement",
+            "why": "The quarantine policy applies to only part of failing mail, leaving some messages outside enforcement."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.8,
+          "complaint_rate_pct": 0.04,
+          "domain_age_days": 400,
+          "open_rate_pct": 41.0,
+          "open_rate_prev_pct": 40.0,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 6200,
+          "volume_prev_7d": 6000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "checks.dmarc.pct"
+            ],
+            "id": "dmarc_partial_enforcement:driftwood-coffee.example",
+            "title": "DMARC enforcement is partial",
+            "type": "dmarc_partial_enforcement",
+            "why": "The quarantine policy applies to only part of failing mail, leaving some messages outside enforcement."
+          }
+        ]
+      }
+    },
+    "emberglow-events": {
+      "handled": {},
+      "id": "emberglow-events",
+      "name": "Emberglow Events",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "k1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "reject",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "emberglow-events.example",
+            "problems": [],
+            "record": "v=DMARC1; p=reject; rua=mailto:dmarc-reports@emberglow-events.example"
+          },
+          "domain": "emberglow-events.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "-all",
+              "lookup_count": 4,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.sendwillow.example -all"]
+          }
+        },
+        "client_id": "emberglow-events",
+        "day": "2026-01-04",
+        "domain": "emberglow-events.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Stop the mail stream that is drawing complaints and remove the people who complained: the rate is over the 0.30% limit.",
+            "source": "seeded",
+            "type": "complaint_rate_over_limit"
+          },
+          {
+            "instruction": "Stop sending to this list and validate it: the bounce rate is over the 5% limit.",
+            "source": "seeded",
+            "type": "bounce_rate_over_limit"
+          }
+        ],
+        "input_hash": "57401bfeef86a80c52d7733e819aed6cccd9b649d4ece2581fa579ce170404f3",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": ["sources.reputation.grade", "sources.reputation.previous_grade"],
+            "id": "reputation_declining:emberglow-events.example",
+            "title": "Sending reputation has declined",
+            "type": "reputation_declining",
+            "why": "The domain's reputation has fallen from high to medium, which can make inbox placement less reliable."
+          },
+          {
+            "evidence": [
+              "sources.open_rate_pct",
+              "sources.open_rate_prev_pct",
+              "sources.volume_7d"
+            ],
+            "id": "engagement_declining:emberglow-events.example",
+            "title": "Open rate has declined",
+            "type": "engagement_declining",
+            "why": "Opens have lost a substantial share of their earlier level, suggesting weaker recipient engagement."
+          },
+          {
+            "evidence": [
+              "sources.volume_7d",
+              "sources.volume_prev_7d",
+              "sources.reputation.grade",
+              "sources.domain_age_days"
+            ],
+            "id": "volume_spike:emberglow-events.example",
+            "title": "Sending volume has spiked",
+            "type": "volume_spike",
+            "why": "Weekly sending volume has risen several-fold while reputation is below high, potentially putting further pressure on deliverability."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 6.2,
+          "complaint_rate_pct": 0.41,
+          "domain_age_days": 800,
+          "open_rate_pct": 19.0,
+          "open_rate_prev_pct": 26.0,
+          "reputation": {
+            "grade": "medium",
+            "previous_grade": "high"
+          },
+          "volume_7d": 60000,
+          "volume_prev_7d": 22000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": ["sources.reputation.grade", "sources.reputation.previous_grade"],
+            "id": "reputation_declining:emberglow-events.example",
+            "title": "Sending reputation has declined",
+            "type": "reputation_declining",
+            "why": "The domain's reputation has fallen from high to medium, which can make inbox placement less reliable."
+          },
+          {
+            "evidence": [
+              "sources.open_rate_pct",
+              "sources.open_rate_prev_pct",
+              "sources.volume_7d"
+            ],
+            "id": "engagement_declining:emberglow-events.example",
+            "title": "Open rate has declined",
+            "type": "engagement_declining",
+            "why": "Opens have lost a substantial share of their earlier level, suggesting weaker recipient engagement."
+          },
+          {
+            "evidence": [
+              "sources.volume_7d",
+              "sources.volume_prev_7d",
+              "sources.reputation.grade",
+              "sources.domain_age_days"
+            ],
+            "id": "volume_spike:emberglow-events.example",
+            "title": "Sending volume has spiked",
+            "type": "volume_spike",
+            "why": "Weekly sending volume has risen several-fold while reputation is below high, potentially putting further pressure on deliverability."
+          }
+        ]
+      }
+    },
+    "fernhollow-garden": {
+      "handled": {},
+      "id": "fernhollow-garden",
+      "name": "Fernhollow Garden Supply",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "k2"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": null,
+              "policy": null,
+              "present": true,
+              "subdomain_policy": null,
+              "valid": false
+            },
+            "found_at": "fernhollow-garden.example",
+            "problems": ["p=monitor is not one of none, quarantine, reject"],
+            "record": "v=DMARC1; p=monitor; rua=mailto:dmarc-reports@fernhollow-garden.example"
+          },
+          "domain": "fernhollow-garden.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "-all",
+              "lookup_count": 3,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.postfinch.example -all"]
+          }
+        },
+        "client_id": "fernhollow-garden",
+        "day": "2026-01-04",
+        "domain": "fernhollow-garden.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Correct the DMARC record's syntax so that it parses.",
+            "source": "dns",
+            "type": "dmarc_invalid"
+          }
+        ],
+        "input_hash": "52c5bb261eb8b832c9859c44ec5fe15fe2b32ec48dd94188e3b5d3f02b2191e4",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.7,
+          "complaint_rate_pct": 0.02,
+          "domain_age_days": 1100,
+          "open_rate_pct": 29.0,
+          "open_rate_prev_pct": 29.0,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 5200,
+          "volume_prev_7d": 5100
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": []
+      }
+    },
+    "harbourlight-books": {
+      "handled": {},
+      "id": "harbourlight-books",
+      "name": "Harbourlight Books",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "k1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "reject",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "harbourlight-books.example",
+            "problems": [],
+            "record": "v=DMARC1; p=reject; rua=mailto:dmarc-reports@harbourlight-books.example"
+          },
+          "domain": "harbourlight-books.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "-all",
+              "lookup_count": 1,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.mailbarrow.example -all"]
+          }
+        },
+        "client_id": "harbourlight-books",
+        "day": "2026-01-04",
+        "domain": "harbourlight-books.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [],
+        "input_hash": "b75305c4e844e21ed7558a7026c887cd114228cc0185e0a67347f6de52383942",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.4,
+          "complaint_rate_pct": 0.02,
+          "domain_age_days": 2100,
+          "open_rate_pct": 34.0,
+          "open_rate_prev_pct": 33.5,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 42000,
+          "volume_prev_7d": 41000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": []
+      }
+    },
+    "inkwell-and-vine": {
+      "handled": {},
+      "id": "inkwell-and-vine",
+      "name": "Inkwell & Vine Press",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "k1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "quarantine",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "inkwell-and-vine.example",
+            "problems": [],
+            "record": "v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@inkwell-and-vine.example"
+          },
+          "domain": "inkwell-and-vine.example",
+          "spf": {
+            "check": {
+              "all_qualifier": null,
+              "lookup_count": null,
+              "present": true,
+              "record_count": 2,
+              "valid": null
+            },
+            "problems": [],
+            "records": [
+              "v=spf1 include:_spf.mailbarrow.example ~all",
+              "v=spf1 include:_spf.postfinch.example ~all"
+            ]
+          }
+        },
+        "client_id": "inkwell-and-vine",
+        "day": "2026-01-04",
+        "domain": "inkwell-and-vine.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Merge the SPF records into one: receivers treat more than one as an error.",
+            "source": "dns",
+            "type": "spf_multiple"
+          }
+        ],
+        "input_hash": "aac86a6ec7d6986fa371c84d7dfc4b4ed30764fd5566239ed58ff5b3341715fc",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 1.1,
+          "complaint_rate_pct": 0.06,
+          "domain_age_days": 1300,
+          "open_rate_pct": 22.0,
+          "open_rate_prev_pct": 23.0,
+          "reputation": {
+            "grade": "medium",
+            "previous_grade": "medium"
+          },
+          "volume_7d": 9000,
+          "volume_prev_7d": 8800
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": []
+      }
+    },
+    "northwind-cycles": {
+      "handled": {},
+      "id": "northwind-cycles",
+      "name": "Northwind Cycles",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": null,
+              "policy": null,
+              "present": false,
+              "subdomain_policy": null,
+              "valid": null
+            },
+            "found_at": null,
+            "problems": [],
+            "record": null
+          },
+          "domain": "northwind-cycles.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "~all",
+              "lookup_count": 1,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.mailbarrow.example ~all"]
+          }
+        },
+        "client_id": "northwind-cycles",
+        "day": "2026-01-04",
+        "domain": "northwind-cycles.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors.",
+            "source": "dns",
+            "type": "dkim_missing"
+          },
+          {
+            "instruction": "Publish a DMARC record for this domain, starting at p=none with a reporting address.",
+            "source": "dns",
+            "type": "dmarc_missing"
+          }
+        ],
+        "input_hash": "5c2d471ad9729fcd90817c3d2a453be61d5362cb0107487ad2959c43dd5a3383",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "sources.volume_7d",
+              "sources.volume_prev_7d",
+              "sources.reputation.grade",
+              "sources.domain_age_days"
+            ],
+            "id": "volume_spike:northwind-cycles.example",
+            "title": "Sending volume has spiked",
+            "type": "volume_spike",
+            "why": "Weekly sending volume rose several-fold. A sharp increase on a young domain with medium reputation can attract mailbox provider scrutiny."
+          },
+          {
+            "evidence": ["sources.domain_age_days", "sources.volume_7d"],
+            "id": "new_domain_volume:northwind-cycles.example",
+            "title": "High volume for a new domain",
+            "type": "new_domain_volume",
+            "why": "The domain is still in its first few weeks but is already sending thousands of messages weekly, which can strain its developing reputation."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 1.8,
+          "complaint_rate_pct": 0.06,
+          "domain_age_days": 21,
+          "open_rate_pct": 38.0,
+          "open_rate_prev_pct": null,
+          "reputation": {
+            "grade": "medium",
+            "previous_grade": "medium"
+          },
+          "volume_7d": 9000,
+          "volume_prev_7d": 1500
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "sources.volume_7d",
+              "sources.volume_prev_7d",
+              "sources.reputation.grade",
+              "sources.domain_age_days"
+            ],
+            "id": "volume_spike:northwind-cycles.example",
+            "title": "Sending volume has spiked",
+            "type": "volume_spike",
+            "why": "Weekly sending volume rose several-fold. A sharp increase on a young domain with medium reputation can attract mailbox provider scrutiny."
+          },
+          {
+            "evidence": ["sources.domain_age_days", "sources.volume_7d"],
+            "id": "new_domain_volume:northwind-cycles.example",
+            "title": "High volume for a new domain",
+            "type": "new_domain_volume",
+            "why": "The domain is still in its first few weeks but is already sending thousands of messages weekly, which can strain its developing reputation."
+          }
+        ]
+      }
+    },
+    "oakhaven-outfitters": {
+      "handled": {},
+      "id": "oakhaven-outfitters",
+      "name": "Oakhaven Outfitters",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 1024,
+                  "selector": "s1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "none",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "oakhaven-outfitters.example",
+            "problems": [],
+            "record": "v=DMARC1; p=none; rua=mailto:dmarc-reports@oakhaven-outfitters.example"
+          },
+          "domain": "oakhaven-outfitters.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "~all",
+              "lookup_count": 3,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.postfinch.example ~all"]
+          }
+        },
+        "client_id": "oakhaven-outfitters",
+        "day": "2026-01-04",
+        "domain": "oakhaven-outfitters.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [],
+        "input_hash": "2a4f745b25bb62e16b30ada92de37e595d61429c62b44071e8f011ba01f805cc",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": ["checks.dkim.keys", "fixes"],
+            "id": "dkim_key_1024:oakhaven-outfitters.example",
+            "title": "DKIM key uses older strength",
+            "type": "dkim_key_1024",
+            "why": "The only DKIM key found is shorter than current practice, leaving signatures less resilient."
+          },
+          {
+            "evidence": ["checks.dmarc.present", "checks.dmarc.valid", "checks.dmarc.policy"],
+            "id": "dmarc_policy_none:oakhaven-outfitters.example",
+            "title": "DMARC is monitoring only",
+            "type": "dmarc_policy_none",
+            "why": "The DMARC policy monitors failures but does not ask receivers to reject or quarantine spoofed mail."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 1.2,
+          "complaint_rate_pct": 0.07,
+          "domain_age_days": 900,
+          "open_rate_pct": 27.0,
+          "open_rate_prev_pct": 28.0,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 18000,
+          "volume_prev_7d": 17500
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": ["checks.dkim.keys", "fixes"],
+            "id": "dkim_key_1024:oakhaven-outfitters.example",
+            "title": "DKIM key uses older strength",
+            "type": "dkim_key_1024",
+            "why": "The only DKIM key found is shorter than current practice, leaving signatures less resilient."
+          },
+          {
+            "evidence": ["checks.dmarc.present", "checks.dmarc.valid", "checks.dmarc.policy"],
+            "id": "dmarc_policy_none:oakhaven-outfitters.example",
+            "title": "DMARC is monitoring only",
+            "type": "dmarc_policy_none",
+            "why": "The DMARC policy monitors failures but does not ask receivers to reject or quarantine spoofed mail."
+          }
+        ]
+      }
+    },
+    "silverbrook-dental": {
+      "handled": {},
+      "id": "silverbrook-dental",
+      "name": "Silverbrook Dental Group",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "dkim"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "quarantine",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "silverbrook-dental.example",
+            "problems": [],
+            "record": "v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@silverbrook-dental.example"
+          },
+          "domain": "silverbrook-dental.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "~all",
+              "lookup_count": 1,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": ["v=spf1 include:_spf.mailbarrow.example ~all"]
+          }
+        },
+        "client_id": "silverbrook-dental",
+        "day": "2026-01-04",
+        "domain": "silverbrook-dental.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Fix the cause of the blocklist listing, then request delisting.",
+            "source": "seeded",
+            "type": "blocklist_listed"
+          }
+        ],
+        "input_hash": "1504120f27af9f2b6d9329cd7360d0fc8f16c0de63baf750f595700ebf10aeb4",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": ["sources.reputation.grade", "sources.reputation.previous_grade"],
+            "id": "reputation_declining:silverbrook-dental.example",
+            "title": "Sending reputation has declined",
+            "type": "reputation_declining",
+            "why": "The domain's reputation fell from medium to low, which can make inbox placement harder."
+          },
+          {
+            "evidence": ["sources.reputation.grade"],
+            "id": "reputation_poor:silverbrook-dental.example",
+            "title": "Sending reputation is low",
+            "type": "reputation_poor",
+            "why": "A low reputation can cause mailbox providers to filter or reject more mail."
+          },
+          {
+            "evidence": ["sources.complaint_rate_pct", "sources.volume_7d", "fixes"],
+            "id": "complaint_rate_elevated:silverbrook-dental.example",
+            "title": "Complaint rate is elevated",
+            "type": "complaint_rate_elevated",
+            "why": "The complaint rate is above the level mailbox providers recommend, indicating recipients may be dissatisfied with the mail."
+          },
+          {
+            "evidence": ["sources.bounce_rate_pct", "sources.volume_7d", "fixes"],
+            "id": "bounce_rate_elevated:silverbrook-dental.example",
+            "title": "Bounce rate is elevated",
+            "type": "bounce_rate_elevated",
+            "why": "The bounce rate is above the clean-list benchmark, suggesting list quality may be affecting delivery."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": true,
+            "listings_90d": 2
+          },
+          "bounce_rate_pct": 2.4,
+          "complaint_rate_pct": 0.14,
+          "domain_age_days": 1900,
+          "open_rate_pct": 20.0,
+          "open_rate_prev_pct": 24.0,
+          "reputation": {
+            "grade": "low",
+            "previous_grade": "medium"
+          },
+          "volume_7d": 4000,
+          "volume_prev_7d": 4200
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": ["sources.reputation.grade", "sources.reputation.previous_grade"],
+            "id": "reputation_declining:silverbrook-dental.example",
+            "title": "Sending reputation has declined",
+            "type": "reputation_declining",
+            "why": "The domain's reputation fell from medium to low, which can make inbox placement harder."
+          },
+          {
+            "evidence": ["sources.reputation.grade"],
+            "id": "reputation_poor:silverbrook-dental.example",
+            "title": "Sending reputation is low",
+            "type": "reputation_poor",
+            "why": "A low reputation can cause mailbox providers to filter or reject more mail."
+          },
+          {
+            "evidence": ["sources.complaint_rate_pct", "sources.volume_7d", "fixes"],
+            "id": "complaint_rate_elevated:silverbrook-dental.example",
+            "title": "Complaint rate is elevated",
+            "type": "complaint_rate_elevated",
+            "why": "The complaint rate is above the level mailbox providers recommend, indicating recipients may be dissatisfied with the mail."
+          },
+          {
+            "evidence": ["sources.bounce_rate_pct", "sources.volume_7d", "fixes"],
+            "id": "bounce_rate_elevated:silverbrook-dental.example",
+            "title": "Bounce rate is elevated",
+            "type": "bounce_rate_elevated",
+            "why": "The bounce rate is above the clean-list benchmark, suggesting list quality may be affecting delivery."
+          }
+        ]
+      }
+    },
+    "tamberline-travel": {
+      "handled": {},
+      "id": "tamberline-travel",
+      "name": "Tamberline Travel",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 2048,
+                  "selector": "selector1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "reject",
+              "present": true,
+              "subdomain_policy": "none",
+              "valid": true
+            },
+            "found_at": "tamberline-travel.example",
+            "problems": [],
+            "record": "v=DMARC1; p=reject; sp=none; rua=mailto:dmarc-reports@tamberline-travel.example"
+          },
+          "domain": "tamberline-travel.example",
+          "spf": {
+            "check": {
+              "all_qualifier": null,
+              "lookup_count": null,
+              "present": true,
+              "record_count": 1,
+              "valid": false
+            },
+            "problems": ["a mechanism that does not exist"],
+            "records": ["v=spf1 include:_spf.mailbarrow.example ipv4:198.51.100.77 -all"]
+          }
+        },
+        "client_id": "tamberline-travel",
+        "day": "2026-01-04",
+        "domain": "tamberline-travel.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [
+          {
+            "instruction": "Correct the SPF record's syntax so that it parses.",
+            "source": "dns",
+            "type": "spf_invalid"
+          }
+        ],
+        "input_hash": "d43f7ccfd79ce8760d67cafd4aa357b1123df5bedd6d594ce0f79831d36d46e8",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "checks.dmarc.subdomain_policy",
+              "checks.dmarc.pct"
+            ],
+            "id": "dmarc_partial_enforcement:tamberline-travel.example",
+            "title": "Subdomains lack DMARC enforcement",
+            "type": "dmarc_partial_enforcement",
+            "why": "The main domain has an enforcing DMARC policy, but subdomains are set to monitoring only, leaving them exposed to spoofing."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.6,
+          "complaint_rate_pct": 0.03,
+          "domain_age_days": 2400,
+          "open_rate_pct": 30.0,
+          "open_rate_prev_pct": 30.5,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 15000,
+          "volume_prev_7d": 14000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "checks.dmarc.present",
+              "checks.dmarc.valid",
+              "checks.dmarc.policy",
+              "checks.dmarc.subdomain_policy",
+              "checks.dmarc.pct"
+            ],
+            "id": "dmarc_partial_enforcement:tamberline-travel.example",
+            "title": "Subdomains lack DMARC enforcement",
+            "type": "dmarc_partial_enforcement",
+            "why": "The main domain has an enforcing DMARC policy, but subdomains are set to monitoring only, leaving them exposed to spoofing."
+          }
+        ]
+      }
+    },
+    "willowmere-pets": {
+      "handled": {},
+      "id": "willowmere-pets",
+      "name": "Willowmere Pet Supplies",
+      "scope": "shared",
+      "seeded": true,
+      "snapshot": {
+        "checks": {
+          "dkim": {
+            "check": {
+              "keys": [
+                {
+                  "key_bits": 1024,
+                  "selector": "s2"
+                },
+                {
+                  "key_bits": 2048,
+                  "selector": "k1"
+                }
+              ],
+              "selectors_probed": 12
+            },
+            "other_keys": [],
+            "problems": []
+          },
+          "dmarc": {
+            "check": {
+              "pct": 100,
+              "policy": "reject",
+              "present": true,
+              "subdomain_policy": null,
+              "valid": true
+            },
+            "found_at": "willowmere-pets.example",
+            "problems": [],
+            "record": "v=DMARC1; p=reject; rua=mailto:dmarc-reports@willowmere-pets.example"
+          },
+          "domain": "willowmere-pets.example",
+          "spf": {
+            "check": {
+              "all_qualifier": "-all",
+              "lookup_count": 9,
+              "present": true,
+              "record_count": 1,
+              "valid": true
+            },
+            "problems": [],
+            "records": [
+              "v=spf1 include:_spf.sendwillow.example include:_spf.inboxorchard.example -all"
+            ]
+          }
+        },
+        "client_id": "willowmere-pets",
+        "day": "2026-01-04",
+        "domain": "willowmere-pets.example",
+        "finished_at": "2026-01-04T06:00:00Z",
+        "fixes": [],
+        "input_hash": "ec65c70d60b6435abc82b028bc33fa66339862ce51cde4ff0692e4441b0ab2cf",
+        "model": "gpt-6.1-terra",
+        "model_source": "recorded",
+        "prompt_version": "risks-v3",
+        "ranked": [
+          {
+            "evidence": [
+              "checks.spf.record_count",
+              "checks.spf.valid",
+              "checks.spf.lookup_count",
+              "fixes"
+            ],
+            "id": "spf_near_lookup_limit:willowmere-pets.example",
+            "title": "SPF is near the lookup limit",
+            "type": "spf_near_lookup_limit",
+            "why": "The SPF record is one lookup short of the limit, leaving little room for additional sending services."
+          }
+        ],
+        "risks_status": "ranked",
+        "risks_unavailable_reason": null,
+        "sources": {
+          "blocklist": {
+            "days_since_delisted": null,
+            "listed": false,
+            "listings_90d": 0
+          },
+          "bounce_rate_pct": 0.5,
+          "complaint_rate_pct": 0.03,
+          "domain_age_days": 2600,
+          "open_rate_pct": 32.0,
+          "open_rate_prev_pct": 32.5,
+          "reputation": {
+            "grade": "high",
+            "previous_grade": "high"
+          },
+          "volume_7d": 41000,
+          "volume_prev_7d": 40000
+        },
+        "started_at": "2026-01-04T06:00:00Z",
+        "suppressed": [],
+        "visible": [
+          {
+            "evidence": [
+              "checks.spf.record_count",
+              "checks.spf.valid",
+              "checks.spf.lookup_count",
+              "fixes"
+            ],
+            "id": "spf_near_lookup_limit:willowmere-pets.example",
+            "title": "SPF is near the lookup limit",
+            "type": "spf_near_lookup_limit",
+            "why": "The SPF record is one lookup short of the limit, leaving little room for additional sending services."
+          }
+        ]
+      }
+    }
+  }
+}
