@@ -2192,7 +2192,7 @@ The owner's answer, in the session, 2026-11-20: "Recommended for all six, includ
 
 **What was done with the answers.**
 
-1. **1A.** `evals/expected-misses.toml` names `harmful`. `make eval EXPECTED=1` exits 0 only when the bars missed are exactly the ones it names; CI's `eval` job runs that. `make eval STRICT=1` is unchanged. Run here: `make eval EXPECTED=1` printed "expected misses: exactly as expected-misses.toml names them (harmful)" and exited 0; `make eval STRICT=1` exited non-zero. Thirteen new tests: a named miss passes while strict still fails; an unnamed miss, a named bar that is met, an unknown name, a name twice, a file that is not the right shape and a missing file each fail; the committed file names exactly what the committed results miss.
+1. **1A.** `evals/expected-misses.toml` names `harmful`. `make eval EXPECTED=1` exits 0 only when the bars missed are exactly the ones it names; CI's `eval` job runs that. `make eval STRICT=1` is unchanged. Run here: `make eval EXPECTED=1` printed "expected misses: exactly as expected-misses.toml names them (harmful)" and exited 0; `make eval STRICT=1` exited non-zero. Twelve new tests: a named miss passes while strict still fails; an unnamed miss, a named bar that is met, an unknown name, a name twice, a file that is not the right shape and a missing file each fail; the committed file names exactly what the committed results miss.
 2. The Phase 6 README line now asks for the results file's figure, 9 in 144.
 3. The Phase 6 line ties the false wording to version 4 and says version 3's was accurate with the call wrong. The spec's Phase 2 paragraph has one sentence saying the same.
 4. **4A.** The limit sentence, in the spec and the Phase 5 line, now ends "(on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none)". This is not the challenger's wording exactly: its clause counted the found risks per run and the wrong ones over three runs. Listed in `docs/DECISIONS_TO_REVIEW.md`.
@@ -2200,6 +2200,15 @@ The owner's answer, in the session, 2026-11-20: "Recommended for all six, includ
 6. Two checklist lines added, one to Phase 4 (the wording test and the count of merely-acceptable types on seeded recordings) and one to Phase 6 (every "N in 144" in the README against the results file).
 
 Guards changed in this phase, none weakening a check as the owner ruled it: `.github/workflows/ci.yml` (the `eval` job's command), `.claude/hooks/measure-paths.txt` (three lines added). Also changed and owner-merged: `docs/SPEC.md`, checklist lines of Phases 4 to 6 in this file, `Makefile` (the `EXPECTED=1` option). The verdict lines above are for `c425242`; the reviewer's one pass on these edits is recorded below, and the verifier and the challenger were not run again, as the owner asked for one reviewer pass.
+
+**The one reviewer pass on the owner's answers, on `59c9371`: no blocking findings.** Each of the six changes "done as approved". On 1A it "tried to make it pass when it should not": an unnamed miss, a named bar that is now met, a name that is not a bar, a name twice, a `missed` that is not a list, no `missed` key, text that is not TOML and a missing file "each exited 1, so none can turn CI green"; a nested list "crashes with a TypeError traceback, but still exits 1". `make eval` gave 0, `make eval EXPECTED=1` gave 0, `make eval STRICT=1` and `make eval STRICT=1 EXPECTED=1` gave 2, and the tree stayed clean. The limit sentence is "true as written", checked against the results file: 18 of 25 against 17 in each run, and 3 harmful per run, all on the open set. The spec's lines about CI "are true of the code", and "CI is green on `main`" "can now hold at the same time as" the Phase 6 gate's `make eval STRICT=1` exiting non-zero.
+
+Two items, not blocking:
+
+1. The log said thirteen new tests; there are twelve. Corrected.
+2. "The code that decides the eval job's result is not guarded": `_against_expected` in `backend/src/domain_health/evals/__main__.py` and the `eval` recipe in the `Makefile`. "A later phase could make `make eval EXPECTED=1` always exit 0 by editing either one, and the run could merge it. This gap already existed for `STRICT=1` and was not in the six approved changes, so it is for the owner, not this branch." Not changed here: it is told to the owner at the hand-over, with the reviewer's two ways to close it (add the file to `measure-paths.txt`, or have `ci.yml` call the command with the flag itself).
+
+The reviewer's verdict line above names `c425242`, the last commit the whole phase was reviewed on; this pass covered everything since. The verifier and the challenger last ran on `c425242` and did not see the changes to the eval command, the Makefile, CI, the guard list or the spec.
 
 ---
 
