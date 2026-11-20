@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import { type ReactElement, Suspense } from "react";
 import { Announcer } from "@/components/announcer";
 import { AdminBar, SiteHeader } from "@/components/chrome";
-import { CLAIM } from "@/content/claim";
 import "./globals.css";
 
 // Both families come from files in the repository: the build needs no network.
@@ -26,7 +25,9 @@ const newsreader = localFont({
 
 export const metadata: Metadata = {
   title: { default: "domain-health", template: "%s - domain-health" },
-  description: CLAIM,
+  // Not the claim sentence: a search result or a link preview would show it without its limit.
+  description:
+    "A demo of a daily email-domain health check on invented clients. Its eval result and its limit are on the page.",
 };
 
 // Runs before the first paint, so a saved theme never flashes.

@@ -44,4 +44,28 @@ export class AttemptLimiter {
   }
 }
 
+export type Attempt = "ok" | "wrong" | "limited";
+
+/**
+ * One sign-in attempt, start to finish, with nothing awaited in between: the limit is asked, the
+ * passphrase is compared, and a wrong one is counted before any other request can run. Asking
+ * the limit, then waiting for anything, then counting let two hundred tries made at once all
+ * through, since each saw the count before any of them had added to it.
+ */
+export function attempt(
+  limiter: AttemptLimiter,
+  address: string,
+  now: number,
+  right: () => boolean,
+): Attempt {
+  if (!limiter.allowed(address, now)) {
+    return "limited";
+  }
+  if (right()) {
+    return "ok";
+  }
+  limiter.failed(address, now);
+  return "wrong";
+}
+
 export const signInLimiter: AttemptLimiter = new AttemptLimiter();

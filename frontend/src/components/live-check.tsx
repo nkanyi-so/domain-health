@@ -1,12 +1,13 @@
 "use client";
 
 // The live check (`/check`): the form and whatever the check came back with. The check itself is
-// a POST to this site's own route, made from here once the page is open, so that opening or
-// prefetching an address never spends one of a visitor's five checks.
+// a POST to this site's own route, made only when the visitor presses "Check domain". An address
+// that names a domain fills the field and nothing more, so a shared link, a prefetch or a crawler
+// never spends one of a visitor's five checks or one of the day's 200.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactElement, useEffect, useRef, useState } from "react";
+import { type FormEvent, type ReactElement, useState } from "react";
 import type { LiveCheckResult } from "@/lib/api-types";
 import { checkRows } from "@/lib/view/checks";
 import { formatTime } from "@/lib/view/format";
@@ -42,7 +43,7 @@ function firstView(props: LiveCheckProps): LiveCheckView {
   if (props.mode === "off") {
     return { kind: "switched-off" };
   }
-  return props.initialDomain ? { kind: "running", domain: props.initialDomain } : { kind: "idle" };
+  return { kind: "idle" };
 }
 
 async function check(domain: string): Promise<LiveCheckView> {
@@ -125,7 +126,6 @@ export function LiveCheck(props: LiveCheckProps): ReactElement {
   const { mode } = props;
   const [typed, setTyped] = useState(props.initialDomain);
   const [view, setView] = useState<LiveCheckView>(() => firstView(props));
-  const started = useRef(false);
   const router = useRouter();
 
   async function run(domain: string): Promise<void> {
@@ -137,19 +137,6 @@ export function LiveCheck(props: LiveCheckProps): ReactElement {
       announce(finishedAnnouncement(next.result));
     }
   }
-
-  // An address that names a domain starts its check once, when the page opens.
-  useEffect(() => {
-    if (mode === "live" && props.initialDomain && !started.current) {
-      started.current = true;
-      void check(props.initialDomain).then((next) => {
-        setView(next);
-        if (next.kind === "result") {
-          announce(finishedAnnouncement(next.result));
-        }
-      });
-    }
-  }, [mode, props.initialDomain]);
 
   function submit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();

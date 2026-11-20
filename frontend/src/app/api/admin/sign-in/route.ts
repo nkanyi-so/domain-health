@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { ConfigError, sessionSecretOrNull, setting } from "@/lib/server/env";
-import { signInLimiter } from "@/lib/server/rate-limit";
+import { attempt, signInLimiter } from "@/lib/server/rate-limit";
 import { clientAddress } from "@/lib/server/request";
 import { bodyOf, crossSite, issueSession, json } from "@/lib/server/routes";
 import { sameSecret } from "@/lib/server/session";
@@ -29,19 +29,23 @@ export async function POST(request: Request): Promise<Response> {
   if (!secret) {
     return json(503, { error: "unavailable" });
   }
+  // Everything that waits comes first, so the attempt itself is one uninterrupted step.
   const address = clientAddress(await headers());
-  const now = Date.now();
-  if (!signInLimiter.allowed(address, now)) {
-    return json(429, { error: "too many tries" });
-  }
   const body = await bodyOf(request);
   const given = body?.passphrase;
-  if (
-    typeof given !== "string" ||
-    given.length > MAX_PASSPHRASE ||
-    !sameSecret(given, expected, secret)
-  ) {
-    signInLimiter.failed(address, now);
+  const outcome = attempt(
+    signInLimiter,
+    address,
+    Date.now(),
+    () =>
+      typeof given === "string" &&
+      given.length <= MAX_PASSPHRASE &&
+      sameSecret(given, expected, secret),
+  );
+  if (outcome === "limited") {
+    return json(429, { error: "too many tries" });
+  }
+  if (outcome === "wrong") {
     return json(401, { error: "wrong" });
   }
   await issueSession("admin");

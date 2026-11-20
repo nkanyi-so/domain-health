@@ -97,3 +97,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:25:32Z	4	gate-refused	exit=2 reason=spend pr=#12: docs/PLAN.md must have exactly one 'Spend: $X of ...' line	2.27
 2026-11-20T10:30:08Z	4	gate-merged	pr=#12 phase-4-schedule-worker-api-deploy 50bd25cb11f4234c566a9d4ee904b74a33910b91 into main	2.27
 2026-11-20T10:30:41Z	5	phase-started	5: the screens	2.27
+2026-11-20T11:48:02Z	5	review	blocking findings, two @ 1724d55	2.27

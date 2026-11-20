@@ -3166,6 +3166,22 @@ The lowest contrast measured is 4.99:1 in the light theme and 6.09:1 in the dark
 
 **`make eval` on this phase's code** exits 0 and leaves the results file as committed; this phase's gate has no measured bar. Its output is unchanged from the Phase 4 log.
 
+### 2026-11-20: review, first run, on 1724d55
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 111; the "110" earlier in this log was one short). Its findings, then what was done.
+
+**Blocking.**
+
+1. "The admin sign-in limit can be bypassed by sending many wrong tries at once." The limit was asked, then the request's body was awaited, then a wrong try was counted; it showed 200 tries from one address all reaching the passphrase comparison. **Done:** everything that waits now comes first, and the attempt (ask the limit, compare, count a wrong one) is one step with nothing awaited inside it. Tests: fifty wrong tries at once reach the comparison five times; past the limit the passphrase is not looked at; a right passphrase is not counted.
+2. "Opening a link to `/check?domain=…` runs a live check without any click, but the docs say opening it spends nothing." A prefetch was safe; a link opened in a browser, or a crawler that runs scripts, was not. **Done:** an address with a domain fills the field and nothing more; the check runs only on a press of "Check domain". The comment, the architecture line and the decision entry now say what the code does.
+
+**Not blocking.**
+
+3. "The claim appears without its limit in the site's meta description." **Done:** the description is no longer the claim sentence.
+4. The test count in the log (said above), and that a copied admin cookie stays good for its twelve hours after sign-out. **Done:** the session entry in `docs/DECISIONS_TO_REVIEW.md` says so.
+
+Checked and in order, in its words: the proxy secret, the actor and the client address are added only on the server; every POST checks `Origin` against `Host`; both cookies are `HttpOnly`, `SameSite=Lax` and `Secure`, signed, compared in constant time, with expiry; production fails closed and 4xx never falls back; no client component imports the server code and there is no public environment variable; fixes are rendered before the advisory panel and the list is sorted by fixes only; every advisory box opens with "Advisory, unproven." and the eval link; the limit stands beside the claim and is tied to the spec by a test; the eval page's figures agree with the limit sentence. It agreed the verifier and the challenger are both needed.
+
 ---
 
 ## Phase 6: report, README, release checks
