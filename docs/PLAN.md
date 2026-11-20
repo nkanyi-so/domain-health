@@ -12,7 +12,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | building | |
+| 4: schedule, worker, API, first backend deploy | waiting on you | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
@@ -37,7 +37,31 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 4 is built, deployed and verified, and it has used its three reviews.** Pull request: [#12](https://github.com/nkanyi-so/domain-health/pull/12). Your rule is that a phase needing more than three review rounds stops for you, so this is that stop. Nothing is known to be failing.
+
+What is still open: the third review had one blocking finding, and the two commits that came after it have not been reviewed.
+
+- The finding: the service's own instance ceiling read 20 beside the revision's 1. Fixed: `make deploy-backend` now sets both to 1, and the deployed service shows 1 and 1.
+- The first verifier run then failed: `make dev` did not start the backend. Fixed, with tests; the second verifier run passed all 23 checks on the final commit, `make dev` among them.
+- So commits `e343425` (the instance ceiling, and how a visitor's address is counted) and `1aa64b4` (the `make dev` fix) are verified and unreviewed. CI is green.
+
+One question.
+
+1. **How does #12 get merged?**
+   - **A (recommended). One more reviewer pass, on those two commits only.** If it finds nothing blocking, the phase goes through the merge gate and Phase 5 starts. If it finds something, I stop again and you merge or decide. Costs about ten minutes.
+   - **B. You merge #12 as it stands.** The verdict line for the reviewer says truthfully that the last fix was not reviewed.
+
+For you to know, with nothing to decide:
+
+- The service is open at the platform level as you decided (decision 0014). Without credentials every route but `/health` answers the app's own 401.
+- Two faults showed only on the deployed service or under `make dev`, and both are fixed with tests: the first scheduled run answered 500 (the task client was made outside the server's event loop), and `make dev` crashed at start-up for a related reason.
+- The reviews also led to: the false-wording check on the recordings now covers all six risk types with a numeric line, not two; the change alert is sent once, after the snapshot is saved; a short or empty proxy secret stops the service from starting; a visitor's address must be one IP address.
+- Left as it is, in `docs/DECISIONS_TO_REVIEW.md`: the five-per-address limit counts in fixed ten-minute windows, so one address can make ten checks across a window boundary. The 200-a-day cap still holds.
+- An earlier message of mine said the merge gate would refuse this phase because of `Makefile` and `evals/ledger.jsonl`. That was wrong: neither is on the guard list.
+- For Phase 5's state "a handled risk with the next one moved up", which needs six risks: I will use the design document's render-only flag, not a new seeded state. A seeded state would need a new paid recording whose three answers must agree on six risks, which is neither cheap nor reliable. It will be recorded in Phase 5.
+- Spend: $2.27 of $10.
+
+Once answered: with A, the reviewer pass, then the merge gate, then Phase 5. With B, Phase 5 starts after your merge.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -2758,6 +2782,8 @@ This was the third review, and the owner's rule is that a phase needing more tha
 
 ### 2026-11-20: the gate's deployed checks, on revision `domain-health-00007-zld` (commit e343425)
 
+*Superseded by the block for revision `domain-health-00008-lwx` below: the service was deployed once more after the verifier's first run.*
+
 Each command exactly as run, then its whole output, by the same script as before (its filter on the service's annotations now leaves out the line with the account's name). This is the gate's evidence.
 
 ```
@@ -2874,6 +2900,176 @@ $ curl -s -w '\nHTTP %{http_code}\n' -X POST https://domain-health-992953709092.
 {"domain":"example.com","checks":{"domain":"example.com","spf":{"check":{"present":true,"record_count":1,"valid":true,"lookup_count":0,"all_qualifier":"-all"},"records":["v=spf1 -all"],"problems":[]},"dkim":{"check":{"selectors_probed":12,"keys":[]},"other_keys":[],"problems":["every selector probed answers with a revoked (empty) key"]},"dmarc":{"check":{"present":true,"valid":true,"policy":"reject","subdomain_policy":"reject","pct":100},"record":"v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s","found_at":"example.com","problems":[]}},"fixes":[{"type":"dkim_missing","source":"dns","instruction":"Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors."}],"checked_at":"2026-11-20T09:53:20.186565Z","cached":false,"queries":14}
 HTTP 200
 ```
+
+### 2026-11-20: verifier, first run, on fc6d3ee: fail
+
+Everything it ran passed except one row, in its words: "`make dev`: FAIL. Firestore emulator starts and the frontend answers `GET http://localhost:3000/` with 200. The backend crashes at startup ... `RuntimeError: asyncio.run() cannot be called from a running event loop` ... `recorded_model()` calls `asyncio.run` from inside uvicorn's running loop". It could not exercise the local API routes because of it. Its other rows: `make check` twice, `make eval` three ways, `make record-report`, the dry run, the deployed 200 and three 401s, and the read-only descriptions of the service, the job and the queue all passed.
+
+**Done:** the seeded states are worked out on a thread of their own, so the service can be built inside or outside a running loop. Three tests in `backend/tests/test_serve.py`: the recorded model is built inside a running loop; the development service is built inside one and answers; it runs against the emulator only. `make dev` then started the backend here (`/health` 200). This is the same family of fault as the task client on the first deploy: the server imports the service outside its loop when deployed and inside it under `--reload`.
+
+### 2026-11-20: verifier, second run, on 1aa64b4: pass
+
+| # | What it did | Expected | What happened | Result |
+|---|---|---|---|---|
+| 1 | `make check`, run twice | exit 0 | Both runs exited 0: "All checks passed!", 1014 passed (32 deselected), 32 emulator tests passed (55s and 131s), frontend test and build passed | pass |
+| 2 | `make eval`, then `git status --short` | exit 0, clean tree | exit 0, `git status` empty. Output includes "better than the rules-only baseline on the open set: no", so the strict failure in row 4 matches it. | pass |
+| 3 | `make eval EXPECTED=1` | exit 0 | exit 0 | pass |
+| 4 | `make eval STRICT=1` | non-zero | exit 2 ("make: *** [eval] Error 1"). `git status` still clean. | pass |
+| 5 | `make record-report` | table | Printed one row per client and day. Last line: "36 risks returned, 4 of a type the bands call merely acceptable, 0 wrong, 0 with false wording". | pass |
+| 6 | `make dev`, then `curl -i 127.0.0.1:8000/health` | backend up | After 40s: `HTTP/1.1 200 OK {"status":"ok"}`. The log shows uvicorn on 127.0.0.1:8000, "Application startup complete", and Next.js ready on :3000. | pass |
+| 7 | `GET /api/clients` with the dev secret and `X-Actor: admin`, then with `sandbox:` plus 32 `a` characters | client list | Both returned `{"day":"2026-11-20","clients":[{"id":"brindle-and-oak",...,"today":null},...]}`. Every client's `today` is null because no worker has run locally. | pass |
+| 8 | Calls without the secret, with a wrong secret, without an actor, and with a bad actor (`sandbox:zz`) | refused | No secret: 401 `{"detail":"not allowed"}`. Wrong secret: 401. No actor: 400 `no actor`. `sandbox:zz`: 400 `not a session`. | pass |
+| 9 | Snapshot for `brindle-and-oak` and for an unknown client | documented "no snapshot" | Seeded client: 404 `no snapshot for that day`. Unknown client: 404 `no such client`. | pass |
+| 10 | `POST handled` and `POST reopen` on today's date, with a risk id; then a bad body | 404 with no snapshot; 422 for the bad body | Both returned 404 `no snapshot for that day`. Bad body `{"day":"bad"}` returned 422 with the pydantic detail. | pass |
+| 11 | Live check of `shop.example`, `not a domain!!` and `localhost`, with `X-Client-Address: 203.0.113.7` | refused without DNS | `shop.example`: 422 `{"refused":"reserved",...}`. `not a domain!!`: 422 `not_a_name`. `localhost`: 422 `reserved`. | pass |
+| 12 | Live check of `example.com`, run three times | DNS results the first time, cache after | Real lookups: one. The first and second responses were cut off in its output before the `cached` field, so it did not read their `cached` value. The third came back 200 with `"cached":true,"queries":null`. The earlier responses carried the SPF `v=spf1 -all` result. | pass |
+| 13 | Live check with a bad `X-Client-Address`: none, `203.0.113.7, 198.51.100.1`, `203.0.113.7:443`, `hello` | refused | All four returned 400 `no client address`. | pass |
+| 14 | Live check with the secret but no actor, and with no secret | refused | No actor: 400 `no actor`. No secret: 401 `not allowed`. | pass |
+| 15 | Machine routes locally: `POST /internal/dispatch` and `/internal/worker/brindle-and-oak` with no token, with a junk bearer token, and with the proxy secret plus actor | refuse every call | All returned 401 `{"detail":"not allowed"}`. | pass |
+| 16 | `uv run python -m domain_health.worker --help` | usage text | Usage printed: positional `client`; `--date`, `--prompt`, `--model` and `--recordings`. | pass |
+| 17 | Dry run: `brindle-and-oak --prompt ../prompts/risks-v3.md --model gpt-6.1-terra --recordings fixtures/recordings/risks-v3/gpt-6.1-terra/run-1`, for today, 2026-11-19 and 2026-11-20 | prints what it would write, writes nothing | It printed "dry run: nothing was written. The document a run would write:". The document has `risks_status: ranked`, `model_source: recorded`, SPF `lookup_count` 11, an `spf_too_many_lookups` fix and one risk, `dmarc_policy_none:brindle-and-oak.example`. `git status` stayed clean. | pass |
+| 18 | The same dry run with no `--recordings` | graceful | `risks_status: unavailable`, reason "no recording for this input, prompt version and model". It did not crash. | pass |
+| 19 | Deployed service: `GET /health`, `POST /internal/worker/brindle-and-oak`, `POST /internal/dispatch`, `GET /api/clients`, no credentials | 200, then three 401s from the app | `/health` 200 `{"status":"ok"}`. The other three each returned 401 `{"detail":"not allowed"}`. | pass |
+| 20 | `gcloud run services describe domain-health` (read-only, the `domain-health` configuration) | max 1 instance on revision and service; image tag 1aa64b4; no model key | Revision `domain-health-00008-lwx` takes 100% of traffic. Revision `autoscaling.knative.dev/maxScale` is `1`. Service `run.googleapis.com/maxScale` is `1`. The image is `.../domain-health:1aa64b4`. The env var names are GCP_PROJECT_ID, GCP_REGION, SERVICE_URL, INVOKER_EMAIL, TASKS_QUEUE and PROXY_SECRET; none is a model key. | pass |
+| 21 | `gcloud scheduler jobs describe domain-health-daily` | daily POST to dispatch with OIDC | State ENABLED. Schedule `0 6 * * *` UTC. POST to `.../internal/dispatch`, with an OIDC audience equal to the service URL. Retry count 3. | pass |
+| 22 | `gcloud tasks queues describe domain-health-daily` | queue running | State RUNNING. 1 dispatch per second, 2 concurrent, burst 10, 5 attempts. | pass |
+| 23 | Cleanup | nothing left running | Killed `make dev` and the processes it started; ports 8000 and 3000 free. | pass |
+
+Not exercised, in its words: the five-per-address limit live (one real lookup was used; it relies on the tests); the frontend in a browser; authorised calls to the deployed service; a real worker run, the scheduled run, the alert and task delivery (it inspected the configuration only); handled and reopen on a day with a snapshot; the daily cap. The deployed checks below are where the scheduled runs, the task delivery and an authorised call are shown.
+
+### 2026-11-20: gate evidence, on revision `domain-health-00008-lwx` (commit 1aa64b4)
+
+- `make check` exits 0: the verifier's rows 1 (twice, 1014 tests outside the emulator and 32 inside) and CI on the pull request.
+- The six worker-auth cases pass in CI: `backend/tests/test_machine_routes.py`, in the `check` job.
+- Ten live checks at once from one address give five: the emulator test's own line in `make check`, "live check: 10 fired at once from one address, 5 succeeded", and the second reviewer's run through the app (five 200s, five 429s).
+- With the day's counter at 200 the next check is refused: "live check: with the day's counter at 200, the next check was refused".
+- `docs/DESIGN.md` exists.
+- On the deployed service, each command exactly as run and then its whole output, by the same script as before:
+
+```
+$ git rev-parse --short HEAD
+1aa64b4
+
+$ gcloud run services describe domain-health --region=us-central1 --format='value(status.latestReadyRevisionName,spec.template.spec.containers[0].image)'
+domain-health-00008-lwx	us-central1-docker.pkg.dev/domain-health-demo-4821/domain-health/domain-health:1aa64b4
+
+# the first run
+$ date -u +%FT%TZ
+2026-11-20T10:04:34Z
+
+$ gcloud scheduler jobs run domain-health-daily --location=us-central1
+
+$ gcloud logging read 'logName:"run.googleapis.com%2Frequests" AND httpRequest.requestUrl:"internal" AND timestamp>="2026-11-20T10:04:34Z"' --order=asc --limit=40 --format='value(timestamp,httpRequest.status,httpRequest.requestUrl)'
+2026-11-20T10:04:37.194767Z	200	https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+2026-11-20T10:04:37.659264Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T10:04:39.690656Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T10:04:41.726202Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T10:04:43.804412Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T10:04:45.876788Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T10:04:47.955640Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T10:04:50.148029Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T10:04:52.096500Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T10:04:54.172382Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T10:04:56.246770Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T10:04:58.318044Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T10:05:00.395878Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/willowmere-pets?day=2026-11-20
+
+$ date -u +%FT%TZ
+2026-11-20T10:05:15Z
+
+$ make seed COUNT=2026-11-20
+snapshot documents dated 2026-11-20: 12
+  clients/brindle-and-oak/snapshots/2026-11-20
+  clients/copperkettle-kitchen/snapshots/2026-11-20
+  clients/driftwood-coffee/snapshots/2026-11-20
+  clients/emberglow-events/snapshots/2026-11-20
+  clients/fernhollow-garden/snapshots/2026-11-20
+  clients/harbourlight-books/snapshots/2026-11-20
+  clients/inkwell-and-vine/snapshots/2026-11-20
+  clients/northwind-cycles/snapshots/2026-11-20
+  clients/oakhaven-outfitters/snapshots/2026-11-20
+  clients/silverbrook-dental/snapshots/2026-11-20
+  clients/tamberline-travel/snapshots/2026-11-20
+  clients/willowmere-pets/snapshots/2026-11-20
+
+# the second run
+$ date -u +%FT%TZ
+2026-11-20T10:05:26Z
+
+$ gcloud scheduler jobs run domain-health-daily --location=us-central1
+
+$ gcloud logging read 'logName:"run.googleapis.com%2Frequests" AND httpRequest.requestUrl:"internal" AND timestamp>="2026-11-20T10:05:26Z"' --order=asc --limit=40 --format='value(timestamp,httpRequest.status,httpRequest.requestUrl)'
+2026-11-20T10:05:29.324860Z	200	https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+2026-11-20T10:05:29.417878Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T10:05:31.433631Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T10:05:33.511921Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T10:05:35.598856Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T10:05:37.660791Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T10:05:39.737195Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T10:05:41.816503Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T10:05:43.913558Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T10:05:45.974382Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T10:05:48.058006Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T10:05:50.128058Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T10:05:52.161974Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/willowmere-pets?day=2026-11-20
+
+$ date -u +%FT%TZ
+2026-11-20T10:06:07Z
+
+$ make seed COUNT=2026-11-20
+snapshot documents dated 2026-11-20: 12
+  clients/brindle-and-oak/snapshots/2026-11-20
+  clients/copperkettle-kitchen/snapshots/2026-11-20
+  clients/driftwood-coffee/snapshots/2026-11-20
+  clients/emberglow-events/snapshots/2026-11-20
+  clients/fernhollow-garden/snapshots/2026-11-20
+  clients/harbourlight-books/snapshots/2026-11-20
+  clients/inkwell-and-vine/snapshots/2026-11-20
+  clients/northwind-cycles/snapshots/2026-11-20
+  clients/oakhaven-outfitters/snapshots/2026-11-20
+  clients/silverbrook-dental/snapshots/2026-11-20
+  clients/tamberline-travel/snapshots/2026-11-20
+  clients/willowmere-pets/snapshots/2026-11-20
+
+# the other deployed checks
+$ gcloud run services describe domain-health --region=us-central1 --format='value(spec.template.metadata.annotations)'
+autoscaling.knative.dev/maxScale=1;run.googleapis.com/client-name=gcloud;run.googleapis.com/client-version=536.0.1;run.googleapis.com/cpu-throttling=true;run.googleapis.com/startup-cpu-boost=true
+
+$ gcloud run services describe domain-health --region=us-central1 --format='value(metadata.annotations)' | tr ';' '\n' | grep -v 'urls\|user-info\|odifier\|creator'
+run.googleapis.com/client-name=gcloud
+run.googleapis.com/client-version=536.0.1
+run.googleapis.com/ingress=all
+run.googleapis.com/ingress-status=all
+run.googleapis.com/invoker-iam-disabled=true
+run.googleapis.com/maxScale=1
+run.googleapis.com/operation-id=abbababf-8958-4bf6-bda7-44ab02fff827
+
+$ curl -s -w ' HTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak
+{"detail":"not allowed"} HTTP 401
+
+$ curl -s -w ' HTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+{"detail":"not allowed"} HTTP 401
+
+$ curl -s -w ' HTTP %{http_code}\n' https://domain-health-992953709092.us-central1.run.app/api/clients
+{"detail":"not allowed"} HTTP 401
+
+$ gcloud billing budgets list --billing-account=$(gcloud billing projects describe domain-health-demo-4821 --format='value(billingAccountName)') --format='value(displayName,amount.specifiedAmount.units,amount.specifiedAmount.currencyCode)'
+domain-health monthly	5	USD
+
+$ curl -s -w '\nHTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/api/live-check -H "X-Proxy-Secret: $(gcloud secrets versions access latest --secret=proxy-secret)" -H 'X-Actor: sandbox:0123456789abcdef0123456789abcdef' -H 'X-Client-Address: 203.0.113.7' -H 'Content-Type: application/json' -d '{"domain":"example.com"}'
+{"domain":"example.com","checks":{"domain":"example.com","spf":{"check":{"present":true,"record_count":1,"valid":true,"lookup_count":0,"all_qualifier":"-all"},"records":["v=spf1 -all"],"problems":[]},"dkim":{"check":{"selectors_probed":12,"keys":[]},"other_keys":[],"problems":["every selector probed answers with a revoked (empty) key"]},"dmarc":{"check":{"present":true,"valid":true,"policy":"reject","subdomain_policy":"reject","pct":100},"record":"v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s","found_at":"example.com","problems":[]}},"fixes":[{"type":"dkim_missing","source":"dns","instruction":"Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors."}],"checked_at":"2026-11-20T10:06:30.139814Z","cached":false,"queries":14}
+HTTP 200
+```
+
+The revision's maximum and the service's are both 1. The call to the worker without credentials gets the app's 401. Each of the two runs of the Scheduler job is followed by twelve worker calls answered 200, two seconds apart, and a count of 12 documents dated today. The live check of `example.com` returns real DNS results. The budget exists.
+
+### 2026-11-20: stopped for the owner after the third review
+
+The phase has had its three reviews. The third's blocking finding is fixed and the two commits since (`e343425`, `1aa64b4`) are verified and not reviewed. The question is under "Waiting on you". The merge gate was not run: the reviewer's verdict line below would make it refuse.
+
+reviewer-verdict: blocking findings, one, fixed after the pass and not reviewed again @ c502bc9
+verifier-verdict: pass @ 1aa64b4
+challenger-verdict: not needed @ c502bc9
 
 ---
 
