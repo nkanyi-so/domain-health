@@ -24,10 +24,11 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 ## 2026-11-20, Phase 6: public page loads cost Firestore reads, and nothing caps their total
 
+- **Closed on 2026-11-20 by the read cache:** the service keeps the answers of the client list and the client page (the 404 for a day with no snapshot too) for 30 seconds per caller's scope (`backend/src/domain_health/read_cache.py`), dropping a caller's entries on their click and all of them on a worker run, so repeated page loads cost no Firestore reads. Still not capped: distinct pages over time, handled and reopen clicks (each a Firestore read and write, and each drops that caller's cached pages), Cloud Run time, and the live check's cache read and counter transaction on every POST; one instance bounds their rate. What follows is the record of the decision as it stood.
 - **Decided:** left as it is, and said plainly in the README and the architecture. A public GET makes no DNS lookup and no model call, but it reads Firestore without a cache: about 24 documents for the client list, two to four for a client page, its report or the Markdown download; and every live-check POST costs a cache read and a counter transaction even when it is refused. One Cloud Run instance bounds the rate; nothing bounds the total; the $5 budget only alerts. The architecture's line "a GET never does metered work beyond a cached read" was not true and is corrected. Found by the Phase 6 security review.
 - **Why:** the free tiers (50,000 Firestore reads a day; Cloud Run's monthly allowance) cover a demo's traffic many times over, and the worst case is one instance kept busy, not an open-ended bill. A cache or a per-address limit on page loads is more code than the demo needs today; it is the first thing to add if the page ever gets real traffic.
 - **To undo:** cache snapshot reads per client and day for a few seconds in the backend (`backend/src/domain_health/app.py`), or limit GETs per address in the frontend's server routes.
-- **Status:** to review
+- **Status:** done
 
 ## 2026-11-20, Phase 6: how the README, the report and the video script were built
 
