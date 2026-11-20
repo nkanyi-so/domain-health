@@ -196,8 +196,9 @@ def create_app(deps: Deps) -> FastAPI:
             handled=seen.handled,
         )
 
-    @app.get("/healthz")
-    async def healthz() -> Health:
+    # Not `/healthz`: Cloud Run keeps that path for itself and answers 404 before the app.
+    @app.get("/health")
+    async def health() -> Health:
         return Health(status="ok")
 
     @app.get("/api/clients", dependencies=[Depends(proxied)])

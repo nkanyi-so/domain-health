@@ -2,7 +2,7 @@ from tests.app_fixtures import build
 
 
 def test_health_route_answers_ok() -> None:
-    response = build().client.get("/healthz")
+    response = build().client.get("/health")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
