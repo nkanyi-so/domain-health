@@ -136,6 +136,15 @@ export function ClientScreen({ view, demo }: ClientScreenProps): ReactElement {
         </div>
         <SeededLine />
         <Facts facts={facts} />
+        <p>
+          {/* The report is always the live one: a demo state's flag is not carried over. */}
+          <Link
+            href={`/clients/${page.id}/report`}
+            className="btn btn-secondary w-full wide:w-auto"
+          >
+            Open report
+          </Link>
+        </p>
         {view.shownInsteadOfToday ? (
           <Banner tone="notice" title="No snapshot for today yet">
             <p>

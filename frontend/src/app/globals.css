@@ -701,3 +701,54 @@ input {
     transform: none;
   }
 }
+
+/* Paper. The report (and any other page) prints as the page alone: no header, footer, strips or
+   buttons, and always in the light theme's ink, whichever theme the screen is in. `:root:root`
+   outweighs the dark blocks above without naming them. */
+@media print {
+  :root:root {
+    color-scheme: light;
+    --page: #ffffff;
+    --surface: #ffffff;
+    --sunk: #e6ebe8;
+    --ink: #15201c;
+    --ink-2: #44514c;
+    --ink-3: #59665f;
+    --on-ink: #ffffff;
+    --line: #cdd5d1;
+    --line-strong: #77857f;
+    --pencil-line: #77857f;
+    --accent: #2446c4;
+    --accent-hover: #1b3599;
+    --on-accent: #ffffff;
+    --ok: #1b6a3c;
+    --ok-wash: #e2f1e7;
+    --error: #a8231c;
+    --error-wash: #fbe9e7;
+    --seeded: #84286a;
+    --seeded-wash: #f6e8f1;
+    --notice: #5c4200;
+    --notice-wash: #fcefc4;
+    --notice-line: #8f6a00;
+  }
+  .no-print,
+  .btn,
+  nextjs-portal {
+    display: none !important;
+  }
+  main {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  /* A check, a figure, a fix or a risk is not split across two sheets. */
+  .report h2,
+  .report h3 {
+    break-after: avoid;
+  }
+  .report .fix-item,
+  .report .pencil > *,
+  .report .sheet > div,
+  .report dl > div {
+    break-inside: avoid;
+  }
+}

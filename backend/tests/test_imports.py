@@ -163,6 +163,7 @@ def test_the_deployed_service_never_loads_a_model_library_or_the_paid_commands()
         "domain_health.seeded.fallback",
         "domain_health.api_types",
         "domain_health.eval_summary",
+        "domain_health.readme_tables",
         # Writes snapshots into the local emulator for `make dev`: never part of the service.
         "domain_health.seeded.dev_snapshots",
     )

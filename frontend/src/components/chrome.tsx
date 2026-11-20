@@ -18,7 +18,7 @@ export const CONTAINER = "w-full max-w-content px-4 wide:px-8";
 
 export function SiteHeader(): ReactElement {
   return (
-    <header className="border-b border-line bg-page">
+    <header className="no-print border-b border-line bg-page">
       <div className={`${CONTAINER} header-row flex flex-wrap items-center gap-x-6 py-2 wide:py-0`}>
         <Link href="/" className="wordmark tap order-1">
           domain-health
@@ -44,7 +44,7 @@ export async function AdminBar(): Promise<ReactElement | null> {
     return null;
   }
   return (
-    <div className="strip">
+    <div className="strip no-print">
       <div className={`${CONTAINER} flex flex-wrap items-center gap-x-4 gap-y-1 py-1 wide:py-0`}>
         <p className="flex items-start gap-2 py-2 wide:py-0">
           <span className="mt-1">
@@ -63,7 +63,7 @@ export async function AdminBar(): Promise<ReactElement | null> {
 /** State 15: the bundled snapshots are showing, and writes and the live check are off. */
 export function FallbackStrip({ day }: { day: string }): ReactElement {
   return (
-    <div className="strip" role="status">
+    <div className="strip no-print" role="status">
       <div className={`${CONTAINER} flex items-start gap-2 py-3`}>
         <span className="mt-1">
           <InfoCircle />
@@ -93,7 +93,7 @@ export function ServiceStrip(): ReactElement {
 function SiteFooter({ demo }: { demo: string | null }): ReactElement {
   const source = repositoryUrl();
   return (
-    <footer className="mt-12 border-t border-line">
+    <footer className="no-print mt-12 border-t border-line">
       <div className={`${CONTAINER} t-small flex flex-col gap-2 py-4 text-ink-3`}>
         {demo ? (
           <p className="rounded-sheet border border-notice-line bg-notice-wash px-3 py-2 text-ink">

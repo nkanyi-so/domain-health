@@ -26,11 +26,11 @@ endif
 
 .PHONY: help setup dev check check-backend check-frontend format eval toolchain \
 	eval-live record record-report seed infra deploy-backend fallback api-types eval-summary \
-	screens check-domain
+	screens check-domain readme
 
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
-	@echo "generated files: fallback | api-types | eval-summary"
+	@echo "generated files: fallback | api-types | eval-summary | readme"
 	@echo "screenshots and their checks: screens"
 	@echo "paid: eval-live [MODEL=<name>] [PROBE=1]"
 
@@ -148,6 +148,14 @@ api-types:
 # stale, so run this after `make eval` changes the results.
 eval-summary:
 	@cd backend && uv run --frozen python -m domain_health.eval_summary
+
+# Free. Rewrites the generated parts of README.md, each between a pair of HTML comments: the eval
+# tables and the prompt wording from evals/results.json, every attempt scored again from its
+# committed recordings, and the build's numbers from docs/RUN_LOG.md. Nothing else in the README
+# is touched. A backend test fails when the README is stale, so run this after `make eval` changes
+# the results.
+readme:
+	@cd backend && uv run --frozen python -m domain_health.readme_tables
 
 # Free. 68 screenshots into docs/screens/: the 17 states of docs/DESIGN.md, light and dark, 1440
 # and 390 wide, with three checks computed on each (text contrast, no sideways scroll, a focus

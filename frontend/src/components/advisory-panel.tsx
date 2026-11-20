@@ -8,6 +8,17 @@ import Link from "next/link";
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { ClientPage, Risk } from "@/lib/api-types";
 import {
+  ADVISORY_HEADING,
+  ADVISORY_MARK,
+  ADVISORY_SENTENCE,
+  ALL_RISKS_HANDLED,
+  EVAL_LINK_TEXT,
+  EVAL_PATH,
+  NO_RISKS_TODAY,
+  RISKS_UNAVAILABLE_TITLE,
+  RISKS_UNAVAILABLE_WHY,
+} from "@/lib/view/advisory";
+import {
   type ClickAction,
   advisoryChipFor,
   afterClick,
@@ -31,12 +42,11 @@ const WHY_OFF: Partial<Record<Writes, string>> = {
 export function AdvisoryOpening(): ReactElement {
   return (
     <div className="text-ink-2">
-      <p className="font-medium">Advisory, unproven.</p>
+      <p className="font-medium">{ADVISORY_MARK}</p>
       <p className="measure mt-1">
-        A model picked these from a fixed list of risk types. On this project&apos;s evals a table
-        of rules did better than the model, so read them as things to look at, not things to do.{" "}
-        <Link href="/evals" className="link">
-          See the eval result
+        {ADVISORY_SENTENCE}{" "}
+        <Link href={EVAL_PATH} className="link">
+          {EVAL_LINK_TEXT}
         </Link>
       </p>
     </div>
@@ -120,7 +130,7 @@ export function AdvisoryPanel({ page: initial, writes, admin }: AdvisoryPanelPro
   return (
     <section aria-labelledby="advisory-heading" className="wide:col-span-5 wide:mt-8">
       <h2 id="advisory-heading" className="t-heading flex flex-wrap items-center gap-2">
-        Advisory risks <AdvisoryChip chip={advisoryChipFor(page)} />
+        {ADVISORY_HEADING} <AdvisoryChip chip={advisoryChipFor(page)} />
       </h2>
       {failed ? (
         <div className="mt-3">
@@ -137,18 +147,13 @@ export function AdvisoryPanel({ page: initial, writes, admin }: AdvisoryPanelPro
           <div className="hatch text-ink-3">
             <p className="flex items-center gap-2 font-medium">
               <DashCircle />
-              Risks unavailable today
+              {RISKS_UNAVAILABLE_TITLE}
             </p>
-            <p className="measure mt-1">
-              The model&apos;s answer did not pass its checks, so it was dropped, not repaired. The
-              fixes do not depend on it.
-            </p>
+            <p className="measure mt-1">{RISKS_UNAVAILABLE_WHY}</p>
           </div>
         ) : snapshot.visible.length === 0 ? (
           <p className="measure text-ink-2">
-            {handled.length > 0
-              ? "Every advisory risk is handled. Each one comes back after thirty days, or when you reopen it."
-              : "No advisory risks today. The model raised nothing for this client."}
+            {handled.length > 0 ? ALL_RISKS_HANDLED : NO_RISKS_TODAY}
           </p>
         ) : (
           snapshot.visible.map((risk) => (
