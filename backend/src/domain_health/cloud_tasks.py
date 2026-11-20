@@ -17,8 +17,12 @@ class CloudTasksQueue:
     def __init__(
         self, *, project: str, region: str, queue: str, service_url: str, invoker_email: str
     ) -> None:
-        self._client = tasks_v2.CloudTasksAsyncClient()
-        self._parent = self._client.queue_path(project, region, queue)
+        # The client is made on the first enqueue, not here. It ties itself to the event loop
+        # that is running when it is made, and this object is built while the service is being
+        # imported, before the server's loop exists: a client made here failed every call on the
+        # first deploy with "attached to a different loop".
+        self._client: tasks_v2.CloudTasksAsyncClient | None = None
+        self._parent = tasks_v2.CloudTasksAsyncClient.queue_path(project, region, queue)
         self._service_url = service_url.rstrip("/")
         self._invoker_email = invoker_email
 
@@ -33,6 +37,8 @@ class CloudTasksQueue:
             ),
             schedule_time=datetime.now(UTC) + delay,
         )
+        if self._client is None:
+            self._client = tasks_v2.CloudTasksAsyncClient()
         try:
             await self._client.create_task(parent=self._parent, task=task)
         except google_errors.GoogleAPICallError as error:
