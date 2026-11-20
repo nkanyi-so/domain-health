@@ -108,3 +108,5 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T12:49:04Z	5	verify	pass @ 73e360f	2.27
 2026-11-20T13:00:57Z	5	merged	pr=#14 merged by nkanyi-so at 2026-11-20T13:00:20Z	2.27
 2026-11-20T13:00:57Z	6	phase-started	6: report, README, release checks	2.27
+2026-11-20T13:35:19Z	6	review	blocking findings, three, all wording @ fafdf70	2.27
+2026-11-20T13:35:19Z	6	verify	pass @ fafdf70	2.27

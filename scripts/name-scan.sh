@@ -22,6 +22,7 @@ branches="$(git for-each-ref --format='%(refname:short)' refs/heads refs/remotes
 entries=0; hits=0; line=0
 while IFS= read -r entry || [ -n "$entry" ]; do
   line=$((line + 1))
+  entry="${entry%$'\r'}"   # a list saved with Windows line endings still matches
   case "$entry" in ''|'#'*) continue ;; esac
   entries=$((entries + 1))
   tree=$( { git grep -I -i -w -F -c -e "$entry" -- . || true; } | awk -F: '{n += $NF} END {print n + 0}')

@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 33 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 35 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -3424,7 +3424,7 @@ the phase log said so and why, before the work began, where the reviewer could c
 **What was built**, by two agents side by side, then checked together.
 
 - **The report.** `/clients/[id]/report` (a page in the site's chrome, with print rules that hide the chrome and the buttons) and `/clients/[id]/report.md` (a download). Four sections: authentication, reputation, sending, actions. In "Actions" the rules' fixes come first, numbered; the model's risks follow under "Advisory risks", opening with "Advisory, unproven." and the same sentence and eval link as the page; handled risks are left out and named below. Seeded figures are labelled. It reads only, works from the bundled fallback and says so then, and gives a plain "nothing to report" when there is no snapshot. The page and the report take the advisory words from one module.
-- **The README**, about 8,200 words under an opening that carries the finding, the claim with its limit beside it, the demo address and what is real against what is seeded. Seven generated blocks between markers (`make readme`): the eval table, the per-set table, every attempt, the prompt's wording relative to public limits, version 4's wording boundary by boundary and in full, and the build's numbers from the run log. `backend/tests/test_readme.py` (20 tests) holds every block to its source, every "N in 144" to the results file, the claim to `docs/CLAIM.md` and the limit to the spec word for word, the seven headings to the profile's order, and the spend to the plan's line.
+- **The README**, about 8,200 words under an opening that carries the finding, the claim with its limit beside it, the demo address and what is real against what is seeded. Seven generated blocks between markers (`make readme`): the eval table, the per-set table, every attempt, the prompt's wording relative to public limits, version 4's wording boundary by boundary and in full, and the build's numbers from the run log. `backend/tests/test_readme.py` (19 tests) holds every block to its source, every "N in 144" to the results file, the claim to `docs/CLAIM.md` and the limit to the spec word for word, the seven headings to the profile's order, and the spend to the plan's line.
 - **`docs/VIDEO.md`.** The spec gives no order for the video; the script follows "Who it is for" in the spec, with the finding first. In `docs/DECISIONS_TO_REVIEW.md`.
 
 **The name scan.** `bash scripts/name-scan.sh`: every entry of the owner's list (outside the repository, never printed) against the tracked tree, every commit's message and changed lines on every branch and tag, and the branch names; whole words, any case; it prints only an entry's line number and counts.
@@ -3437,3 +3437,35 @@ name scan: 55 entries, 115 commits, 16 branch and tag names; 0 with a hit
 That it finds things was shown on a made-up list of three words that are in the repository: "2 with a hit", exit 1. It is run again on the final commit, below.
 
 **`make check`** on the combined work exits 0 (backend 1070 and 32, frontend 161). **`make screens`** exits 0: "contrast: 0 below 4.5:1 of 5062 pieces of text", "sideways scroll: 0 of 80 pages (68 screenshots and 12 more)", "focus: 0 controls without a focus style of 1088", "68 screenshots". The client-page screenshots changed because of the new button and are committed. **`make eval`** exits 0 and leaves the results file as committed; this phase's gate has no measured bar of its own, and `make eval STRICT=1` exits non-zero on harmful alone.
+
+### 2026-11-20: the reviewer pass, on fafdf70: three blocking findings, all wording
+
+One pass with three jobs: the phase diff, the README sentence by sentence, and security mode over the whole repository. It read files only, ran `make eval` and `make readme` (both left the tree clean), and ran gitleaks.
+
+**Blocking, and what was done.**
+
+1. "The log miscounts the tests": this log said `test_readme.py` has 20 tests; it has 19. **Done:** corrected above.
+2. "README.md:339 overstates the retries": "retries a failed task at most five times", where the queue's five attempts count the first. **Done:** "tries a task at most five times (the first try and four retries)".
+3. "README.md:346 says more than the code supports": "nothing public can make the service do paid work", while every public page load reads Firestore without a cache (about 24 documents for the client list, two to four for a client page, its report or the download), and the architecture's line "a GET never does metered work beyond a cached read" was not true. **Done:** both sentences now say what happens: no public request can make a model call and the live check's lookups are capped; a public request costs Firestore reads and Cloud Run time, one instance bounds their rate, nothing bounds their total, and the alert is what would catch a flood. The exposure is recorded in `docs/DECISIONS_TO_REVIEW.md` with how to close it.
+
+**The README against the files.** Its list of sentences the files do not back had the two above and nothing else blocking: "0 open" after the fixes. It found the claim and the limit word for word, all seven generated blocks equal to `make readme`, every "N in 144" equal to the results file, every clause of the Phase 6 checklist lines met, and no real name. It checked and found backed: the stagger, the timeouts, the live-check limits, the OIDC test list, the proxy secret check, the one-instance limit on the revision and the service, the budget, the schedule, the ledger total and its split, the gate refusals, the build's own mistakes as listed, and the run-log numbers.
+
+**Security mode: no blocking finding beyond item 3.** No key, token or private key is tracked; `gitleaks git` reports no leaks. The cookies are signed, compared in constant time, `HttpOnly`, `SameSite=Lax` and `Secure`; production refuses a missing or development secret; every write checks `Origin`; the sign-in attempt is one step; only validated values are forwarded to the backend; download filenames are reduced to letters, digits and hyphens; DNS and model text is rendered as text. The proxy secret is compared in constant time and must be 32 characters; the OIDC check covers signature, expiry, audience, issuer and verified email; a typed domain is checked, then limited, then looked up, TXT records only. The deploy scripts grant least-privilege roles and print nothing secret. CI pins its actions.
+
+**Not blocking: two fixed because they were false statements, the rest recorded and left.** Fixed: "a quarter to a third of the cases" is now "a fifth to a third" (10, 16 and 15 of 48); and a decision entry that said the report is drawn "by the same components as the site". Also done, being small and about the scan: the name scan now strips a Windows line ending from an entry, and issue and pull request text was scanned once against the list (607 lines, 0 entries found). Left, in `docs/DECISIONS_TO_REVIEW.md`: the report's two routes have no route-level tests (the model and both renderers do; the verifier exercised the routes); text from a snapshot is only partly neutralised in the Markdown download (seeded text only); the sign-in limit is per server instance and an admin session cannot be revoked before its twelve hours (both already recorded in Phase 5); `docs/VIDEO.md` paraphrases the limit without a test. One slip of the reviewer's own, reported by it: a search printed truncated note lines from some open cases; it says it did not use them, and none reached this log.
+
+### 2026-11-20: the verifier run, on fafdf70: pass
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `make check` exits 0. `make eval` exits 0, tree clean. `make eval STRICT=1` exits non-zero: "harmful 9 in 144 case-runs bar == 0 missed", the other three "met". `make eval EXPECTED=1` exits 0. `make readme`: "already current". `make screens`: "68 screenshots", contrast 0 of 5062, sideways scroll 0 of 80 pages, focus 0 of 1088, tree clean | pass |
+| 2 | In a real browser at 1440 and 390, light and dark: "Open report" is on the client page with a focus ring and opens the report; four sections in order (Authentication, Reputation, Sending, Actions); in Actions two numbered fixes, then "Advisory risks" opening with "Advisory, unproven." and the sentence and the eval link; every figure tagged seeded; the header names the client, the domain, the day, prompt version 3 and the recorded-output line; no sideways scroll; in print the site's header, footer and buttons are hidden | pass |
+| 2e | The download: 200, `text/markdown; charset=utf-8`, `filename="northwind-cycles-2026-11-20.md"`, four headings, fixes before the advisory risks, no HTML tag | pass |
+| 2f to 2h | A handled risk is left out of the list and named as handled, in both formats; a healthy client's report reads sensibly; an unknown client gets "No such client" and a 404 for the download | pass |
+| 3 | The production build with an empty environment: the report renders from saved data and says so; the download answers 200 | pass |
+| 4 | The name scan on a made-up list: one entry with a hit, no entry's text printed, exit 1 | pass |
+| 5 | `gitleaks git --no-banner --redact`: "no leaks found" | pass |
+| 6 | The README against the files: the claim equals `docs/CLAIM.md`; the eval table equals the results file (0.896, 0.962, 9 in 144, 0.979; version 4: 0.881, 0.940, 12 in 144, 0.812); the spend equals the plan's line; the seven commands of "Run it" are Makefile targets; all 44 relative links resolve; the embedded screenshot exists | pass |
+| 7 | The hosted site in a real browser, both themes, 1440 and 390: 12 clients, no sideways scroll, no fallback notice | pass |
+
+Not exercised: a real printer; the hosted site's report, which is on `main` only after the merge.
