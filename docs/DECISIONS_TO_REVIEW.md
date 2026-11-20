@@ -15,6 +15,20 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-20, Phase 3: how a visitor's sandbox is kept
+
+- **Decided:** (1) A sandbox document lives one day from the visitor's first click; later clicks do not extend it. The other option was a day from the last click. (2) The worker never writes a sandbox. A sandbox's stored visible list is brought up to date on the visitor's next read, in one transaction, when the day or the run it was computed from has changed. The other option was to store no visible list in the sandbox and compute it on every read. (3) A visitor who has handled nothing has no document; reading the page does not create one. (4) Every read ignores a sandbox or a cached live check past its `expires_at`, without waiting for Firestore's TTL policy to delete it.
+- **Why:** (1) the spec says a sandbox "expires after a day", and a fixed day is the plainest reading and bounds what a visitor can keep alive. (2) the architecture's table gives the sandbox document a visible list, and the worker has no list of sandboxes to rewrite; a stored list that is never refreshed would show yesterday's risks. (3) a page view should not cost a write. (4) TTL deletion can lag by up to a day.
+- **To undo:** (1) in `sandbox_state` in `backend/src/domain_health/store/__init__.py`, always use `now + SANDBOX_LIFE`. (2) drop `view_day`, `view_of_run`, `visible` and `suppressed` from `SandboxState` and compute in `read_day`. (3) and (4) are the two early returns in `read_day` and the `alive` helper.
+- **Status:** to review
+
+## 2026-11-20, Phase 3: what a handled click needs, what a snapshot holds, and the dry run's command
+
+- **Decided:** (1) A handled or reopen click names the snapshot's day and is refused unless that snapshot exists and the risk ID is among its ranked risks. Reopening a risk that is not handled changes nothing and is not an error. (2) A mark's thirty days count from the UTC day of the click, not from the snapshot's day. (3) The snapshot stores, beyond the architecture's list, the seeded sources, each check's records and problems, and `risks_status` with the reason when the model gave nothing usable. (4) The dry run is `cd backend && uv run python -m domain_health.worker <client-id> --prompt ../prompts/risks-v3.md --model gpt-6.1-terra`, with no `make` target; it uses a store in memory and replays recordings only from a folder it is given, so until Phase 4 records the seeded clients it prints "risks unavailable". (5) `SnapshotStore` has no counters yet: the plan puts the live-check limits in Phase 4.
+- **Why:** (1) a risk ID arrives from a browser and is untrusted; only an ID code built is ever stored. (2) a click made just after midnight on yesterday's page should still hide the risk for thirty days. (3) Phase 5's page shows the records, the seeded figures and a "risks unavailable" state from the snapshot alone. (4) the spec asks that a dry run print what it would write; the Makefile's command list is in `CLAUDE.md`, which is the owner's. (5) the plan.
+- **To undo:** (1) and (2) are `changed` in `backend/src/domain_health/store/__init__.py`. (3) remove the fields from `DayResult`. (4) delete `main` in `backend/src/domain_health/worker.py` and its two tests.
+- **Status:** to review
+
 ## 2026-11-19, Phase 2: version 4's wording, which pins the rubric's lines at their boundaries, was let stand
 
 - **Decided:** prompt version 4 states no figure, and the build let it be run. The owner has since ruled (answer 1 to issue #8, 2026-11-20) that attempt 5 counts as the final attempt with this wording disclosed boundary by boundary. Here it is:

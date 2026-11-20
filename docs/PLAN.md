@@ -10,8 +10,8 @@ Kept current by the build at every change of state, so progress can be read here
 |---|---|---|
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
-| 2: the model and the evals (checkpoint) | in review | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
-| 3: snapshots and the handled loop | not started | |
+| 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
+| 3: snapshots and the handled loop | building | |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $1.85 of $10 cap
-Decisions to review: 21 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 23 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -2025,16 +2025,64 @@ challenger-verdict: change needed @ c6f7f0e
 
 ## Phase 3: snapshots and the handled loop
 
-- [ ] `SnapshotStore` interface, `MemoryStore`, `FirestoreStore`.
-- [ ] `visible_risks(ranked, handled, today)`, tests first: suppression for thirty days, the cap of five, the next risk moving up.
-- [ ] The daily-write transaction and the handled / reopen transaction, for the shared scope and a sandbox scope.
-- [ ] Emulator tests: the race, idempotency, TTL fields present on sandbox and live-check documents.
-- [ ] The worker's core as a function: checks, rules, model, snapshot; dry-run mode that writes nothing.
-- [ ] A model failure or invalid output saves the snapshot with fixes and "risks unavailable".
+- [x] `SnapshotStore` interface, `MemoryStore`, `FirestoreStore`.
+- [x] `visible_risks(ranked, handled, today)`, tests first: suppression for thirty days, the cap of five, the next risk moving up.
+- [x] The daily-write transaction and the handled / reopen transaction, for the shared scope and a sandbox scope.
+- [x] Emulator tests: the race, idempotency, TTL fields present on sandbox and live-check documents.
+- [x] The worker's core as a function: checks, rules, model, snapshot; dry-run mode that writes nothing.
+- [x] A model failure or invalid output saves the snapshot with fixes and "risks unavailable".
 
 **Gate:** `make check` exits 0, emulator tests included. The race test runs the click and the daily write concurrently 50 times and passes 50 of 50: the click is kept and the handled risk is not visible. A risk handled on day 0 is hidden on day 29 and visible on day 30 (test output shown). The worker run twice for one date leaves exactly 1 snapshot document for that client and date. A dry run leaves 0 documents.
 
 **Log:**
+
+### Phase 3, started 2026-11-20
+
+**Before the phase.** The owner merged pull request #6 on 2026-11-20 and answered in the session: the two spec sentences and the two Phase 4 details that were the build's are kept; the README leads with the finding and "Run it" comes second (recorded as decision 0013, so Phase 6 does not stop on it); the verifier and the challenger cover the Phase 2 commits made after `c6f7f0e` as part of this phase's pass. `bash .claude/hooks/preflight.sh` printed "preflight: ready" with no MISSING line.
+
+**Step list.**
+
+1. The documents' shapes and `visible_risks`, tests first: thirty days, the cap of five, the next risk moving up.
+2. The `SnapshotStore` interface; `MemoryStore`; `FirestoreStore` on `google-cloud-firestore` (already listed in `docs/decisions/dependencies.md` for this phase), the only module that imports it.
+3. The two transactions in both scopes, with every rule about what a write holds as pure functions that both stores call.
+4. The worker's core as a function (`run_client`), a dry run, and "risks unavailable" when the model gives nothing usable.
+5. Emulator tests in place of the Phase 0 smoke test: the same scenarios as the memory store, the race 50 times in each scope, idempotency, the dry run, TTL fields.
+6. `docs/ARCHITECTURE.md`: where things are and how the scopes differ.
+
+**Risks seen at the start.**
+
+- The emulator may not behave like Firestore when two transactions overlap. The race test asserts on the stored documents after both writers finish, and also that the daily write landed, so a test that passes because one writer never ran would fail.
+- The architecture gives a sandbox a stored visible list, and the worker cannot keep it current. Decided and listed in `docs/DECISIONS_TO_REVIEW.md`: it is refreshed on the visitor's next read.
+- **A stop that can be seen from here.** CI's `eval` job is red on every commit, by design, since Phase 2 missed the harmful bar. The merge gate refuses a pull request with any red job, so it will leave this phase and every later one for the owner unless the owner changes that. Nothing in this phase's work depends on the answer, so the phase is built, reviewed and verified first and the question is asked once, at the merge.
+
+**Verifier and challenger.** The verifier is needed: there are tests to run against the emulator and a dry-run command. The challenger is needed, though this phase produces no new eval result and does not touch the claim or the measure: the owner asked that it cover the Phase 2 commits after `c6f7f0e` (`9577d57`, `9b517e2`, `8021907`), which changed the results file and the report code, in this phase's pass.
+
+**What was built.** As the step list. `make check` exits 0 with 813 tests outside the emulator and 21 inside it. The 50 rounds of each race run side by side, each on a client of its own, so the two take seconds; run one after another they took nearly three minutes, most of it the two writers waiting on each other. The tests that count documents ("exactly 1", "0") use a database of their own, which the emulator keeps per project ID, and walk every collection at every depth.
+
+**Found while building: several clicks at once could fail.** The first commit was refused by the pre-commit check: a test of four clicks at once on one client failed two runs in three with `409 Transaction lock timeout`. The Firestore library runs a transaction again when the database aborts it at its commit, but raises when it is aborted while reading (it waited too long for another writer's lock) or when its five tries are used up. `FirestoreStore` now runs each change through `_transact`: an aborted change is run again from the start, up to eight times with a short random wait, and after that the store raises `StoreBusyError` ("nothing was changed") for the API to pass on. Any other error is raised at once. The test is now six clicks at once in each scope, and `make check-backend` passed five runs in a row with it. Three tests without a database cover the retry itself.
+
+**`make eval` on this phase's code** (free; the results file it wrote is identical to the committed one, as it should be: nothing it reads changed):
+
+```
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 22, wrong: 0 | with only the types the bands expect kept: coverage 1.000, precision 1.000, harmful 0, stability 1.000
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 30, wrong: 0 | with only the types the bands expect kept: coverage 0.680, precision 1.000, harmful 0, stability 1.000
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  prompt sentences that place a line relative to a figure, a field's name or a span of time: 26 (the results file lists them for the version in use and for each version not in use)
+  not in use, recorded on the same model: risks-v4: coverage 0.881, precision 0.940, harmful 12 in 144, stability 0.812
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+```
+
+This phase's gate has no measured bar. The harmful bar is still missed, as Phase 2 left it.
 
 ---
 

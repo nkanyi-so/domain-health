@@ -14,6 +14,7 @@ from typing import Self
 
 from pydantic import Field, model_validator
 
+from domain_health.checks import CheckResults
 from domain_health.checks.run import run_checks
 from domain_health.models import Frozen, SnapshotInput, Sources
 from domain_health.resolver.fixture import FixtureResolver, load_zone
@@ -66,12 +67,21 @@ def resolver_for(day: SeededDay, fixtures: Path = FIXTURES) -> FixtureResolver:
     return FixtureResolver(load_zone([zones / f"{SHARED_ZONE}.json", zones / f"{day.zone}.json"]))
 
 
-async def snapshot_input(
+async def checked(
     client: SeededClient, on: date, fixtures: Path = FIXTURES
-) -> SnapshotInput:
-    """What the risk model receives for this client on this date: checks, sources, fixes."""
+) -> tuple[CheckResults, SnapshotInput]:
+    """This client on this date: what the checks found, and what the risk model receives."""
     day = client.day(on)
     results = await run_checks(resolver_for(day, fixtures), client.domain)
     checks = results.model_input()
     fixes = fix_list(checks.spf, checks.dkim, checks.dmarc, day.sources)
-    return SnapshotInput(domain=client.domain, checks=checks, sources=day.sources, fixes=fixes)
+    return results, SnapshotInput(
+        domain=client.domain, checks=checks, sources=day.sources, fixes=fixes
+    )
+
+
+async def snapshot_input(
+    client: SeededClient, on: date, fixtures: Path = FIXTURES
+) -> SnapshotInput:
+    """What the risk model receives for this client on this date: checks, sources, fixes."""
+    return (await checked(client, on, fixtures))[1]

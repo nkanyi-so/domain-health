@@ -71,3 +71,5 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T22:04:29Z	2	stop-opened	issue=#8 questions=6 asked: Phase 2 checkpoint again: the one further attempt missed two bars; six questions, none paid	1.85
 2026-11-19T22:07:38Z	2	stop-closed	issue=#8 opened=2026-11-19T22:04:28Z	1.85
 2026-11-19T22:18:25Z	2	review	blocking findings (two) @ 9b517e2	1.85
+2026-11-20T03:58:29Z	2	merged	pr=#6 merged by nkanyi-so at 2026-11-20T03:58:04Z	1.85
+2026-11-20T03:58:58Z	3	phase-started	snapshots and the handled loop	1.85

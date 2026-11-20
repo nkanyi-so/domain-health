@@ -31,6 +31,8 @@ seeded sources ─────┼─> rules ─> fixes ────────�
 
 Where Phase 1 put things (`backend/src/domain_health/`): `resolver/` (the interface and its two implementations), `checks/` (`spf.py`, `dkim.py`, `dmarc.py`, and `run.py`, which gives each check eight seconds), `rules.py` (the fix list), `domain_name.py` (is the typed text a public domain name), `seeded/` (the twelve clients; their days are in `backend/fixtures/clients/`, their DNS in `backend/fixtures/zones/`), `check_domain.py` (`make check-domain`).
 
+Where Phase 3 put things: `store/__init__.py` (the documents' shapes, the `SnapshotStore` interface, `visible_risks` and every rule about what a write holds, as pure functions), `store/memory.py` and `store/firestore.py` (the two stores: each reads, calls those functions and writes, so they cannot differ in what they decide), `clock.py`, `worker.py` (`run_client`: one seeded client, one day; `python -m domain_health.worker <client-id> --prompt <file> --model <name>` is a dry run that prints the document and touches no database).
+
 A check either gives the fields the risk model receives (`Checks` in `models.py`) or is **unavailable**: a lookup it needed did not answer or answered with more text than a check reads, it ran out of time, or the domain's forty lookups were spent. Unavailable is never read as "no record", so it gives no fix. The model's input cannot hold an unavailable check; fixture zones always answer, so a seeded client's input is always whole, and the typed-domain path, which has no model call, shows the check as not made. Beside those fields a check keeps what they cannot say: the records as read, the problems in plain words, and DKIM keys that are not RSA (found, never called weak, not in `keys`, whose `key_bits` is an RSA length).
 
 Boundaries that matter:
@@ -58,6 +60,16 @@ Two transactions, one function each, both parameterised by scope (shared or one 
 - **Handled / reopen.** Read the handled map and today's snapshot; change the map; recompute `visible`; write both.
 
 Both read what they overwrite, so Firestore retries whichever commits second. `visible_risks(ranked, handled, today)` is one pure function used by both.
+
+How the two scopes differ in what is written (Phase 3):
+
+- **Shared.** The daily write saves the day's snapshot with the view the client's handled map gives it. A click writes the client's `handled` field (no other field of that document) and the snapshot's `visible` and `suppressed`.
+- **A sandbox.** Nothing shared is ever written from it. A click writes the visitor's own document: the marks, and the visitor's `visible` and `suppressed` for one run of one day (`view_day`, `view_of_run`). The worker does not know the sandboxes, so the daily write for a sandbox happens on the visitor's next read: when the stored view is of another day or another run, one transaction reads the snapshot and the sandbox and rewrites the view. A visitor who has marked nothing has no document, and reading does not make one.
+- **A sandbox lives one day from its first click.** `expires_at` is a real timestamp, for the TTL policy; a later click does not move it. Firestore deletes some time after it, so every read treats a document past `expires_at` as absent.
+- **A click** names the snapshot's day and a risk ID. An ID that is not among that day's `ranked` is refused and never stored, and so is a click on a day with no snapshot. A mark holds `handled_at` and `until`, the first UTC day the risk may show again: the day of the click plus thirty.
+- **The snapshot** also holds the seeded sources, what each check found beyond the model's fields (records, problems), `risks_status` (`ranked` or `unavailable`, with the reason) and the run's `started_at` and `finished_at`. Days are UTC days.
+- **A change the database aborts is run again.** The Firestore library retries a transaction aborted at its commit and raises one aborted while reading. The store runs an aborted change again from the start, up to eight times with a short random wait, then raises `StoreBusyError` with nothing changed.
+- **`live_checks/{domain}`** holds the checks and fixes of a typed domain, `checked_at` and `expires_at` (ten minutes on); a read after that gives nothing. The counters come in Phase 4.
 
 A risk: `{id: "<type>:<domain>", type, title, why, evidence: [input field names]}`. A fix: `{type, source: "dns" | "seeded", instruction}`.
 
