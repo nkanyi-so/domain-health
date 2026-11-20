@@ -50,8 +50,8 @@ async function Check({
       <Screen domain={domain} mode="demo" demo={demo} demoView={demoLiveCheck(demo, domain)} />
     );
   }
-  // Opening the page only asks whether the backend is there. The check itself is a POST made by
-  // the page once it is open.
+  // Opening the page only asks whether the backend is there. The check itself is a POST made
+  // only when the visitor presses "Check domain".
   const reachable = await backendReachable();
   return <Screen domain={domain} mode={reachable ? "live" : "off"} demo={null} />;
 }

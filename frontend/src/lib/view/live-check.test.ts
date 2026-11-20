@@ -8,6 +8,7 @@ import {
   liveCheckView,
   lookingUp,
   refusalMessage,
+  shouldStart,
 } from "./live-check";
 
 const NOW = new Date("2026-11-20T14:06:30Z");
@@ -117,5 +118,21 @@ describe("a result's words", () => {
     expect(
       finishedAnnouncement({ ...DEMO_RESULT, fixes: [...DEMO_RESULT.fixes, ...DEMO_RESULT.fixes] }),
     ).toBe("Check finished: 2 fixes.");
+  });
+});
+
+describe("starting a check as the page opens", () => {
+  it("starts only for the domain the visitor's own press left a marker for", () => {
+    expect(shouldStart("example.com", "example.com")).toBe(true);
+  });
+
+  it("does not start from an address alone, as a shared link or a crawler arrives", () => {
+    expect(shouldStart(null, "example.com")).toBe(false);
+  });
+
+  it("does not start for another domain, or for none", () => {
+    expect(shouldStart("example.org", "example.com")).toBe(false);
+    expect(shouldStart("", "")).toBe(false);
+    expect(shouldStart("example.com", "")).toBe(false);
   });
 });

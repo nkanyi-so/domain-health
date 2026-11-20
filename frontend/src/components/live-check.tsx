@@ -1,13 +1,14 @@
 "use client";
 
 // The live check (`/check`): the form and whatever the check came back with. The check itself is
-// a POST to this site's own route, made only when the visitor presses "Check domain". An address
-// that names a domain fills the field and nothing more, so a shared link, a prefetch or a crawler
-// never spends one of a visitor's five checks or one of the day's 200.
+// a POST to this site's own route, made only when the visitor presses "Check domain": here, or on
+// another page's form, which leaves a marker for this tab that this page takes as it opens. An
+// address that names a domain fills the field and nothing more, so a shared link, a prefetch or
+// a crawler never spends one of a visitor's five checks or one of the day's 200.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactElement, useState } from "react";
+import { type FormEvent, type ReactElement, useEffect, useState } from "react";
 import type { LiveCheckResult } from "@/lib/api-types";
 import { checkRows } from "@/lib/view/checks";
 import { formatTime } from "@/lib/view/format";
@@ -15,10 +16,13 @@ import {
   type LiveCheckView,
   NO_LOOKUP,
   REFUSAL_TITLE,
+  START_KEY,
   finishedAnnouncement,
   liveCheckView,
   lookingUp,
+  shouldStart,
 } from "@/lib/view/live-check";
+import { startCheck } from "./check-form";
 import { announce } from "./announcer";
 import { Banner, Facts } from "./parts";
 import { ChecksLookingUp, ChecksSection, FixesSection } from "./results";
@@ -138,6 +142,43 @@ export function LiveCheck(props: LiveCheckProps): ReactElement {
     }
   }
 
+  // A press of "Check domain" on another page left a marker for this domain: take it, so it
+  // works once, and start the check.
+  const { initialDomain } = props;
+  useEffect(() => {
+    if (mode !== "live") {
+      return;
+    }
+    let marker: string | null = null;
+    try {
+      marker = window.sessionStorage.getItem(START_KEY);
+      window.sessionStorage.removeItem(START_KEY);
+    } catch {
+      // Storage can be switched off; the visitor presses the button here instead.
+    }
+    if (!shouldStart(marker, initialDomain)) {
+      return;
+    }
+    let current = true;
+    void Promise.resolve()
+      .then(() => {
+        if (current) {
+          setView({ kind: "running", domain: initialDomain });
+          announce(lookingUp(initialDomain));
+        }
+        return check(initialDomain);
+      })
+      .then((next) => {
+        setView(next);
+        if (next.kind === "result") {
+          announce(finishedAnnouncement(next.result));
+        }
+      });
+    return () => {
+      current = false;
+    };
+  }, [mode, initialDomain]);
+
   function submit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     const domain = typed.trim();
@@ -147,7 +188,7 @@ export function LiveCheck(props: LiveCheckProps): ReactElement {
     if (mode !== "live") {
       // A demo state never sends anything: leave it for the real page.
       if (mode === "demo") {
-        router.push(`/check?domain=${encodeURIComponent(domain)}`);
+        startCheck(domain, (address) => router.push(address));
       }
       return;
     }

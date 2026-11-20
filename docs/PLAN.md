@@ -3182,6 +3182,26 @@ The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 111; the "1
 
 Checked and in order, in its words: the proxy secret, the actor and the client address are added only on the server; every POST checks `Origin` against `Host`; both cookies are `HttpOnly`, `SameSite=Lax` and `Secure`, signed, compared in constant time, with expiry; production fails closed and 4xx never falls back; no client component imports the server code and there is no public environment variable; fixes are rendered before the advisory panel and the list is sorted by fixes only; every advisory box opens with "Advisory, unproven." and the eval link; the limit stands beside the claim and is tied to the spec by a test; the eval page's figures agree with the limit sentence. It agreed the verifier and the challenger are both needed.
 
+### 2026-11-20: review, second run, on 530fe05
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 114) and found all four first-round findings fixed: "the new tests fail on the old ordering".
+
+**Blocking.**
+
+1. "The home page's 'Check domain' button no longer starts a check": a regression from the fix for the first review's second finding. The form on the first screen went to `/check?domain=…`, which now only filled the field, so a second press was needed. **Done:** pressing the button leaves a one-shot marker for that tab and opens the address; the check page starts the check only when it finds the marker for exactly that domain, and removes it. An address alone still starts nothing. The decision is a pure function with tests. Tried in a real browser against the local servers:
+
+```
+opened the address alone: POSTs 0 | field: example.com
+typed on the first screen and pressed once: POSTs 1 | result shown: true
+after a reload: POSTs 1
+```
+
+**Not blocking.**
+
+2. A stale comment in `frontend/src/app/check/page.tsx`. **Done.**
+
+It also found no gate, checklist item or heading changed, the Phase 5 decision entries recording nothing that should have been a stop, and the two screenshots it sampled in order.
+
 ---
 
 ## Phase 6: report, README, release checks

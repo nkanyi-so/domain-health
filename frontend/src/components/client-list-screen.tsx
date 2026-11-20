@@ -4,57 +4,10 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import type { ClientRow } from "@/lib/view/clients";
 import type { ClientListView } from "@/lib/view/screens";
+import { CheckForm } from "./check-form";
 import { FallbackStrip, PageFrame } from "./chrome";
 import { ClaimBlock } from "./claim-block";
 import { AdvisoryChip, FixesChip, PlaceholderBar } from "./parts";
-
-const SWITCHED_OFF = "Switched off while the live service cannot be reached.";
-
-/** A plain form: submitting goes to `/check?domain=<typed>`, where the check is made. */
-function CheckForm({ off }: { off: boolean }): ReactElement {
-  return (
-    <section aria-labelledby="check-heading">
-      <h2 id="check-heading" className="t-heading">
-        Check any domain
-      </h2>
-      <form action="/check" method="get" className="mt-3">
-        <label htmlFor="domain" className="t-small font-medium">
-          Domain
-        </label>
-        <div className="mt-1 flex flex-col gap-2 wide:flex-row wide:items-center">
-          <input
-            id="domain"
-            name="domain"
-            type="text"
-            className="field wide:max-w-field"
-            placeholder="example.com"
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            aria-describedby={off ? "check-hint check-off" : "check-hint"}
-          />
-          {off ? (
-            <button type="button" className="btn btn-primary" aria-disabled="true">
-              Check domain
-            </button>
-          ) : (
-            <button type="submit" className="btn btn-primary">
-              Check domain
-            </button>
-          )}
-          <p id="check-hint" className="t-small text-ink-3">
-            Real DNS lookups for SPF, DKIM and DMARC. No sign-in.
-          </p>
-        </div>
-        {off ? (
-          <p id="check-off" className="t-small mt-2 text-ink-2">
-            {SWITCHED_OFF}
-          </p>
-        ) : null}
-      </form>
-    </section>
-  );
-}
 
 function Chips({ row }: { row: ClientRow }): ReactElement | null {
   if (!row.fixes || !row.advisory) {

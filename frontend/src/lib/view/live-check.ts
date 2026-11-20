@@ -106,3 +106,15 @@ export function finishedAnnouncement(result: LiveCheckResult): string {
 export function lookingUp(domain: string): string {
   return `Looking up DNS records for ${domain}.`;
 }
+
+/** Where a form leaves word, for this browser tab only, that the visitor pressed "Check domain". */
+export const START_KEY = "dh-start-check";
+
+/**
+ * Should the check page start a check as it opens? Only when the visitor's own press of "Check
+ * domain" on another page left a marker for exactly this domain. An address alone never starts
+ * one: a shared link, a prefetch or a crawler has no marker.
+ */
+export function shouldStart(marker: string | null, domain: string): boolean {
+  return marker !== null && domain.trim() !== "" && marker === domain;
+}
