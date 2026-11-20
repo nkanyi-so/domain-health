@@ -85,3 +85,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T05:22:31Z	4	phase-started	schedule, worker, API, first backend deploy	1.85
 2026-11-20T06:10:03Z	4	stop-opened	issue=#11 questions=3 asked: Phase 4: sign gcloud in again, decide how the frontend reaches the backend, and look at the seeded recordings	2.27
 2026-11-20T08:27:30Z	4	stop-closed	issue=#11 opened=2026-11-20T06:10:02Z	2.27
+2026-11-20T09:26:41Z	4	review	blocking findings, two @ 3929cfd	2.27

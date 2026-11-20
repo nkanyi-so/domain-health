@@ -2468,6 +2468,137 @@ Those are real DNS answers: fourteen queries, `example.com`'s own SPF and DMARC 
 
 **`make eval` again on this commit** exits 0 and leaves the results file as committed (`git status` clean after it); its output is the one pasted above in this log.
 
+### 2026-11-20: review, first run, on 3929cfd
+
+The reviewer ran `make check` itself (exit 0: 993 tests outside the emulator, 32 inside; the counts earlier in this log, 992 and 31, were from before the two tests added after the answers) and cited CI green on 3929cfd (run 44708628953), which is where the six worker-auth cases pass in CI. Its findings, as reported, then what was done.
+
+**Blocking.**
+
+1. "Some of the deployed-check evidence is reworded or cut, not pasted." Four blocks: the budget command as written could not be run; "triggered ..." is not what the trigger prints; the annotations output was filtered; the second count showed only its first line and nothing showed it ran after the second run's last worker call. **Done:** every deployed check was run again on the final revision by a script that prints each command exactly as it runs and then its whole output; it is pasted below and replaces the blocks above as the gate's evidence.
+2. "The false-wording check covers 2 risk types, but the ticked line asks for every type with a line." The rubric also gives numeric lines for `volume_spike` (ratio 1.5), `engagement_declining` (a fall of 0.10), `spf_near_lookup_limit` (8 lookups) and `new_domain_volume` (age). The reviewer read all 36 kept risks and none breaks this today: "only the guard is short". **Done:** `LINES` in `seeded/recording_report.py` now holds six types, each with its line, its side and the words that claim it; nineteen cases test the flag, a test ties every line to the rubric's table on the seeded states, and one names the six types. The committed recordings still show 0 with false wording. The entry in `docs/DECISIONS_TO_REVIEW.md` that said the other types had no line is corrected.
+
+**Not blocking.**
+
+3. "The run cannot merge this phase itself": the diff touches `Makefile` and `evals/ledger.jsonl`, both in `.claude/hooks/measure-paths.txt`, so the merge gate will refuse and the owner merges. The reviewer agrees the challenger is not needed: no eval results; the Makefile only gains the five targets; the ledger only gained the 78 recording calls, summing to $0.420492. **Done:** said here. The gate is still run, and its refusal is the stop.
+4. "The address limit is a fixed ten-minute window", so one address can make ten within seconds across a boundary. Already in `docs/DECISIONS_TO_REVIEW.md` for the owner; the daily cap holds. **Not changed.**
+5. "The change alert can be sent more than once, or for a day that was never saved." **Done:** the alert is sent after the snapshot is saved, and only by the run that saves that day first. Two tests: a rerun sends nothing more; four failed writes send nothing and the fifth run sends one.
+6. "An empty proxy secret lets every call through." **Done:** the service does not start with a proxy secret under 32 characters, and the app is not built with an empty one. Tested.
+7. "Stale test counts in the log." **Done:** stated at the top of this entry.
+
+Checked and holding, in its words: every route is behind the proxy secret or machine auth; the OIDC check covers signature, expiry, audience, issuer, email and email_verified; the live check's order holds; the import allowlist and the transitive-import test; the image installs no dependency groups and no model key is set; every gcloud call goes through the `domain-health` configuration; no secrets in the diff; gates, checklist items and headings in this file are not reworded; no test reaches the network.
+
+### 2026-11-20: the gate's deployed checks, on revision `domain-health-00005-pm5` (commit 3d5591a)
+
+Each command exactly as run, then its whole output. The script is not in the repository; it only prints and runs these lines. The proxy secret is read from Secret Manager inside the command and never shown. The live check made fourteen real DNS queries (`"cached":false,"queries":14`).
+
+```
+$ git rev-parse --short HEAD
+3d5591a
+
+$ gcloud run services describe domain-health --region=us-central1 --format='value(status.latestReadyRevisionName,spec.template.spec.containers[0].image)'
+domain-health-00005-pm5	us-central1-docker.pkg.dev/domain-health-demo-4821/domain-health/domain-health:3d5591a
+
+# the first run
+$ date -u +%FT%TZ
+2026-11-20T09:24:19Z
+
+$ gcloud scheduler jobs run domain-health-daily --location=us-central1
+
+$ gcloud logging read 'logName:"run.googleapis.com%2Frequests" AND httpRequest.requestUrl:"internal" AND timestamp>="2026-11-20T09:24:19Z"' --order=asc --limit=40 --format='value(timestamp,httpRequest.status,httpRequest.requestUrl)'
+2026-11-20T09:24:22.355859Z	200	https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+2026-11-20T09:24:22.902993Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T09:24:24.886730Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T09:24:26.974121Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T09:24:29.037805Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T09:24:31.114059Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T09:24:33.189037Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T09:24:35.274905Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T09:24:37.364487Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T09:24:39.443144Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T09:24:41.536369Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T09:24:43.609278Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T09:24:45.692347Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/willowmere-pets?day=2026-11-20
+
+$ date -u +%FT%TZ
+2026-11-20T09:24:59Z
+
+$ make seed COUNT=2026-11-20
+snapshot documents dated 2026-11-20: 12
+  clients/brindle-and-oak/snapshots/2026-11-20
+  clients/copperkettle-kitchen/snapshots/2026-11-20
+  clients/driftwood-coffee/snapshots/2026-11-20
+  clients/emberglow-events/snapshots/2026-11-20
+  clients/fernhollow-garden/snapshots/2026-11-20
+  clients/harbourlight-books/snapshots/2026-11-20
+  clients/inkwell-and-vine/snapshots/2026-11-20
+  clients/northwind-cycles/snapshots/2026-11-20
+  clients/oakhaven-outfitters/snapshots/2026-11-20
+  clients/silverbrook-dental/snapshots/2026-11-20
+  clients/tamberline-travel/snapshots/2026-11-20
+  clients/willowmere-pets/snapshots/2026-11-20
+
+# the second run
+$ date -u +%FT%TZ
+2026-11-20T09:25:13Z
+
+$ gcloud scheduler jobs run domain-health-daily --location=us-central1
+
+$ gcloud logging read 'logName:"run.googleapis.com%2Frequests" AND httpRequest.requestUrl:"internal" AND timestamp>="2026-11-20T09:25:13Z"' --order=asc --limit=40 --format='value(timestamp,httpRequest.status,httpRequest.requestUrl)'
+2026-11-20T09:25:16.485593Z	200	https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+2026-11-20T09:25:16.589336Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak?day=2026-11-20
+2026-11-20T09:25:18.594926Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/copperkettle-kitchen?day=2026-11-20
+2026-11-20T09:25:20.675947Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/driftwood-coffee?day=2026-11-20
+2026-11-20T09:25:22.758257Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/emberglow-events?day=2026-11-20
+2026-11-20T09:25:24.835265Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/fernhollow-garden?day=2026-11-20
+2026-11-20T09:25:26.871419Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/harbourlight-books?day=2026-11-20
+2026-11-20T09:25:28.951354Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/inkwell-and-vine?day=2026-11-20
+2026-11-20T09:25:31.012958Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/northwind-cycles?day=2026-11-20
+2026-11-20T09:25:33.088407Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/oakhaven-outfitters?day=2026-11-20
+2026-11-20T09:25:35.155978Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/silverbrook-dental?day=2026-11-20
+2026-11-20T09:25:37.240202Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/tamberline-travel?day=2026-11-20
+2026-11-20T09:25:39.318078Z	200	https://domain-health-992953709092.us-central1.run.app/internal/worker/willowmere-pets?day=2026-11-20
+
+$ date -u +%FT%TZ
+2026-11-20T09:25:53Z
+
+$ make seed COUNT=2026-11-20
+snapshot documents dated 2026-11-20: 12
+  clients/brindle-and-oak/snapshots/2026-11-20
+  clients/copperkettle-kitchen/snapshots/2026-11-20
+  clients/driftwood-coffee/snapshots/2026-11-20
+  clients/emberglow-events/snapshots/2026-11-20
+  clients/fernhollow-garden/snapshots/2026-11-20
+  clients/harbourlight-books/snapshots/2026-11-20
+  clients/inkwell-and-vine/snapshots/2026-11-20
+  clients/northwind-cycles/snapshots/2026-11-20
+  clients/oakhaven-outfitters/snapshots/2026-11-20
+  clients/silverbrook-dental/snapshots/2026-11-20
+  clients/tamberline-travel/snapshots/2026-11-20
+  clients/willowmere-pets/snapshots/2026-11-20
+
+# the other deployed checks
+$ gcloud run services describe domain-health --region=us-central1 --format='value(spec.template.metadata.annotations)'
+autoscaling.knative.dev/maxScale=1;run.googleapis.com/client-name=gcloud;run.googleapis.com/client-version=536.0.1;run.googleapis.com/cpu-throttling=true;run.googleapis.com/startup-cpu-boost=true
+
+$ curl -s -w ' HTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/internal/worker/brindle-and-oak
+{"detail":"not allowed"} HTTP 401
+
+$ curl -s -w ' HTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/internal/dispatch
+{"detail":"not allowed"} HTTP 401
+
+$ curl -s -w ' HTTP %{http_code}\n' https://domain-health-992953709092.us-central1.run.app/api/clients
+{"detail":"not allowed"} HTTP 401
+
+$ gcloud billing budgets list --billing-account=$(gcloud billing projects describe domain-health-demo-4821 --format='value(billingAccountName)') --format='value(displayName,amount.specifiedAmount.units,amount.specifiedAmount.currencyCode)'
+domain-health monthly	5	USD
+
+$ curl -s -w '\nHTTP %{http_code}\n' -X POST https://domain-health-992953709092.us-central1.run.app/api/live-check -H "X-Proxy-Secret: $(gcloud secrets versions access latest --secret=proxy-secret)" -H 'X-Actor: sandbox:0123456789abcdef0123456789abcdef' -H 'X-Client-Address: 203.0.113.7' -H 'Content-Type: application/json' -d '{"domain":"example.com"}'
+{"domain":"example.com","checks":{"domain":"example.com","spf":{"check":{"present":true,"record_count":1,"valid":true,"lookup_count":0,"all_qualifier":"-all"},"records":["v=spf1 -all"],"problems":[]},"dkim":{"check":{"selectors_probed":12,"keys":[]},"other_keys":[],"problems":["every selector probed answers with a revoked (empty) key"]},"dmarc":{"check":{"present":true,"valid":true,"policy":"reject","subdomain_policy":"reject","pct":100},"record":"v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s","found_at":"example.com","problems":[]}},"fixes":[{"type":"dkim_missing","source":"dns","instruction":"Publish a DKIM key for this domain, or tell us the selector in use: none was found at the common selectors."}],"checked_at":"2026-11-20T09:26:15.558762Z","cached":false,"queries":14}
+HTTP 200
+```
+
+The service is open at the platform level by decision 0014: the service's own annotations (not the template's, which are the ones above) carry `run.googleapis.com/invoker-iam-disabled=true`, and the three calls without credentials get the app's own 401.
+
 ---
 
 ## Phase 5: the screens
