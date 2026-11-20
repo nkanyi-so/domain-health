@@ -15,7 +15,7 @@ from collections.abc import Mapping
 from datetime import UTC, date, datetime, timedelta
 from typing import Literal, Protocol
 
-from pydantic import AwareDatetime, Field
+from pydantic import AwareDatetime, Field, field_validator
 
 from domain_health.checks import CheckResults
 from domain_health.models import Fix, Frozen, Sources
@@ -29,6 +29,7 @@ LIVE_CHECK_LIFE = timedelta(minutes=10)
 # What may be a document's name: a client's id, a visitor's session id.
 _CLIENT_ID = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 _SESSION_ID = re.compile(r"[A-Za-z0-9_-]{16,128}")
+_HOST_NAME = re.compile(r"[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+")
 
 RisksStatus = Literal["ranked", "unavailable"]
 ModelSource = Literal["recorded"]
@@ -55,6 +56,13 @@ class Scope(Frozen):
 
     session: str | None = None
 
+    @field_validator("session")
+    @classmethod
+    def a_document_name(cls, session: str | None) -> str | None:
+        if session is not None and not _SESSION_ID.fullmatch(session):
+            raise ValueError("not a session id")
+        return session
+
     @property
     def shared(self) -> bool:
         return self.session is None
@@ -64,9 +72,17 @@ SHARED = Scope()
 
 
 def sandbox(session: str) -> Scope:
-    if not _SESSION_ID.fullmatch(session):
-        raise StoreError("not a session id")
-    return Scope(session=session)
+    try:
+        return Scope(session=session)
+    except ValueError as error:
+        raise StoreError("not a session id") from error
+
+
+def checked_domain(domain: str) -> str:
+    """A domain as a document's name: a lower-case host name, nothing a path could be made of."""
+    if len(domain) > 253 or not _HOST_NAME.fullmatch(domain):
+        raise StoreError("not a domain name")
+    return domain
 
 
 def checked_client_id(client_id: str) -> str:
@@ -132,19 +148,12 @@ class Snapshot(DayResult):
 
 
 class SandboxState(Frozen):
-    """The stored document `sandboxes/{session}/clients/{client}`."""
+    """The stored document `sandboxes/{session}/clients/{client}`: one visitor's marks. What the
+    visitor sees is computed from them at each read and is not stored."""
 
     handled: dict[str, HandledMark] = Field(default_factory=dict)
-    # The visitor's view of one run of one day. Another day or another run and it is recomputed.
-    view_day: date | None = None
-    view_of_run: AwareDatetime | None = None
-    visible: list[Risk] = Field(default_factory=list)
-    suppressed: list[Risk] = Field(default_factory=list)
     # Firestore's TTL policy deletes the document some time after this; a read ignores it at once.
     expires_at: AwareDatetime
-
-    def current(self, snapshot: Snapshot) -> bool:
-        return self.view_day == snapshot.day and self.view_of_run == snapshot.finished_at
 
 
 class LiveCheck(Frozen):
@@ -154,6 +163,12 @@ class LiveCheck(Frozen):
     checks: CheckResults
     fixes: list[Fix]
     checked_at: AwareDatetime
+
+    @field_validator("domain")
+    @classmethod
+    def a_document_name(cls, domain: str) -> str:
+        return checked_domain(domain)
+
     expires_at: AwareDatetime
 
 
@@ -175,19 +190,11 @@ def with_view(snapshot: Snapshot, handled: Handled) -> Snapshot:
     return snapshot.model_copy(update={"visible": view.visible, "suppressed": view.suppressed})
 
 
-def sandbox_state(
-    snapshot: Snapshot, handled: Handled, before: SandboxState | None, now: datetime
-) -> SandboxState:
-    """A sandbox's document after a change: its marks and its view of this run of this day. It
-    lives one day from its first change; a later change does not extend it. `before` is the
-    document if it is still alive."""
-    view = visible_risks(snapshot.ranked, handled, snapshot.day)
+def sandbox_state(handled: Handled, before: SandboxState | None, now: datetime) -> SandboxState:
+    """A sandbox's document after a click. It lives one day from its first click; a later click
+    does not extend it. `before` is the document if it is still alive."""
     return SandboxState(
         handled=dict(handled),
-        view_day=snapshot.day,
-        view_of_run=snapshot.finished_at,
-        visible=view.visible,
-        suppressed=view.suppressed,
         expires_at=before.expires_at if before is not None else now + SANDBOX_LIFE,
     )
 
@@ -223,16 +230,15 @@ def changed(
     return marks
 
 
-def sandbox_day(snapshot: Snapshot, state: SandboxState) -> ClientDay:
-    """The day as a sandbox sees it: the shared snapshot with the sandbox's own view."""
-    seen = snapshot.model_copy(update={"visible": state.visible, "suppressed": state.suppressed})
-    return ClientDay(snapshot=seen, handled=state.handled)
+def seen(snapshot: Snapshot, handled: Handled) -> ClientDay:
+    """A day as the holder of these marks sees it, computed now. A read never trusts the list
+    stored in the snapshot: a mark made on another day's page changed the marks and not it."""
+    return ClientDay(snapshot=with_view(snapshot, handled), handled=dict(handled))
 
 
 class SnapshotStore(Protocol):
-    """The database. Snapshots and handled marks change only through the daily write
-    (`write_daily`, and for a sandbox the refresh inside `read_day`) and `mark`, each one
-    transaction."""
+    """The database. Snapshots and handled marks change only through `write_daily` and `mark`,
+    each one transaction. A read writes nothing."""
 
     async def write_daily(self, result: DayResult) -> Snapshot:
         """Save the day's snapshot for the shared scope. A rerun overwrites the same document."""

@@ -50,7 +50,7 @@ Firestore, Native mode.
 |---|---|
 | `clients/{clientId}` | name, domain, `seeded: true`, `handled`: map of risk ID to `{handled_at, until}` (shared scope) |
 | `clients/{clientId}/snapshots/{YYYY-MM-DD}` | checks, fixes, `ranked` (up to eight risks in model order), `visible` (the first five not suppressed), `suppressed`, prompt version, model name, `model_source: recorded`, input hash, run times |
-| `sandboxes/{sessionId}/clients/{clientId}` | the visitor's own `handled` map and `visible` list for today, `expires_at` (TTL policy, one day) |
+| `sandboxes/{sessionId}/clients/{clientId}` | the visitor's own `handled` map, `expires_at` (TTL policy, one day). The visitor's visible list is computed at each read and not stored (Phase 3) |
 | `live_checks/{domain}` | the cached result of a typed-domain check, `expires_at` (TTL policy, ten minutes of use, deleted within a day) |
 | `counters/live-{YYYY-MM-DD}` | the day's count of live checks; `counters/ip-{hash}-{window}` per address |
 
@@ -63,9 +63,10 @@ Both read what they overwrite, so Firestore retries whichever commits second. `v
 
 How the two scopes differ in what is written (Phase 3):
 
-- **Shared.** The daily write saves the day's snapshot with the view the client's handled map gives it. A click writes the client's `handled` field (no other field of that document) and the snapshot's `visible` and `suppressed`.
-- **A sandbox.** Nothing shared is ever written from it. A click writes the visitor's own document: the marks, and the visitor's `visible` and `suppressed` for one run of one day (`view_day`, `view_of_run`). The worker does not know the sandboxes, so the daily write for a sandbox happens on the visitor's next read: when the stored view is of another day or another run, one transaction reads the snapshot and the sandbox and rewrites the view. A visitor who has marked nothing has no document, and reading does not make one.
-- **A sandbox lives one day from its first click.** `expires_at` is a real timestamp, for the TTL policy; a later click does not move it. Firestore deletes some time after it, so every read treats a document past `expires_at` as absent.
+- **Shared.** The daily write saves the day's snapshot with the view the client's handled map gives it. A click writes the client's `handled` field (no other field of that document) and the `visible` and `suppressed` of the snapshot it was made on.
+- **A sandbox.** Nothing shared is ever written from it. A click writes the visitor's own document, which holds only the marks. A visitor who has marked nothing has no document, and a reopen by such a visitor makes none.
+- **A read writes nothing, and computes the view.** In either scope a read takes the day's `ranked` and the scope's marks and calls `visible_risks`. It does not trust the list stored in the snapshot: a click made on yesterday's page after today's snapshot exists changes the marks and yesterday's stored list, not today's, and the risk must still be hidden today. The stored list is what the daily write and the last click on that day left; the API serves the computed one.
+- **A sandbox lives one day from its first click.** `expires_at` is a real timestamp, for the TTL policy; a later click does not move it. Firestore deletes some time after it, so every read treats a document past `expires_at` as absent. A session ID, a client ID and a typed domain are each checked before they are used as a document's name, in the store itself.
 - **A click** names the snapshot's day and a risk ID. An ID that is not among that day's `ranked` is refused and never stored, and so is a click on a day with no snapshot. A mark holds `handled_at` and `until`, the first UTC day the risk may show again: the day of the click plus thirty.
 - **The snapshot** also holds the seeded sources, what each check found beyond the model's fields (records, problems), `risks_status` (`ranked` or `unavailable`, with the reason) and the run's `started_at` and `finished_at`. Days are UTC days.
 - **A change the database aborts is run again.** The Firestore library retries a transaction aborted at its commit and raises one aborted while reading. The store runs an aborted change again from the start, up to eight times with a short random wait, then raises `StoreBusyError` with nothing changed.

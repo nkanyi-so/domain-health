@@ -73,3 +73,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T22:18:25Z	2	review	blocking findings (two) @ 9b517e2	1.85
 2026-11-20T03:58:29Z	2	merged	pr=#6 merged by nkanyi-so at 2026-11-20T03:58:04Z	1.85
 2026-11-20T03:58:58Z	3	phase-started	snapshots and the handled loop	1.85
+2026-11-20T04:29:20Z	3	review	change needed, two blocking @ bddf159	1.85

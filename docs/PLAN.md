@@ -2057,7 +2057,7 @@ challenger-verdict: change needed @ c6f7f0e
 
 **Verifier and challenger.** The verifier is needed: there are tests to run against the emulator and a dry-run command. The challenger is needed, though this phase produces no new eval result and does not touch the claim or the measure: the owner asked that it cover the Phase 2 commits after `c6f7f0e` (`9577d57`, `9b517e2`, `8021907`), which changed the results file and the report code, in this phase's pass.
 
-**What was built.** As the step list. `make check` exits 0 with 813 tests outside the emulator and 21 inside it. The 50 rounds of each race run side by side, each on a client of its own, so the two take seconds; run one after another they took nearly three minutes, most of it the two writers waiting on each other. The tests that count documents ("exactly 1", "0") use a database of their own, which the emulator keeps per project ID, and walk every collection at every depth.
+**What was built.** As the step list. `make check` exits 0 (the counts after the first review are below). The 50 rounds of each race run side by side, each on a client of its own, so the two take seconds; run one after another they took nearly three minutes, most of it the two writers waiting on each other. The tests that count documents ("exactly 1", "0") use a database of their own, which the emulator keeps per project ID, and walk every collection at every depth.
 
 **Found while building: several clicks at once could fail.** The first commit was refused by the pre-commit check: a test of four clicks at once on one client failed two runs in three with `409 Transaction lock timeout`. The Firestore library runs a transaction again when the database aborts it at its commit, but raises when it is aborted while reading (it waited too long for another writer's lock) or when its five tries are used up. `FirestoreStore` now runs each change through `_transact`: an aborted change is run again from the start, up to eight times with a short random wait, and after that the store raises `StoreBusyError` ("nothing was changed") for the API to pass on. Any other error is raised at once. The test is now six clicks at once in each scope, and `make check-backend` passed five runs in a row with it. Three tests without a database cover the retry itself.
 
@@ -2083,6 +2083,26 @@ no bar:
 ```
 
 This phase's gate has no measured bar. The harmful bar is still missed, as Phase 2 left it.
+
+**Review, first run, on `bddf159`: change needed, two blocking findings.** As the reviewer reported them:
+
+1. Blocking. "Shared scope: a handled risk shows again on a later day's snapshot. This breaks SPEC line 38, 'a handled risk never reappears'." A shared read returned the list stored in that day's snapshot, and a shared click only recomputed the snapshot of the day it named. "Reproduced: write day 0, write day 1, mark risk X on day 0 at noon of day 1, then read day 1. The result is `handled [...] | target visible today: True`."
+2. Blocking. "A sandbox read writes to Firestore, and a visitor can make every read write. This breaks the ARCHITECTURE Security rule: 'A GET never does metered work beyond a cached read.'" "One sandbox mark, then six reads alternating day 1 and day 0, gave 6 writes."
+3. Not blocking. "The gate evidence is not in the phase log yet", and "the sandbox race passes no matter what, because the daily write never touches sandbox documents. The log should say that."
+4. Not blocking. "A reopen with no sandbox document creates one."
+5. Not blocking. "Document IDs are only checked if the caller goes through the helper": `Scope(session=...)` built directly, and the live check's domain.
+
+It also checked and found nothing on rules 1 and 3 to 7, the dependency, spend, the worker's "risks unavailable", the retry, the two statements about the verifier and the challenger, and the log's figures.
+
+What was done about each:
+
+1. Every read, in either scope, now computes the view from the day's ranked risks and the scope's marks (`seen` in `store/__init__.py`, which calls `visible_risks`), and no longer serves the stored list. A new scenario, run in both scopes on both stores: two days written, a click on the older page, the risk hidden on both days.
+2. The option first turned down is taken: a sandbox document holds only the marks, its view is computed at the read, and no read writes. `view_day`, `view_of_run`, `visible` and `suppressed` are gone from the sandbox document, and the refresh transaction with them. A test on each store reads two days eighteen times in three scopes and compares every stored document before and after.
+3. The evidence is below, once the checks have run on the final commit. On the sandbox race: the reviewer is right. The daily write never touches a sandbox's document, so the two writers of that test share no document they both write, and its "50 of 50" shows that a visitor's click made during a daily write is kept and hides the risk for that visitor; it is not a result about contention. The contention result is the shared scope's, and that test now reads the stored snapshot document itself, not a view computed at the read.
+4. A reopen by a visitor with no document writes nothing. A scenario covers it in both scopes.
+5. `Scope` checks its session ID itself, so it cannot be built around the check; `LiveCheck` and `read_live_check` refuse a domain that is not a lower-case host name. Tests for both.
+
+`docs/ARCHITECTURE.md` and the first Phase 3 entry in `docs/DECISIONS_TO_REVIEW.md` say what the store now does. `make check-backend` then passed three runs in a row: 825 tests outside the emulator, 26 inside.
 
 ---
 

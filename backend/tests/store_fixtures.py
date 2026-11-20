@@ -137,6 +137,38 @@ async def a_rerun_keeps_the_marks(store: SnapshotStore, scope: Scope) -> None:
     assert set(seen.handled) == {target}
 
 
+async def a_click_on_an_older_page_hides_the_risk_on_every_day(
+    store: SnapshotStore, scope: Scope
+) -> None:
+    """Just after midnight: today's snapshot exists and the click is made on yesterday's page."""
+    client_id = new_client_id()
+    yesterday, today = DAY0, DAY0 + timedelta(days=1)
+    first = await day_result(client_id, yesterday)
+    target = first.ranked[0].id
+    await store.write_daily(first)
+    await store.write_daily(await day_result(client_id, today))
+
+    await store.mark(scope, client_id, yesterday, target, noon(today) - timedelta(hours=11))
+
+    for day in (yesterday, today):
+        seen = await store.read_day(scope, client_id, day, noon(today) - timedelta(hours=10))
+        assert seen is not None
+        assert target not in ids(seen.snapshot.visible), day
+        assert ids(seen.snapshot.suppressed) == [target], day
+        assert seen.handled[target].until == today + timedelta(days=30)
+
+
+async def a_reopen_with_nothing_handled_changes_nothing(store: SnapshotStore, scope: Scope) -> None:
+    client_id = new_client_id()
+    result = await day_result(client_id)
+    await store.write_daily(result)
+
+    after = await store.mark(scope, client_id, DAY0, result.ranked[0].id, noon(DAY0), reopen=True)
+
+    assert after.handled == {}
+    assert ids(after.snapshot.visible) == ids(result.ranked)[:5]
+
+
 async def scopes_do_not_see_each_other(store: SnapshotStore) -> None:
     client_id = new_client_id()
     result = await day_result(client_id)

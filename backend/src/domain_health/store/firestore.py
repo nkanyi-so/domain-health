@@ -32,9 +32,10 @@ from domain_health.store import (
     alive,
     changed,
     checked_client_id,
+    checked_domain,
     found,
-    sandbox_day,
     sandbox_state,
+    seen,
     stored,
     with_view,
 )
@@ -156,17 +157,17 @@ class FirestoreStore:
             if session is None:
                 before = _marks(await self._read(client_ref, transaction))
                 marks = changed(before, snapshot, risk_id, now, reopen=reopen)
-                seen = with_view(snapshot, marks)
                 # Only the marks: the client's name and domain are not this write's.
                 transaction.set(client_ref, {"handled": _marks_field(marks)}, merge=["handled"])
-                transaction.set(snapshot_ref, seen.model_dump(mode="json"))
-                return ClientDay(snapshot=seen, handled=marks)
+                transaction.set(snapshot_ref, with_view(snapshot, marks).model_dump(mode="json"))
+                return seen(snapshot, marks)
             state = alive(await self._read_sandbox(session, client_id, transaction), now)
-            held = state.handled if state else {}
-            marks = changed(held, snapshot, risk_id, now, reopen=reopen)
-            after = sandbox_state(snapshot, marks, state, now)
-            transaction.set(self._sandbox(session, client_id), _document(after))
-            return sandbox_day(snapshot, after)
+            marks = changed(state.handled if state else {}, snapshot, risk_id, now, reopen=reopen)
+            if state is not None or marks:
+                # A reopen by a visitor who has marked nothing makes no document.
+                after = sandbox_state(marks, state, now)
+                transaction.set(self._sandbox(session, client_id), _document(after))
+            return seen(snapshot, marks)
 
         return await self._transact(click)
 
@@ -178,39 +179,15 @@ class FirestoreStore:
             return None
         session = scope.session
         if session is None:
-            marks = _marks(await self._read(self._client(client_id)))
-            return ClientDay(snapshot=snapshot, handled=marks)
+            return seen(snapshot, _marks(await self._read(self._client(client_id))))
         state = alive(await self._read_sandbox(session, client_id), now)
-        if state is None or not state.handled:
-            # A visitor with no marks needs no document, and reading does not make one.
-            return ClientDay(snapshot=with_view(snapshot, {}), handled={})
-        if state.current(snapshot):
-            return sandbox_day(snapshot, state)
-        return await self._refresh(session, client_id, day, now)
-
-    async def _refresh(
-        self, session: str, client_id: str, day: date, now: datetime
-    ) -> ClientDay | None:
-        """The daily write, for a sandbox: its view of a new day or a new run of the day."""
-
-        async def refresh(transaction: AsyncTransaction) -> ClientDay | None:
-            snapshot = await self._read_snapshot(client_id, day, transaction)
-            state = alive(await self._read_sandbox(session, client_id, transaction), now)
-            if snapshot is None:
-                return None
-            if state is None:
-                return ClientDay(snapshot=with_view(snapshot, {}), handled={})
-            after = sandbox_state(snapshot, state.handled, state, now)
-            transaction.set(self._sandbox(session, client_id), _document(after))
-            return sandbox_day(snapshot, after)
-
-        return await self._transact(refresh)
+        return seen(snapshot, state.handled if state else {})
 
     async def save_live_check(self, check: LiveCheck) -> None:
         await self.db.document("live_checks", check.domain).set(_document(check))
 
     async def read_live_check(self, domain: str, now: datetime) -> LiveCheck | None:
-        data = await self._read(self.db.document("live_checks", domain))
+        data = await self._read(self.db.document("live_checks", checked_domain(domain)))
         if data is None:
             return None
         check = LiveCheck.model_validate(data)

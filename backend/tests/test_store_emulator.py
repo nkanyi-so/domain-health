@@ -16,7 +16,7 @@ import pytest
 from domain_health.clock import FixedClock
 from domain_health.risks.model import FixtureRiskModel
 from domain_health.seeded import load_clients
-from domain_health.store import SHARED, Scope, SnapshotStore, live_check
+from domain_health.store import SHARED, Scope, Snapshot, SnapshotStore, live_check
 from domain_health.store.firestore import FirestoreStore, connect
 from domain_health.worker import ModelFacts, run_client
 from tests import store_fixtures as scenarios
@@ -59,6 +59,8 @@ async def paths(db_store: FirestoreStore) -> list[str]:
 BOTH = [
     scenarios.handled_hides_and_the_next_moves_up,
     scenarios.a_rerun_keeps_the_marks,
+    scenarios.a_click_on_an_older_page_hides_the_risk_on_every_day,
+    scenarios.a_reopen_with_nothing_handled_changes_nothing,
     scenarios.a_click_needs_a_snapshot_and_a_ranked_risk,
     scenarios.no_snapshot_reads_as_none,
 ]
@@ -119,8 +121,14 @@ async def _race(db_store: FirestoreStore, scope: Scope) -> bool:
 
     seen = await db_store.read_day(scope, client_id, DAY0, noon(DAY0))
     assert seen is not None
+    # The document itself, not a view computed at the read.
+    raw = await db_store.db.document("clients", client_id, "snapshots", DAY0.isoformat()).get()
+    kept = Snapshot.model_validate(raw.to_dict())
+    if scope.shared and (target in ids(kept.visible) or ids(kept.suppressed) != [target]):
+        return False
     return (
-        set(seen.handled) == {target}
+        kept.finished_at == rerun.finished_at
+        and set(seen.handled) == {target}
         and target not in ids(seen.snapshot.visible)
         and ids(seen.snapshot.suppressed) == [target]
         and len(seen.snapshot.visible) == 5
@@ -281,5 +289,33 @@ def test_a_sandbox_click_writes_nothing_shared() -> None:
         shared = await db_store.read_day(SHARED, client_id, DAY0, noon(DAY0))
         assert shared is not None
         assert shared.snapshot == written
+
+    run(go())
+
+
+def test_reading_never_writes_whatever_day_a_visitor_reads() -> None:
+    async def go() -> None:
+        db_store = own_database()
+        client_id = new_client_id()
+        days = [DAY0, DAY0 + timedelta(days=1)]
+        for day in days:
+            await db_store.write_daily(await day_result(client_id, day))
+        visitor = new_session()
+        first = (await day_result(client_id)).ranked[0].id
+        await db_store.mark(visitor, client_id, DAY0, first, noon(DAY0))
+
+        async def everything() -> dict[str, object]:
+            return {
+                path: (await db_store.db.document(path).get()).to_dict()
+                for path in await paths(db_store)
+            }
+
+        before = await everything()
+        assert len(before) == 3
+        for scope in (visitor, SHARED, new_session()):
+            for day in days * 3:
+                await db_store.read_day(scope, client_id, day, noon(DAY0))
+
+        assert await everything() == before
 
     run(go())

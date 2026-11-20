@@ -8,13 +8,16 @@ from domain_health.store import (
     SUPPRESS_DAYS,
     VISIBLE_CAP,
     HandledMark,
+    Scope,
     StoreError,
     changed,
     checked_client_id,
+    live_check,
     sandbox,
     stored,
     visible_risks,
 )
+from domain_health.store.memory import MemoryStore
 from tests.dns_fixtures import run
 from tests.store_fixtures import DAY0, day_result, ids, noon, risks
 
@@ -120,3 +123,18 @@ def test_a_client_id_that_could_not_be_a_document_name_is_refused(name: str) -> 
 def test_a_session_id_that_could_not_be_a_document_name_is_refused(session: str) -> None:
     with pytest.raises(StoreError):
         sandbox(session)
+
+
+def test_a_scope_cannot_be_built_around_the_check() -> None:
+    with pytest.raises(ValueError, match="not a session id"):
+        Scope(session="a/b")
+
+
+@pytest.mark.parametrize("domain", ["", "a/b.example", "A.example", "one", "a..b", "a.example/x"])
+def test_a_live_check_of_a_name_that_could_not_be_a_document_name_is_refused(domain: str) -> None:
+    result = run(day_result("a-client"))
+
+    with pytest.raises(StoreError, match="not a domain name"):
+        live_check(domain, result.checks, result.fixes, noon(DAY0))
+    with pytest.raises(StoreError):
+        run(MemoryStore().read_live_check(domain, noon(DAY0)))
