@@ -29,4 +29,13 @@ gcloud run deploy "$SERVICE" --image="$IMAGE:$TAG" --region="$REGION" \
   --set-env-vars="GCP_PROJECT_ID=$PROJECT,GCP_REGION=$REGION,SERVICE_URL=$SERVICE_URL,INVOKER_EMAIL=$INVOKER_EMAIL,TASKS_QUEUE=$QUEUE" \
   --set-secrets="PROXY_SECRET=proxy-secret:latest" --quiet
 
+# The limit above is each revision's. The service has a ceiling of its own across revisions,
+# which the platform sets to 20 and this gcloud has no flag for, so it is set through the API:
+# one instance in all. It changes no revision.
+say "service-level maximum: 1"
+curl -sS --fail -o /dev/null -X PATCH \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" -H 'Content-Type: application/json' \
+  "https://run.googleapis.com/v2/projects/$PROJECT/locations/$REGION/services/$SERVICE?updateMask=scaling.maxInstanceCount" \
+  -d '{"scaling":{"maxInstanceCount":1}}'
+
 say "deployed: $SERVICE_URL"

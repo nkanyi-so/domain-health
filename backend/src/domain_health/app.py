@@ -144,6 +144,24 @@ class WorkerRun(BaseModel):
     would_write: Snapshot | None = None
 
 
+def counted_address(text: str) -> str:
+    """The one spelling a visitor's address is counted under. `ValueError` if it is not one IP
+    address and nothing else.
+
+    A list of addresses, a port or a zone suffix is refused; an IPv4 address written inside an
+    IPv6 one counts as the IPv4 address; and an IPv6 address counts as its /64, since one
+    visitor usually holds a whole /64 and could otherwise be a new visitor on every call.
+    """
+    address = ipaddress.ip_address(text.strip())
+    if isinstance(address, ipaddress.IPv4Address):
+        return str(address)
+    if address.scope_id is not None:
+        raise ValueError("an address with a zone is not a public address")
+    if address.ipv4_mapped is not None:
+        return str(address.ipv4_mapped)
+    return str(ipaddress.ip_network((address, 64), strict=False))
+
+
 def address_key(address: str) -> str:
     """A visitor's address as the counters know it: a hash, so no address is ever stored."""
     return hashlib.sha256(address.encode("utf-8")).hexdigest()[:32]
@@ -272,9 +290,7 @@ def create_app(deps: Deps) -> FastAPI:
         x_client_address: Annotated[str | None, Header()] = None,
     ) -> LiveCheckResult:
         try:
-            # One IP address and nothing else, in one spelling: a list of addresses, or the same
-            # address written another way, would otherwise be counted as a new visitor.
-            address = str(ipaddress.ip_address((x_client_address or "").strip()))
+            address = counted_address(x_client_address or "")
         except ValueError as error:
             # Without an address there is nothing to limit by, so the check is not made.
             raise HTTPException(status_code=400, detail="no client address") from error

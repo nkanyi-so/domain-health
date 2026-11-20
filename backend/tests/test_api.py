@@ -287,6 +287,7 @@ def test_a_live_check_without_an_address_to_limit_by_is_not_made() -> None:
         {**VISITOR, "X-Client-Address": "not-an-address"},
         {**VISITOR, "X-Client-Address": "203.0.113.7, 198.51.100.4"},
         {**VISITOR, "X-Client-Address": "203.0.113.7:4431"},
+        {**VISITOR, "X-Client-Address": "2001:db8::7%eth0"},
     ):
         response = built.client.post(
             "/api/live-check", json={"domain": "example.com"}, headers=headers
@@ -414,8 +415,21 @@ def test_the_service_does_not_start_with_a_short_proxy_secret(
 
 def test_one_address_written_two_ways_is_one_visitor() -> None:
     built = build(resolver=ZoneResolver(ZONE))
-    spellings = ["2001:db8::7", "2001:0db8:0000:0000:0000:0000:0000:0007", " 2001:DB8::7 "]
+    # The third is another address in the same /64: one visitor's network.
+    spellings = ["2001:db8::7", "2001:0db8:0000:0000:0000:0000:0000:0007", " 2001:DB8::abcd:1 "]
 
     codes = [live(built, f"site-{n}.example.com", spellings[n % 3])[0] for n in range(6)]
 
     assert codes == [200] * 5 + [429]
+
+
+def test_an_ipv4_address_inside_an_ipv6_one_is_the_same_visitor() -> None:
+    built = build(resolver=ZoneResolver(ZONE))
+    spellings = ["203.0.113.7", "::ffff:203.0.113.7"]
+
+    codes = [live(built, f"site-{n}.example.com", spellings[n % 2])[0] for n in range(6)]
+
+    assert codes == [200] * 5 + [429]
+    # Another /64 and another IPv4 address are other visitors.
+    assert live(built, "other-a.example.com", "2001:db8:0:1::7")[0] == 200
+    assert live(built, "other-b.example.com", "203.0.113.8")[0] == 200
