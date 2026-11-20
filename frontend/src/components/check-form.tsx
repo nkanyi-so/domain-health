@@ -6,14 +6,14 @@
 
 import { useRouter } from "next/navigation";
 import type { FormEvent, ReactElement } from "react";
-import { START_KEY } from "@/lib/view/live-check";
+import { leaveStart } from "@/lib/view/live-check";
 
 const SWITCHED_OFF = "Switched off while the live service cannot be reached.";
 
 /** Leave word that the visitor asked for this domain, then open the check page for it. */
 export function startCheck(domain: string, go: (address: string) => void): void {
   try {
-    window.sessionStorage.setItem(START_KEY, domain);
+    leaveStart(window.sessionStorage, domain, Date.now());
   } catch {
     // Storage can be switched off; the check page then waits for a second press.
   }

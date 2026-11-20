@@ -8,7 +8,11 @@ import {
   liveCheckView,
   lookingUp,
   refusalMessage,
+  type MarkerStore,
+  START_GOOD_FOR_MS,
+  leaveStart,
   shouldStart,
+  takeStart,
 } from "./live-check";
 
 const NOW = new Date("2026-11-20T14:06:30Z");
@@ -121,18 +125,60 @@ describe("a result's words", () => {
   });
 });
 
+class FakeStore implements MarkerStore {
+  readonly items = new Map<string, string>();
+  getItem(key: string): string | null {
+    return this.items.get(key) ?? null;
+  }
+  setItem(key: string, value: string): void {
+    this.items.set(key, value);
+  }
+  removeItem(key: string): void {
+    this.items.delete(key);
+  }
+}
+
 describe("starting a check as the page opens", () => {
-  it("starts only for the domain the visitor's own press left a marker for", () => {
-    expect(shouldStart("example.com", "example.com")).toBe(true);
+  const NOW = 1_800_000_000_000;
+
+  it("starts once for the domain the visitor's own press left a marker for", () => {
+    const store = new FakeStore();
+    leaveStart(store, "example.com", NOW);
+
+    expect(takeStart(store, "example.com", NOW + 400)).toBe(true);
+    // A reload, or a second copy of the page, finds nothing.
+    expect(takeStart(store, "example.com", NOW + 800)).toBe(false);
+  });
+
+  it("is not used up by the placeholder the check page draws first, which has no domain", () => {
+    const store = new FakeStore();
+    leaveStart(store, "example.com", NOW);
+
+    expect(takeStart(store, "", NOW + 100)).toBe(false);
+    expect(takeStart(store, "", NOW + 150)).toBe(false);
+    expect(takeStart(store, "example.com", NOW + 400)).toBe(true);
   });
 
   it("does not start from an address alone, as a shared link or a crawler arrives", () => {
-    expect(shouldStart(null, "example.com")).toBe(false);
+    expect(takeStart(new FakeStore(), "example.com", NOW)).toBe(false);
+    expect(shouldStart(null, "example.com", NOW)).toBe(false);
   });
 
-  it("does not start for another domain, or for none", () => {
-    expect(shouldStart("example.org", "example.com")).toBe(false);
-    expect(shouldStart("", "")).toBe(false);
-    expect(shouldStart("example.com", "")).toBe(false);
+  it("does not start for another domain, and removes the marker it was not for", () => {
+    const store = new FakeStore();
+    leaveStart(store, "example.org", NOW);
+
+    expect(takeStart(store, "example.com", NOW + 400)).toBe(false);
+    expect(store.items.size).toBe(0);
+  });
+
+  it("does not start from a press made long ago, or from a marker that is not one", () => {
+    const store = new FakeStore();
+    leaveStart(store, "example.com", NOW);
+    expect(takeStart(store, "example.com", NOW + START_GOOD_FOR_MS)).toBe(false);
+
+    for (const text of ["example.com", "{}", "null", '{"domain":"example.com"}', "not json"]) {
+      expect(shouldStart(text, "example.com", NOW)).toBe(false);
+    }
   });
 });

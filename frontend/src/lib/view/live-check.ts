@@ -109,12 +109,56 @@ export function lookingUp(domain: string): string {
 
 /** Where a form leaves word, for this browser tab only, that the visitor pressed "Check domain". */
 export const START_KEY = "dh-start-check";
+/** How long a press stays good: long enough to open the check page, no longer. */
+export const START_GOOD_FOR_MS = 30_000;
+
+/** The two calls of the browser's session storage that the marker needs. */
+export interface MarkerStore {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+}
+
+/** Leave word that the visitor pressed "Check domain" for this domain, now. */
+export function leaveStart(store: MarkerStore, domain: string, now: number): void {
+  store.setItem(START_KEY, JSON.stringify({ domain, at: now }));
+}
 
 /**
  * Should the check page start a check as it opens? Only when the visitor's own press of "Check
- * domain" on another page left a marker for exactly this domain. An address alone never starts
- * one: a shared link, a prefetch or a crawler has no marker.
+ * domain" on another page left a marker for exactly this domain a moment ago. An address alone
+ * never starts one: a shared link, a prefetch or a crawler has no marker.
  */
-export function shouldStart(marker: string | null, domain: string): boolean {
-  return marker !== null && domain.trim() !== "" && marker === domain;
+export function shouldStart(marker: string | null, domain: string, now: number): boolean {
+  if (marker === null || domain.trim() === "") {
+    return false;
+  }
+  try {
+    const left: unknown = JSON.parse(marker);
+    if (typeof left !== "object" || left === null) {
+      return false;
+    }
+    const { domain: asked, at } = left as { domain?: unknown; at?: unknown };
+    return asked === domain && typeof at === "number" && now >= at && now - at < START_GOOD_FOR_MS;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Take the marker, if this page is the one it was left for. A page with no domain does not look
+ * at it or remove it: the check page draws a placeholder with no domain first, and a placeholder
+ * that took the marker would leave nothing for the real page. A page with a domain removes
+ * whatever marker it finds, so a press works once.
+ */
+export function takeStart(store: MarkerStore, domain: string, now: number): boolean {
+  if (domain.trim() === "") {
+    return false;
+  }
+  const marker = store.getItem(START_KEY);
+  if (marker === null) {
+    return false;
+  }
+  store.removeItem(START_KEY);
+  return shouldStart(marker, domain, now);
 }

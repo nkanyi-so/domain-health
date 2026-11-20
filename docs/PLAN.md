@@ -3188,7 +3188,7 @@ The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 114) and fo
 
 **Blocking.**
 
-1. "The home page's 'Check domain' button no longer starts a check": a regression from the fix for the first review's second finding. The form on the first screen went to `/check?domain=…`, which now only filled the field, so a second press was needed. **Done:** pressing the button leaves a one-shot marker for that tab and opens the address; the check page starts the check only when it finds the marker for exactly that domain, and removes it. An address alone still starts nothing. The decision is a pure function with tests. Tried in a real browser against the local servers:
+1. "The home page's 'Check domain' button no longer starts a check": a regression from the fix for the first review's second finding. The form on the first screen went to `/check?domain=…`, which now only filled the field, so a second press was needed. **Done:** pressing the button leaves a one-shot marker for that tab and opens the address; the check page starts the check only when it finds the marker for exactly that domain, and removes it. An address alone still starts nothing. The decision is a pure function with tests. Tried in a real browser against the local servers (*this was the development server; the third review showed the fix did not work in the production build, so the lines below prove less than they say; see the next entry*):
 
 ```
 opened the address alone: POSTs 0 | field: example.com
@@ -3201,6 +3201,22 @@ after a reload: POSTs 1
 2. A stale comment in `frontend/src/app/check/page.tsx`. **Done.**
 
 It also found no gate, checklist item or heading changed, the Phase 5 decision entries recording nothing that should have been a stop, and the two screenshots it sampled in order.
+
+### 2026-11-20: review, third and last run, on 62d66ab
+
+The reviewer ran `make check` (exit 0: backend 1050 and 32, frontend 117) and found everything in order but one thing.
+
+**Blocking.**
+
+1. "The marker is used up by the page's loading placeholder before the real check page reads it." In the production build the check page first draws a placeholder with no domain, which is itself the live-check component; its effect read and removed the marker, and the real page then found nothing. It showed this with the production build in a real browser: one press, no POST. "The browser trace the log gives as evidence ... does not hold for the code that is deployed. It was most likely run on `next dev`." It was: the build tested the second fix on the development server only. **Done:** taking the marker is one function with tests: a page with no domain neither reads nor removes it; a page with a domain removes whatever it finds and starts only if the marker is for that domain and was left in the last thirty seconds. Tests cover the placeholder first and the real page after, a reload, another domain, an old press and a marker that is not one. Tried again, this time on the production build (`next build`, `next start`) with a stand-in backend that answers the live check with "rate limited", so no DNS lookup is made:
+
+```
+production build; opened the address alone: POSTs 0 | field: example.com
+typed on the first screen and pressed once: POSTs 1 | the backend's answer is shown: true
+after a reload: POSTs 1
+```
+
+No other finding. This was the third review, and the owner's rule is that a phase needing more than three stops for the owner. The fix above has not been reviewed.
 
 ---
 

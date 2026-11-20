@@ -99,3 +99,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:30:41Z	5	phase-started	5: the screens	2.27
 2026-11-20T11:48:02Z	5	review	blocking findings, two @ 1724d55	2.27
 2026-11-20T11:55:29Z	5	review	blocking findings, one, a regression from the first fix @ 530fe05	2.27
+2026-11-20T12:07:10Z	5	review	blocking findings, one, the second fix did not work in the production build @ 62d66ab	2.27

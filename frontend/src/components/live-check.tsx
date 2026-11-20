@@ -16,11 +16,10 @@ import {
   type LiveCheckView,
   NO_LOOKUP,
   REFUSAL_TITLE,
-  START_KEY,
   finishedAnnouncement,
   liveCheckView,
   lookingUp,
-  shouldStart,
+  takeStart,
 } from "@/lib/view/live-check";
 import { startCheck } from "./check-form";
 import { announce } from "./announcer";
@@ -149,14 +148,13 @@ export function LiveCheck(props: LiveCheckProps): ReactElement {
     if (mode !== "live") {
       return;
     }
-    let marker: string | null = null;
+    let start = false;
     try {
-      marker = window.sessionStorage.getItem(START_KEY);
-      window.sessionStorage.removeItem(START_KEY);
+      start = takeStart(window.sessionStorage, initialDomain, Date.now());
     } catch {
       // Storage can be switched off; the visitor presses the button here instead.
     }
-    if (!shouldStart(marker, initialDomain)) {
+    if (!start) {
       return;
     }
     let current = true;
