@@ -13,7 +13,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | building | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
+| 5: the screens | in review | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
 | 6: report, README, release checks | not started | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 30 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 31 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -3109,13 +3109,13 @@ challenger-verdict: not needed @ 8d56481
 
 ## Phase 5: the screens
 
-- [ ] Server routes that proxy to the backend, the visitor session, admin sign-in and sign-out.
-- [ ] Client list; client page with fixes above risks, handled and reopen, seeded labels, snapshot facts (date, prompt version, recorded); live check; eval table; about this demo.
-- [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
-- [ ] `make fallback` and the bundled fallback, with a test that it is current.
-- [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
-- [ ] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
-- [ ] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
+- [x] Server routes that proxy to the backend, the visitor session, admin sign-in and sign-out.
+- [x] Client list; client page with fixes above risks, handled and reopen, seeded labels, snapshot facts (date, prompt version, recorded); live check; eval table; about this demo.
+- [x] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
+- [x] `make fallback` and the bundled fallback, with a test that it is current.
+- [x] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
+- [x] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
+- [x] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
 - [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
@@ -3327,6 +3327,37 @@ $ curl -s -o /dev/null -w "%{http_code}" https://domain-health-git-phase-5-the-s
 ```
 
 `make check` exits 0 (backend 1051 and 32, frontend 134). `make screens` exits 0: "contrast: 0 below 4.5:1 of 4678 pieces of text", "sideways scroll: 0 of 76 pages", "focus: 0 controls without a focus style of 1004", "68 screenshots"; the files for states 6 and 16 changed and are committed.
+
+### 2026-11-20: the one reviewer pass and the one verifier run after the changes, on 73e360f
+
+**Reviewer**, on everything since the third review (`62d66ab..73e360f`), reading only: "No blocking findings." It found true: the marker fix (a page with no domain neither reads nor removes the marker; an address alone, a reload, another domain or an old marker starts nothing; the tests would fail if the old behaviour came back); the rounding (0.8125 shows as 0.812, as `make eval` prints it); the "Not in use" sentence, worked out from the scores against the bars; the sentence under the bars table; the summary's new totals, which use only free code and hold totals only; the test on the limit sentence; the six-risk state's line and its guard; the admin wording, which "now say[s] what the backend does"; and the log's counts. Three things not blocking, recorded in `docs/DECISIONS_TO_REVIEW.md` and left.
+
+**Verifier**, in a real browser at 1440 and 390 wide: pass, every check.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `make check` exits 0 (backend 1051 and 32, frontend 134). `make screens` exits 0: "contrast: 0 below 4.5:1 of 4678 pieces of text", "sideways scroll: 0 of 76 pages", "focus: 0 controls without a focus style of 1004", "68 screenshots"; `git status` empty after it | pass |
+| 2 | State 6: five risks, "1 handled. The next risk moved into the list.", the "Put together for this demo state" line, no "Recorded from a real model run". State 16: the admin bar and the "Handled" sentence as now worded. Nothing clipped or overlapping | pass |
+| 3 | The product rule on the screenshots: fixes first and on the left; the risk column starts lower at 1440 and sits below at 390; "Advisory, unproven." and the sentence; the plain link "See the eval result" | pass |
+| 4 | With `make dev`: 12 clients; "Mark handled" hides the risk and survives a reload; a second cookie-less browser does not see it; an admin's tick changes the admin's page and a visitor does not see it, as the page now says; opening `/check?domain=example.com` makes no POST; one press makes exactly one and shows DNS results; a reload makes none | pass |
+| 4h | `/evals`: 0.812 and not 0.813; the version 4 sentence; the coverage sentence; "One bar is missed: harmful. The model returned a risk the label calls wrong 9 times in 144 case-runs."; no sideways scroll at 390 | pass |
+| 5 | The production build with an empty environment serves the fallback with "Showing saved data". With a stand-in backend: a direct open makes no POST, one press makes exactly one and shows the backend's answer, a reload makes none, at both widths | pass |
+
+Not exercised: the deployed site and the preview (the preview's fallback is shown above, fetched with the command-line tool); 62 of the 68 screenshots were covered in this run by the computed checks only, having been read in full in the first run.
+
+### 2026-11-20: gate evidence, on 73e360f
+
+- `make check` exits 0: the verifier's row 1, and CI on the pull request.
+- `make screens` writes 4 screenshots for each of the 17 states: "68 screenshots"; `ls docs/screens/*.png | wc -l` gives 68.
+- The verifier has looked at all of them (its first run read all 68; its second read the eight that changed and four more) and reports no state missing; no text below 4.5:1, computed (0 of 4678); no horizontal scroll at 390 (0 of 76 pages); no control without a focus style (0 of 1004).
+- With the backend address pointed at nothing in a preview deployment, the page loads the fallback and shows the notice: the `vercel curl` output in the entry "the approved changes, in one commit".
+- **After the merge, not yet shown:** on the production address in a real browser with no key, the client list loads with 12 clients; a handled click hides the risk and survives a reload; a second browser profile does not see it; a typed `example.com` returns checks. The checklist line "Deployed to Vercel from `main`; checked in a real browser" stays unticked until then. They are checked straight after the owner's merge, before Phase 6's first commit.
+
+The challenger's verdict stays as it gave it, on the commit it read; its five changes were made afterwards at the owner's word, and the owner asked for no rerun. The owner merges this phase.
+
+reviewer-verdict: no blocking findings @ 73e360f
+verifier-verdict: pass @ 73e360f
+challenger-verdict: change needed @ 9617bf5
 
 ---
 
