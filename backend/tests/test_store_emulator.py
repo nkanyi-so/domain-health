@@ -396,7 +396,7 @@ def test_with_the_days_counter_at_200_the_next_live_check_is_refused(
         print("\nlive check: with the day's counter at 200, the next check was refused")
 
 
-def test_a_per_address_counter_carries_a_timestamp_to_expire_by() -> None:
+def test_both_counters_carry_a_timestamp_to_expire_by() -> None:
     async def go() -> None:
         db_store = own_database()
         await db_store.take_live_check_slot("ab" * 16, noon(DAY0))
@@ -408,7 +408,9 @@ def test_a_per_address_counter_carries_a_timestamp_to_expire_by() -> None:
         assert fields["count"] == 1
         assert isinstance(fields["expires_at"], datetime)
         day = (await db_store.db.document("counters", f"live-{DAY0.isoformat()}").get()).to_dict()
-        assert day == {"count": 1}
+        assert day is not None
+        assert day["count"] == 1
+        assert day["expires_at"] - noon(DAY0) >= timedelta(days=2)
 
     run(go())
 

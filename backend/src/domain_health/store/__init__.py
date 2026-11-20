@@ -33,6 +33,8 @@ LIVE_WINDOW = timedelta(minutes=10)
 LIVE_PER_DAY = 200
 # A per-address counter is of no use after its window; Firestore's TTL policy deletes it later.
 COUNTER_LIFE = timedelta(days=1)
+# The day's counter stops counting at midnight; it is deleted two days after its last write.
+DAY_COUNTER_LIFE = timedelta(days=2)
 
 # What may be a document's name: a client's id, a visitor's session id.
 _CLIENT_ID = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")

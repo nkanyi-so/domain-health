@@ -284,6 +284,9 @@ def test_a_live_check_without_an_address_to_limit_by_is_not_made() -> None:
         VISITOR,
         {**VISITOR, "X-Client-Address": " "},
         {**VISITOR, "X-Client-Address": "9" * 65},
+        {**VISITOR, "X-Client-Address": "not-an-address"},
+        {**VISITOR, "X-Client-Address": "203.0.113.7, 198.51.100.4"},
+        {**VISITOR, "X-Client-Address": "203.0.113.7:4431"},
     ):
         response = built.client.post(
             "/api/live-check", json={"domain": "example.com"}, headers=headers
@@ -407,3 +410,12 @@ def test_the_service_does_not_start_with_a_short_proxy_secret(
 
     monkeypatch.setenv("PROXY_SECRET", "x" * 32)
     assert Settings(_env_file=None).proxy_secret.get_secret_value() == "x" * 32
+
+
+def test_one_address_written_two_ways_is_one_visitor() -> None:
+    built = build(resolver=ZoneResolver(ZONE))
+    spellings = ["2001:db8::7", "2001:0db8:0000:0000:0000:0000:0000:0007", " 2001:DB8::7 "]
+
+    codes = [live(built, f"site-{n}.example.com", spellings[n % 3])[0] for n in range(6)]
+
+    assert codes == [200] * 5 + [429]

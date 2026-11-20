@@ -23,6 +23,7 @@ from google.oauth2.credentials import Credentials
 
 from domain_health.store import (
     COUNTER_LIFE,
+    DAY_COUNTER_LIFE,
     LIVE_WINDOW,
     ClientDay,
     ClientRecord,
@@ -206,7 +207,10 @@ class FirestoreStore:
             address_count = int((await self._read(address_ref, transaction) or {}).get("count", 0))
             given = slot(day_count, address_count)
             if given is Slot.TAKEN:
-                transaction.set(day_ref, {"count": day_count + 1})
+                # Both counters carry a time to be deleted by, well after they stop counting.
+                transaction.set(
+                    day_ref, {"count": day_count + 1, _TTL_FIELD: now + DAY_COUNTER_LIFE}
+                )
                 transaction.set(
                     address_ref,
                     {"count": address_count + 1, _TTL_FIELD: now + LIVE_WINDOW + COUNTER_LIFE},

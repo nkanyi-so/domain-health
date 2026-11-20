@@ -11,6 +11,7 @@ Every outside system comes in through `Deps`, so tests build the app from fakes.
 
 import hashlib
 import hmac
+import ipaddress
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -52,7 +53,6 @@ from domain_health.worker import ModelFacts, run_client
 log = logging.getLogger(__name__)
 
 SANDBOX_PREFIX = "sandbox:"
-MAX_ADDRESS_CHARS = 64
 
 
 @dataclass(frozen=True)
@@ -271,10 +271,13 @@ def create_app(deps: Deps) -> FastAPI:
         body: LiveCheckRequest,
         x_client_address: Annotated[str | None, Header()] = None,
     ) -> LiveCheckResult:
-        address = (x_client_address or "").strip()
-        if not address or len(address) > MAX_ADDRESS_CHARS:
+        try:
+            # One IP address and nothing else, in one spelling: a list of addresses, or the same
+            # address written another way, would otherwise be counted as a new visitor.
+            address = str(ipaddress.ip_address((x_client_address or "").strip()))
+        except ValueError as error:
             # Without an address there is nothing to limit by, so the check is not made.
-            raise HTTPException(status_code=400, detail="no client address")
+            raise HTTPException(status_code=400, detail="no client address") from error
         try:
             domain = public_domain(body.domain)
         except DomainRefusedError as refused:
