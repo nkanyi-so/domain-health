@@ -114,5 +114,18 @@ record:
 record-report:
 	@cd backend && uv run --frozen python -m domain_health.seeded.recording_report
 
-seed infra deploy-backend fallback screens:
+# These three write to the owner's Google Cloud project, always through the `domain-health`
+# gcloud configuration (scripts/cloud-common.sh). The project's ID comes from the shell or .env.
+# Only the project's ID and the region are passed on from .env: no key reaches these scripts.
+infra:
+	@{ [ ! -f .env ] || . ./.env; } && GCP_PROJECT_ID="$$GCP_PROJECT_ID" GCP_REGION="$$GCP_REGION" bash scripts/infra.sh
+
+deploy-backend:
+	@{ [ ! -f .env ] || . ./.env; } && GCP_PROJECT_ID="$$GCP_PROJECT_ID" GCP_REGION="$$GCP_REGION" bash scripts/deploy-backend.sh
+
+# COUNT=<YYYY-MM-DD> writes nothing and counts that day's snapshot documents instead.
+seed:
+	@{ [ ! -f .env ] || . ./.env; } && GCP_PROJECT_ID="$$GCP_PROJECT_ID" GCP_REGION="$$GCP_REGION" COUNT="$(COUNT)" bash scripts/seed.sh
+
+fallback screens:
 	@echo "make $@: not built yet" >&2; exit 1

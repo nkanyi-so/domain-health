@@ -19,6 +19,7 @@ from google.cloud.firestore import (
     AsyncTransaction,
     async_transactional,
 )
+from google.oauth2.credentials import Credentials
 
 from domain_health.store import (
     COUNTER_LIFE,
@@ -224,6 +225,15 @@ class FirestoreStore:
             found.append(ClientRecord(id=document.id, **fields))
         return sorted(found, key=lambda client: client.id)
 
+    async def snapshot_documents(self, day: date) -> list[str]:
+        """The path of every client's snapshot document for this day. For `make seed COUNT=`."""
+        found = []
+        async for client in self.db.collection("clients").list_documents():
+            document = await client.collection("snapshots").document(day.isoformat()).get()
+            if document.exists:
+                found.append(document.reference.path)
+        return sorted(found)
+
     async def save_live_check(self, check: LiveCheck) -> None:
         await self.db.document("live_checks", check.domain).set(_document(check))
 
@@ -233,6 +243,12 @@ class FirestoreStore:
             return None
         check = LiveCheck.model_validate(data)
         return check if check.expires_at > now else None
+
+
+def connect_with_token(project: str, token: str) -> FirestoreStore:
+    """A store on this project's database, as whoever the short-lived access token belongs to.
+    For commands run from the owner's machine; the deployed service uses `connect`."""
+    return FirestoreStore(AsyncClient(project=project, credentials=Credentials(token=token)))  # type: ignore[no-untyped-call]
 
 
 def connect(project: str) -> FirestoreStore:

@@ -1,0 +1,18 @@
+# What `gcloud builds submit` leaves out of the upload. The image needs backend/, prompts/ and
+# evals/settings.toml only.
+.git
+.env
+.env.*
+!.env.example
+frontend
+emulator
+docs
+node_modules
+**/.venv
+**/__pycache__
+**/.mypy_cache
+**/.pytest_cache
+**/.ruff_cache
+evals/recordings
+evals/cases
+backend/tests
