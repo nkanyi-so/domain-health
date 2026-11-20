@@ -93,3 +93,5 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:15:17Z	4	stop-opened	issue=#13 questions=1 asked: Phase 4: one more review pass, or your merge of #12	2.27
 2026-11-20T10:19:22Z	4	stop-closed	issue=#13 opened=2026-11-20T10:15:16Z	2.27
 2026-11-20T10:23:44Z	4	review	no blocking findings, on e343425 and 1aa64b4 only @ 8d56481	2.27
+2026-11-20T10:24:58Z	4	gate-refused	exit=2 reason=checkout pr=#12: the local checkout is not the pull request's head commit (8d56481ec68fa2a8a56de4ad288e2b7d84d630ea). Push, or check out the branch	2.27
+2026-11-20T10:25:32Z	4	gate-refused	exit=2 reason=spend pr=#12: docs/PLAN.md must have exactly one 'Spend: $X of ...' line	2.27

@@ -1813,7 +1813,7 @@ With only the types the bands expect kept, the runs are again exactly the rules-
 
 **By the owner's limit there is no further attempt.** The phase stands on these numbers: the final prompt version misses the harmful bar and the stability bar, and `make eval STRICT=1` exits 2. No attempt of the five met all four bars. The best was attempt 4 (version 3 on Terra), which missed the harmful bar alone.
 
-Spend: the run cost $0.8574 (the worst case reserved was $1.20). `evals/ledger.jsonl` now sums to $1.8521 over 721 lines; the Spend line reads $1.85 of the $10 cap.
+What it cost: the run cost $0.8574 (the worst case reserved was $1.20). `evals/ledger.jsonl` now sums to $1.8521 over 721 lines; the Spend line reads $1.85 of the $10 cap.
 
 ### 2026-11-19: `make eval` on the committed recordings, after attempt 5
 
@@ -3092,6 +3092,14 @@ What it ran: `make check` (exit 0: 1014 tests outside the emulator, 32 inside). 
 3. Three special IPv6 ranges that carry an IPv4 address each fall into one shared /64, which makes the limit stricter and never looser. Not changed.
 
 The gate's evidence is the entry "gate evidence, on revision `domain-health-00008-lwx` (commit 1aa64b4)" above. The verdict lines that follow replace the ones written at the stop.
+
+reviewer-verdict: no blocking findings @ 8d56481
+verifier-verdict: pass @ 1aa64b4
+challenger-verdict: not needed @ 8d56481
+
+### 2026-11-20: the merge gate, two refusals that were not about the phase
+
+The gate refused twice, and both are in the run log. First: "the local checkout is not the pull request's head commit": it ran seconds after the push, before GitHub showed the new head. Second: "docs/PLAN.md must have exactly one 'Spend: $X of ...' line": a line in the Phase 2 log began with the word "Spend:" as well. That line now begins "What it cost:", with nothing else in it changed; it is a log line, not a gate or a checklist item. The gate had not met it before because the owner merged Phases 2 and 3. The verdict lines for this phase are the ones above; nothing but this file and the run log has changed since.
 
 reviewer-verdict: no blocking findings @ 8d56481
 verifier-verdict: pass @ 1aa64b4
