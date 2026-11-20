@@ -87,3 +87,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T08:27:30Z	4	stop-closed	issue=#11 opened=2026-11-20T06:10:02Z	2.27
 2026-11-20T09:26:41Z	4	review	blocking findings, two @ 3929cfd	2.27
 2026-11-20T09:40:58Z	4	review	blocking findings, one, a false sentence in the log @ 5b1e5ca	2.27
+2026-11-20T09:53:51Z	4	review	blocking findings, one, the instance maximum @ c502bc9	2.27
