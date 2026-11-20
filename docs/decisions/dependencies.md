@@ -8,13 +8,13 @@ One line of reason per direct runtime dependency. Nothing is added without a lin
 |---|---|---|
 | `fastapi` | HTTP routes and the OpenAPI schema the frontend types come from. | Phase 0 |
 | `pydantic` | One set of models for requests, responses, stored documents and model output; validates model output before use. | Phase 0 |
-| `pydantic-settings` | Settings from the environment. | Phase 4 (not installed until there are settings to read) |
+| `pydantic-settings` | Settings from the environment. | Phase 4 |
 | `uvicorn` | Runs the app, locally and in the container. | Phase 0 |
 | `dnspython` | DNS TXT lookups with timeouts and typed errors. | Phase 1 |
 | `google-cloud-firestore` | The snapshot store and its transactions. | Phase 3 |
 | `google-cloud-tasks` | Enqueues one task per client. | Phase 4 |
 | `google-auth` | Verifies Google-signed OIDC tokens on the worker. | Phase 4 |
-| `httpx` | Posts the change alert to a Slack webhook. | Phase 4 |
+| `httpx2` | Posts the change alert to a Slack webhook and fetches Google's signing certificates. It is `httpx2`, not `httpx`: the installed Starlette's test client already uses it, so the project has one HTTP client and not two. | Phase 4 |
 
 ## Backend, `live` group (never installed in the deployed image)
 

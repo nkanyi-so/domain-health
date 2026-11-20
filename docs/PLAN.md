@@ -12,7 +12,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | building | |
+| 4: schedule, worker, API, first backend deploy | waiting on you | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 24 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 27 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -37,7 +37,29 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 4 is built and deployed, and stopped part way through the deployed checks.** The code, the tests, the seeded recordings and the design document are done and `make check` is green. Three things need you: one step only you can do, one decision, and one look at the recordings.
+
+1. **Sign the `domain-health` gcloud configuration in again.** Its session expired during the deploy, and gcloud will not re-authenticate without a browser. In a terminal:
+
+   ```
+   CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud auth login
+   ```
+
+   Choose the same personal account as before. Nothing else on the machine is touched.
+
+2. **How the frontend reaches the backend.** The design has the Cloud Run service open at the platform level, with the app refusing every call that lacks the proxy secret or a Google-signed machine token. Your project's organisation policy refuses the grant that opens it (`allUsers` as invoker). The service is deployed closed for now: only the project's own invoker account and you can reach it.
+
+   You should know what I did here. To test, I turned off Cloud Run's invoker check on the service, which opens it the same way. It worked: unauthenticated calls got the app's own 401. When I went to make that the deploy script's default, the session's permission check refused it as going around a control you had not decided on. I turned the invoker check back on within a few minutes, and the service answers 403 to the public again.
+
+   - **A (recommended). Turn off the invoker check** (`--no-invoker-iam-check` in the deploy script). It is Cloud Run's own supported setting for a public service where the organisation restricts `allUsers`. The app-level checks are then the only gate, as decision 0009 planned, and the gate's "an unauthenticated call to the worker gets 401" can be shown. Costs nothing. If your organisation also forbids this setting it will fail, and I will tell you.
+   - **B. You add an exception to the organisation policy** for this project so `allUsers` can be granted. Same result; your step, in the organisation's console.
+   - **C. Keep the service closed** and have the frontend prove a Google identity on every call, through workload identity federation from Vercel. No long-lived key, and the service is never public. Costs about half a day more in Phase 5, a change to decision 0009, and the gate line becomes "gets 403 from the platform".
+
+3. **The seeded recordings: keep them?** The plan asks that you see these counts before they are kept. 78 calls, $0.42. All 26 seeded states' three answers agree, so all 26 are kept. Of 36 risks returned, 4 are of a type the rubric's bands call merely acceptable: all `dmarc_policy_none`, on both days of `brindle-and-oak` and `copperkettle-kitchen`. None is of a type the bands call wrong, and none says a rate is elevated when it is under the rubric's line. The full table is in the Phase 4 log, and `make record-report` prints it.
+   - **Keep (recommended).** They are what the deployed worker replays.
+   - **Do not keep.** Tell me what to change; a new recording run costs about $0.42.
+
+Once answered: I run the second `make infra` (the daily job), `make seed`, the scheduled run by hand and a second one, and the deployed checks; then the review and the verifier; then the merge gate. With 2A or 2B the phase goes through the gate. Spend so far: $2.27 of $10.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -2216,20 +2238,121 @@ The reviewer's verdict line above names `c425242`, the last commit the whole pha
 
 ## Phase 4: schedule, worker, API, first backend deploy
 
-- [ ] `/internal/dispatch` and `/internal/worker/{client}` with OIDC verification; `TaskQueue` interface; tasks two seconds apart.
-- [ ] `/api/*`: clients, snapshot, handled, reopen, live check; the proxy secret; the actor.
-- [ ] Live-check limits in Firestore counters: five per address per ten minutes, 200 a day, a ten-minute cache.
-- [ ] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
-- [ ] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
-- [ ] Added after the Phase 2 challenge (the owner, 2026-11-20): `make record` uses the prompt in use (`evals/settings.toml`), and a seeded state's recording is kept only when three calls agree on its first five; a state where they do not is reported and shown as "risks unavailable". The worst case in the paid-steps table is three times the calls it assumed and is corrected before the step runs.
+- [x] `/internal/dispatch` and `/internal/worker/{client}` with OIDC verification; `TaskQueue` interface; tasks two seconds apart.
+- [x] `/api/*`: clients, snapshot, handled, reopen, live check; the proxy secret; the actor.
+- [x] Live-check limits in Firestore counters: five per address per ten minutes, 200 a day, a ten-minute cache.
+- [x] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
+- [x] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
+- [x] Added after the Phase 2 challenge (the owner, 2026-11-20): `make record` uses the prompt in use (`evals/settings.toml`), and a seeded state's recording is kept only when three calls agree on its first five; a state where they do not is reported and shown as "risks unavailable". The worst case in the paid-steps table is three times the calls it assumed and is corrected before the step runs.
 - [ ] Added after the Phase 3 challenge (the owner, 2026-11-20): a test flags a seeded recording whose text says a value is "above" a line or "elevated" when the input's value is below the rubric's line for that risk type; and for each seeded state the build counts the risk types returned that the bands call merely acceptable, and shows the counts to the owner before the recordings are kept.
 - [ ] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
 - [ ] `make seed`, then one scheduled run triggered by hand.
-- [ ] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
+- [x] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
 
 **Gate:** `make check` exits 0. In CI, the six worker-auth cases pass: a valid token gets 200; a missing token, a wrong audience, a wrong service account, an expired token and a bad signature each get 401. Ten live checks fired at once from one address give at most 5 successes. With the day's counter set to 200, the next check is refused. On the deployed service, shown with pasted commands and output: `gcloud run services describe` reports a maximum of 1 instance; an unauthenticated call to the worker gets 401; one run of the Scheduler job leaves 12 snapshot documents dated today; a second run leaves 12; a live check of `example.com` through the API returns real DNS results; the budget exists. `docs/DESIGN.md` exists.
 
 **Log:**
+
+### Phase 4, started 2026-11-20
+
+**Before the phase.** The owner merged pull request #9 on 2026-11-20 and said to start Phase 4 and merge the remaining phases through the gate.
+
+**Step list.**
+
+1. Machine auth for `/internal/*` (the OIDC check as the app's own code, tested with locally signed tokens), the task queue, the change alert.
+2. The live-check counters in the store, and the seeded clients' documents.
+3. The API and the two machine routes, built from a `Deps` of interfaces; the service's start-up wiring.
+4. `make record` (paid) with the prompt in use, three calls a state; which answers are kept; the report of the recordings against the rubric; the tests the plan asks of the committed recordings.
+5. The image, `make infra`, `make deploy-backend`, `make seed`; the first deploy; one scheduled run by hand, then a second.
+6. `docs/DESIGN.md`, written by a separate agent from the spec and the Phase 5 checklist.
+
+**Risks seen at the start.**
+
+- The plan asks that the counts of merely-acceptable types on the seeded recordings be shown to the owner "before the recordings are kept". The run merges this phase itself, so that is a stop: one question, asked with everything else, before the merge.
+- The paid-steps table assumed one call a state on the cheaper model. Corrected before the step ran, as the Phase 4 line says: 26 states, three calls each, counted at $0.65 a run.
+- The first deploy can fail in ways no test here sees (a platform default, an organisation policy, a permission). Two did: see below.
+
+**Verifier and challenger.** The verifier is needed: there are routes, limits and a deployed service to run. The challenger is not needed: this phase produces no eval result and does not touch the claim or how it is measured. The seeded recordings are not eval results; the eval cases, the bars, the settings file and the scoring code are unchanged.
+
+**What was built.** As the step list, items 1 to 4 and 6 whole, item 5 in part (below). `make check` exits 0 with 992 tests outside the emulator and 31 inside it.
+
+- The six worker-auth cases are `backend/tests/test_machine_routes.py`: a valid token gets 200; a missing token, a wrong audience, a wrong service account, an expired token and a bad signature each get 401, on both machine routes, and none of the five enqueues or writes anything. Nine further wrong callers are refused too (another issuer, an unverified email, an unknown key, a tampered token, an unsigned token naming no algorithm, the frontend's own credentials).
+- Ten live checks fired at once from one address give five (the memory store and the emulator: "live check: 10 fired at once from one address, 5 succeeded"). With the day's counter at 200 the next check is refused ("live check: with the day's counter at 200, the next check was refused"). The emulator test sets the counter to 199 and takes the two-hundredth; the memory store's test counts all two hundred through the same rule. Counting two hundred contending writes in the emulator took nine minutes, which is why.
+- Every API route refuses a call without the proxy secret (six wrong forms on five routes) and without an actor, and none of them reaches DNS. Each of the eight refusals of the live-check input is tested through the API, and none makes a lookup or writes a document.
+
+**`make record` (paid): 78 calls, $0.4205; spent in all $2.2726.** The worst case, $0.65, was added to the "Spend:" line before it ran. `make record-report` on the committed recordings:
+
+```
+seeded recordings, risks-v3 on gpt-6.1-terra: 26 states, 26 kept (three answers agree), 0 disagree, 0 invalid, 0 missing
+state                          answers    returned  merely acceptable  wrong  false wording
+brindle-and-oak day 0          agreed            1                  1      0              0
+    merely acceptable: dmarc_policy_none
+brindle-and-oak day 1          agreed            1                  1      0              0
+    merely acceptable: dmarc_policy_none
+copperkettle-kitchen day 0     agreed            1                  1      0              0
+    merely acceptable: dmarc_policy_none
+copperkettle-kitchen day 1     agreed            1                  1      0              0
+    merely acceptable: dmarc_policy_none
+driftwood-coffee day 0         agreed            1                  0      0              0
+driftwood-coffee day 1         agreed            1                  0      0              0
+emberglow-events day 0         agreed            3                  0      0              0
+emberglow-events day 1         agreed            2                  0      0              0
+fernhollow-garden day 0        agreed            0                  0      0              0
+fernhollow-garden day 1        agreed            0                  0      0              0
+harbourlight-books day 0       agreed            0                  0      0              0
+harbourlight-books day 1       agreed            0                  0      0              0
+inkwell-and-vine day 0         agreed            0                  0      0              0
+inkwell-and-vine day 1         agreed            0                  0      0              0
+northwind-cycles day 0         agreed            2                  0      0              0
+northwind-cycles day 1         agreed            1                  0      0              0
+oakhaven-outfitters day 0      agreed            2                  0      0              0
+oakhaven-outfitters day 1      agreed            3                  0      0              0
+oakhaven-outfitters day 2      agreed            4                  0      0              0
+silverbrook-dental day 0       agreed            4                  0      0              0
+silverbrook-dental day 1       agreed            4                  0      0              0
+silverbrook-dental day 2       agreed            1                  0      0              0
+tamberline-travel day 0        agreed            1                  0      0              0
+tamberline-travel day 1        agreed            1                  0      0              0
+willowmere-pets day 0          agreed            1                  0      0              0
+willowmere-pets day 1          agreed            1                  0      0              0
+in the kept answers: 36 risks returned, 4 of a type the bands call merely acceptable, 0 wrong, 0 with false wording
+```
+
+All 26 states' three answers agree, so all 26 are kept. The four "merely acceptable" are one type, `dmarc_policy_none`, on the two days of two clients. No state has more than four risks; the screen state "a handled risk with the next one moved up" needs six ranked risks, so Phase 5 can show it only through the design document's render-only flag or a seeded state made for it.
+
+**`make eval` on this phase's code** (free; the results file it wrote is identical to the committed one):
+
+```
+risks-v3 (11e24baa36aa) on gpt-6.1-terra, reasoning none, temperature 0: 3 runs of 48 cases, recorded 2026-11-19
+coverage   0.896                        bar >= 0.8   met  each run: 0.896 0.896 0.896
+precision  0.962                        bar >= 0.8   met  each run: 0.963 0.962 0.962
+harmful    9 in 144 case-runs           bar == 0     missed  each run: 3 3 3
+stability  0.979 (47 of 48 cases)       bar >= 0.9   met
+dropped    0 of 144 outputs
+no bar:
+  table set (30 cases, 42 expected items): coverage 1.000, precision 1.000, harmful 0, stability 0.967, dropped 0 | rules-only baseline: coverage 1.000, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 22, wrong: 0 | with only the types the bands expect kept: coverage 1.000, precision 1.000, harmful 0, stability 1.000
+  open set (18 cases, 25 expected items): coverage 0.720, precision 0.900, harmful 9, stability 1.000, dropped 0 | rules-only baseline: coverage 0.680, precision 1.000, harmful 0
+    types returned that the bands call merely acceptable: 30, wrong: 0 | with only the types the bands expect kept: coverage 0.680, precision 1.000, harmful 0, stability 1.000
+  coverage by risk type (found/expected over the runs): dmarc_policy_none 15/15, dmarc_partial_enforcement 9/9, spf_near_lookup_limit 9/9, spf_weak_all 6/6, dkim_key_1024 6/6, reputation_declining 21/21, reputation_poor 27/27, complaint_rate_elevated 18/18, bounce_rate_elevated 21/24, volume_spike 15/27, new_domain_volume 6/12, engagement_declining 12/12, blocklist_recent 15/15
+  better than the rules-only baseline on the open set: no
+  prompt sentences that place a line relative to a figure, a field's name or a span of time: 26 (the results file lists them for the version in use and for each version not in use)
+  not in use, recorded on the same model: risks-v4: coverage 0.881, precision 0.940, harmful 12 in 144, stability 0.812
+  cost $0.7839, 704397 tokens in, 15892 out, median latency 3484 ms
+```
+
+This phase's gate has no measured bar. `make eval EXPECTED=1` exits 0: the harmful bar is the one miss the owner's file names.
+
+**The deploy, as far as it got.**
+
+- `make infra`, first run: Firestore (Native, `us-central1`) with TTL on `expires_at` for `clients`, `live_checks` and `counters`; the queue (five attempts, backoff 10 s to 300 s); the service accounts; three secrets with random values that were never printed; the image repository; the $5 monthly budget ("Created [7496d5f1-a52d-45ef-8335-ae0eeec65476]").
+- `make deploy-backend`, first try: failed. "992953709092-compute@developer.gserviceaccount.com does not have storage.objects.get access". A new project's default build account cannot read the uploaded source. Fixed by a third service account, `dh-build`, with three narrow roles; listed in `docs/DECISIONS_TO_REVIEW.md`.
+- Second try: the image built in 49 seconds and the service deployed, with a warning: "Setting IAM policy failed". The grant that opens the service to callers without a Google identity (`allUsers` as invoker) is refused by the project's organisation policy: "One or more users named in the policy do not belong to a permitted customer, perhaps due to an organization policy."
+- **What the build then did, and undid.** To see whether the app answered, it turned off Cloud Run's invoker check on the service (`gcloud run services update domain-health --no-invoker-iam-check`), which has the same effect as the refused grant. With it off: `/api/clients` without credentials gave the app's own `{"detail":"not allowed"}` 401, and a POST to the worker without a token gave the app's 401. It then went to make that the deploy script's way of opening the service, and that step was refused by the session's permission check as going around a control the owner had not decided on. That was right: an organisation's policy is not the build's to route around. The invoker check was turned back on within a few minutes (`--invoker-iam-check`), and `/api/clients` without credentials then gave Cloud Run's 403 again. The service is deployed closed, and the deploy script says so. How the frontend reaches it is asked of the owner.
+- `/healthz` answered 404 from Cloud Run itself, which keeps that path. The route is now `/health`.
+- Third deploy (revision `domain-health-00002-s5k`, closed): done. The second `make infra`, which creates the Scheduler job and lets the invoker account call the service, and `make seed`, then failed: "There was a problem refreshing your current auth tokens: Reauthentication failed. cannot prompt during non-interactive execution." The `domain-health` gcloud sign-in has expired and needs the owner at a browser.
+
+**Not done yet, and waiting on the two things above:** the Scheduler job; `make seed`; the scheduled run by hand and the second run; the deployed checks of the gate; the review and the verifier.
 
 ---
 
