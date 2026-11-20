@@ -12,6 +12,7 @@ JOB=domain-health-daily
 REPOSITORY=domain-health
 RUNTIME_ACCOUNT=dh-runtime
 INVOKER_ACCOUNT=dh-invoker
+BUILD_ACCOUNT=dh-build
 SECRETS="proxy-secret session-secret admin-passphrase"
 
 say() { printf '%s\n' "$*"; }
@@ -27,6 +28,7 @@ PROJECT="$(gcloud config get-value project 2>/dev/null)"
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
 RUNTIME_EMAIL="$RUNTIME_ACCOUNT@$PROJECT.iam.gserviceaccount.com"
 INVOKER_EMAIL="$INVOKER_ACCOUNT@$PROJECT.iam.gserviceaccount.com"
+BUILD_EMAIL="$BUILD_ACCOUNT@$PROJECT.iam.gserviceaccount.com"
 # Cloud Run's deterministic URL: known before the first deploy, so the service can be told its
 # own address (the audience of every machine token) in one deploy.
 SERVICE_URL="https://$SERVICE-$PROJECT_NUMBER.$REGION.run.app"

@@ -13,7 +13,8 @@ TAG="$(git rev-parse --short HEAD)"
   || die "commit the backend first: the image is tagged with the commit it was built from"
 
 say "building $IMAGE:$TAG"
-gcloud builds submit . --config=backend/cloudbuild.yaml --substitutions="_IMAGE=$IMAGE:$TAG" --quiet
+gcloud builds submit . --config=backend/cloudbuild.yaml --substitutions="_IMAGE=$IMAGE:$TAG" \
+  --service-account="projects/$PROJECT/serviceAccounts/$BUILD_EMAIL" --quiet
 
 say "deploying"
 gcloud run deploy "$SERVICE" --image="$IMAGE:$TAG" --region="$REGION" \

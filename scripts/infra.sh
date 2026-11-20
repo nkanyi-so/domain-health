@@ -3,7 +3,8 @@
 # again: each thing is created only if it is not there, and settings are set to the same values.
 #
 # Firestore (Native, us-central1) with its TTL policies; the Cloud Tasks queue with its retry
-# settings; two service accounts (one runs the service, one calls it); three secrets, made here
+# settings; three service accounts (one runs the service, one calls it, one builds its image);
+# three secrets, made here
 # with random values that are never printed; a $5 monthly budget alert; the image repository;
 # and, once the service is deployed, the daily Cloud Scheduler job.
 set -euo pipefail
@@ -29,7 +30,7 @@ for group in clients live_checks counters; do
 done
 
 say "service accounts"
-for account in "$RUNTIME_ACCOUNT" "$INVOKER_ACCOUNT"; do
+for account in "$RUNTIME_ACCOUNT" "$INVOKER_ACCOUNT" "$BUILD_ACCOUNT"; do
   gcloud iam service-accounts describe "$account@$PROJECT.iam.gserviceaccount.com" >/dev/null 2>&1 \
     || gcloud iam service-accounts create "$account" --display-name="domain-health $account" --quiet
 done
@@ -41,6 +42,14 @@ for role in roles/datastore.user roles/cloudtasks.enqueuer; do
 done
 gcloud iam service-accounts add-iam-policy-binding "$INVOKER_EMAIL" \
   --member="serviceAccount:$RUNTIME_EMAIL" --role=roles/iam.serviceAccountUser --quiet >/dev/null
+
+# The one Cloud Build runs as, so the build does not use the project's default account (which a
+# new project gives no access to the uploaded source): it reads the source, writes the image and
+# writes its log, and nothing else.
+for role in roles/storage.objectViewer roles/artifactregistry.writer roles/logging.logWriter; do
+  gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:$BUILD_EMAIL" \
+    --role="$role" --condition=None --quiet >/dev/null
+done
 
 say "secrets"
 for secret in $SECRETS; do
