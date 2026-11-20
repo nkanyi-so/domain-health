@@ -12,10 +12,12 @@ import {
   type SetTotals,
   barWords,
   casesFact,
+  coverageNote,
   harmfulWords,
   measureLabel,
   missedSentence,
   modelScore,
+  notInUseSentence,
   promptNumber,
   score,
 } from "@/lib/view/evals";
@@ -111,6 +113,7 @@ export default function Page(): ReactElement {
             numeric={[1, 2]}
           />
           <p className="measure mt-3 font-medium">{missedSentence(summary)}</p>
+          <p className="measure mt-1">{coverageNote(summary)}</p>
           <p className="t-small measure mt-1 text-ink-2">
             {formatCount(summary.dropped)} of the {formatCount(summary.case_runs)} answers failed
             their checks and were dropped.
@@ -155,7 +158,10 @@ export default function Page(): ReactElement {
             rows={notInUseRows(summary)}
             numeric={[1, 2, 3, 4]}
           />
-          <p className="measure mt-3">Did worse than the version in use. Why is not established.</p>
+          <p className="measure mt-3">
+            {summary.not_in_use.map((entry) => notInUseSentence(entry, summary)).join(" ")} Did
+            worse than the version in use. Why is not established.
+          </p>
         </section>
 
         <section aria-labelledby="labels-heading" className="measure">

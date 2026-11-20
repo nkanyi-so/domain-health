@@ -13,7 +13,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | waiting on you | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
+| 5: the screens | building | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
 | 6: report, README, release checks | not started | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
@@ -37,36 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 5 is built and stopped before its merge. You merge this one, whatever you answer:** the challenger read the page against the eval and said "change needed", and the rules give that phase to you. Pull request: [#14](https://github.com/nkanyi-so/domain-health/pull/14). The screens exist and work: 68 screenshots in `docs/screens/`, `make check` green, and the verifier passed every check but one in a real browser at both widths.
-
-Four questions. "Recommended for all" is a complete answer.
-
-1. **The challenger's list.** It found the eval figures on the page correct and the claim never shown without its limit. Five changes:
-   - a. The demo state that shows six risks (`?demo=handled-one`) is put together from Oakhaven's two risks and four recorded for other clients, under the line "Recorded from a real model run". Those four contradict the figures on the same page, so the screenshot shows the model making errors it did not make. Change: on that state, replace the line with a plain statement that four of the risks were moved here from other seeded clients to show six, and do not describe this one.
-   - b. Version 4's stability shows as 0.813 on the eval page; the spec and `make eval` say 0.812. Change: 0.812.
-   - c. The "Not in use" row does not say version 4 missed harmful and stability, or that it was the final attempt. Change: say so.
-   - d. No test ties the numbers in the limit sentence to the results file. Change: add one.
-   - e. Its recommendation, your call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 of them labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
-   - **Recommended: all five.** Each is small, and e is the honest reading of the three "Met" chips. None touches the spec, the claim or the measure files.
-2. **What other visitors see of the admin's ticks.** The verifier's one failed check: the page says of the admin's handled ticks "These ticks are shared: every visitor sees them", and they do not. The backend does what the spec says (a shared state for the admin, a sandbox of their own for each visitor), and the gate itself asks that a second browser not see a click. The sentence came from the design document.
-   - **A (recommended). Correct the words:** the admin's ticks are the shared list; each visitor has a copy of their own and does not see it. Costs a few lines and the design document's sentence.
-   - **B. Change what a visitor sees:** a visitor's page starts from the admin's ticks, with their own on top. Costs a change to the store's rules from Phase 3 and their tests, about half a day, and a visitor could then not reopen what the admin handled.
-3. **The fallback check on a Vercel preview.** The gate asks that a preview deployment with the backend address pointed at nothing shows the fallback. The preview exists and is set up that way, but Vercel keeps previews behind its own sign-in.
-   - **A (recommended). I use the command-line tool's `vercel curl`,** which creates a bypass secret on the project for automated access to protected deployments. It is an access setting, so I am asking first. It opens nothing to the public.
-   - **B. You open the preview yourself** while signed in to Vercel and tell me what you see: https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app
-   - **C. Count the public production address as the evidence.** It already shows the fallback notice, because it was built before its settings existed.
-4. **The reviews.** The phase has had its three. The third found one fault (my second fix worked on the development server and not in the production build); it is fixed, tested on the production build, and not reviewed. **Recommended:** after the changes from 1 and 2, one reviewer pass on everything since the third review and one more verifier run; then I tell you #14 is ready and you merge.
-
-For you to know, with nothing to decide:
-
-- **A secret was printed, and replaced.** While setting Vercel's variables, a command of mine printed the backend's proxy secret into this session's output. It was never in the repository. I replaced it at once: new value in Secret Manager and Vercel, backend redeployed, old version disabled, and checked (200 with the new one, 401 without).
-- **The public address is live already:** https://domain-health-rose.vercel.app. Vercel made the project's first deployment a production one, from this branch. It shows the bundled fallback. Your standing answers allow a public production deployment, so I left it; your merge replaces it with `main`.
-- **The admin passphrase** is a random value in Secret Manager. To read it: `CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud secrets versions access latest --secret=admin-passphrase`
-- The typed-domain result has no "Advisory, unproven." line, because no model runs on a typed domain. The fixes-only state is shown on Fernhollow Garden Supply, not the client the design expected. Twelve rows do not fit in the first screen at 1440 with the claim and its limit above them. All three are in `docs/DECISIONS_TO_REVIEW.md`.
-- The gate's last lines (12 clients, a handled click that survives a reload, a second profile, a typed `example.com`) can only be shown on the production address after your merge. I check them straight after it.
-- Spend: $2.27 of $10.
-
-Once answered: I make the changes you approve, run the reviewer pass and the verifier, and tell you when #14 is ready to merge. After your merge I check the production address in a real browser, then start Phase 6.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -3298,6 +3269,64 @@ None of these is made here: the verdict is a stop, the list goes to the owner wi
 reviewer-verdict: blocking findings, one, fixed after the pass and not reviewed again @ 62d66ab
 verifier-verdict: fail @ 9617bf5
 challenger-verdict: change needed @ 9617bf5
+
+### 2026-11-20: the stop (issue #15) and the owner's answers
+
+The block as it stood under "Waiting on you":
+
+> **Phase 5 is built and stopped before its merge. You merge this one, whatever you answer:** the challenger read the page against the eval and said "change needed", and the rules give that phase to you. Pull request: [#14](https://github.com/nkanyi-so/domain-health/pull/14). The screens exist and work: 68 screenshots in `docs/screens/`, `make check` green, and the verifier passed every check but one in a real browser at both widths.
+>
+> Four questions. "Recommended for all" is a complete answer.
+>
+> 1. **The challenger's list.** It found the eval figures on the page correct and the claim never shown without its limit. Five changes:
+>    - a. The demo state that shows six risks (`?demo=handled-one`) is put together from Oakhaven's two risks and four recorded for other clients, under the line "Recorded from a real model run". Those four contradict the figures on the same page, so the screenshot shows the model making errors it did not make. Change: on that state, replace the line with a plain statement that four of the risks were moved here from other seeded clients to show six, and do not describe this one.
+>    - b. Version 4's stability shows as 0.813 on the eval page; the spec and `make eval` say 0.812. Change: 0.812.
+>    - c. The "Not in use" row does not say version 4 missed harmful and stability, or that it was the final attempt. Change: say so.
+>    - d. No test ties the numbers in the limit sentence to the results file. Change: add one.
+>    - e. Its recommendation, your call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 of them labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
+>    - **Recommended: all five.** Each is small, and e is the honest reading of the three "Met" chips. None touches the spec, the claim or the measure files.
+> 2. **What other visitors see of the admin's ticks.** The verifier's one failed check: the page says of the admin's handled ticks "These ticks are shared: every visitor sees them", and they do not. The backend does what the spec says (a shared state for the admin, a sandbox of their own for each visitor), and the gate itself asks that a second browser not see a click. The sentence came from the design document.
+>    - **A (recommended). Correct the words:** the admin's ticks are the shared list; each visitor has a copy of their own and does not see it. Costs a few lines and the design document's sentence.
+>    - **B. Change what a visitor sees:** a visitor's page starts from the admin's ticks, with their own on top. Costs a change to the store's rules from Phase 3 and their tests, about half a day, and a visitor could then not reopen what the admin handled.
+> 3. **The fallback check on a Vercel preview.** The gate asks that a preview deployment with the backend address pointed at nothing shows the fallback. The preview exists and is set up that way, but Vercel keeps previews behind its own sign-in.
+>    - **A (recommended). I use the command-line tool's `vercel curl`,** which creates a bypass secret on the project for automated access to protected deployments. It is an access setting, so I am asking first. It opens nothing to the public.
+>    - **B. You open the preview yourself** while signed in to Vercel and tell me what you see: https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app
+>    - **C. Count the public production address as the evidence.** It already shows the fallback notice, because it was built before its settings existed.
+> 4. **The reviews.** The phase has had its three. The third found one fault (my second fix worked on the development server and not in the production build); it is fixed, tested on the production build, and not reviewed. **Recommended:** after the changes from 1 and 2, one reviewer pass on everything since the third review and one more verifier run; then I tell you #14 is ready and you merge.
+>
+> For you to know, with nothing to decide:
+>
+> - **A secret was printed, and replaced.** While setting Vercel's variables, a command of mine printed the backend's proxy secret into this session's output. It was never in the repository. I replaced it at once: new value in Secret Manager and Vercel, backend redeployed, old version disabled, and checked (200 with the new one, 401 without).
+> - **The public address is live already:** https://domain-health-rose.vercel.app. Vercel made the project's first deployment a production one, from this branch. It shows the bundled fallback. Your standing answers allow a public production deployment, so I left it; your merge replaces it with `main`.
+> - **The admin passphrase** is a random value in Secret Manager. To read it: `CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud secrets versions access latest --secret=admin-passphrase`
+> - The typed-domain result has no "Advisory, unproven." line, because no model runs on a typed domain. The fixes-only state is shown on Fernhollow Garden Supply, not the client the design expected. Twelve rows do not fit in the first screen at 1440 with the claim and its limit above them. All three are in `docs/DECISIONS_TO_REVIEW.md`.
+> - The gate's last lines (12 clients, a handled click that survives a reload, a second profile, a typed `example.com`) can only be shown on the production address after your merge. I check them straight after it.
+> - Spend: $2.27 of $10.
+>
+> Once answered: I make the changes you approve, run the reviewer pass and the verifier, and tell you when #14 is ready to merge. After your merge I check the production address in a real browser, then start Phase 6.
+
+**The owner's answers (in the session, 2026-11-20).** "Recommended for all four, and yes to the lighter way of working. From here the goal is to finish." So: all five of the challenger's changes; the words about the admin's ticks are corrected, not the behaviour; `vercel curl` may be used for the preview check; one reviewer pass and one verifier run after the changes. For Phase 5: the changes in one commit, then the reviewer and the verifier once each, "fix only what is blocking, in one more commit", tell the owner in one line when #14 is ready, and no challenger rerun. For Phase 6: as few commits as possible, one reviewer pass, one verifier run, evidence taken once at the end, no challenger unless the claim sentence changes; anything not blocking, and not about security, spend or a false statement, goes into `docs/DECISIONS_TO_REVIEW.md` and is left; stop only for going public.
+
+The owner had asked whether the build was overdoing things. The answer given: partly yes. Most of the time is the process itself (a five-minute check on every commit, fresh-context reviews); some found real faults; some was the build's own mistakes; and some was over-doing, namely re-taking the deployed evidence after every fix and fixing findings that were not blocking.
+
+### 2026-11-20: the approved changes, in one commit
+
+1. **The challenger's five.** (a) The six-risk demo state no longer says "Recorded from a real model run": its "Model output" fact reads "Put together for this demo state: four of these risks were recorded for other seeded clients and moved here to show six. Their wording does not describe this client.", driven by a count on the view, with a test that no view with borrowed risks shows the recorded line. (b) Scores round an exact half to the even side, as `make eval` prints them: 0.8125 is 0.812. (c) Under the "Not in use" table: "Prompt version 4, the final attempt, missed two bars: harmful and stability." The missed bars are computed against the bars. (d) A test holds every figure in the limit sentence to the eval summary; the summary gained per-run totals for the open set and the rules-only baseline, aggregates only. (e) Under the bars table: "Coverage and precision are over all 48 cases, 30 of them labelled by the rules table's own output; on the 18 open cases alone the model's coverage is 0.720."
+2. **The admin's ticks.** The words now say what happens: "These ticks are on the shared list. Visitors do not see it: each has a list of their own." and, in the admin bar, "Signed in as admin. Handled and reopen change the shared list, not a visitor's own." The design document's sentences are corrected to match.
+3. **The preview check**, with the command-line tool's access as the owner allowed. The preview deployment of this branch has its backend address pointed at nothing:
+
+```
+$ vercel curl / --deployment https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app --scope nkanyi-so > preview.html
+$ grep -o "Showing saved data\|The live service cannot be reached\|Twelve invented clients\|Harbourlight Books" preview.html | sort | uniq -c
+   4 Harbourlight Books
+   2 Showing saved data
+   2 The live service cannot be reached
+   5 Twelve invented clients
+$ curl -s -o /dev/null -w "%{http_code}" https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app/     # with no sign-in
+302
+```
+
+`make check` exits 0 (backend 1051 and 32, frontend 134). `make screens` exits 0: "contrast: 0 below 4.5:1 of 4678 pieces of text", "sideways scroll: 0 of 76 pages", "focus: 0 controls without a focus style of 1004", "68 screenshots"; the files for states 6 and 16 changed and are committed.
 
 ---
 

@@ -103,3 +103,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T12:21:40Z	5	verify	fail, an admin's tick is not seen by other visitors though the page says it is @ 9617bf5	2.27
 2026-11-20T12:21:41Z	5	challenge	change needed @ 9617bf5	2.27
 2026-11-20T12:23:47Z	5	stop-opened	issue=#15 questions=4 asked: Phase 5: four questions before your merge of #14	2.27
+2026-11-20T12:31:07Z	5	stop-closed	issue=#15 opened=2026-11-20T12:23:47Z	2.27

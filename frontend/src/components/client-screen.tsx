@@ -8,7 +8,7 @@ import { checkRows } from "@/lib/view/checks";
 import { promptNumber } from "@/lib/view/evals";
 import { figures } from "@/lib/view/figures";
 import { formatDay } from "@/lib/view/format";
-import type { ClientPageView } from "@/lib/view/screens";
+import { type ClientPageView, modelOutputFact } from "@/lib/view/screens";
 import { AdvisoryPanel } from "./advisory-panel";
 import { FallbackStrip, PageFrame } from "./chrome";
 import { Banner, type Fact, Facts, PlaceholderBar, SeededTag } from "./parts";
@@ -114,16 +114,10 @@ export function ClientScreen({ view, demo }: ClientScreenProps): ReactElement {
 
   const { page, admin, writes } = view;
   const { snapshot } = page;
-  const unavailable = snapshot.risks_status === "unavailable";
   const facts: Fact[] = [
     { label: "Snapshot", value: `${formatDay(snapshot.day)} (UTC)` },
     { label: "Prompt version", value: promptNumber(snapshot.prompt_version) },
-    {
-      label: "Model output",
-      value: unavailable
-        ? "Dropped: it did not pass its checks"
-        : "Recorded from a real model run, not generated on this visit",
-    },
+    { label: "Model output", value: modelOutputFact(view) },
   ];
 
   return (

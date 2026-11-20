@@ -62,6 +62,11 @@ export type ClientPageView =
       fallbackDay: string | null;
       admin: boolean;
       writes: Writes;
+      /**
+       * How many of the ranked risks were recorded for other seeded clients and moved onto this
+       * page. Only a demo state ever has any.
+       */
+      borrowedRisks: number;
     };
 
 export interface ClientPageLoads {
@@ -84,6 +89,7 @@ export function snapshotView(
     fallbackDay?: string | null;
     admin?: boolean;
     writes: Writes;
+    borrowedRisks?: number;
   },
 ): ClientPageView {
   return {
@@ -94,7 +100,29 @@ export function snapshotView(
     fallbackDay: rest.fallbackDay ?? null,
     admin: rest.admin ?? false,
     writes: rest.writes,
+    borrowedRisks: rest.borrowedRisks ?? 0,
   };
+}
+
+const COUNT_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+
+function countWord(count: number): string {
+  return COUNT_WORDS[count] ?? String(count);
+}
+
+/**
+ * The "Model output" fact on a client page. A page that carries risks recorded for another
+ * client says so here, and never says its list is one recorded model run.
+ */
+export function modelOutputFact(view: { page: ClientPage; borrowedRisks: number }): string {
+  const { snapshot } = view.page;
+  if (snapshot.risks_status === "unavailable") {
+    return "Dropped: it did not pass its checks";
+  }
+  if (view.borrowedRisks > 0) {
+    return `Put together for this demo state: ${countWord(view.borrowedRisks)} of these risks were recorded for other seeded clients and moved here to show ${countWord(snapshot.ranked.length)}. Their wording does not describe this client.`;
+  }
+  return "Recorded from a real model run, not generated on this visit";
 }
 
 export function clientPageView(loads: ClientPageLoads, fallback: FallbackData): ClientPageView {

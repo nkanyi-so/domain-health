@@ -51,7 +51,7 @@ export async function AdminBar(): Promise<ReactElement | null> {
             <InfoCircle />
           </span>
           <span>
-            Signed in as admin. Handled and reopen change the shared list that every visitor sees.
+            Signed in as admin. Handled and reopen change the shared list, not a visitor&apos;s own.
           </span>
         </p>
         <SignOutButton />

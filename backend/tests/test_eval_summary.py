@@ -67,13 +67,54 @@ def test_the_summary_holds_totals_only() -> None:
             "measures",
             "sets",
             "not_in_use",
+            "open_runs",
+            "rules_only",
         ]
     )
-    groups = [*made["measures"].values(), *made["sets"].values(), *made["not_in_use"]]
+    groups = [
+        *made["measures"].values(),
+        *made["sets"].values(),
+        *made["not_in_use"],
+        *made["open_runs"],
+        made["rules_only"],
+    ]
     for group in groups:
         for value in group.values():
             assert not isinstance(value, (dict, list))
     assert isinstance(made["cases"], int)
+
+
+def test_the_totals_scored_here_agree_with_the_results_file() -> None:
+    """The open set's counts for each run and the baseline's scores are scored by this module, so
+    they are held to what the results file says of the same runs."""
+    source, made = results(), summary(results())
+    opened, runs = source["sets"]["open"], made["open_runs"]
+
+    assert [row["run"] for row in runs] == list(range(1, source["runs"] + 1))
+    assert sorted(runs[0]) == [
+        "expected",
+        "found",
+        "harmful",
+        "rules_found",
+        "rules_harmful",
+        "run",
+    ]
+    assert {row["expected"] for row in runs} == {opened["expected_items"]}
+    assert sum(row["harmful"] for row in runs) == opened["harmful"]
+    assert sum(row["found"] / row["expected"] for row in runs) / len(runs) == pytest.approx(
+        opened["coverage"]
+    )
+    for row in runs:
+        assert row["rules_found"] / row["expected"] == pytest.approx(opened["baseline_coverage"])
+    assert {row["rules_harmful"] for row in runs} == {opened["baseline_harmful"]}
+    assert sorted(made["rules_only"]) == [
+        "all_bars_met",
+        "coverage",
+        "harmful",
+        "precision",
+        "stability",
+    ]
+    assert isinstance(made["rules_only"]["all_bars_met"], bool)
 
 
 def test_a_table_where_a_total_should_be_stops_the_build() -> None:

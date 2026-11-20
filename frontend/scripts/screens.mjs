@@ -136,7 +136,7 @@ const STATES = [
     must: [
       "Signed in as admin.",
       "Sign out",
-      "These ticks are shared: every visitor sees them.",
+      "These ticks are on the shared list. Visitors do not see it: each has a list of their own.",
       ...ADVISORY,
     ],
   },

@@ -8,7 +8,7 @@ import { FALLBACK } from "../fallback";
 import { afterClick, movedUpLine, snapshotState } from "./client-page";
 import { DEMO_STATES, demoName, demoNotice } from "./demo";
 import { liveCheckView } from "./live-check";
-import { type ClientPageView, clientListView, clientPageView } from "./screens";
+import { type ClientPageView, clientListView, clientPageView, modelOutputFact } from "./screens";
 
 const NOW = new Date("2026-01-04T12:00:00Z");
 
@@ -238,5 +238,39 @@ describe("the demo flag", () => {
       expect(view.page.snapshot.day).toBe(name === "no-snapshot" ? "2026-11-19" : DEMO_DAY);
       expect(view.page.snapshot.domain.endsWith(".example")).toBe(true);
     }
+  });
+
+  it("never calls a list with another client's risks in it a recorded model run", () => {
+    const withBorrowed: string[] = [];
+    for (const name of DEMO_STATES.client) {
+      const view = demoClientPage(name);
+      if (view.kind !== "snapshot") {
+        throw new Error(`${name} is not a snapshot`);
+      }
+      // A risk is this client's own when its bundled page has one of that type.
+      const own = new Set(saved(view.page.id).snapshot.ranked.map((risk) => risk.type));
+      const borrowed = view.page.snapshot.ranked.filter((risk) => !own.has(risk.type));
+
+      expect(view.borrowedRisks).toBe(borrowed.length);
+      if (borrowed.length > 0) {
+        withBorrowed.push(name);
+        expect(modelOutputFact(view)).not.toContain("Recorded from a real model run");
+      }
+    }
+
+    expect(withBorrowed).toEqual(["handled-one"]);
+    const six = demoClientPage("handled-one");
+    expect(six.kind === "snapshot" && modelOutputFact(six)).toBe(
+      "Put together for this demo state: four of these risks were recorded for other seeded clients and moved here to show six. Their wording does not describe this client.",
+    );
+  });
+
+  it("says a page from the backend is a recorded model run", () => {
+    const view = answered(saved("oakhaven-outfitters"));
+
+    expect(view.kind === "snapshot" && view.borrowedRisks).toBe(0);
+    expect(view.kind === "snapshot" && modelOutputFact(view)).toBe(
+      "Recorded from a real model run, not generated on this visit",
+    );
   });
 });

@@ -87,7 +87,9 @@ describe("the page's words", () => {
     expect(ticksLine(false)).toBe(
       "Only you see these ticks. They reset a day after your first one.",
     );
-    expect(ticksLine(true)).toBe("These ticks are shared: every visitor sees them.");
+    expect(ticksLine(true)).toBe(
+      "These ticks are on the shared list. Visitors do not see it: each has a list of their own.",
+    );
   });
 
   it("calls a client healthy only when both lists are empty and nothing is handled", () => {

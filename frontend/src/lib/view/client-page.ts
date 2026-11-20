@@ -127,6 +127,6 @@ export function clickAnnouncement(page: ClientPage, riskId: string, action: Clic
 /** Whose ticks these are, under the "Handled" heading. */
 export function ticksLine(admin: boolean): string {
   return admin
-    ? "These ticks are shared: every visitor sees them."
+    ? "These ticks are on the shared list. Visitors do not see it: each has a list of their own."
     : "Only you see these ticks. They reset a day after your first one.";
 }

@@ -12,7 +12,7 @@ Computed in the browser on every one of the screenshots, and on the eval table a
 
 | Check | Result |
 |---|---|
-| Contrast: every visible piece of text against the ground it sits on, at least 4.5:1 | 0 below, of 4670 pieces of text measured; the lowest is 4.99:1 |
+| Contrast: every visible piece of text against the ground it sits on, at least 4.5:1 | 0 below, of 4678 pieces of text measured; the lowest is 4.99:1 |
 | No sideways scroll: the page is no wider than the window and no element's right edge is beyond it | 0 of 76 pages scroll sideways (38 are 390 wide) |
 | Focus: every link, button and field, reached with the Tab key, shows an outline it does not have at rest | 0 without, of 1004 controls focused |
 | Each page shows its own wording and tab title, in the theme asked for | 0 of 76 do not |
@@ -94,10 +94,10 @@ Computed in the browser on every one of the screenshots, and on the eval table a
 
 | Page | Address | Text measured | Lowest contrast | Below 4.5 | Sideways scroll | Controls | Without focus style |
 |---|---|---|---|---|---|---|---|
-| evals (light, 1440) | `/evals` | 94 | 5.43 | 0 | no | 9 | 0 |
-| evals (light, 390) | `/evals` | 113 | 5.43 | 0 | no | 9 | 0 |
-| evals (dark, 1440) | `/evals` | 94 | 6.86 | 0 | no | 9 | 0 |
-| evals (dark, 390) | `/evals` | 113 | 6.09 | 0 | no | 9 | 0 |
+| evals (light, 1440) | `/evals` | 96 | 5.43 | 0 | no | 9 | 0 |
+| evals (light, 390) | `/evals` | 115 | 5.43 | 0 | no | 9 | 0 |
+| evals (dark, 1440) | `/evals` | 96 | 6.86 | 0 | no | 9 | 0 |
+| evals (dark, 390) | `/evals` | 115 | 6.09 | 0 | no | 9 | 0 |
 | about (light, 1440) | `/about` | 30 | 5.43 | 0 | no | 11 | 0 |
 | about (light, 390) | `/about` | 28 | 5.43 | 0 | no | 11 | 0 |
 | about (dark, 1440) | `/about` | 30 | 6.86 | 0 | no | 11 | 0 |

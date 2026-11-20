@@ -210,7 +210,7 @@ describe("the eval page's words", () => {
     };
 
     expect(missedSentence(two)).toBe(
-      "Two bars are missed: harmful, stability. The model returned a risk the label calls wrong 12 times in 144 case-runs. Stability scored 0.813 against a bar of at least 0.90.",
+      "Two bars are missed: harmful, stability. The model returned a risk the label calls wrong 12 times in 144 case-runs. Stability scored 0.812 against a bar of at least 0.90.",
     );
     expect(missedSentence(none)).toBe("All four bars are met.");
   });

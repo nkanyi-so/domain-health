@@ -38,6 +38,9 @@ function dated(page: ClientPage, day: string = DEMO_DAY): ClientPage {
   };
 }
 
+/** How many of state 6's six risks come from other seeded clients. */
+const BORROWED = 4;
+
 function borrowed(from: string, type: Risk["type"], domain: string): Risk {
   const risk = bundled(from).snapshot.ranked.find((entry) => entry.type === type);
   if (!risk) {
@@ -63,6 +66,9 @@ function sixRisks(): ClientPage {
     borrowed("silverbrook-dental", "bounce_rate_elevated", domain),
     borrowed("silverbrook-dental", "complaint_rate_elevated", domain),
   ];
+  if (ranked.length - page.snapshot.ranked.length !== BORROWED) {
+    throw new Error(`state 6 says ${BORROWED} risks are borrowed and that is not what it holds`);
+  }
   return { ...page, snapshot: { ...page.snapshot, ranked, visible: ranked.slice(0, 5) } };
 }
 
@@ -111,7 +117,7 @@ export function demoClientPage(name: DemoName<"client">): ClientPageView {
     case "both":
       return snapshotView(dated(bundled("northwind-cycles")), { writes: "local" });
     case "handled-one":
-      return snapshotView(handledOne(), { writes: "local" });
+      return snapshotView(handledOne(), { writes: "local", borrowedRisks: BORROWED });
     case "all-handled":
       return snapshotView(allHandled(), { writes: "local" });
     case "risks-unavailable":

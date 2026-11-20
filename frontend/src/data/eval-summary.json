@@ -36,8 +36,41 @@
       "stability": 0.8125
     }
   ],
+  "open_runs": [
+    {
+      "expected": 25,
+      "found": 18,
+      "harmful": 3,
+      "rules_found": 17,
+      "rules_harmful": 0,
+      "run": 1
+    },
+    {
+      "expected": 25,
+      "found": 18,
+      "harmful": 3,
+      "rules_found": 17,
+      "rules_harmful": 0,
+      "run": 2
+    },
+    {
+      "expected": 25,
+      "found": 18,
+      "harmful": 3,
+      "rules_found": 17,
+      "rules_harmful": 0,
+      "run": 3
+    }
+  ],
   "prompt_version": "risks-v3",
   "recorded_at": "2026-11-19T19:13:49+00:00",
+  "rules_only": {
+    "all_bars_met": true,
+    "coverage": 0.8805970149253731,
+    "harmful": 0.0,
+    "precision": 1.0,
+    "stability": 1.0
+  },
   "runs": 3,
   "sets": {
     "open": {
