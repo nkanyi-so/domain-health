@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "8b90471fd69a313dfb3165bc6dac2dc148075c8b4de21a944a350c2bdbae0b8c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above recommended level\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can harm inbox placement.\",\"evidence\":[\"fixes\",\"sources.complaint_rate_pct\",\"sources.volume_7d\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate above clean-list benchmark\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting list quality may be affecting delivery.\",\"evidence\":[\"fixes\",\"sources.bounce_rate_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4876,
+  "output_tokens": 126,
+  "cost_usd": 0.005506,
+  "latency_ms": 3387,
+  "recorded_at": "2026-11-20T05:47:03+00:00"
+}

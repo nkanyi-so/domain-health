@@ -81,3 +81,17 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T04:41:12Z	3	stop-opened	issue=#10 questions=6 asked: Phase 3 is ready to merge; six questions from the challenge of Phase 2's wording and the red eval job	1.85
 2026-11-20T04:57:49Z	3	stop-closed	issue=#10 opened=2026-11-20T04:41:12Z	1.85
 2026-11-20T05:01:35Z	3	review	no blocking findings, the one pass on the owner's answers @ 59c9371	1.85
+2026-11-20T05:22:31Z	3	merged	pr=#9 merged by nkanyi-so at 2026-11-20T05:22:09Z	1.85
+2026-11-20T05:22:31Z	4	phase-started	schedule, worker, API, first backend deploy	1.85
+2026-11-20T06:10:03Z	4	stop-opened	issue=#11 questions=3 asked: Phase 4: sign gcloud in again, decide how the frontend reaches the backend, and look at the seeded recordings	2.27
+2026-11-20T08:27:30Z	4	stop-closed	issue=#11 opened=2026-11-20T06:10:02Z	2.27
+2026-11-20T09:26:41Z	4	review	blocking findings, two @ 3929cfd	2.27
+2026-11-20T09:40:58Z	4	review	blocking findings, one, a false sentence in the log @ 5b1e5ca	2.27
+2026-11-20T09:53:51Z	4	review	blocking findings, one, the instance maximum @ c502bc9	2.27
+2026-11-20T10:00:37Z	4	verify	fail, make dev did not start the backend @ fc6d3ee	2.27
+2026-11-20T10:13:55Z	4	verify	pass @ 1aa64b4	2.27
+2026-11-20T10:15:17Z	4	stop-opened	issue=#13 questions=1 asked: Phase 4: one more review pass, or your merge of #12	2.27
+2026-11-20T10:19:22Z	4	stop-closed	issue=#13 opened=2026-11-20T10:15:16Z	2.27
+2026-11-20T10:23:44Z	4	review	no blocking findings, on e343425 and 1aa64b4 only @ 8d56481	2.27
+2026-11-20T10:24:58Z	4	gate-refused	exit=2 reason=checkout pr=#12: the local checkout is not the pull request's head commit (8d56481ec68fa2a8a56de4ad288e2b7d84d630ea). Push, or check out the branch	2.27
+2026-11-20T10:25:32Z	4	gate-refused	exit=2 reason=spend pr=#12: docs/PLAN.md must have exactly one 'Spend: $X of ...' line	2.27

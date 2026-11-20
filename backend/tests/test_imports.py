@@ -25,6 +25,9 @@ ALLOWED: dict[str, set[str]] = {
     "src/domain_health/resolver/live.py": {"dns"},
     "src/domain_health/risks/openai_model.py": {"openai"},
     "src/domain_health/store/firestore.py": {"google"},
+    "src/domain_health/machine_auth.py": {"google", "httpx2"},
+    "src/domain_health/cloud_tasks.py": {"google"},
+    "src/domain_health/slack.py": {"httpx2"},
 }
 
 
@@ -90,7 +93,12 @@ def test_the_scan_sees_every_way_of_importing() -> None:
 def test_only_the_live_check_builds_the_live_resolver() -> None:
     """Rule 5: seeded clients resolve through the fixture resolver only. The live resolver is
     imported by the typed-domain command alone (and by its own test)."""
-    allowed = {"src/domain_health/check_domain.py", "tests/test_resolver.py"}
+    allowed = {
+        "src/domain_health/check_domain.py",
+        # The deployed service's live-check route, which reaches it only after its limits.
+        "src/domain_health/serve.py",
+        "tests/test_resolver.py",
+    }
     importers = set()
     for path in python_files():
         tree = ast.parse(path.read_text(encoding="utf-8"))
@@ -110,7 +118,11 @@ def test_only_the_paid_commands_load_the_live_model() -> None:
     """Rule 3: the deployed service is built with the recorded model only. The live model's
     module is imported by the paid eval command alone (and by its own test), and there inside
     the function that runs after the key and the ledger are in hand."""
-    allowed = {"src/domain_health/evals/live.py", "tests/test_openai_model.py"}
+    allowed = {
+        "src/domain_health/evals/live.py",
+        "src/domain_health/seeded/record.py",
+        "tests/test_openai_model.py",
+    }
     importers = set()
     for path in python_files():
         tree = ast.parse(path.read_text(encoding="utf-8"))
@@ -125,10 +137,51 @@ def test_only_the_paid_commands_load_the_live_model() -> None:
 
     assert importers == allowed
 
-    live = ast.parse((BACKEND / "src/domain_health/evals/live.py").read_text(encoding="utf-8"))
-    at_the_top = [
-        node.module
-        for node in live.body
-        if isinstance(node, ast.ImportFrom) and node.module and "openai_model" in node.module
-    ]
-    assert at_the_top == []
+    for paid in ("evals/live.py", "seeded/record.py"):
+        source = (BACKEND / "src/domain_health" / paid).read_text(encoding="utf-8")
+        at_the_top = [
+            node.module
+            for node in ast.parse(source).body
+            if isinstance(node, ast.ImportFrom) and node.module and "openai_model" in node.module
+        ]
+        assert at_the_top == [], paid
+
+
+def test_the_deployed_service_never_loads_a_model_library_or_the_paid_commands() -> None:
+    """Rule 3 again, from the other side: nothing the service imports at start-up, directly or
+    through another module of this project, is the live model, a paid command or the rubric's
+    table."""
+    forbidden = (
+        "domain_health.risks.openai_model",
+        "domain_health.evals.live",
+        "openai",
+        # The rubric read as a table is the evals', never the pipeline's (decision 0010).
+        "domain_health.evals.table",
+        "domain_health.seeded.recording_report",
+        "domain_health.seeded.record",
+    )
+    seen: set[str] = set()
+    todo = ["domain_health.serve"]
+    while todo:
+        module = todo.pop()
+        if module in seen:
+            continue
+        seen.add(module)
+        relative = module.replace(".", "/")
+        path = BACKEND / "src" / f"{relative}.py"
+        if not path.exists():
+            path = BACKEND / "src" / relative / "__init__.py"
+        if not path.exists():
+            continue
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names: list[str] = []
+            if isinstance(node, ast.Import):
+                names = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                names = [node.module, *(f"{node.module}.{alias.name}" for alias in node.names)]
+            for name in names:
+                hit = any(name == bad or name.startswith(bad + ".") for bad in forbidden)
+                assert not hit, f"{module} imports {name}"
+                if name.startswith("domain_health"):
+                    todo.append(name)
+    assert "domain_health.seeded.recordings" in seen

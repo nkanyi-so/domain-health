@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "b5535faecd5bb2dde2fe18541f5cab686cceda06f2783047b391c6f0ceabdbe5",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above recommended level\",\"why\":\"The complaint rate exceeds the level mailbox providers recommend, which can put inbox placement at risk.\",\"evidence\":[\"fixes\",\"sources.complaint_rate_pct\",\"sources.volume_7d\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key uses older strength\",\"why\":\"The only DKIM key found is shorter than current practice, leaving a weaker authentication posture.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy does not ask receivers to enforce protection against spoofed mail.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4878,
+  "output_tokens": 177,
+  "cost_usd": 0.005763,
+  "latency_ms": 5993,
+  "recorded_at": "2026-11-20T05:47:23+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "2a4f745b25bb62e16b30ada92de37e595d61429c62b44071e8f011ba01f805cc",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key uses older strength\",\"why\":\"The only DKIM key found is shorter than current practice, leaving signatures less resilient.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy does not ask receivers to reject or quarantine failing mail, leaving the domain more exposed to spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4878,
+  "output_tokens": 127,
+  "cost_usd": 0.005513,
+  "latency_ms": 6163,
+  "recorded_at": "2026-11-20T05:47:22+00:00"
+}

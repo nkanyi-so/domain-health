@@ -21,7 +21,7 @@ stop() {
   wait 2>/dev/null
 }
 trap stop INT TERM EXIT
-(cd "$ROOT/backend" && exec uv run --frozen uvicorn domain_health.app:app --reload --host 127.0.0.1 --port 8000) &
+(cd "$ROOT/backend" && DOMAIN_HEALTH_DEV=1 exec uv run --frozen uvicorn domain_health.serve:app --reload --host 127.0.0.1 --port 8000) &
 pids+=($!)
 (cd "$ROOT/frontend" && exec pnpm run dev) &
 pids+=($!)

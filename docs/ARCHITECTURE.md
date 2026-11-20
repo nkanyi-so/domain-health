@@ -33,6 +33,24 @@ Where Phase 1 put things (`backend/src/domain_health/`): `resolver/` (the interf
 
 Where Phase 3 put things: `store/__init__.py` (the documents' shapes, the `SnapshotStore` interface, `visible_risks` and every rule about what a write holds, as pure functions), `store/memory.py` and `store/firestore.py` (the two stores: each reads, calls those functions and writes, so they cannot differ in what they decide), `clock.py`, `worker.py` (`run_client`: one seeded client, one day; `python -m domain_health.worker <client-id> --prompt <file> --model <name>` is a dry run that prints the document and touches no database).
 
+Where Phase 4 put things: `app.py` (every route, built from a `Deps` of interfaces), `serve.py` (the deployed service: `Deps` from the real parts; `DOMAIN_HEALTH_DEV=1` builds a local one on the emulator), `settings.py`, `machine_auth.py` (the OIDC check and Google's key set), `tasks.py` and `cloud_tasks.py`, `alerts.py` and `slack.py`, `seeded/recordings.py` (which recorded answers are kept; the service loads this), `seeded/recording_report.py` (the recordings read against the rubric's table; the service never loads it), `seeded/record.py` (`make record`, paid), `seeded/seed.py` (`make seed`). The cloud scripts are `scripts/infra.sh`, `scripts/deploy-backend.sh` and `scripts/seed.sh`, over `scripts/cloud-common.sh`, which pins every gcloud call to the `domain-health` configuration; the image is `backend/Dockerfile`, built by `backend/cloudbuild.yaml`.
+
+The API, as Phase 4 built it. Every `/api/*` call carries `X-Proxy-Secret` and `X-Actor` (`admin`, or `sandbox:<session>`); the live check also carries `X-Client-Address`, the visitor's address as the frontend's server saw it (one IP address and nothing else: a list, a port, a zone suffix or any other text is refused with 400; an IPv6 address is counted as its /64, and an IPv4 address written inside an IPv6 one as the IPv4 address), which is hashed before it names a counter.
+
+| Route | Gives |
+|---|---|
+| `GET /health` | `{status: ok}`. Not `/healthz`: Cloud Run keeps that path. |
+| `GET /api/clients` | the twelve clients, each with today's summary or `today: null` when today has no snapshot |
+| `GET /api/clients/{id}/snapshot?day=` | the day as the actor sees it (today by default); 404 when that day has no snapshot. No earlier day is served in its place |
+| `POST /api/clients/{id}/handled`, `/reopen` | body `{day, risk_id}`; the day after the click. 404 no snapshot, 422 no such risk, 503 busy |
+| `POST /api/live-check` | body `{domain}`; checks and fixes, `cached` true when it is the answer kept from the last ten minutes. 422 with the refusal's name; 429 with `rate_limited` or `daily_cap` (no time is given for when the limit lifts) |
+| `POST /internal/dispatch` | one task per client, two seconds apart; 502 if any could not be enqueued, after trying all |
+| `POST /internal/worker/{id}?day=&dry_run=` | runs the client's day; a dry run returns the document and writes nothing |
+
+The live check's order is fixed: the name is validated, then the cache is read, then one slot is taken from the two counters in one transaction (`counters/ip-{hash}-{window}`, five per ten-minute window, and `counters/live-{day}`, 200), and only then is DNS reached, over TCP. A cached answer takes no slot.
+
+Seeded recordings: `backend/fixtures/recordings/<prompt version>/<model>/run-1..3/`. A state's answer is replayed only when its three recorded answers are valid and agree on their first five types; otherwise the snapshot says "risks unavailable".
+
 A check either gives the fields the risk model receives (`Checks` in `models.py`) or is **unavailable**: a lookup it needed did not answer or answered with more text than a check reads, it ran out of time, or the domain's forty lookups were spent. Unavailable is never read as "no record", so it gives no fix. The model's input cannot hold an unavailable check; fixture zones always answer, so a seeded client's input is always whole, and the typed-domain path, which has no model call, shows the check as not made. Beside those fields a check keeps what they cannot say: the records as read, the problems in plain words, and DKIM keys that are not RSA (found, never called weak, not in `keys`, whose `key_bits` is an RSA length).
 
 Boundaries that matter:
@@ -92,20 +110,21 @@ An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exac
 | Rubric objections not taken | [0011](decisions/0011-rubric-objections-not-taken.md) |
 | The claim says what is measured; the baseline comparison is evidence | [0012](decisions/0012-the-claim-says-what-is-measured.md) |
 | Auth: OIDC for machines, a proxy secret, an admin session, a visitor sandbox | [0009](decisions/0009-auth.md) |
+| The service is opened by turning off Cloud Run's invoker check | [0014](decisions/0014-the-service-is-opened-by-turning-off-the-invoker-check.md) |
 | Each runtime dependency | [dependencies](decisions/dependencies.md) |
 
 ## Security
 
 The reviewer's checklist in security mode.
 
-- **Machine auth.** `/internal/*` verifies a Google-signed OIDC token: signature against Google's keys, issuer, audience equal to the service URL, email equal to the invoker service account. Tested in CI with locally signed tokens and a fake key set. The Cloud Run service allows unauthenticated invocations at the platform level because the frontend cannot mint Google tokens; the app refuses everything it should.
+- **Machine auth.** `/internal/*` verifies a Google-signed OIDC token: signature against Google's keys, issuer, audience equal to the service URL, email equal to the invoker service account. Tested in CI with locally signed tokens and a fake key set. The Cloud Run service is open at the platform level because the frontend cannot mint Google tokens; the app refuses everything it should. It is opened by turning off Cloud Run's invoker check (`--no-invoker-iam-check`), not by granting `allUsers`, which the project's organisation policy refuses (decision 0014): the app-level checks are the only gate.
 - **Public API.** `/api/*` requires the proxy secret header, compared in constant time. Shared-state writes also require the admin actor, which only the frontend's server routes can assert after checking the admin session cookie.
 - **Sessions.** Cookies are signed, `HttpOnly`, `Secure`, `SameSite=Lax`. Write routes check the `Origin` header. The admin passphrase is compared in constant time and sign-in attempts are rate limited.
 - **Untrusted input.** The typed domain is validated as a public host name before any lookup and is only ever used as a DNS query name; the backend makes no HTTP request to it. DNS answers are untrusted text: length-capped, parsed, never rendered as HTML. Model output is untrusted: validated against the schema and the rules in the spec, rendered as text.
 - **Spend and abuse.** Per-address limit, daily cap and query cap on the live check; counters in Firestore so they hold across instances and restarts; one instance at most; a budget alert. A GET never does metered work beyond a cached read. Limits are tested by firing requests at once, not one at a time.
 - **Secrets.** None in the repository, the image or the client bundle. `NEXT_PUBLIC_` variables hold nothing secret.
 - **Exposure.** No real company, person, client name or platform name in the tree or the history. Seeded domains are on reserved names.
-- **Least privilege.** One service account runs the service (Firestore user, Tasks enqueuer); one invokes it (used by Scheduler and Tasks). Neither is an owner or editor.
+- **Least privilege.** One service account runs the service (Firestore user, Tasks enqueuer); one invokes it (used by Scheduler and Tasks). Neither is an owner or editor. A third builds the image (reads the uploaded source, writes the image and its log): a new project's default build account has no access to the source, and using it would have meant widening it.
 
 ## Testing
 

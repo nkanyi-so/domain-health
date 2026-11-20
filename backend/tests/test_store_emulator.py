@@ -16,7 +16,15 @@ import pytest
 from domain_health.clock import FixedClock
 from domain_health.risks.model import FixtureRiskModel
 from domain_health.seeded import load_clients
-from domain_health.store import SHARED, Scope, Snapshot, SnapshotStore, live_check
+from domain_health.store import (
+    SHARED,
+    Scope,
+    Slot,
+    Snapshot,
+    SnapshotStore,
+    StoreBusyError,
+    live_check,
+)
 from domain_health.store.firestore import FirestoreStore, connect
 from domain_health.worker import ModelFacts, run_client
 from tests import store_fixtures as scenarios
@@ -69,6 +77,7 @@ ONCE = [
     scenarios.a_sandbox_lives_one_day,
     scenarios.a_live_check_is_kept_ten_minutes,
     scenarios.a_preview_writes_nothing,
+    scenarios.an_address_key_that_is_not_a_hash_is_refused,
 ]
 
 
@@ -317,5 +326,97 @@ def test_reading_never_writes_whatever_day_a_visitor_reads() -> None:
                 await db_store.read_day(scope, client_id, day, noon(DAY0))
 
         assert await everything() == before
+
+    run(go())
+
+
+def test_ten_live_checks_fired_at_once_from_one_address_give_at_most_five(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    async def go() -> list[Slot]:
+        return await scenarios.ten_live_checks_at_once_give_at_most_five(store())
+
+    given = run(go())
+
+    with capsys.disabled():
+        taken = sum(slot is Slot.TAKEN for slot in given)
+        print(f"\nlive check: 10 fired at once from one address, {taken} succeeded")
+
+
+def test_ten_live_checks_from_ten_processes_never_give_more_than_five() -> None:
+    """Ten stores, as ten processes would be: nothing queues them, only the transaction counts.
+
+    Some may be turned away busy, which the API answers with "try again"; what must never
+    happen is a sixth success.
+    """
+
+    async def go() -> list[Slot | None]:
+        key = uuid4().hex
+
+        async def one() -> Slot | None:
+            try:
+                return await store().take_live_check_slot(key, noon(DAY0))
+            except StoreBusyError:
+                return None
+
+        return list(await asyncio.gather(*(one() for _ in range(10))))
+
+    given = run(go())
+
+    taken = sum(slot is Slot.TAKEN for slot in given)
+    assert taken <= 5
+    assert all(slot in (Slot.TAKEN, Slot.ADDRESS_LIMIT, None) for slot in given)
+    if None not in given:
+        assert taken == 5
+
+
+def test_with_the_days_counter_at_200_the_next_live_check_is_refused(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    async def go() -> None:
+        # A database of its own: the day's counter is shared by every address. The counter is
+        # set, not counted up to: two hundred contending writes take the emulator minutes, and
+        # the memory store's test does count them one by one through the same rule.
+        db_store = own_database()
+        counter = db_store.db.document("counters", f"live-{DAY0.isoformat()}")
+        await counter.set({"count": 199})
+        assert await db_store.take_live_check_slot("ab" * 16, noon(DAY0)) is Slot.TAKEN
+        assert ((await counter.get()).to_dict() or {})["count"] == 200
+
+        assert await db_store.take_live_check_slot("cd" * 16, noon(DAY0)) is Slot.DAILY_CAP
+        assert await db_store.take_live_check_slot("ab" * 16, noon(DAY0)) is Slot.DAILY_CAP
+        # A refused check counts nothing, and the next UTC day starts again.
+        assert ((await counter.get()).to_dict() or {})["count"] == 200
+        tomorrow = noon(DAY0) + timedelta(days=1)
+        assert await db_store.take_live_check_slot("cd" * 16, tomorrow) is Slot.TAKEN
+
+    run(go())
+
+    with capsys.disabled():
+        print("\nlive check: with the day's counter at 200, the next check was refused")
+
+
+def test_both_counters_carry_a_timestamp_to_expire_by() -> None:
+    async def go() -> None:
+        db_store = own_database()
+        await db_store.take_live_check_slot("ab" * 16, noon(DAY0))
+
+        found = await paths(db_store)
+        assert len(found) == 2
+        address = next(path for path in found if path.startswith("counters/ip-"))
+        fields = (await db_store.db.document(address).get()).to_dict() or {}
+        assert fields["count"] == 1
+        assert isinstance(fields["expires_at"], datetime)
+        day = (await db_store.db.document("counters", f"live-{DAY0.isoformat()}").get()).to_dict()
+        assert day is not None
+        assert day["count"] == 1
+        assert day["expires_at"] - noon(DAY0) >= timedelta(days=2)
+
+    run(go())
+
+
+def test_seeded_clients_are_listed_and_keep_their_marks() -> None:
+    async def go() -> None:
+        await scenarios.seeded_clients_are_listed_and_keep_their_marks(own_database())
 
     run(go())

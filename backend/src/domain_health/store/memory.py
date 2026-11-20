@@ -6,19 +6,24 @@ from datetime import date, datetime
 from domain_health.store import (
     SHARED,
     ClientDay,
+    ClientRecord,
     DayResult,
     HandledMark,
     LiveCheck,
     SandboxState,
     Scope,
+    Slot,
     Snapshot,
+    address_counter,
     alive,
     changed,
     checked_client_id,
     checked_domain,
+    day_counter,
     found,
     sandbox_state,
     seen,
+    slot,
     stored,
     with_view,
 )
@@ -31,6 +36,8 @@ class MemoryStore:
         self.handled: dict[str, dict[str, HandledMark]] = {}
         self.sandboxes: dict[tuple[str, str], SandboxState] = {}
         self.live_checks: dict[str, LiveCheck] = {}
+        self.counters: dict[str, int] = {}
+        self.clients: dict[str, ClientRecord] = {}
 
     @property
     def documents(self) -> int:
@@ -85,6 +92,22 @@ class MemoryStore:
             return seen(snapshot, self.handled.get(client_id, {}))
         state = alive(self.sandboxes.get((scope.session, client_id)), now)
         return seen(snapshot, state.handled if state else {})
+
+    async def take_live_check_slot(self, address_key: str, now: datetime) -> Slot:
+        day, address = day_counter(now), address_counter(address_key, now)
+        async with self._lock:
+            given = slot(self.counters.get(day, 0), self.counters.get(address, 0))
+            if given is Slot.TAKEN:
+                self.counters[day] = self.counters.get(day, 0) + 1
+                self.counters[address] = self.counters.get(address, 0) + 1
+            return given
+
+    async def seed_clients(self, clients: list[ClientRecord]) -> None:
+        for client in clients:
+            self.clients[client.id] = client
+
+    async def list_clients(self) -> list[ClientRecord]:
+        return [self.clients[client_id] for client_id in sorted(self.clients)]
 
     async def save_live_check(self, check: LiveCheck) -> None:
         self.live_checks[check.domain] = check

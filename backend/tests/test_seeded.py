@@ -180,3 +180,15 @@ def test_a_seeded_domain_must_be_reserved() -> None:
         SeededClient.model_validate(
             client.model_dump() | {"domain": "harbourlight-books.example.com"}
         )
+
+
+def test_the_seed_command_needs_the_project_and_a_token(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from domain_health.seeded.seed import main
+
+    monkeypatch.delenv("GCP_ACCESS_TOKEN", raising=False)
+    monkeypatch.delenv("GCP_PROJECT_ID", raising=False)
+
+    assert main([]) == 1
+    assert "make seed" in capsys.readouterr().err

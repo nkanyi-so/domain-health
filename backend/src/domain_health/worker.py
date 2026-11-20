@@ -11,9 +11,10 @@ import argparse
 import asyncio
 import logging
 import sys
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
+from domain_health.alerts import Alerter, AlertError, changes, message
 from domain_health.clock import Clock, SystemClock
 from domain_health.models import Frozen
 from domain_health.risks import Risk
@@ -26,7 +27,7 @@ from domain_health.risks.model import (
 )
 from domain_health.risks.prompt import load_prompt
 from domain_health.seeded import SeededClient, checked, load_clients
-from domain_health.store import DayResult, Snapshot, SnapshotStore
+from domain_health.store import SHARED, DayResult, Snapshot, SnapshotStore
 from domain_health.store.memory import MemoryStore
 
 log = logging.getLogger(__name__)
@@ -47,6 +48,7 @@ async def run_client(
     facts: ModelFacts,
     store: SnapshotStore,
     clock: Clock,
+    alerter: Alerter | None = None,
     dry_run: bool = False,
 ) -> Snapshot:
     """Run one client's day and save it. Returns the document written, or, on a dry run, the
@@ -81,8 +83,39 @@ async def run_client(
         finished_at=clock.now(),
     )
     if dry_run:
+        if alerter is not None:
+            await _alert(alerter, store, result, clock, dry_run=True)
         return await store.preview_daily(result)
-    return await store.write_daily(result)
+    # The alert goes out once per client and day: after the snapshot is saved, and only on the
+    # run that saved it first. A run that fails before the write is retried by the queue, and a
+    # rerun of a saved day overwrites; neither sends the message again.
+    first = await store.read_day(SHARED, client.id, on, clock.now()) is None
+    written = await store.write_daily(result)
+    if alerter is not None and first:
+        await _alert(alerter, store, result, clock, dry_run=False)
+    return written
+
+
+async def _alert(
+    alerter: Alerter, store: SnapshotStore, today: DayResult, clock: Clock, *, dry_run: bool
+) -> None:
+    """Send the change alert if a deterministic check differs from yesterday's. A dry run only
+    logs what it would send. A failed send is logged and does not fail the run: the snapshot
+    matters more than the message."""
+    yesterday = await store.read_day(
+        SHARED, today.client_id, today.day - timedelta(days=1), clock.now()
+    )
+    lines = changes(yesterday.snapshot if yesterday else None, today)
+    if not lines:
+        return
+    text = message(today, lines)
+    if dry_run:
+        log.info("dry run: the change alert that would be sent:\n%s", text)
+        return
+    try:
+        await alerter.send(text)
+    except AlertError as error:
+        log.warning("the change alert for %s was not sent: %s", today.client_id, error)
 
 
 def main(argv: list[str] | None = None) -> int:

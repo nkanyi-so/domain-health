@@ -24,6 +24,9 @@ ONCE = [
     scenarios.a_sandbox_lives_one_day,
     scenarios.a_live_check_is_kept_ten_minutes,
     scenarios.a_preview_writes_nothing,
+    scenarios.ten_live_checks_at_once_give_at_most_five,
+    scenarios.an_address_key_that_is_not_a_hash_is_refused,
+    scenarios.seeded_clients_are_listed_and_keep_their_marks,
 ]
 
 
@@ -67,3 +70,7 @@ def test_reading_never_writes_whatever_day_a_visitor_reads() -> None:
         assert (store.snapshots, store.handled, store.sandboxes) == before
 
     run(go())
+
+
+def test_the_201st_live_check_of_a_day_is_refused() -> None:
+    run(scenarios.the_201st_live_check_of_a_day_is_refused(MemoryStore(), scenarios.DAY0))

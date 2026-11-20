@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e2c022ffe33e3881f381d299763b68f94eee576e68d0a222e7a1a15b4c0c0dfa",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is in monitoring mode\",\"why\":\"DMARC monitors rather than protects the domain from spoofing. Monitoring is the right stage while the SPF fix remains open; enforcement follows.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4928,
+  "output_tokens": 85,
+  "cost_usd": 0.005353,
+  "latency_ms": 2372,
+  "recorded_at": "2026-11-20T05:46:59+00:00"
+}

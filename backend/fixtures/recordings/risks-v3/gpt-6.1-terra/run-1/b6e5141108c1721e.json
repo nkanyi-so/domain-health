@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "b6e5141108c1721e16707b79ffc33bde1e1c0460990cd50d3654d3a8ac67620e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sending reputation\",\"why\":\"The domain's reputation is low, which can make mailbox providers less likely to deliver its mail to the inbox.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Elevated complaint rate\",\"why\":\"The complaint rate is above the level mailbox providers recommend, indicating that recipients are reporting mail as unwanted.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting potential list-quality issues.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain was recently delisted and has had multiple listings in the lookback window, which may continue to affect delivery.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 236,
+  "cost_usd": 0.006059,
+  "latency_ms": 4447,
+  "recorded_at": "2026-11-20T05:46:56+00:00"
+}
