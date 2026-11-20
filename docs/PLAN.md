@@ -11,7 +11,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
-| 3: snapshots and the handled loop | waiting on you | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
+| 3: snapshots and the handled loop | in review | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
@@ -21,7 +21,7 @@ States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `mer
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $1.85 of $10 cap
-Decisions to review: 23 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 24 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -37,29 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 3 is built, reviewed and verified, and it waits for you to merge it.** Pull request: [#9](https://github.com/nkanyi-so/domain-health/pull/9). Two things stop the run from merging it itself, and neither is about Phase 3's code.
-
-- The challenger, covering the three Phase 2 commits it had not seen, came back "change needed". Its list is about Phase 2's wording in the plan and the spec, and about two files the guards do not cover.
-- CI's `eval` job is red on every commit, by design, since Phase 2 missed the harmful bar. The merge gate refuses any pull request with a red job, so as things stand it will leave every remaining phase for you.
-
-Phase 3 itself: the reviewer found nothing blocking on its third and last run, and the verifier passed all fourteen checks, with `make check` green twice. The first review found two real faults, both fixed: a risk handled on yesterday's page could show again on today's, and a visitor's read could write to the database.
-
-Six questions. "Recommended for all" is a complete answer.
-
-1. **CI's red `eval` job against "CI is green on `main`".** The spec's "Done when" and the Phase 6 gate both ask for green CI, and the same gate asks that `make eval STRICT=1` exit non-zero, which is the command the `eval` job runs. Both cannot hold.
-   - **A (recommended).** The `eval` job passes when the results miss exactly the bars a committed file names (today: harmful), and fails on any other miss and on a pass the file does not expect. CI can then be green, a new miss still turns it red, and the merge gate can merge Phases 4 to 6. Cost: a change to CI and one small file, so you merge the phase that holds it. I would add it to this pull request.
-   - **B.** Leave the job red. "CI is green" is reworded to "`check` and `secrets` are green and `eval` is red only on the bars the README names". You merge every remaining phase yourself.
-2. **The Phase 6 line "writes harmful as '0 in 144 case-runs'".** Followed literally it puts a false number in the README. Recommended: reword it to "writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144)". The other option is to leave it and let Phase 6 stop on it.
-3. **The Phase 6 line "says the risk wording shown was false in the harmful answers".** That is true of version 4's twelve and not of version 3's nine, whose wording is accurate: their fault is raising the risk at all. Recommended: tie the sentence to version 4, and have the README say of version 3 that the wording was accurate and the call was wrong.
-4. **The limit sentence beside the claim.** The challenger says it is not false but overstates: on the eighteen open cases the model found one more expected risk than the table (18 of 25 against 17), and the table wins there on wrong answers (none against nine), not on coverage. Its wording: "...it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases the model found one more expected risk than the table and returned nine wrong ones to its none)".
-   - **A (recommended).** Take that wording, in the spec and in the Phase 5 line. It is one sentence, and the README now leads with this finding, so it should be exact.
-   - **B.** Keep the sentence as it passed.
-5. **Two files the guards do not cover.** `evals/settings.toml` chooses which prompt version the results file, the README and the seeded recordings use, and `backend/src/domain_health/evals/scoring.py` defines the four measures. Neither is in `.claude/hooks/measure-paths.txt`, so a phase could change either and still be merged by the run. Recommended: add both. Cost: a guard change, merged by you with this pull request.
-6. **Checks in code the challenger suggests.** Recommended: three of the four. In Phase 4, a test that flags a seeded recording whose text says "above" or "elevated" of a value below the rubric's line, and a count per seeded state of risk types the bands call merely acceptable, shown to you before the recordings are kept. In Phase 6, a test that every "N in 144" in the README equals the results file. Not the fourth (a script that diffs the pasted eval output against a fresh run): the challenger does that by hand each phase and it matched.
-
-It also notes, for you to know and with nothing to decide: Phase 4's recording test checks only types the bands call wrong, so it cannot catch the kind of harm version 3 showed on the open cases (item 6's count is the nearest thing code can do); and the three runs agree so closely that they are near one sample, so the stability figure says little about other days. A repeat on another day would cost about $0.78 and would not change any pass or fail. I do not recommend it.
-
-Once answered: I make the edits you approve on this pull request's branch (the plan and spec lines, the guard file, the CI job), run one reviewer pass on them, and tell you it is ready. Your merge is the answer to the stop. Phase 4 starts after it.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -2185,6 +2163,44 @@ reviewer-verdict: no blocking findings @ c425242
 verifier-verdict: pass @ c425242
 challenger-verdict: change needed @ c425242
 
+**The stop (issue #10), and the owner's answers.** The block as it stood under "Waiting on you":
+
+> **Phase 3 is built, reviewed and verified, and it waits for you to merge it.** Pull request: [#9](https://github.com/nkanyi-so/domain-health/pull/9). Two things stop the run from merging it itself, and neither is about Phase 3's code.
+> 
+> - The challenger, covering the three Phase 2 commits it had not seen, came back "change needed". Its list is about Phase 2's wording in the plan and the spec, and about two files the guards do not cover.
+> - CI's `eval` job is red on every commit, by design, since Phase 2 missed the harmful bar. The merge gate refuses any pull request with a red job, so as things stand it will leave every remaining phase for you.
+> 
+> Phase 3 itself: the reviewer found nothing blocking on its third and last run, and the verifier passed all fourteen checks, with `make check` green twice. The first review found two real faults, both fixed: a risk handled on yesterday's page could show again on today's, and a visitor's read could write to the database.
+> 
+> Six questions. "Recommended for all" is a complete answer.
+> 
+> 1. **CI's red `eval` job against "CI is green on `main`".** The spec's "Done when" and the Phase 6 gate both ask for green CI, and the same gate asks that `make eval STRICT=1` exit non-zero, which is the command the `eval` job runs. Both cannot hold.
+>    - **A (recommended).** The `eval` job passes when the results miss exactly the bars a committed file names (today: harmful), and fails on any other miss and on a pass the file does not expect. CI can then be green, a new miss still turns it red, and the merge gate can merge Phases 4 to 6. Cost: a change to CI and one small file, so you merge the phase that holds it. I would add it to this pull request.
+>    - **B.** Leave the job red. "CI is green" is reworded to "`check` and `secrets` are green and `eval` is red only on the bars the README names". You merge every remaining phase yourself.
+> 2. **The Phase 6 line "writes harmful as '0 in 144 case-runs'".** Followed literally it puts a false number in the README. Recommended: reword it to "writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144)". The other option is to leave it and let Phase 6 stop on it.
+> 3. **The Phase 6 line "says the risk wording shown was false in the harmful answers".** That is true of version 4's twelve and not of version 3's nine, whose wording is accurate: their fault is raising the risk at all. Recommended: tie the sentence to version 4, and have the README say of version 3 that the wording was accurate and the call was wrong.
+> 4. **The limit sentence beside the claim.** The challenger says it is not false but overstates: on the eighteen open cases the model found one more expected risk than the table (18 of 25 against 17), and the table wins there on wrong answers (none against nine), not on coverage. Its wording: "...it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases the model found one more expected risk than the table and returned nine wrong ones to its none)".
+>    - **A (recommended).** Take that wording, in the spec and in the Phase 5 line. It is one sentence, and the README now leads with this finding, so it should be exact.
+>    - **B.** Keep the sentence as it passed.
+> 5. **Two files the guards do not cover.** `evals/settings.toml` chooses which prompt version the results file, the README and the seeded recordings use, and `backend/src/domain_health/evals/scoring.py` defines the four measures. Neither is in `.claude/hooks/measure-paths.txt`, so a phase could change either and still be merged by the run. Recommended: add both. Cost: a guard change, merged by you with this pull request.
+> 6. **Checks in code the challenger suggests.** Recommended: three of the four. In Phase 4, a test that flags a seeded recording whose text says "above" or "elevated" of a value below the rubric's line, and a count per seeded state of risk types the bands call merely acceptable, shown to you before the recordings are kept. In Phase 6, a test that every "N in 144" in the README equals the results file. Not the fourth (a script that diffs the pasted eval output against a fresh run): the challenger does that by hand each phase and it matched.
+> 
+> It also notes, for you to know and with nothing to decide: Phase 4's recording test checks only types the bands call wrong, so it cannot catch the kind of harm version 3 showed on the open cases (item 6's count is the nearest thing code can do); and the three runs agree so closely that they are near one sample, so the stability figure says little about other days. A repeat on another day would cost about $0.78 and would not change any pass or fail. I do not recommend it.
+> 
+> Once answered: I make the edits you approve on this pull request's branch (the plan and spec lines, the guard file, the CI job), run one reviewer pass on them, and tell you it is ready. Your merge is the answer to the stop. Phase 4 starts after it.
+The owner's answer, in the session, 2026-11-20: "Recommended for all six, including 1A and 4A. Make the edits on #9's branch, run the one reviewer pass, and tell me when #9 is ready to merge. Do not reopen anything else from Phase 2. After I merge, start Phase 4 and merge the remaining phases through the gate yourself."
+
+**What was done with the answers.**
+
+1. **1A.** `evals/expected-misses.toml` names `harmful`. `make eval EXPECTED=1` exits 0 only when the bars missed are exactly the ones it names; CI's `eval` job runs that. `make eval STRICT=1` is unchanged. Run here: `make eval EXPECTED=1` printed "expected misses: exactly as expected-misses.toml names them (harmful)" and exited 0; `make eval STRICT=1` exited non-zero. Thirteen new tests: a named miss passes while strict still fails; an unnamed miss, a named bar that is met, an unknown name, a name twice, a file that is not the right shape and a missing file each fail; the committed file names exactly what the committed results miss.
+2. The Phase 6 README line now asks for the results file's figure, 9 in 144.
+3. The Phase 6 line ties the false wording to version 4 and says version 3's was accurate with the call wrong. The spec's Phase 2 paragraph has one sentence saying the same.
+4. **4A.** The limit sentence, in the spec and the Phase 5 line, now ends "(on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none)". This is not the challenger's wording exactly: its clause counted the found risks per run and the wrong ones over three runs. Listed in `docs/DECISIONS_TO_REVIEW.md`.
+5. `evals/settings.toml` and `backend/src/domain_health/evals/scoring.py` are in `.claude/hooks/measure-paths.txt`, and so is `evals/expected-misses.toml`, which the owner did not name: it decides whether CI is green. Also listed.
+6. Two checklist lines added, one to Phase 4 (the wording test and the count of merely-acceptable types on seeded recordings) and one to Phase 6 (every "N in 144" in the README against the results file).
+
+Guards changed in this phase, none weakening a check as the owner ruled it: `.github/workflows/ci.yml` (the `eval` job's command), `.claude/hooks/measure-paths.txt` (three lines added). Also changed and owner-merged: `docs/SPEC.md`, checklist lines of Phases 4 to 6 in this file, `Makefile` (the `EXPECTED=1` option). The verdict lines above are for `c425242`; the reviewer's one pass on these edits is recorded below, and the verifier and the challenger were not run again, as the owner asked for one reviewer pass.
+
 ---
 
 ## Phase 4: schedule, worker, API, first backend deploy
@@ -2195,6 +2211,7 @@ challenger-verdict: change needed @ c425242
 - [ ] `Alerter` and the change alert, tested against a fake; `NullAlerter` when no webhook is set.
 - [ ] `make record` (paid): recordings for every state of every seeded client. A test fails if any seeded state has no recording, or if a recording names a risk type the rubric's bands call wrong for that input (decision 0010).
 - [ ] Added after the Phase 2 challenge (the owner, 2026-11-20): `make record` uses the prompt in use (`evals/settings.toml`), and a seeded state's recording is kept only when three calls agree on its first five; a state where they do not is reported and shown as "risks unavailable". The worst case in the paid-steps table is three times the calls it assumed and is corrected before the step runs.
+- [ ] Added after the Phase 3 challenge (the owner, 2026-11-20): a test flags a seeded recording whose text says a value is "above" a line or "elevated" when the input's value is below the rubric's line for that risk type; and for each seeded state the build counts the risk types returned that the bands call merely acceptable, and shows the counts to the owner before the recordings are kept.
 - [ ] `make infra` and `make deploy-backend`: Cloud Run (at most one instance), Firestore with TTL policies, the queue with its retry settings, the Scheduler job, two service accounts, secrets, a budget alert of $5 a month.
 - [ ] `make seed`, then one scheduled run triggered by hand.
 - [ ] `docs/DESIGN.md`: the direction, the tokens, the list of screens and states. Written before Phase 5 starts.
@@ -2212,7 +2229,7 @@ challenger-verdict: change needed @ c425242
 - [ ] States, each reachable from seeded data or a query flag: loading, healthy with nothing to do, fixes only, risks only, both, a handled risk with the next one moved up, everything handled, risks unavailable, no snapshot today, live check running, live check result, live check refused, rate limited, daily cap reached, backend unreachable (fallback), admin signed in, sign-in refused.
 - [ ] `make fallback` and the bundled fallback, with a test that it is current.
 - [ ] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
-- [ ] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars and no prompt version did (on the thirty table cases the labels are that table's own output).
+- [ ] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
 - [ ] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
 - [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
@@ -2225,11 +2242,12 @@ challenger-verdict: change needed @ c425242
 ## Phase 6: report, README, release checks
 
 - [ ] The report: HTML and Markdown, four sections (authentication, reputation, sending, actions), from a snapshot; a button on the client page.
-- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as "0 in 144 case-runs", names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
+- [ ] `README.md` on the seven-section spine in `docs/profiles/portfolio-piece.md`. Section 4 has the eval table generated from `evals/results.json`, the date, and one real failure and its fix. Section 6 is this build as it happened: run-through mode, the merge gate, which phases the owner merged, and the numbers from `docs/RUN_LOG.md`. A test fails if the table and the results file differ. The README also says where the labels came from (drafted by AI against written guidance, reviewed by the engineer who built the original system, not by a deliverability specialist), shows the rules-only baseline beside the model, writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144; reworded by the owner after the Phase 3 challenge, 2026-11-20: it read "0 in 144 case-runs", which is not the result), names the six limits in decision 0011, and says in its limits what decision 0012 records: what was tried to show judgment, why it fell short, that the rules-only baseline alone meets the four bars, and that a table with one number moved passes the comparison. It says plainly, in those words or plainer, that the evals do not show the model beats rules (the owner, 2026-11-19).
 - [ ] The reviewer in security mode over the whole repository; every finding fixed or listed.
 - [ ] A scan of the tree and the full history for real company and person names and for the client; the method and the result are in the log. The owner holds the name list: see `docs/STANDING.md`.
 - [ ] Added by the owner, 2026-11-20: the README leads with the finding: the eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way, with the model's risks advisory.
-- [ ] Added after the Phase 2 challenges (the owner's answers, 2026-11-19 and 2026-11-20, confirmed): the README puts the limit sentence beside the claim sentence, in the words of `docs/SPEC.md`; names version 3 as the prompt in use and shows version 4 beside it as the final attempt, which did worse for a reason that is not established; says the risk wording shown was false in the harmful answers and that no check reads wording; says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; lists version 4's wording boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` does and from the results file's `not_in_use` list, and says it went a step past the owner's ruling on version 3; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
+- [ ] Added after the Phase 2 challenges (the owner's answers, 2026-11-19 and 2026-11-20, confirmed): the README puts the limit sentence beside the claim sentence, in the words of `docs/SPEC.md`; names version 3 as the prompt in use and shows version 4 beside it as the final attempt, which did worse for a reason that is not established; says the risk wording shown was false in the harmful answers of version 4, the final attempt, that in version 3's harmful answers the wording was accurate and the call was wrong, and that no check reads wording (tied to the versions by the owner after the Phase 3 challenge, 2026-11-20); says the prompt restates the rubric's lines relative to public limits and lists that wording from the results file; lists version 4's wording boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` does and from the results file's `not_in_use` list, and says it went a step past the owner's ruling on version 3; says the wording of a risk is not scored and that a number written as a word is not checked; shows, from the results file, how many merely-acceptable types the model returned and the line with only the bands' expected types kept; and states the Phase 2 result as the Phase 2 log records it, a missed bar included.
+- [ ] Added after the Phase 3 challenge (the owner, 2026-11-20): a test fails if any "N in 144" in the README differs from the results file.
 - [ ] `docs/VIDEO.md`: the walkthrough script for the owner, in the order the spec gives.
 - [ ] Every "Done when" line in `docs/SPEC.md` checked and shown.
 

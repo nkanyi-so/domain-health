@@ -57,8 +57,10 @@ jobs:
           rm gitleaks.tar.gz
       - run: '"$RUNNER_TEMP/gitleaks/gitleaks" git --redact --no-banner .'
 
-  # Free: scores the committed recordings against the bars. Red on a missed bar. Not a required
-  # check, so an honest miss can still be committed and read; the merge gate will not merge it.
+  # Free: scores the committed recordings against the bars. Red unless the bars missed are exactly
+  # the ones evals/expected-misses.toml names (the owner's file: a miss the owner chose to ship).
+  # Any other miss is red, and so is a named bar that is now met. (The owner, 2026-11-20; it ran
+  # `make eval STRICT=1`, which is red on any miss and so was red on every commit.)
   eval:
     runs-on: ubuntu-latest
     steps:
@@ -68,4 +70,4 @@ jobs:
           enable-cache: true
           cache-dependency-glob: backend/uv.lock
       - run: cd backend && uv sync --frozen
-      - run: make eval STRICT=1
+      - run: make eval EXPECTED=1
