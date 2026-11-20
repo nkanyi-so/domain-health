@@ -102,3 +102,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T12:07:10Z	5	review	blocking findings, one, the second fix did not work in the production build @ 62d66ab	2.27
 2026-11-20T12:21:40Z	5	verify	fail, an admin's tick is not seen by other visitors though the page says it is @ 9617bf5	2.27
 2026-11-20T12:21:41Z	5	challenge	change needed @ 9617bf5	2.27
+2026-11-20T12:23:47Z	5	stop-opened	issue=#15 questions=4 asked: Phase 5: four questions before your merge of #14	2.27
