@@ -345,7 +345,7 @@ What is deployed: a FastAPI service on Cloud Run with Cloud Scheduler, Cloud Tas
 **Guards on spend and abuse.**
 
 - **One instance at most**, and none when idle. The limit is set on the revision and on the service.
-- **A $5 monthly budget alert.** It only alerts. No public request can make a model call, and the live check's lookups are capped. What a public request can cost is Firestore reads and Cloud Run time: one instance bounds their rate, nothing bounds their total, and the alert is what would catch a flood.
+- **A $5 monthly budget alert.** It only alerts. No public request can make a model call, and the live check's lookups are capped. Page loads are answered from a 30-second cache in the service, so repeated loads of the same page cost no Firestore reads. What is still not capped is distinct pages over time and Cloud Run time: one instance bounds their rate, and the alert is what would catch a flood.
 - **No model key in production.** The deployed service is built with the recorded model only. The `openai` package is in a dependency group the production image does not install, and a test walks the service's imports to hold that.
 - **Live-check limits and a cache.** Five checks per address per ten minutes, 200 a day in total, at most forty DNS queries per check, and a result cached for ten minutes per domain. The counters are in Firestore, so they hold across restarts. The name is validated before any lookup: an IP address, a single label, a reserved or internal name, or anything with a scheme, path or port is refused.
 

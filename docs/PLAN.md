@@ -14,7 +14,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
 | 5: the screens | merged, checked live | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
-| 6: report, README, release checks | in review | |
+| 6: report, README, release checks | merged, checked live | [#16](https://github.com/nkanyi-so/domain-health/pull/16) |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
 
@@ -3534,3 +3534,33 @@ no leaks found
 reviewer-verdict: no blocking findings @ 8957bcf
 verifier-verdict: pass @ 8957bcf
 challenger-verdict: not needed @ 8957bcf
+
+### 2026-11-20: after the merge of Phase 6: `main`, the hosted page and the report
+
+The merge gate merged pull request #16 at 13:44 UTC. On `main` at 31e1625: CI finished with `check`, `secrets` and `eval` all "success", and Vercel built that commit as the production deployment. The gate's last lines, on https://domain-health-rose.vercel.app in a real browser, by a script kept outside the repository:
+
+```
+[light 1440] /: 12 clients, ground rgb(241, 244, 242), sideways scroll false, fallback notice false, limit beside the claim true
+[light 1440] report: sections ["Authentication","Reputation","Sending","Actions","Fixes 2 fixes","Advisory risks 2 advisory"], sideways scroll false
+[light 390] /: 12 clients, ground rgb(241, 244, 242), sideways scroll false, fallback notice false, limit beside the claim true
+[light 390] report: sections ["Authentication","Reputation","Sending","Actions","Fixes 2 fixes","Advisory risks 2 advisory"], sideways scroll false
+[dark 1440] /: 12 clients, ground rgb(19, 28, 26), sideways scroll false, fallback notice false, limit beside the claim true
+[dark 1440] report: sections ["Authentication","Reputation","Sending","Actions","Fixes 2 fixes","Advisory risks 2 advisory"], sideways scroll false
+[dark 390] /: 12 clients, ground rgb(19, 28, 26), sideways scroll false, fallback notice false, limit beside the claim true
+[dark 390] report: sections ["Authentication","Reputation","Sending","Actions","Fixes 2 fixes","Advisory risks 2 advisory"], sideways scroll false
+report.md: 200 text/markdown; charset=utf-8 attachment; filename="northwind-cycles-2026-11-20.md"
+report.md headings: ## Authentication | ## Reputation | ## Sending | ## Actions
+report.md: fixes before advisory true | marking true | html tags false
+```
+
+The hosted page loads in both themes at 1440 and 390 wide with twelve clients, no sideways scroll and no fallback notice. The report opens for one client as a page and as Markdown.
+
+### 2026-11-20: a closing pull request, at the owner's word
+
+The owner (2026-11-20): "one small closing pull request, in a single commit: add a short cache on public page loads so repeated visits do not cost uncached Firestore reads, and carry the loose ends (the Phase 6 row, the gate's last merge line, the after-merge output). One reviewer pass, fix only what is blocking, merge it through the gate, and confirm the hosted page still loads. Do not make the repository public; I will say when."
+
+**Step list.** (1) A 30-second cache in the service on the two public read routes, dropped for a caller's scope by that caller's click and cleared by a worker run, with tests. (2) The README's and the architecture's spend sentences say what is true after it, and the decision entry is closed. (3) The loose ends: the Phase 6 row, the gate's merge line (in the run log), and the after-merge output above. (4) One reviewer pass; the backend deployed; the hosted page checked.
+
+**Verifier and challenger.** The challenger is not needed: no eval result, measure file or claim wording changes. The verifier: the owner asked for one reviewer pass and a check that the hosted page still loads; the merge gate needs a verifier's verdict on code that runs, so one short verifier run is made on the cache and the deployed service, and that run is also the hosted-page check.
+
+**What was built.** `backend/src/domain_health/read_cache.py`: a cache with a time to live of 30 seconds and a bound of 256 entries, taking the time from its caller. The app keeps in it the answers of `GET /api/clients` and `GET /api/clients/{id}/snapshot`, the "no snapshot for that day" answer included, keyed by route, client, day and the caller's scope (the shared list, or one visitor's sandbox). A handled or reopen click drops that caller's entries before it answers, so a visitor's own next page shows their click; a worker run that writes clears everything; a read that a click or a worker run overtook is not kept; an error is never kept. It is coherent because the service is one instance at most. 23 tests, among them: a second list load within 30 seconds makes 0 store reads and one at 30 seconds makes 12; five requests for a day with no snapshot make one read; two visitors never see each other's cached page. No existing test was changed. `make check` exits 0 (backend 1093 and 32, frontend 161). The README's and the architecture's spend sentences now say what is true: repeated loads of a page cost no reads; distinct pages over time and Cloud Run time are still bounded in rate only. The decision entry is marked done, with what is still not capped.

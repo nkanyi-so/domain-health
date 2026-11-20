@@ -112,3 +112,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T13:35:19Z	6	verify	pass @ fafdf70	2.27
 2026-11-20T13:40:10Z	6	review	no blocking findings, the three closed @ 8957bcf	2.27
 2026-11-20T13:40:10Z	6	verify	pass @ 8957bcf	2.27
+2026-11-20T13:44:50Z	6	gate-merged	pr=#16 phase-6-report-readme-release e0e8f791cf1c10bd5f834e02c23671d69b38ba1a into main	2.27

@@ -29,6 +29,7 @@ from domain_health.clock import Clock
 from domain_health.domain_name import DomainRefusedError, public_domain
 from domain_health.machine_auth import KeySet, MachineRefusedError, bearer_token, verify
 from domain_health.models import Fix
+from domain_health.read_cache import Key, ReadCache
 from domain_health.resolver import CountingResolver, Resolver
 from domain_health.risks.model import RiskModel
 from domain_health.seeded import SeededClient
@@ -144,6 +145,18 @@ class WorkerRun(BaseModel):
     would_write: Snapshot | None = None
 
 
+class NoSnapshot:
+    """The cached answer "no snapshot for that day", so asking again does not read either."""
+
+
+NO_SNAPSHOT = NoSnapshot()
+
+
+def read_key(route: str, client_id: str | None, day: date, scope: Scope) -> Key:
+    """One cached read: the route, the client, the day asked for, and whose marks it shows."""
+    return (route, client_id, day, scope.session)
+
+
 def counted_address(text: str) -> str:
     """The one spelling a visitor's address is counted under. `ValueError` if it is not one IP
     address and nothing else.
@@ -173,6 +186,8 @@ def create_app(deps: Deps) -> FastAPI:
         raise ValueError("the proxy secret is empty")
     app = FastAPI(title="domain-health", docs_url=None, redoc_url=None, openapi_url=None)
     by_id = {client.id: client for client in deps.clients}
+    # Belongs to this app, not the module, so two apps never share answers.
+    reads: ReadCache[ClientList | ClientPage | NoSnapshot] = ReadCache()
 
     async def proxied(x_proxy_secret: Annotated[str | None, Header()] = None) -> None:
         given = (x_proxy_secret or "").encode("utf-8")
@@ -225,6 +240,11 @@ def create_app(deps: Deps) -> FastAPI:
     @app.get("/api/clients", dependencies=[Depends(proxied)])
     async def clients(scope: Annotated[Scope, Depends(actor)]) -> ClientList:
         today, now = deps.clock.today(), deps.clock.now()
+        key = read_key("clients", None, today, scope)
+        kept = reads.get(key, now)
+        if isinstance(kept, ClientList):
+            return kept
+        drops = reads.drops
         listed = []
         for client in deps.clients:
             seen = await deps.store.read_day(scope, client.id, today, now)
@@ -242,7 +262,11 @@ def create_app(deps: Deps) -> FastAPI:
                     id=client.id, name=client.name, domain=client.domain, seeded=True, today=summary
                 )
             )
-        return ClientList(day=today, clients=listed)
+        answer = ClientList(day=today, clients=listed)
+        # A click or a worker run that landed during the reads may not be in this answer.
+        if reads.drops == drops:
+            reads.put(key, answer, now)
+        return answer
 
     @app.get("/api/clients/{client_id}/snapshot", dependencies=[Depends(proxied)])
     async def snapshot(
@@ -251,12 +275,19 @@ def create_app(deps: Deps) -> FastAPI:
         day: Annotated[date | None, Query()] = None,
     ) -> ClientPage:
         client = seeded(client_id)
-        seen = await deps.store.read_day(
-            scope, client.id, day or deps.clock.today(), deps.clock.now()
-        )
-        if seen is None:
+        now = deps.clock.now()
+        key = read_key("snapshot", client.id, day or deps.clock.today(), scope)
+        kept = reads.get(key, now)
+        if kept is None:
+            drops = reads.drops
+            seen = await deps.store.read_day(scope, client.id, day or deps.clock.today(), now)
+            kept = NO_SNAPSHOT if seen is None else page(client, scope, seen)
+            # A click or a worker run that landed during the read may not be in this answer.
+            if reads.drops == drops:
+                reads.put(key, kept, now)
+        if not isinstance(kept, ClientPage):
             raise HTTPException(status_code=404, detail="no snapshot for that day")
-        return page(client, scope, seen)
+        return kept
 
     async def click(client_id: str, scope: Scope, body: Click, *, reopen: bool) -> ClientPage:
         client = seeded(client_id)
@@ -270,6 +301,10 @@ def create_app(deps: Deps) -> FastAPI:
             raise HTTPException(status_code=422, detail="no such risk that day") from error
         except StoreBusyError as error:
             raise HTTPException(status_code=503, detail="busy: try again") from error
+        finally:
+            # Before the answer, so this caller's next page load shows the click. Also after a
+            # failure: the store may have changed before it failed.
+            reads.drop(lambda key: key[-1] == scope.session)
         return page(client, scope, seen)
 
     @app.post("/api/clients/{client_id}/handled", dependencies=[Depends(proxied)])
@@ -372,6 +407,10 @@ def create_app(deps: Deps) -> FastAPI:
         except StoreBusyError as error:
             # A 503 makes the queue try the task again, with its backoff.
             raise HTTPException(status_code=503, detail="busy: try again") from error
+        finally:
+            if not dry_run:
+                # A new snapshot changes every caller's page, and must show at once.
+                reads.clear()
         return WorkerRun(
             client_id=client.id,
             day=written.day,
