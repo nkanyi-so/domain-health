@@ -13,7 +13,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | building | |
+| 5: the screens | waiting on you | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
 | 6: report, README, release checks | not started | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
@@ -37,7 +37,36 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 5 is built and stopped before its merge. You merge this one, whatever you answer:** the challenger read the page against the eval and said "change needed", and the rules give that phase to you. Pull request: [#14](https://github.com/nkanyi-so/domain-health/pull/14). The screens exist and work: 68 screenshots in `docs/screens/`, `make check` green, and the verifier passed every check but one in a real browser at both widths.
+
+Four questions. "Recommended for all" is a complete answer.
+
+1. **The challenger's list.** It found the eval figures on the page correct and the claim never shown without its limit. Five changes:
+   - a. The demo state that shows six risks (`?demo=handled-one`) is put together from Oakhaven's two risks and four recorded for other clients, under the line "Recorded from a real model run". Those four contradict the figures on the same page, so the screenshot shows the model making errors it did not make. Change: on that state, replace the line with a plain statement that four of the risks were moved here from other seeded clients to show six, and do not describe this one.
+   - b. Version 4's stability shows as 0.813 on the eval page; the spec and `make eval` say 0.812. Change: 0.812.
+   - c. The "Not in use" row does not say version 4 missed harmful and stability, or that it was the final attempt. Change: say so.
+   - d. No test ties the numbers in the limit sentence to the results file. Change: add one.
+   - e. Its recommendation, your call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 of them labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
+   - **Recommended: all five.** Each is small, and e is the honest reading of the three "Met" chips. None touches the spec, the claim or the measure files.
+2. **What other visitors see of the admin's ticks.** The verifier's one failed check: the page says of the admin's handled ticks "These ticks are shared: every visitor sees them", and they do not. The backend does what the spec says (a shared state for the admin, a sandbox of their own for each visitor), and the gate itself asks that a second browser not see a click. The sentence came from the design document.
+   - **A (recommended). Correct the words:** the admin's ticks are the shared list; each visitor has a copy of their own and does not see it. Costs a few lines and the design document's sentence.
+   - **B. Change what a visitor sees:** a visitor's page starts from the admin's ticks, with their own on top. Costs a change to the store's rules from Phase 3 and their tests, about half a day, and a visitor could then not reopen what the admin handled.
+3. **The fallback check on a Vercel preview.** The gate asks that a preview deployment with the backend address pointed at nothing shows the fallback. The preview exists and is set up that way, but Vercel keeps previews behind its own sign-in.
+   - **A (recommended). I use the command-line tool's `vercel curl`,** which creates a bypass secret on the project for automated access to protected deployments. It is an access setting, so I am asking first. It opens nothing to the public.
+   - **B. You open the preview yourself** while signed in to Vercel and tell me what you see: https://domain-health-git-phase-5-the-screens-nkanyi-so.vercel.app
+   - **C. Count the public production address as the evidence.** It already shows the fallback notice, because it was built before its settings existed.
+4. **The reviews.** The phase has had its three. The third found one fault (my second fix worked on the development server and not in the production build); it is fixed, tested on the production build, and not reviewed. **Recommended:** after the changes from 1 and 2, one reviewer pass on everything since the third review and one more verifier run; then I tell you #14 is ready and you merge.
+
+For you to know, with nothing to decide:
+
+- **A secret was printed, and replaced.** While setting Vercel's variables, a command of mine printed the backend's proxy secret into this session's output. It was never in the repository. I replaced it at once: new value in Secret Manager and Vercel, backend redeployed, old version disabled, and checked (200 with the new one, 401 without).
+- **The public address is live already:** https://domain-health-rose.vercel.app. Vercel made the project's first deployment a production one, from this branch. It shows the bundled fallback. Your standing answers allow a public production deployment, so I left it; your merge replaces it with `main`.
+- **The admin passphrase** is a random value in Secret Manager. To read it: `CLOUDSDK_ACTIVE_CONFIG_NAME=domain-health gcloud secrets versions access latest --secret=admin-passphrase`
+- The typed-domain result has no "Advisory, unproven." line, because no model runs on a typed domain. The fixes-only state is shown on Fernhollow Garden Supply, not the client the design expected. Twelve rows do not fit in the first screen at 1440 with the claim and its limit above them. All three are in `docs/DECISIONS_TO_REVIEW.md`.
+- The gate's last lines (12 clients, a handled click that survives a reload, a second profile, a typed `example.com`) can only be shown on the production address after your merge. I check them straight after it.
+- Spend: $2.27 of $10.
+
+Once answered: I make the changes you approve, run the reviewer pass and the verifier, and tell you when #14 is ready to merge. After your merge I check the production address in a real browser, then start Phase 6.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -3217,6 +3246,58 @@ after a reload: POSTs 1
 ```
 
 No other finding. This was the third review, and the owner's rule is that a phase needing more than three stops for the owner. The fix above has not been reviewed.
+
+### 2026-11-20: verifier, on 9617bf5: fail, on one check
+
+It ran `make check` (exit 0), `make screens` (exit 0, "68 screenshots", the three computed checks at zero, and `git status` empty after it, so the committed files are reproduced byte for byte), read all 68 screenshots, and drove a real browser at 1440 and 390 wide against `make dev` and against the production build. Its table, shortened to one line a row; every row passed but 5k.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `make check` exits 0 (backend 1050 and 32, frontend 119) | pass |
+| 2 | `make screens`: 68 screenshots; contrast 0 below 4.5:1 of 4670; sideways scroll 0 of 76 pages; focus 0 of 1004 without a style; tree clean | pass |
+| 3 | All 68 files read: every state present, nothing clipped, overlapping or unreadable, no sideways scroll | pass |
+| 4a | The rules' fixes drive the action list and come first | pass |
+| 4b | The model's risks are marked "Advisory risks", "Advisory, unproven." and the sentence, on every client page | pass (not on the typed-domain result, which has no model risks) |
+| 4c | No model risk is placed above a rules finding, at 1440 or 390 | pass |
+| 4d | The plain link "See the eval result" is in the advisory box | pass (same exception) |
+| 4e | The claim has its limit beside it in the same block, on the client list and on "About this demo" | pass |
+| 5a | The client list loads with 12 clients, both widths | pass |
+| 5b to 5d | "Mark handled" hides the risk and survives a reload; "Reopen" brings it back; a second browser with no cookies does not see the click | pass |
+| 5e to 5g | Opening `/check?domain=example.com` makes no POST; typing on the first screen and pressing once makes exactly one and shows DNS results; a reload makes none | pass |
+| 5h | An IP address is refused with the documented message and "No lookup was made." | pass |
+| 5i, 5j, 5l | A wrong passphrase is refused; the local passphrase signs in; sign-out returns to `/` | pass |
+| 5k | "As admin, 'Mark handled' on Oakhaven, then open the page in a separate cookie-less context: the admin's click did not reach the anonymous context" | **fail** |
+| 5m, 5n | Tab reaches every control, each with a 2 px outline; the theme switch changes the theme and it survives a reload | pass |
+| 6a to 6c | The production build with an empty environment serves the fallback with "Showing saved data"; the three POSTs answer 503; no secret name or development secret in the client chunks or the page source | pass |
+| 7 | The public production address answers 200 with the client list and "Showing saved data" (an earlier build of this branch) | pass |
+
+**On 5k.** The backend does what the spec says: "two scopes for the same code: the shared state (admin) and a per-visitor sandbox". A visitor reads their own sandbox and never the shared marks, and the gate itself asks that a second browser profile not see a click. What is wrong is the page's wording, which came from the design document: "These ticks are shared: every visitor sees them" and the admin bar's "the shared list that every visitor sees". Whether to correct the words or to change what a visitor sees is asked of the owner below; nothing was changed.
+
+Its other notes: the typed-domain result has no "Advisory, unproven." line or eval link (it has no model risks; in `docs/DECISIONS_TO_REVIEW.md`); in the running and cap-reached states the read-only field is greyed; the fixes-only state shows Fernhollow and the fallback notice says 4 Jan 2026, both as this log says. Not exercised: the public address in a browser (it serves an earlier build), the sign-in lock-out, the rate-limit and cap states with real data, a screen reader.
+
+### 2026-11-20: challenger, on 9617bf5: change needed
+
+Its reading of the bars, for the prompt in use over 3 runs of 48 cases: coverage 0.896, met; precision 0.962, met; harmful 9 (3, 3, 3), **missed**, as `evals/expected-misses.toml` names; stability 0.979, met. "The Phase 5 gate has no eval bar." This phase changes nothing under `evals/`, the spec, the claim or the measure files.
+
+**1. Are the eval figures and statements on the page equal to the results file and the spec?** "Copying is safe": a test fails if the committed summary differs from what the results file gives. The bars table and the per-set table are correct and agree with the limit sentence. "The missed bar is stated plainly", in bold under the table. "Nothing says or suggests the model's list passed." Two discrepancies: version 4's stability shows as 0.813 where the spec, the log and `make eval` say 0.812 (JavaScript rounds 0.8125 up); and the "Not in use" row does not mark version 4's harmful and stability as missed. And: "No test ties the limit sentence's numbers to the results file", so a later change to the results would leave the sentence wrong with every test passing. One recommendation, not a fault: three "Met" chips sit beside scores over all 48 cases, 30 of them labelled by the rules table's own output, while on the open cases alone the model's coverage is 0.720.
+
+**2. Does the page keep the owner's rule?** The claim appears only through one component, always with its limit, word for word, in two places; "I found no place where a reader meets the claim without its limit." Clients sort by fixes only; fixes are drawn before the advisory panel; every advisory box opens with "Advisory, unproven." and the eval link. "Kept, except for the one demo state" below.
+
+**3. Does anything on the page say more than the measure supports?** Yes, one thing: "'Recorded from a real model run, not generated on this visit' is false on state 6 (`?demo=handled-one`)." That state shows Oakhaven with four risks recorded for other clients, under that line; in the screenshot four of them contradict the figures on the same page (a complaint rate "above the level mailbox providers recommend" at 0.07%, and three like it). "It shows the model making errors it did not make on this data." "Real DNS lookups", the seeded labels and the provenance of the labels are stated as the spec has them.
+
+Its list:
+
+1. State 6: replace the "Recorded from a real model run" line on that state with a plain statement, on the page, that four of the risks were recorded for other seeded clients and moved here to show six, and that their wording does not describe this client. A test for it; new screenshots for state 6.
+2. Version 4's stability shows 0.812.
+3. The "Not in use" row marks version 4's harmful and stability as missed, and says it was the final attempt.
+4. A test ties the figures in the limit sentence to the eval summary.
+5. Recommended, the owner's call: one sentence under the bars table saying coverage and precision are over 48 cases, 30 labelled by the rules table, and that on the 18 open cases alone the model's coverage is 0.720.
+
+None of these is made here: the verdict is a stop, the list goes to the owner with a recommendation on each, and the owner merges this phase.
+
+reviewer-verdict: blocking findings, one, fixed after the pass and not reviewed again @ 62d66ab
+verifier-verdict: fail @ 9617bf5
+challenger-verdict: change needed @ 9617bf5
 
 ---
 
