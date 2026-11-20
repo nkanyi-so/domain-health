@@ -483,6 +483,7 @@ Dates are written "20 Nov 2026". Times are 24-hour UTC, "14:02 UTC".
 |---|---|
 | Client list | `/` |
 | Client page | `/clients/[id]` (the seeded id, for example `/clients/harbourlight-books`) |
+| Report | `/clients/[id]/report`, and `/clients/[id]/report.md` for the same report as a Markdown file |
 | Live check | `/check` and `/check?domain=<typed>` |
 | Eval table | `/evals` |
 | About this demo | `/about` |
@@ -635,12 +636,29 @@ In order: the claim block; the live-check form under the heading "Check any doma
 
 ### Screen: client page (`/clients/[id]`)
 
-In order: a breadcrumb link "Clients" (`text-small`); the client's name as `h1`; its domain in monospace; the seeded line; the snapshot facts; then the two columns; then "What was checked"; then "Figures".
+In order: a breadcrumb link "Clients" (`text-small`); the client's name as `h1`; its domain in monospace; the seeded line; the snapshot facts; the secondary button "Open report"; then the two columns; then "What was checked"; then "Figures".
+
+- **Open report.** A link drawn as a secondary button, directly under the snapshot facts, to `/clients/[id]/report`. Full width at 390. It is there whenever a snapshot is shown, demo states included; from a demo state it opens the client's live report, without the flag. It takes the focus ring like any other control.
 
 - **Fixes.** Heading "Fixes" with the count chip. Under it, `text-small` `ink-3`: "Found by rules. Each has one correct fix." Then the ink sheet with one fix item per fix.
 - **Advisory risks.** Heading "Advisory risks" with the dashed count chip, then the pencil box: the advisory sentence and link, then the risk items. Under the box, the "Handled" list if there is anything in it.
 - **What was checked.** Three rows on a `surface` table: "SPF", "DKIM", "DMARC", each with the seeded tag, a status in words with its icon ("Found, no problems" in `ok` with the tick; "Problem found" in `ink` with the cross, followed by the problems in plain words from the snapshot; "Check not made" in `ink-3` with the dash), and the records as read in a `sunk` well in `text-record`. At 390 each check is a block: name and status on one line, records below.
 - **Figures.** A list of label, seeded tag, value, in two columns at 1440 and one at 390. Values say their previous reading in words where there is one: "Reputation `seeded` medium, was high"; "Complaint rate `seeded` 0.04%"; "Bounce rate `seeded` 0.8%"; "Weekly volume `seeded` 6,200, was 6,000"; "Open rate `seeded` 41%, was 40%"; "Blocklist `seeded` Not listed. 0 listings in 90 days"; "Domain age `seeded` 400 days". No colour is put on a figure: whether a figure is a problem is the fix list's job.
+
+### Screen: report (`/clients/[id]/report`)
+
+One snapshot as a document to hand to a client: one column, in the site's chrome, read only. It is built from the same view as the client page, so it is the list as this visitor sees it, and from the saved snapshots when the live service cannot be reached.
+
+In order: a breadcrumb link back to the client's page; the secondary button "Download as Markdown" (the same report as a file, `<client id>-<day>.md`) with a line in `text-small` saying the page prints without the header, footer and buttons; the `h1` "Domain health report: <client>"; the facts, stacked at both widths: "Client", "Domain" (monospace), "Snapshot", "Prompt version", "Model output", worded as on the client page; the line "This client is invented. Its figures and its DNS answers are made up for this demo."; when the saved snapshots are showing, "From saved data. The live service could not be reached, so this report is built from the snapshot saved with this site on <day>."; then four sections, each an `h2`, always in this order.
+
+- **Authentication.** A `surface` sheet with a block each for SPF, DKIM and DMARC: the name with the seeded tag, the status in words, the problems in plain words, and the records as read in a `sunk` well.
+- **Reputation.** Reputation, blocklist, complaint rate and domain age, each label with the seeded tag, in the client page's words.
+- **Sending.** Weekly volume, bounce rate and open rate, the same way.
+- **Actions.** The product rule holds here as on the page. First "Fixes": the line "Found by rules. Each has one correct fix.", then the ink sheet with the fixes numbered, each with its source and the seeded tag, or "Nothing to fix today. Every rule passed." Only after every fix, 32 lower, "Advisory risks" in `ink-2`: the pencil box, opening with "Advisory, unproven.", the sentence and the link "See the eval result" before any risk, then the risks in the serif with no numbers and no buttons, or the same empty and unavailable wording as the page. A handled risk is not in that list: it is named under it, struck through, with its dates.
+
+No snapshot: the `h1`, then the notice "No snapshot for today yet" with "The daily run has not reached this client, so there is nothing to report. No report was made." An unknown client is the "No such client" page. The Markdown file answers 404 in both cases.
+
+On paper (`@media print`) the header, footer, strips, breadcrumb and every button are left out, and the page prints in the light theme's colours on white whichever theme the screen is in. A check, a figure, a fix or a risk is not split across two sheets.
 
 ### Screen: live check (`/check`)
 

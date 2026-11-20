@@ -13,15 +13,15 @@ Kept current by the build at every change of state, so progress can be read here
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | in review | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
-| 6: report, README, release checks | not started | |
+| 5: the screens | merged, checked live | [#14](https://github.com/nkanyi-so/domain-health/pull/14) |
+| 6: report, README, release checks | building | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
 
 Phase 2 is a checkpoint (set by the owner on 2026-11-19): the run stops there with the first eval results in the log and the owner merges it. From Phase 3 on (the owner, 2026-11-20): a phase that needs more than three review rounds stops for the owner with what is still open, and wording that has already passed is not reopened unless it is false. Phase 0 is merged by the owner. Phases 1 and 3 to 6 are merged by the run through the merge gate, unless the gate leaves one for the owner.
 
 Spend: $2.27 of $10 cap
-Decisions to review: 31 (`docs/DECISIONS_TO_REVIEW.md`)
+Decisions to review: 33 (`docs/DECISIONS_TO_REVIEW.md`)
 
 Paid steps this plan lists (they run without asking while the worst case stays under the cap):
 
@@ -3116,7 +3116,7 @@ challenger-verdict: not needed @ 8d56481
 - [x] `make screens`: screenshots of every state, light and dark, 1440 and 390 wide, into `docs/screens/`.
 - [x] Added after the Phase 2 challenges (the owner, 2026-11-19 and 2026-11-20, confirmed): wherever the page shows the claim sentence, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none). (The open-case clause was added by the owner after the Phase 3 challenge, 2026-11-20.)
 - [x] Added by the owner, 2026-11-20: the model's risks are advisory. The rules drive the action list. Model-picked risks appear beside it, clearly marked as advisory and unproven, never ranked above a rules finding, with a plain link to the eval result. The verifier checks each of the four on the screenshots.
-- [ ] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
+- [x] Deployed to Vercel from `main`; checked in a real browser. From this first deploy on, the verifier uses a real browser at desktop and phone width, not the HTML alone (the owner, 2026-11-19).
 
 **Gate:** `make check` exits 0. `make screens` writes 4 screenshots for each of the 17 states (68 files; count shown). The verifier has looked at all of them and reports no state missing, no text below 4.5:1 contrast (computed), no horizontal scroll at 390 wide, and no control without a focus style. After merge, in a real browser on the Vercel URL with no key: the client list loads with 12 clients; a handled click on one client hides that risk and survives a reload; a second browser profile does not see that click; a typed `example.com` returns checks. With the backend URL pointed at nothing in a preview deployment, the page loads the fallback and shows the notice.
 
@@ -3359,6 +3359,26 @@ reviewer-verdict: no blocking findings @ 73e360f
 verifier-verdict: pass @ 73e360f
 challenger-verdict: change needed @ 9617bf5
 
+### 2026-11-20: after the merge: the production address in a real browser
+
+The owner merged pull request #14 at 13:00 UTC. Vercel built `main` (commit 1a3145e) as the production deployment. The gate's last lines, on https://domain-health-rose.vercel.app with no key, in a real browser at 1440 and 390 wide, driven by a script kept outside the repository:
+
+```
+[1440] client list: 12 clients; fallback notice shown: false
+[1440] the click's save answered 200
+[1440] Oakhaven Outfitters: "Mark handled" buttons 4 -> 3 after one click -> 3 after a reload
+[1440] a second browser profile sees 4 "Mark handled" buttons and 0 "Reopen"
+[1440] typed example.com, pressed once: POSTs 1; "Live DNS" shown; SPF record on the page: true
+[390] client list: 12 clients; fallback notice shown: false
+[390] the click's save answered 200
+[390] Oakhaven Outfitters: "Mark handled" buttons 4 -> 3 after one click -> 3 after a reload
+[390] a second browser profile sees 4 "Mark handled" buttons and 0 "Reopen"
+```
+
+Twelve clients load from the live backend (no fallback notice). A handled click hides the risk and survives a reload. A second browser profile does not see it. A typed `example.com` returns live DNS checks after one press. The clicks were reopened afterwards.
+
+A first run of the same script reported the click lost after a reload. That was the script, not the site: the page shows the tick at once and saves in the background, the backend was starting from cold and took some seconds, and the script reloaded before the save had answered. The run above waits for the save. What it does show is in `docs/DECISIONS_TO_REVIEW.md`: a visitor who reloads within the seconds a save takes loses that click.
+
 ---
 
 ## Phase 6: report, README, release checks
@@ -3385,3 +3405,35 @@ left margin, naming the commit each check was run on. The merge gate reads the l
 The verifier and the challenger may read "not needed @ <commit>" when the step list at the top of
 the phase log said so and why, before the work began, where the reviewer could check it.
 -->
+
+### Phase 6, started 2026-11-20
+
+**Before the phase.** The owner merged pull request #14 (Phase 5) at 13:00 UTC and said to start Phase 6 and keep going. The production checks of Phase 5's gate were made straight after the merge and are at the end of the Phase 5 log. The owner's way of working for this phase (2026-11-20): as few commits as possible, one reviewer pass, one verifier run, evidence taken once at the end, no challenger unless the claim sentence changes; anything not blocking, and not about security, spend or a false statement, goes into `docs/DECISIONS_TO_REVIEW.md` and is left; stop only for going public.
+
+**Step list.**
+
+1. The client report: one model from a snapshot, rendered as a page to print and as Markdown, with a button on the client page.
+2. `README.md` on the profile's seven sections, leading with the finding; its tables generated from the results file and the run log by `make readme`, with tests; `docs/VIDEO.md`.
+3. The name scan and the secrets scan over the tree and the full history.
+4. One reviewer pass, in security mode over the whole repository and over the README sentence by sentence; one verifier run; the evidence once; the merge gate.
+
+**Risks seen at the start.** The README states many numbers; every one that can be generated is generated, and the rest are held by tests where a test can reach them. The after-merge lines of the gate are checked on the production address after the merge.
+
+**Verifier and challenger.** The verifier is needed: there is a report to open and a hosted page to load. The challenger is not needed, at the owner's word: the claim sentence is not changed, the eval results are not changed, and the README's eval figures are generated from the results file and held to it by tests.
+
+**What was built**, by two agents side by side, then checked together.
+
+- **The report.** `/clients/[id]/report` (a page in the site's chrome, with print rules that hide the chrome and the buttons) and `/clients/[id]/report.md` (a download). Four sections: authentication, reputation, sending, actions. In "Actions" the rules' fixes come first, numbered; the model's risks follow under "Advisory risks", opening with "Advisory, unproven." and the same sentence and eval link as the page; handled risks are left out and named below. Seeded figures are labelled. It reads only, works from the bundled fallback and says so then, and gives a plain "nothing to report" when there is no snapshot. The page and the report take the advisory words from one module.
+- **The README**, about 8,200 words under an opening that carries the finding, the claim with its limit beside it, the demo address and what is real against what is seeded. Seven generated blocks between markers (`make readme`): the eval table, the per-set table, every attempt, the prompt's wording relative to public limits, version 4's wording boundary by boundary and in full, and the build's numbers from the run log. `backend/tests/test_readme.py` (20 tests) holds every block to its source, every "N in 144" to the results file, the claim to `docs/CLAIM.md` and the limit to the spec word for word, the seven headings to the profile's order, and the spend to the plan's line.
+- **`docs/VIDEO.md`.** The spec gives no order for the video; the script follows "Who it is for" in the spec, with the finding first. In `docs/DECISIONS_TO_REVIEW.md`.
+
+**The name scan.** `bash scripts/name-scan.sh`: every entry of the owner's list (outside the repository, never printed) against the tracked tree, every commit's message and changed lines on every branch and tag, and the branch names; whole words, any case; it prints only an entry's line number and counts.
+
+```
+$ bash scripts/name-scan.sh
+name scan: 55 entries, 115 commits, 16 branch and tag names; 0 with a hit
+```
+
+That it finds things was shown on a made-up list of three words that are in the repository: "2 with a hit", exit 1. It is run again on the final commit, below.
+
+**`make check`** on the combined work exits 0 (backend 1070 and 32, frontend 161). **`make screens`** exits 0: "contrast: 0 below 4.5:1 of 5062 pieces of text", "sideways scroll: 0 of 80 pages (68 screenshots and 12 more)", "focus: 0 controls without a focus style of 1088", "68 screenshots". The client-page screenshots changed because of the new button and are committed. **`make eval`** exits 0 and leaves the results file as committed; this phase's gate has no measured bar of its own, and `make eval STRICT=1` exits non-zero on harmful alone.

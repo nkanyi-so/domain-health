@@ -150,7 +150,7 @@ const STATES = [
 ];
 
 /**
- * The two screens that are not one of the 17 states. No screenshot is kept for them (the count
+ * The three screens that are not one of the 17 states. No screenshot is kept for them (the count
  * stays 68), but the same three checks are made on them, in both themes and at both widths.
  */
 const ALSO_CHECKED = [
@@ -165,6 +165,21 @@ const ALSO_CHECKED = [
     title: "About this demo",
     path: "/about",
     must: ["What this is", "Its limit", "See the eval result", "What is seeded"],
+  },
+  {
+    slug: "report",
+    title: "Northwind Cycles report",
+    path: "/clients/northwind-cycles/report",
+    must: [
+      "Domain health report: Northwind Cycles",
+      "Download as Markdown",
+      "Authentication",
+      "Reputation",
+      "Sending",
+      "Actions",
+      "From DNS",
+      ...ADVISORY,
+    ],
   },
 ];
 
@@ -468,7 +483,7 @@ async function shoot(browser, state, theme, size, storageState) {
       problems.push(`the tab title is "${title}"`);
     }
 
-    // A state's shot goes in docs/screens. The two other screens are only kept when asked for.
+    // A state's shot goes in docs/screens. The other screens are only kept when asked for.
     const file = state.n
       ? path.join(OUT, name)
       : process.env.SCREENS_ALSO_DIR
@@ -524,7 +539,7 @@ function readme(shots, also) {
     "",
     "## The three checks",
     "",
-    `Computed in the browser on every one of the screenshots, and on the eval table and "About this demo" in the same two themes and two widths (${also.length} more pages, no screenshot kept): ${all.length} pages in all. The command exits non-zero if any fails.`,
+    `Computed in the browser on every one of the screenshots, and on the eval table, "About this demo" and one client's report in the same two themes and two widths (${also.length} more pages, no screenshot kept): ${all.length} pages in all. The command exits non-zero if any fails.`,
     "",
     "| Check | Result |",
     "|---|---|",

@@ -44,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">): ReactElement
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <a href="#content" className="skip-link">
+        <a href="#content" className="skip-link no-print">
           Skip to content
         </a>
         <SiteHeader />
