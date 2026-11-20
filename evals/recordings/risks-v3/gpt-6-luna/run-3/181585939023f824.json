@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "181585939023f82455b89c23fc844f8f2233a115cddc50ec1246e5698b8d91ed",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from medium to low, which can make inbox placement less reliable.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current low reputation grade signals a risk to deliverability, even apart from its recent decline.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rates have fallen\",\"why\":\"Opens have lost a substantial share of their earlier level, which may indicate weakening recipient engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume has jumped\",\"why\":\"This week's volume is substantially higher than the previous week's, and the lower reputation makes that increase riskier.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 226,
+  "cost_usd": 0.0006009000000000001,
+  "latency_ms": 3065,
+  "recorded_at": "2026-11-19T19:10:56+00:00"
+}

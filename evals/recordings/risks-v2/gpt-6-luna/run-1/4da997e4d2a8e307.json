@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "4da997e4d2a8e307d27652792ae951c1f0932243771e7b5fa6a89dc9df14c64a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The domain’s reputation is low, which can make inbox placement more difficult even though it has not declined since the previous reading.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Elevated complaint rate\",\"why\":\"The complaint rate is at a level that warrants attention, despite the domain’s substantial sending volume.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is high enough to signal list-quality concerns at this sending volume.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, so its sending reputation may still be affected by the listing.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC enforcement is incomplete\",\"why\":\"DMARC applies quarantine to failing mail, but the subdomain policy inherits that setting rather than explicitly enforcing it for subdomains.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]}]}",
+  "detail": null,
+  "input_tokens": 4620,
+  "output_tokens": 308,
+  "cost_usd": 0.000616,
+  "latency_ms": 3795,
+  "recorded_at": "2026-11-19T18:58:41+00:00"
+}

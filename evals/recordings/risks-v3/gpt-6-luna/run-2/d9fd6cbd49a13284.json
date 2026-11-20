@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "d9fd6cbd49a132840eb916c65d2b7514cc1b057091711885736d4c93eafe9632",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The reputation grade remains low, which can make inbox placement less reliable even without a recent decline.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can harm delivery and sender reputation.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4936,
+  "output_tokens": 114,
+  "cost_usd": 0.0005506,
+  "latency_ms": 2513,
+  "recorded_at": "2026-11-19T19:10:22+00:00"
+}

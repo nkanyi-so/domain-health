@@ -48,3 +48,26 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T18:24:18Z	1	review	blocking findings @ 285e74d	0.00
 2026-11-19T18:28:22Z	1	review	no blocking findings @ 10f4114	0.00
 2026-11-19T18:31:10Z	1	verify	pass @ 10f4114	0.00
+2026-11-19T18:34:09Z	1	gate-merged	pr=#5 phase-1-checks-and-rules-clean ed6c4706734111a9fc6b0ffd5960ce014009a5bb into main	0.00
+2026-11-19T18:36:25Z	2	phase-started	the model and the evals	0.00
+2026-11-19T19:24:28Z	2	review	blocking findings @ bdd5555	0.99
+2026-11-19T19:32:43Z	2	review	blocking findings @ 05a93af	0.99
+2026-11-19T19:38:30Z	2	review	blocking findings @ 36db430	0.99
+2026-11-19T19:43:20Z	2	review	blocking findings @ e0d18d5	0.99
+2026-11-19T19:47:55Z	2	review	blocking findings @ 3ab0b30	0.99
+2026-11-19T19:52:29Z	2	review	blocking findings @ 074fee3	0.99
+2026-11-19T19:57:08Z	2	review	blocking findings @ e11ef59	0.99
+2026-11-19T20:01:42Z	2	review	no blocking findings apart from the two carried for the owner @ cd7613f	0.99
+2026-11-19T20:03:38Z	2	verify	pass @ cd7613f	0.99
+2026-11-19T20:09:07Z	2	challenge	change needed @ cd7613f	0.99
+2026-11-19T20:11:25Z	2	checkpoint	Phase 2 the model and the evals, pr=#6	0.99
+2026-11-19T20:11:45Z	2	stop-opened	issue=#7 questions=6 asked: Phase 2 checkpoint: one bar missed, the challenger asks for a change; six questions	0.99
+2026-11-19T21:33:51Z	2	stop-closed	issue=#7 opened=2026-11-19T20:11:45Z	0.99
+2026-11-19T21:53:11Z	2	review	blocking findings @ 5f674cf	1.85
+2026-11-19T21:56:19Z	2	review	blocking findings (one, in the plan's wording) @ c6f7f0e	1.85
+2026-11-19T21:57:54Z	2	verify	pass @ c6f7f0e	1.85
+2026-11-19T22:03:55Z	2	challenge	change needed @ c6f7f0e	1.85
+2026-11-19T22:03:55Z	2	checkpoint	Phase 2, second time, after the owner's one further attempt, pr=#6	1.85
+2026-11-19T22:04:29Z	2	stop-opened	issue=#8 questions=6 asked: Phase 2 checkpoint again: the one further attempt missed two bars; six questions, none paid	1.85
+2026-11-19T22:07:38Z	2	stop-closed	issue=#8 opened=2026-11-19T22:04:28Z	1.85
+2026-11-19T22:18:25Z	2	review	blocking findings (two) @ 9b517e2	1.85

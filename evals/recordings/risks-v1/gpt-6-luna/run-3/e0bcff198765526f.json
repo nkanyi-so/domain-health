@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e0bcff198765526fb455797d09306439c496966dd614f4ad5c68f23be2a77afe",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain is no longer listed, but its listing ended recently, so the underlying cause may still be active.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"volume_spike\",\"title\":\"Weekly sending volume jumped\",\"why\":\"Weekly volume doubled from the prior week, and the medium reputation grade means the domain’s standing cannot be assumed to absorb that jump.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 3529,
+  "output_tokens": 141,
+  "cost_usd": 0.00042340000000000005,
+  "latency_ms": 3219,
+  "recorded_at": "2026-11-19T18:52:16+00:00"
+}

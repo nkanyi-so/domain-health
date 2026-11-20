@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "d9fd6cbd49a132840eb916c65d2b7514cc1b057091711885736d4c93eafe9632",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The domain’s reputation is low, which can make inbox placement less reliable even though it has not declined since the previous reading.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is above the level expected for a clean list, suggesting list-quality concerns even though no bounce-rate fix is open.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4676,
+  "output_tokens": 131,
+  "cost_usd": 0.0005331,
+  "latency_ms": 2591,
+  "recorded_at": "2026-11-19T18:59:15+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceb9fb34606a79e220ab999212f47571e0f20cb32ed7195b2d4201954d7a6b4a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist history\",\"why\":\"The domain had a blocklist listing in the recent lookback window. Even though it is no longer listed, that history may indicate a cause that is still live.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 3528,
+  "output_tokens": 89,
+  "cost_usd": 0.0003973,
+  "latency_ms": 2413,
+  "recorded_at": "2026-11-19T18:52:04+00:00"
+}

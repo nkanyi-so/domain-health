@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "eec0a498d19b8cb0db6a8d62d5d0fc6a294b0c1e3246fb21770c00e1fe203475",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"spf_near_lookup_limit\",\"title\":\"SPF is close to the lookup limit\",\"why\":\"The readable SPF record is close to the lookup limit, leaving little room for changes to its included senders before it could fail.\",\"evidence\":[\"checks.spf.lookup_count\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF does not reject unlisted senders\",\"why\":\"The SPF record has no all qualifier, and DMARC is only monitoring, so neither provides a refusal signal for unlisted senders.\",\"evidence\":[\"checks.spf.all_qualifier\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"This established domain has a valid DMARC record but no enforcement, while SPF and DKIM have no outstanding fixes.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 3525,
+  "output_tokens": 229,
+  "cost_usd": 0.000467,
+  "latency_ms": 3301,
+  "recorded_at": "2026-11-19T18:52:11+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "097f472d2ccb7a3735ade9b4fff253ee0235424f117a66e82ea586232957f7f8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open rate has declined\",\"why\":\"Opens have lost a substantial share of their earlier level, suggesting weaker engagement with recent mail.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 5582,
+  "output_tokens": 70,
+  "cost_usd": 0.005932,
+  "latency_ms": 2461,
+  "recorded_at": "2026-11-19T21:45:36+00:00"
+}

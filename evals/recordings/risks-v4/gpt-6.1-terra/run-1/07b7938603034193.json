@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "07b79386030341934a7335cc361b3107311f9b1f854fa0a3393c48412840e19b",
+  "status": "completed",
+  "output_text": "{\"risks\":[]}",
+  "detail": null,
+  "input_tokens": 5475,
+  "output_tokens": 13,
+  "cost_usd": 0.00554,
+  "latency_ms": 1838,
+  "recorded_at": "2026-11-19T21:44:59+00:00"
+}

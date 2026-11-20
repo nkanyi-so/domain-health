@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "863af06e05d165df039f88fe1785d31bbbc4e42810fa7e0897ca46c96c85c819",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"DMARC enforcement covers only part of failing mail\",\"why\":\"The quarantine policy applies to only a portion of failing mail, leaving the rest without DMARC enforcement. SPF and DKIM are readable and have no outstanding fixes.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.pct\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3528,
+  "output_tokens": 99,
+  "cost_usd": 0.0004023,
+  "latency_ms": 2369,
+  "recorded_at": "2026-11-19T18:51:24+00:00"
+}

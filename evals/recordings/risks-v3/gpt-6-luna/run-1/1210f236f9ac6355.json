@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1210f236f9ac6355689e1f6916b90ff154c12174e0f924f4cfce265ad4a0bbb7",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Engagement has declined substantially\",\"why\":\"Opens have lost a substantial share of their earlier level, indicating a meaningful change in engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4877,
+  "output_tokens": 71,
+  "cost_usd": 0.0005232,
+  "latency_ms": 3938,
+  "recorded_at": "2026-11-19T19:09:59+00:00"
+}

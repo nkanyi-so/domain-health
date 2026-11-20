@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "8f58911320c8cdb445fb5a90336c33aa92990c30bfb4557f0a7a53a8af7bbed5",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from medium to low, which can make it harder for your mail to reach inboxes.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current low reputation grade signals a deliverability concern for this domain.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rates have fallen substantially\",\"why\":\"Opens have lost a substantial share of their earlier level, which may indicate weakening recipient engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4879,
+  "output_tokens": 164,
+  "cost_usd": 0.0005699000000000001,
+  "latency_ms": 2742,
+  "recorded_at": "2026-11-19T19:10:42+00:00"
+}

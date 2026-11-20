@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1f39b6ef4088ae28d2d41531a30e3b421ad4b7d87d2655aaba5193521fc4e7dc",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Engagement has fallen sharply\",\"why\":\"The open rate has lost a substantial share of its earlier level, with meaningful sending volume. This can signal weakening recipient engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume surged\",\"why\":\"Weekly volume jumped several-fold from the prior week. The domain has a medium reputation grade, so its standing cannot be assumed to absorb that increase.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The valid DMARC record does not enforce against failing mail. The domain is established, and SPF and DKIM have no outstanding fixes, so monitoring-only protection is a risk.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 3524,
+  "output_tokens": 235,
+  "cost_usd": 0.00046990000000000004,
+  "latency_ms": 4259,
+  "recorded_at": "2026-11-19T18:52:20+00:00"
+}

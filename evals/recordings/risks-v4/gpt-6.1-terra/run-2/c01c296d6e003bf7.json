@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c01c296d6e003bf7eb625060e31c74d2d2c9ba7a1634e64f0f291512d7da5c75",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The domain's reputation has fallen, which can make inbox placement harder.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Sending reputation is low\",\"why\":\"A low reputation can cause more messages to be filtered or rejected.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting list-quality problems that can harm deliverability.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5570,
+  "output_tokens": 153,
+  "cost_usd": 0.006335,
+  "latency_ms": 3558,
+  "recorded_at": "2026-11-19T21:45:23+00:00"
+}

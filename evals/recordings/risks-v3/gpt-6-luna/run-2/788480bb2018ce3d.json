@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "788480bb2018ce3d54a9a6a12ef5efd334c5023e463e40a71202501955c1b660",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"A listing ended recently, which can leave lingering deliverability effects even though the domain is no longer listed.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\",\"sources.blocklist.listings_90d\"]}]}",
+  "detail": null,
+  "input_tokens": 4878,
+  "output_tokens": 77,
+  "cost_usd": 0.0005262999999999999,
+  "latency_ms": 2049,
+  "recorded_at": "2026-11-19T19:10:22+00:00"
+}

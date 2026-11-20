@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "90ebf1aa5cbc37772e26e4b5e367ccd7b1a11acb75d44fe3f996fdccc19a2f6b",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above the recommended level\",\"why\":\"The complaint rate exceeds the level mailbox providers recommend, which can harm inbox placement.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5477,
+  "output_tokens": 70,
+  "cost_usd": 0.005827,
+  "latency_ms": 2966,
+  "recorded_at": "2026-11-19T21:45:45+00:00"
+}

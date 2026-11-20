@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "eec0a498d19b8cb0db6a8d62d5d0fc6a294b0c1e3246fb21770c00e1fe203475",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established domain’s DMARC policy is set to none, so it monitors failing mail without enforcing protection.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"sources.domain_age_days\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF has no all qualifier\",\"why\":\"The valid SPF record has no all qualifier, and DMARC is not enforcing, leaving no policy to turn away other senders.\",\"evidence\":[\"checks.spf.all_qualifier\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4617,
+  "output_tokens": 153,
+  "cost_usd": 0.0005382000000000001,
+  "latency_ms": 2568,
+  "recorded_at": "2026-11-19T18:59:18+00:00"
+}

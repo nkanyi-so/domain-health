@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "6b00979ea700ca8a9ef9ba487c65bccf5f1068cfa68115444f0d922d344470a6",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring, so it does not protect the domain from spoofing. For a young domain, monitoring is the right stage for now; enforcement is the step that follows.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4873,
+  "output_tokens": 97,
+  "cost_usd": 0.0005357999999999999,
+  "latency_ms": 1979,
+  "recorded_at": "2026-11-19T19:10:16+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1210f236f9ac6355689e1f6916b90ff154c12174e0f924f4cfce265ad4a0bbb7",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, which can put inbox placement at risk.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting list quality may be affecting delivery.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rate has declined\",\"why\":\"Opens have lost a substantial share of their earlier level, which may signal weakening engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4877,
+  "output_tokens": 180,
+  "cost_usd": 0.005777,
+  "latency_ms": 4242,
+  "recorded_at": "2026-11-19T19:13:25+00:00"
+}

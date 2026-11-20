@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "181585939023f82455b89c23fc844f8f2233a115cddc50ec1246e5698b8d91ed",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The domain's reputation fell from medium to low, which can make inbox placement harder.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is low\",\"why\":\"The domain's low reputation can make mailbox providers less likely to deliver its mail to inboxes.\",\"evidence\":[\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 5479,
+  "output_tokens": 106,
+  "cost_usd": 0.006009,
+  "latency_ms": 3167,
+  "recorded_at": "2026-11-19T21:45:49+00:00"
+}

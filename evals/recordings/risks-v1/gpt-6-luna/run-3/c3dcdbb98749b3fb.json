@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c3dcdbb98749b3fbd321b4de93739c4af5e2dad3c16d20ffaa4c3af91c4ed905",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation grade has declined\",\"why\":\"The current reputation grade is worse than the previous reading, indicating a downward trend.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"This established domain has a valid DMARC record, but its policy only monitors. SPF and DKIM have no outstanding fixes, so the authentication posture is ready for stronger enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key is short\",\"why\":\"The only key found is shorter than current practice recommends, leaving signing strength behind current expectations.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3524,
+  "output_tokens": 210,
+  "cost_usd": 0.00045740000000000006,
+  "latency_ms": 3339,
+  "recorded_at": "2026-11-19T18:52:11+00:00"
+}

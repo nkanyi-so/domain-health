@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "4da997e4d2a8e307d27652792ae951c1f0932243771e7b5fa6a89dc9df14c64a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Low sending reputation\",\"why\":\"The domain's reputation is low, which can make mailbox providers less likely to deliver its messages to the inbox.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist removal\",\"why\":\"The domain was recently removed from a blocklist, and the listing may still affect delivery.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 120,
+  "cost_usd": 0.00548,
+  "latency_ms": 3370,
+  "recorded_at": "2026-11-19T19:13:42+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e0bcff198765526fb455797d09306439c496966dd614f4ad5c68f23be2a77afe",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, so the listing remains a relevant signal of deliverability risk.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"volume_spike\",\"title\":\"Sharp increase in sending volume\",\"why\":\"Volume doubled from the previous week. With reputation below the highest grade, this increase may be harder for the domain to absorb.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation below the healthy range\",\"why\":\"The current reputation grade is medium, indicating room for improvement.\",\"evidence\":[\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 4621,
+  "output_tokens": 182,
+  "cost_usd": 0.0005531000000000001,
+  "latency_ms": 2722,
+  "recorded_at": "2026-11-19T18:58:37+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "eec0a498d19b8cb0db6a8d62d5d0fc6a294b0c1e3246fb21770c00e1fe203475",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"spf_near_lookup_limit\",\"title\":\"SPF is near the lookup limit\",\"why\":\"The SPF record is one lookup short of the limit, leaving little room for changes before authentication could break.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.lookup_count\",\"fixes\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF has no rejecting all mechanism\",\"why\":\"The SPF record has no all qualifier, and DMARC is not enforcing, leaving unauthorized senders without a clear rejection signal.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.all_qualifier\",\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is in monitoring mode\",\"why\":\"DMARC monitors failures but does not ask receivers to reject or quarantine spoofed mail.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5477,
+  "output_tokens": 230,
+  "cost_usd": 0.006627,
+  "latency_ms": 4351,
+  "recorded_at": "2026-11-19T21:44:50+00:00"
+}

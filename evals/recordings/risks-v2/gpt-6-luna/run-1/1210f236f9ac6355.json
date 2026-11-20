@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1210f236f9ac6355689e1f6916b90ff154c12174e0f924f4cfce265ad4a0bbb7",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open engagement has declined\",\"why\":\"Opens have lost a substantial share of their earlier level, which may signal weakening engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4617,
+  "output_tokens": 69,
+  "cost_usd": 0.0004962,
+  "latency_ms": 2808,
+  "recorded_at": "2026-11-19T18:58:26+00:00"
+}

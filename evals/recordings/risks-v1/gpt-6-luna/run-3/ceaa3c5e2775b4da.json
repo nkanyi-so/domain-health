@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceaa3c5e2775b4dad8697c122268526956b9cc830c11ab4f7b7c77a9630d6096",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key is shorter than current practice\",\"why\":\"The only key found is an older-length key, so signing strength is due for rotation.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3527,
+  "output_tokens": 66,
+  "cost_usd": 0.00038570000000000005,
+  "latency_ms": 2365,
+  "recorded_at": "2026-11-19T18:52:06+00:00"
+}

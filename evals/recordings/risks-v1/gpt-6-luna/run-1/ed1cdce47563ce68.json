@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ed1cdce47563ce68d06f45019e4b1f010b9be25e3112167c10a12e514d072f53",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"Weekly volume rose several-fold. Even with a strong reputation, this jump is worth attention because the domain’s standing is not assumed to absorb it when volume changes this much.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 3526,
+  "output_tokens": 90,
+  "cost_usd": 0.0003976,
+  "latency_ms": 3246,
+  "recorded_at": "2026-11-19T18:51:23+00:00"
+}

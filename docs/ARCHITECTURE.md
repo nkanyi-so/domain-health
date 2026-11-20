@@ -22,7 +22,7 @@ seeded sources ─────┼─> rules ─> fixes ────────�
 
 | Outside system | Interface | Implementations |
 |---|---|---|
-| DNS | `Resolver` (`txt(name)` returns records, no-such-name or timeout) | `LiveResolver` (real DNS, TXT only; a server failure reads as a timeout; an answer of more than 100 records or with a record over 4,096 characters is "too large", never cut), `FixtureResolver` (zone data in `backend/fixtures/zones/`). `CountingResolver` wraps either and refuses the forty-first lookup for one domain |
+| DNS | `Resolver` (`txt(name)` returns records, no-such-name, timeout or too-large: an answer of more than 100 records or with a record over 4,096 characters is never cut and read in part) | `LiveResolver` (real DNS, TXT only; a server failure reads as a timeout), `FixtureResolver` (zone data in `backend/fixtures/zones/`). `CountingResolver` wraps either and refuses the forty-first lookup for one domain |
 | Language model | `RiskModel` (`rank(snapshot_input)` returns a validated ranked list) | `OpenAIRiskModel` (live; only `make eval-live` and `make record` build it), `RecordedRiskModel` (replays committed recordings by input hash; the deployed worker and `make eval` use it), `FixtureRiskModel` (scripted; tests) |
 | Database | `SnapshotStore` (read snapshot, write daily snapshot, mark handled, reopen, counters) | `FirestoreStore` (production and the emulator), `MemoryStore` (unit tests) |
 | Task queue | `TaskQueue` (`enqueue(client_id, delay)`) | `CloudTasksQueue`, `FakeQueue` |
@@ -68,7 +68,7 @@ An eval case (`evals/cases/NN-name.json`): `{set: "table" | "open", input: <exac
 | Choice | Record |
 |---|---|
 | Rules for fixes, a model for ranked risks from a closed list, IDs in code | [0001](decisions/0001-rules-and-model.md) |
-| OpenAI structured outputs, `gpt-6-luna`, reasoning off, temperature to be verified | [0002](decisions/0002-model.md) |
+| OpenAI structured outputs, `gpt-6.1-terra` (it was `gpt-6-luna` until Phase 2 measured it), reasoning off, temperature 0 | [0002](decisions/0002-model.md) |
 | One model interface; recorded output on the hosted demo; typed domains get no model call | [0003](decisions/0003-model-seam-and-recordings.md) |
 | Firestore: a snapshot per client per day, transactions, two scopes | [0004](decisions/0004-firestore-and-the-handled-loop.md) |
 | Cloud Run, Cloud Scheduler, Cloud Tasks, with guards; Vercel for the frontend, with a bundled fallback | [0005](decisions/0005-hosting.md) |

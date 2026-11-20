@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c4506e5288771f37cee1a05b728fe7d7e20b9ecd6ba9fdad7d45f5c604fb1bc5",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sending reputation\",\"why\":\"The domain's reputation is low, which can make mailbox providers less likely to deliver its mail to the inbox.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is above the clean-list benchmark at a meaningful sending volume, suggesting list-quality problems.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5524,
+  "output_tokens": 116,
+  "cost_usd": 0.006104,
+  "latency_ms": 3432,
+  "recorded_at": "2026-11-19T21:45:01+00:00"
+}

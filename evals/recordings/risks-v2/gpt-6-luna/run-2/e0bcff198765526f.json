@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e0bcff198765526fb455797d09306439c496966dd614f4ad5c68f23be2a77afe",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, so the listing remains a signal to monitor for deliverability impact.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.days_since_delisted\",\"sources.blocklist.listings_90d\"]},{\"type\":\"volume_spike\",\"title\":\"Sharp increase in sending volume\",\"why\":\"Volume doubled from the previous week. With reputation below the highest grade, this increase may be harder for mailbox providers to absorb.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4621,
+  "output_tokens": 144,
+  "cost_usd": 0.0005341,
+  "latency_ms": 2611,
+  "recorded_at": "2026-11-19T18:58:59+00:00"
+}

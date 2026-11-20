@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "f7c9e485a18eefea68b2d594b425f956661c2bdf75a165b0112b2ba92fd2edaa",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sending reputation\",\"why\":\"The domain's reputation is bad, which can make mailbox providers less likely to deliver its messages to inboxes.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rate has declined\",\"why\":\"Opens have lost a substantial share of their earlier level, suggesting weaker engagement with recent mail.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 116,
+  "cost_usd": 0.00546,
+  "latency_ms": 4268,
+  "recorded_at": "2026-11-19T19:13:10+00:00"
+}

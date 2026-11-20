@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1d90a3e0a4b91139370c422843e8a6884bfcd9fc4f6ab1ccea849749768b428c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"This week's volume is several-fold higher than the previous week. The domain is still young and its reputation is not at the top grade, so it may not absorb that jump well.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.domain_age_days\",\"sources.reputation.grade\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is very young but has already sent thousands of messages this week, before it has much sending history.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 3522,
+  "output_tokens": 146,
+  "cost_usd": 0.00042520000000000004,
+  "latency_ms": 3471,
+  "recorded_at": "2026-11-19T18:51:31+00:00"
+}

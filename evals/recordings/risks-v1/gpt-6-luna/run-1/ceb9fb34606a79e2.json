@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceb9fb34606a79e220ab999212f47571e0f20cb32ed7195b2d4201954d7a6b4a",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Reputation remains weak\",\"why\":\"The current reputation grade is still in the bottom two, even though it has improved from the previous reading.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]}]}",
+  "detail": null,
+  "input_tokens": 3528,
+  "output_tokens": 66,
+  "cost_usd": 0.0003858,
+  "latency_ms": 3696,
+  "recorded_at": "2026-11-19T18:51:23+00:00"
+}

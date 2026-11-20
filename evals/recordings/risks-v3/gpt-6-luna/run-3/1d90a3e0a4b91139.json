@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1d90a3e0a4b91139370c422843e8a6884bfcd9fc4f6ab1ccea849749768b428c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume surged on a young domain\",\"why\":\"This young domain's weekly volume grew several-fold, which can put deliverability at risk before it has established a sending history.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is still in its first few weeks and is already sending substantial weekly volume, which can make it harder to build a trustworthy sending history.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4874,
+  "output_tokens": 145,
+  "cost_usd": 0.0005599000000000001,
+  "latency_ms": 2637,
+  "recorded_at": "2026-11-19T19:10:47+00:00"
+}

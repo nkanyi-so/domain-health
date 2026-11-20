@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c4506e5288771f37cee1a05b728fe7d7e20b9ecd6ba9fdad7d45f5c604fb1bc5",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_poor\",\"title\":\"Poor sender reputation\",\"why\":\"The domain’s reputation is low, which can make mailbox providers less willing to deliver its mail.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Elevated bounce rate\",\"why\":\"The bounce rate is elevated for a sender of this volume, signaling potential list-quality concerns.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped\",\"why\":\"Sending volume rose substantially, and a domain with low reputation may not absorb the increase safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4664,
+  "output_tokens": 170,
+  "cost_usd": 0.0005514000000000001,
+  "latency_ms": 3801,
+  "recorded_at": "2026-11-19T18:59:07+00:00"
+}

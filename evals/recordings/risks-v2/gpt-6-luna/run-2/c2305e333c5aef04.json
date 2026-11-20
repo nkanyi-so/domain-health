@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c2305e333c5aef04273cc8c9f8f92b8d5b7e91641bb8081271d0bfade698645e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"This week’s volume is several times the previous week’s. The domain is still new, so it may not be ready to absorb that increase.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume from a new domain\",\"why\":\"This young domain is already sending substantial volume, which can put its deliverability at risk.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established enforcement period has not begun: DMARC is set to monitor, leaving failing mail without a policy to quarantine or reject it.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4613,
+  "output_tokens": 207,
+  "cost_usd": 0.0005648,
+  "latency_ms": 3497,
+  "recorded_at": "2026-11-19T18:58:53+00:00"
+}

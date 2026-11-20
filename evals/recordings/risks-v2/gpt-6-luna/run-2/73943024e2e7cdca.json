@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "73943024e2e7cdca4eea7199f0a4a67747d35395a96fbbdc40cd33b9017252ba",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark at meaningful sending volume, indicating a list-quality concern.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist listing\",\"why\":\"The domain was delisted recently, so the listing may still affect deliverability; a listing also occurred within the lookback window.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]}]}",
+  "detail": null,
+  "input_tokens": 4621,
+  "output_tokens": 138,
+  "cost_usd": 0.0005311000000000001,
+  "latency_ms": 2564,
+  "recorded_at": "2026-11-19T18:59:02+00:00"
+}

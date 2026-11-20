@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1d90a3e0a4b91139370c422843e8a6884bfcd9fc4f6ab1ccea849749768b428c",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume has spiked\",\"why\":\"Weekly sending volume jumped several-fold on a young domain with medium reputation, which can attract mailbox provider scrutiny.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"The domain is in its first few weeks but is already sending thousands of messages weekly, increasing the risk of deliverability problems.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 4874,
+  "output_tokens": 135,
+  "cost_usd": 0.005549,
+  "latency_ms": 3770,
+  "recorded_at": "2026-11-19T19:13:35+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "3b5a732bd705a93262ba1873a407500074008ea96ddbeb5d844fb6cccc1ae3ec",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC policy only monitors\",\"why\":\"The DMARC policy does not enforce protection against spoofed mail, leaving the domain open to impersonation.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"fixes\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 5477,
+  "output_tokens": 83,
+  "cost_usd": 0.005892,
+  "latency_ms": 3337,
+  "recorded_at": "2026-11-19T21:45:06+00:00"
+}

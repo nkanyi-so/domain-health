@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "eec0a498d19b8cb0db6a8d62d5d0fc6a294b0c1e3246fb21770c00e1fe203475",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate above the recommended level\",\"why\":\"The complaint rate exceeds the level mailbox providers recommend, which can affect delivery.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"spf_near_lookup_limit\",\"title\":\"SPF is near its lookup limit\",\"why\":\"The SPF record has little lookup capacity left, so an additional lookup could put it over the limit.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.lookup_count\",\"fixes\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF does not reject unauthorized senders\",\"why\":\"The SPF record has no all qualifier, and DMARC is not enforcing, leaving unauthorized senders without a clear rejection signal.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.all_qualifier\",\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring without enforcement\",\"why\":\"The DMARC policy monitors failures but does not protect the domain from spoofing through enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5477,
+  "output_tokens": 286,
+  "cost_usd": 0.006907,
+  "latency_ms": 5087,
+  "recorded_at": "2026-11-19T21:45:40+00:00"
+}

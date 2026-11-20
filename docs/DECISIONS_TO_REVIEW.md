@@ -15,6 +15,53 @@ A decision belongs here when the run would otherwise have asked: a choice betwee
 
 -->
 
+## 2026-11-19, Phase 2: version 4's wording, which pins the rubric's lines at their boundaries, was let stand
+
+- **Decided:** prompt version 4 states no figure, and the build let it be run. The owner has since ruled (answer 1 to issue #8, 2026-11-20) that attempt 5 counts as the final attempt with this wording disclosed boundary by boundary. Here it is:
+  - `dmarc_policy_none`, the rubric's 90 days: "the lookback window" has the length the name of the field `listings_90d` gives, and the type is not raised while `domain_age_days` is less than that.
+  - `blocklist_recent`, the rubric's 30 days: "a month" is "exactly a third of the lookback window", and "that exact count of days still fits".
+  - `new_domain_volume`, the rubric's 30 days and its volume line: under "a month" old, and `volume_7d` "above the bulk-sender count", the count by which the bulk-sender guidelines define a bulk sender, with "equals the bulk-sender count or is below it" on the other side.
+  - `volume_spike`, the rubric's 365 days: "`domain_age_days` has reached the number of days in an ordinary year".
+  - the low-volume line of `complaint_rate_elevated`, `bounce_rate_elevated` and `engagement_declining`, the rubric's 1,000 messages: "`volume_7d` has not reached the thousands". Version 3 said only "a few hundred messages or fewer".
+- **Why:** there was one attempt and vaguer wording leaves the values on a line to chance. That was the build's reason and not the ruling's: the owner's ruling on version 3 rested on the figures being public, and a field's name and an exact rule for which side a boundary value falls on are neither. The reviewer said this should have come to the owner before the paid run, and it should have.
+- **To undo:** nothing ships from version 4: the prompt in use is version 3 (`prompt` in `evals/settings.toml`). To stop reporting version 4 at all, delete `prompts/risks-v4.md` and `evals/recordings/risks-v4/`; the ledger keeps its cost.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: how the changes the owner approved after the challenge were built
+
+- **Decided:** four small readings while building the owner's answers to issue #7. (1) "Merely acceptable" in the new report lines means what the rubric's bands (`evals/table.py`) call acceptable for that input, on both sets, not what an open case's written call says; the open set gets totals only. (2) The list of prompt wording that places a line relative to a figure is found by words ("half", "twice", "multiple", "short of", "exactly" and a few more), sentence by sentence; it can list a sentence that is no threshold and miss one phrased another way. It is in `evals/results.json` and counted in `make eval`'s output. (3) A comma inside a number is accepted only as a thousands comma, so `20,48` drops the output, and so would a list written `3,4` with no space. (4) The disguise test is generated with plain loops over every format character and space in Unicode and a sample of combining marks, not with a property-testing library, so no dependency was added.
+- **Why:** each is the narrowest reading that does what was approved, and none changes a bar or a score.
+- **To undo:** (1) and (2) are in `backend/src/domain_health/evals/report.py` and `risks/prompt_rules.py`; (3) is `_GROUPED` in `risks/__init__.py`; (4) is the last four tests in `backend/tests/test_risk_output.py`.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: the committed results are `gpt-6.1-terra`'s
+
+- **Decided:** `evals/settings.toml` names `gpt-6.1-terra`, so `make eval`, `evals/results.json` and CI's `eval` job show `gpt-6.1-terra`'s results, not any of the three Luna attempts. (Which prompt version they show is set by the `prompt` line added to the same file on 2026-11-20: version 3, attempt 4.) The other option was to leave Luna as the configured model and report Terra beside it.
+- **Why:** decision 0002 says that if Luna misses a bar, Terra is run on the same set "and the numbers decide". Terra meets three bars where Luna met at most two, and its stability is 0.979 against 0.69. All four attempts' recordings stay in the repository and any of them can be scored with `--version` and `--model`. The cost: an eval run is about $0.78 instead of $0.08, and Phase 4's recording of the seeded clients costs a few cents more.
+- **To undo:** change the `model` line in `evals/settings.toml` back and run `make eval`.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: model output is held to three rules more than the spec lists
+
+- **Decided:** the spec lists four rules for model output (a known type, no duplicate, at most eight, every number in the text present in the input). The code also drops an output with an empty title or reason, with a title over 120 characters or a reason over 400, and it gives the model a closed list of input field names for `evidence`, so a field that does not exist cannot be named at all. A word that starts with a digit and is not a number (`18k`, `2x`) counts as an invented number.
+- **Why:** the title and the reason are shown to a person, and the evidence is meant to point at the input. None of the three cost anything in the runs: one output in 576 was dropped in all, and not by these. The first Phase 2 review said this should have been a stop and not an entry here, because a dropped output changes what coverage and stability count and the spec names four rules. It is right; the question is put to the owner at the checkpoint (question 4). After that review the number rule also sees digits inside a word (`x37`) and full-width digits. After the fifth, an output is also dropped for a control character or half a surrogate pair in its text, which could not be stored or shown.
+- **To undo:** remove the length and emptiness checks in `validate` (`backend/src/domain_health/risks/__init__.py`) and make `evidence` a list of plain strings. That changes the schema sent to the model, so recordings made after it are a new prompt run.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: the `openai` package is installed for development and CI
+
+- **Decided:** `backend/pyproject.toml` sets `default-groups = ["dev", "live"]`, so `uv sync` and `make check` install the `live` group and the live model's module is linted, type-checked and tested against a fake client. The other option was to leave `live` out of the default and exclude that one module from the checks.
+- **Why:** an unchecked module is where a paid call would break first. Rule 3 in `CLAUDE.md` is about the deployed service: its image is built in Phase 4 with neither group (`uv sync --no-default-groups`), a test already holds that nothing but the paid command imports the live module, and no key is ever set there.
+- **To undo:** remove the `[tool.uv]` block and add `--group live` to the `uv run` line of the `eval-live` target; mypy then needs the module excluded.
+- **Status:** to review
+
+## 2026-11-19, Phase 2: three prompt versions on `gpt-6-luna`, not four, before `gpt-6.1-terra`
+
+- **Decided:** the plan allows up to three further prompt versions on `gpt-6-luna` after the first misses a bar, then the same on `gpt-6.1-terra`. After versions 1, 2 and 3 all missed, the fourth Luna version was not written and the next attempt is version 3 on Terra. The other option was a fourth version on Luna first.
+- **Why:** stability was 0.79, 0.67 and 0.69 on three quite different prompts, at temperature 0 with reasoning off: the same input and prompt give a different set of risks in a quarter to a third of the cases, which is the model and not the wording, and the stability bar is 0.90. Harmful was 2, 24 and 20 against a bar of zero. A fourth version would have cost about eight cents and twenty minutes and could at best have moved coverage. "Up to three" allows fewer.
+- **To undo:** have a fresh agent write a fourth version for Luna from the table-case lines of its three attempts (as a new version file: `prompts/risks-v4.md` has since been used for the last attempt on Terra) and run `make eval-live MODEL=gpt-6-luna`; about $0.08. Nothing else changes.
+- **Status:** to review
+
 ## 2026-11-19, Phase 1: the phase goes to `main` as one commit on a second branch
 
 - **Decided:** the first three commits of this phase held, in two test files and one log line, a few domain names that are not documentation names (an invented company name under `.com`, a short `.co.uk` name, a one-letter `.com` name). None was ever looked up. They were replaced in the tree, but the merge gate merges with a merge commit, which would have carried those commits into `main`'s history for good. So the phase's work was put on a new branch, `phase-1-checks-and-rules-clean`, as a single commit made from `main`, and the pull request is opened from that branch. The first branch, `phase-1-checks-and-rules`, was not rewritten and not deleted: rewriting pushed history and deleting a branch are both the owner's. The other options were to merge the history as it was, or to stop and ask.

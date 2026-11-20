@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "49d368da8298fd2b1425983f5e2df8d28f5d31ede44bbbff133d85248685a543",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has worsened since the previous reading, indicating a deteriorating sender standing.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current reputation grade is at the bottom of the scale, which can undermine delivery.\",\"evidence\":[\"sources.reputation.grade\"]}]}",
+  "detail": null,
+  "input_tokens": 3616,
+  "output_tokens": 105,
+  "cost_usd": 0.00041410000000000004,
+  "latency_ms": 2267,
+  "recorded_at": "2026-11-19T18:51:47+00:00"
+}

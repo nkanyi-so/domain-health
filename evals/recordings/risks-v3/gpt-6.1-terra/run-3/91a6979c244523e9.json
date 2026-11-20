@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "91a6979c244523e945f42c0003c2141a41f34586df52c6fa3d9a269e69141661",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is in monitoring mode\",\"why\":\"DMARC monitors authentication failures but does not protect the domain from spoofing. Monitoring is appropriate for now on this young domain, with enforcement as the next stage.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4874,
+  "output_tokens": 95,
+  "cost_usd": 0.005349,
+  "latency_ms": 3222,
+  "recorded_at": "2026-11-19T19:13:25+00:00"
+}

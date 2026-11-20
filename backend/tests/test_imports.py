@@ -23,6 +23,7 @@ OUTSIDE_SYSTEMS = (
 # The implementation modules, and what each one may import. Nothing else may import any of them.
 ALLOWED: dict[str, set[str]] = {
     "src/domain_health/resolver/live.py": {"dns"},
+    "src/domain_health/risks/openai_model.py": {"openai"},
     # Talks to the Firestore emulator on localhost with the standard library, until Phase 3
     # replaces it with the store's own emulator tests.
     "tests/test_emulator_smoke.py": {"urllib.request"},
@@ -105,3 +106,31 @@ def test_only_the_live_check_builds_the_live_resolver() -> None:
                 importers.add(path.relative_to(BACKEND).as_posix())
 
     assert importers == allowed
+
+
+def test_only_the_paid_commands_load_the_live_model() -> None:
+    """Rule 3: the deployed service is built with the recorded model only. The live model's
+    module is imported by the paid eval command alone (and by its own test), and there inside
+    the function that runs after the key and the ledger are in hand."""
+    allowed = {"src/domain_health/evals/live.py", "tests/test_openai_model.py"}
+    importers = set()
+    for path in python_files():
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            names: list[str] = []
+            if isinstance(node, ast.Import):
+                names = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                names = [f"{node.module}.{alias.name}" for alias in node.names] + [node.module]
+            if any(name.startswith("domain_health.risks.openai_model") for name in names):
+                importers.add(path.relative_to(BACKEND).as_posix())
+
+    assert importers == allowed
+
+    live = ast.parse((BACKEND / "src/domain_health/evals/live.py").read_text(encoding="utf-8"))
+    at_the_top = [
+        node.module
+        for node in live.body
+        if isinstance(node, ast.ImportFrom) and node.module and "openai_model" in node.module
+    ]
+    assert at_the_top == []

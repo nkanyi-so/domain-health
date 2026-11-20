@@ -4,7 +4,9 @@
 
 > A daily email-domain health check for many clients: clear-cut fixes from rules, judgment-call risks picked by a model from a closed list and scored against a written rubric, a human handled loop, and an eval harness for the model's list.
 
-That sentence is the claim. It was first written as "judgment-call risks from a model"; the owner's fallback wording replaced it at the end of Phase 0, when three rounds on the measure had not produced an eval that a model can pass and a table of thresholds cannot (decision 0012). It is kept in `docs/CLAIM.md` and a test pins it wherever it appears (README, the page, the report). Changing it is the owner's call.
+That sentence is the claim. It was first written as "judgment-call risks from a model"; the owner's fallback wording replaced it at the end of Phase 0, when three rounds on the measure had not produced an eval that a model can pass and a table of thresholds cannot (decision 0012). It is kept in `docs/CLAIM.md` and a test pins it wherever it appears (README, the page, the report). Changing it is the owner's call. Wherever a reader is shown the sentence (the page, the README, the report), its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars and no prompt version did (on the thirty table cases the labels are that table's own output) (the owner, after the Phase 2 challenges, 2026-11-20).
+
+**How the product uses the model: its risks are advisory (the owner, 2026-11-20).** The eval was built before the prompt, it showed that rules beat the model on this task, and the product ships that way. The rules drive the action list: the fixes are what a client is told to do. The risks the model picks appear beside that list, never in it: clearly marked as advisory and unproven, never ranked above a rules finding in any list, page or report, and with a plain link to the eval result. Handled and reopen still work on them. The README leads with this finding.
 
 **The honest paragraph** (README section 1, and in short on the page): a public rebuild of a deliverability monitor built for a client's internal platform. What is real: the DNS authentication checks (SPF, DKIM, DMARC) on any domain a visitor types. What is seeded: the twelve clients, their mailbox-provider reputation, blocklist status and sending statistics, because those come from accounts the demo does not have. The seeded clients' DNS answers come from a fixture resolver, and their model output on the hosted demo is recorded from real model runs, not generated on each visit. Seeded sources are labelled on the page.
 
@@ -26,7 +28,7 @@ The problem it rebuilds: someone checks each client's sending domain by hand, ac
 
 **Phase 2: the model and the evals.**
 - One model interface. The live implementation calls OpenAI with structured outputs. The model ranks up to eight risks from a closed list of risk types defined in `evals/RUBRIC.md`.
-- A risk's ID is `<risk type>:<domain>`, built in code. Model output is validated before use: known type, no duplicates, at most eight, every number in its text present in its input.
+- A risk's ID is `<risk type>:<domain>`, built in code. Model output is validated before use: known type, no duplicates, at most eight, every number in its text present in its input. Beyond those four, as built in Phase 2 and kept by the owner (2026-11-19), an output is also dropped for: an empty title or reason, or one longer than 120 or 400 characters; a control character or half a character pair in either; an evidence entry that is not one of the input's field names; a word that starts with a digit and is not a number (`18k`, `2x`, `20,48`); and a number disguised so the page shows one the input does not hold (invisible characters, an apostrophe or spaces between digits, digits of another script). Known gaps, left open: a number written as a word ("twelve", "double"), and `900.000` read as nine hundred. The wording a reader sees is otherwise not scored: the evals score risk types only.
 - The prompt is a versioned file. Recordings of live output are stored per prompt version.
 - The eval harness, `make eval`, `make eval-live`, the spend ledger, the results file.
 
@@ -46,7 +48,7 @@ The problem it rebuilds: someone checks each client's sending domain by hand, ac
 - `docs/DESIGN.md`: the design direction, written before any screen.
 
 **Phase 5: the screens.**
-- Client list, client page (fixes above risks, handled and reopen, seeded labels, snapshot facts), the live check, admin sign-in, the eval table, an "about this demo" note.
+- Client list, client page (fixes above risks, handled and reopen, seeded labels, snapshot facts), the live check, admin sign-in, the eval table, an "about this demo" note. The model's risks are shown as advisory and unproven, beside the action list and never above a rules finding, with a plain link to the eval result (see "How the product uses the model").
 - Light and dark, desktop and phone width. Every state has seeded data that shows it.
 - Frontend on Vercel. If the backend cannot be reached, the page shows the bundled last-known snapshots and says so.
 
@@ -65,7 +67,7 @@ Real mailbox-provider APIs. A real CRM. Multi-tenant accounts. A Google Doc expo
 - Every check and rule against fixture zones: one case per fix type, plus healthy.
 - SPF lookup counting on nested includes, including a loop and a chain of eleven.
 - Stable IDs: the same input gives the same IDs; the ID never comes from model text.
-- Model output validation: an unknown type, a duplicate, a ninth item or an invented number is rejected.
+- Model output validation: an unknown type, a duplicate, a ninth item or an invented number is rejected; number disguises are generated, not listed by hand, and ordinary punctuation between two of the input's numbers is accepted.
 - Only a case's `input` reaches the model: never its label, its note or its file name.
 - No recording for a seeded client names a risk type the rubric's bands call wrong for that input.
 - Suppression: handled today, hidden for thirty days, back on day thirty-one; the cap of five; the next risk moving up.
@@ -99,7 +101,7 @@ Each case is the exact input the model receives, plus a label: `expected` (risk 
 | harmful | returned risks whose type is in the case's `wrong` list, counted over everything returned (up to eight, because a handled click moves the sixth to eighth into view) and over all three runs | exactly 0 |
 | stability | the share of cases whose set of first five IDs is identical in all three runs | at least 0.90 |
 
-Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs": it bounds the rate, it does not show never. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
+Output that fails validation is **dropped**: for coverage it found nothing; for stability it never matches another run; and the number of dropped outputs is printed beside the four measures. "Harmful 0" is stated wherever it appears as "0 in 144 case-runs (48 cases, 3 runs whose first five agreed on N)", with the number of cases whose three runs gave the same first five: it bounds the rate, it does not show never, and runs that agree are not separate evidence. Precision adds little on the table cases, because few label slots there are noise; it is kept and that is said.
 
 The bars live in `evals/bars.toml` and are judged on all forty-eight cases together.
 
@@ -116,8 +118,8 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 
 **Rules for the paid runs.**
 - The numbers that count at a gate are those of one run of the final prompt version. Every attempt, of every version, is reported with its numbers.
-- An unchanged prompt is never run again to get a pass.
-- A prompt does not quote the rubric's thresholds or bands, and no worked example in it comes from an eval case. Tests enforce both.
+- An unchanged prompt is never run again on the same model to get a pass.
+- A prompt does not quote the rubric's thresholds or bands, and no worked example in it comes from an eval case. Tests enforce both. Wording that places a line relative to a public figure the model is asked to recall ("half the cap or less") is allowed (the owner, 2026-11-19) and is shown: `make eval` counts such sentences and the results file lists them, with no pass or fail, and a result on the table cases is described as the model carrying out the rubric as the prompt restates it.
 - Prompt changes are argued from table-case results only. Open-case results are looked at as totals, never case by case.
 
 **Where each check lives.**
@@ -128,6 +130,8 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 - Whether a bar is met is the challenger's reading of the pasted output at the phase gate.
 
 **Gating a change.** A prompt change is a new version file. It ships only with recordings for that version that meet all four bars. The README's eval table names the prompt version, the model and the date.
+
+**The Phase 2 result: the bars were not met.** Five paid attempts were made, on four prompt versions and two models, and none met all four bars. The final prompt version, version 4 on `gpt-6.1-terra`, scored coverage 0.881, precision 0.940, harmful 12 in 144 case-runs and stability 0.812: the harmful bar and the stability bar are missed. The best attempt, version 3 on the same model, scored 0.896, 0.962, 9 in 144 and 0.979 and missed the harmful bar alone. The rules-only baseline meets all four on the same cases, and the model did not do better than it on the open cases in any attempt. The owner set a limit of one attempt after the Phase 2 challenge and chose to ship the miss as it stands (2026-11-19). Attempt 5 counts as the final attempt, although version 4's wording pins the rubric's lines at their boundaries through a field's name and plain spans of time, a step past what was allowed for version 3; that wording is listed in `evals/results.json` under `not_in_use`, boundary by boundary in `docs/DECISIONS_TO_REVIEW.md`, and boundary by boundary in the README. **The prompt in use is version 3** (the owner, 2026-11-20), named by the `prompt` line in `evals/settings.toml`: it is the one the results file and the README's table show and the seeded clients are recorded with, and version 4 is reported beside it as not in use. Why version 4 did worse is not established. So "it ships only with recordings that meet all four bars" is not satisfied by any version, `make eval STRICT=1` exits non-zero on the harmful bar, CI's `eval` job is red, and the README says all of this in plain words beside the eval table. The risk wording a reader would have seen was false in every harmful answer of the final attempt ("above the level mailbox providers recommend" on a rate a fifth of it), and no check reads wording. Every attempt's numbers are in the Phase 2 log in `docs/PLAN.md`.
 
 **If the first live run scores full marks on everything,** the set is too easy: harder cases are added until something fails, the fix is made, and the before and after are kept. That touches the labels, so the owner merges that phase.
 
@@ -155,7 +159,7 @@ The bars live in `evals/bars.toml` and are judged on all forty-eight cases toget
 
 - A real domain typed on the hosted page gets live DNS checks and a fix list.
 - After one scheduled run, all twelve seeded clients have today's snapshot in Firestore.
-- The eval table is in the README with the prompt version, the model and the date, and all four bars are met.
+- The eval table is in the README with the prompt version, the model and the date, and all four bars are met. **Not met as written:** the bars were missed in Phase 2 (see "The Phase 2 result" above), and the owner ships the miss. What is done instead: the table is in the README with the missed bars marked as missed.
 - CI is green on `main`. No key in the repository or its history. No real client, company or person in the tree or the history. The tools and hosts the project runs on, and the public guidance documents its eval labels cite, are named as what they are.
 - The hosted page loads in a real browser with no key on the visitor's side, in both themes, at desktop and phone width.
 - Left to the owner: the walkthrough video, and making the repository public.

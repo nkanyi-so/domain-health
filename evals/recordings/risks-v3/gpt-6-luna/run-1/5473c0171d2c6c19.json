@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "5473c0171d2c6c197f793a5c9e293d3a825312f91af87bab557b678bf62eaff8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring, so it does not protect the domain from spoofing. With SPF and DKIM in place, enforcement is the next step.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 86,
+  "cost_usd": 0.000531,
+  "latency_ms": 1983,
+  "recorded_at": "2026-11-19T19:10:01+00:00"
+}

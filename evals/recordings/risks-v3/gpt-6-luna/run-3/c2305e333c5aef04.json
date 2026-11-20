@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c2305e333c5aef04273cc8c9f8f92b8d5b7e91641bb8081271d0bfade698645e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"volume_spike\",\"title\":\"Sending volume jumped sharply\",\"why\":\"This young domain’s latest weekly volume is several-fold higher than the previous week, creating risk before it has an established sending history.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]},{\"type\":\"new_domain_volume\",\"title\":\"High volume for a new domain\",\"why\":\"This domain is still in its first few weeks but is already sending substantial weekly volume, which can make it harder to establish a trustworthy sending reputation.\",\"evidence\":[\"sources.domain_age_days\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is valid but set to monitoring, so it does not protect the domain from spoofing. Monitoring is the right stage for now; enforcement is the step that follows.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4873,
+  "output_tokens": 223,
+  "cost_usd": 0.0005987999999999999,
+  "latency_ms": 3769,
+  "recorded_at": "2026-11-19T19:10:45+00:00"
+}

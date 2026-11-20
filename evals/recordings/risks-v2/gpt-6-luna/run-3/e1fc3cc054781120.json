@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e1fc3cc0547811201e7b1ff246c2b58a5061da6203fc30e045ef70a64dc07fa3",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The reputation grade has fallen from medium to low, indicating worsening deliverability.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current low reputation grade signals that mail may face reduced inbox placement.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is at a level mailbox providers ask bulk senders to stay below, and the sending volume makes this a meaningful signal.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate has reached the clean-list benchmark, and the sending volume makes this a meaningful list-quality signal.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established domain's DMARC policy is set to monitoring, so it does not enforce protection against unauthenticated mail.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 4614,
+  "output_tokens": 294,
+  "cost_usd": 0.0006084,
+  "latency_ms": 3742,
+  "recorded_at": "2026-11-19T18:59:26+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "5473c0171d2c6c197f793a5c9e293d3a825312f91af87bab557b678bf62eaff8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"spf_near_lookup_limit\",\"title\":\"SPF is at the lookup limit\",\"why\":\"The valid SPF record is at the lookup limit, leaving no room for additional lookup-based mechanisms before it could fail.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.lookup_count\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF does not signal receivers to reject unauthorized mail\",\"why\":\"The SPF record uses a neutral ending, and DMARC is only monitoring, so receivers are not being told to refuse mail that fails authentication.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.all_qualifier\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring rather than enforcing\",\"why\":\"DMARC is set to monitoring only, so it does not protect the domain by directing receivers to handle failing mail more strictly.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4880,
+  "output_tokens": 224,
+  "cost_usd": 0.0006,
+  "latency_ms": 2937,
+  "recorded_at": "2026-11-19T19:10:21+00:00"
+}

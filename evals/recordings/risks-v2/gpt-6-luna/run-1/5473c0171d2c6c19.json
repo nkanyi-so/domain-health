@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "5473c0171d2c6c197f793a5c9e293d3a825312f91af87bab557b678bf62eaff8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The established domain’s DMARC policy is set to monitoring, so it does not enforce protection against failing mail.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.keys\",\"sources.domain_age_days\"]},{\"type\":\"spf_weak_all\",\"title\":\"SPF does not reject unauthorized senders\",\"why\":\"The SPF record ends with a neutral qualifier, and DMARC is not enforcing, leaving no policy to turn away other senders.\",\"evidence\":[\"checks.spf.all_qualifier\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dmarc.policy\",\"checks.dmarc.present\",\"checks.dmarc.valid\"]}]}",
+  "detail": null,
+  "input_tokens": 4620,
+  "output_tokens": 184,
+  "cost_usd": 0.000554,
+  "latency_ms": 2710,
+  "recorded_at": "2026-11-19T18:58:29+00:00"
+}

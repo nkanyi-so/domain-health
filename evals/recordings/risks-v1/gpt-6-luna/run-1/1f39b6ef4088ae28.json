@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "1f39b6ef4088ae28d2d41531a30e3b421ad4b7d87d2655aaba5193521fc4e7dc",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Engagement has fallen sharply\",\"why\":\"Opens have lost a substantial share of their earlier level while sending volume is meaningful, which can signal weakening recipient interest.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume surged\",\"why\":\"Weekly volume jumped dramatically from the prior week. With a medium reputation grade, the domain may not absorb this increase safely.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The valid DMARC record does not enforce against failing mail. The domain is established, and SPF and DKIM have no outstanding fixes, so this leaves protection available but unused.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3524,
+  "output_tokens": 219,
+  "cost_usd": 0.00046190000000000006,
+  "latency_ms": 3326,
+  "recorded_at": "2026-11-19T18:51:38+00:00"
+}

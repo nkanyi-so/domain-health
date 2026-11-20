@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v2",
+  "prompt_sha256": "bf58125d22de1904f59f9f966e1db3fa6980512d7e6ad94846cbe365c5aa31d2",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "91a6979c244523e945f42c0003c2141a41f34586df52c6fa3d9a269e69141661",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The domain’s DMARC policy is set to monitoring rather than enforcement. This leaves failing mail without DMARC enforcement despite the domain’s otherwise strong reputation.\",\"evidence\":[\"checks.dmarc.policy\",\"checks.dmarc.valid\",\"checks.dmarc.present\",\"checks.spf.all_qualifier\",\"checks.spf.record_count\",\"checks.spf.valid\",\"fixes\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 4614,
+  "output_tokens": 111,
+  "cost_usd": 0.0005169,
+  "latency_ms": 2337,
+  "recorded_at": "2026-11-19T18:58:28+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e0bcff198765526fb455797d09306439c496966dd614f4ad5c68f23be2a77afe",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"blocklist_recent\",\"title\":\"Recent blocklist removal\",\"why\":\"A blocklist listing ended recently, so it is too soon to know whether its cause is gone.\",\"evidence\":[\"sources.blocklist.listed\",\"sources.blocklist.listings_90d\",\"sources.blocklist.days_since_delisted\"]},{\"type\":\"volume_spike\",\"title\":\"Sending volume spiked\",\"why\":\"Weekly sending volume doubled while the domain's reputation is medium, which could put further pressure on deliverability.\",\"evidence\":[\"sources.volume_7d\",\"sources.volume_prev_7d\",\"sources.reputation.grade\",\"sources.domain_age_days\"]}]}",
+  "detail": null,
+  "input_tokens": 5481,
+  "output_tokens": 139,
+  "cost_usd": 0.006176,
+  "latency_ms": 3367,
+  "recorded_at": "2026-11-19T21:44:54+00:00"
+}

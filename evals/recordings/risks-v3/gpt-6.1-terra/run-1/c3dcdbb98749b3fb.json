@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c3dcdbb98749b3fbd321b4de93739c4af5e2dad3c16d20ffaa4c3af91c4ed905",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Sending reputation has declined\",\"why\":\"The reputation grade fell from high to medium, which may make inbox placement less reliable.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"The complaint rate is above the level mailbox providers recommend, creating a risk to sender reputation.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"bounce_rate_elevated\",\"title\":\"Bounce rate is elevated\",\"why\":\"The bounce rate is above the clean-list benchmark, suggesting list quality may be affecting deliverability.\",\"evidence\":[\"sources.bounce_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key is below current strength\",\"why\":\"The only DKIM key found is an older, shorter key that offers less cryptographic protection than current practice.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy monitors authentication failures but does not ask receivers to reject or quarantine spoofed mail.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4876,
+  "output_tokens": 288,
+  "cost_usd": 0.006316,
+  "latency_ms": 6917,
+  "recorded_at": "2026-11-19T19:12:35+00:00"
+}

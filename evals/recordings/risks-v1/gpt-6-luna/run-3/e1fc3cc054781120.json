@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "e1fc3cc0547811201e7b1ff246c2b58a5061da6203fc30e045ef70a64dc07fa3",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation has declined\",\"why\":\"The mailbox-provider grade has worsened since the previous reading, indicating a downward trend in how providers view this domain.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current reputation grade is in the lower range, which can make inbox placement less reliable.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"complaint_rate_elevated\",\"title\":\"Complaint rate is elevated\",\"why\":\"Complaints are at a level providers advise senders to stay below, and the substantial sending volume makes this a meaningful signal.\",\"evidence\":[\"sources.complaint_rate_pct\",\"sources.volume_7d\",\"fixes\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"This established domain has a valid monitoring-only DMARC policy, while SPF and DKIM have no outstanding fixes. Mail that fails authentication is not being subject to enforcement.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.spf.present\",\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.dkim.selectors_probed\",\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 3522,
+  "output_tokens": 279,
+  "cost_usd": 0.0004917000000000001,
+  "latency_ms": 4875,
+  "recorded_at": "2026-11-19T18:52:21+00:00"
+}

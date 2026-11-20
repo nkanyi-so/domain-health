@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "ceaa3c5e2775b4dad8697c122268526956b9cc830c11ab4f7b7c77a9630d6096",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"dmarc_partial_enforcement\",\"title\":\"Subdomains lack DMARC enforcement\",\"why\":\"The main domain rejects failing mail, but the subdomain policy only monitors it, leaving subdomains less protected against spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"checks.dmarc.subdomain_policy\",\"checks.dmarc.pct\"]},{\"type\":\"dkim_key_1024\",\"title\":\"DKIM key uses an older strength\",\"why\":\"The only DKIM key found is shorter than current practice, making it less resilient to cryptographic attacks.\",\"evidence\":[\"checks.dkim.keys\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5479,
+  "output_tokens": 150,
+  "cost_usd": 0.006229,
+  "latency_ms": 4025,
+  "recorded_at": "2026-11-19T21:45:08+00:00"
+}

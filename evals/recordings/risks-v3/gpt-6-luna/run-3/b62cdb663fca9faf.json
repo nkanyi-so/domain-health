@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v3",
+  "prompt_sha256": "11e24baa36aa5035843129fa0f8f330cf74ce2acc617088932675ad1311c0e61",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "b62cdb663fca9faf35d841a231e91e8259a7fdec57e6e86d2548b916a8046f8e",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"engagement_declining\",\"title\":\"Open rates have fallen substantially\",\"why\":\"Opens have lost a substantial share of their earlier level, indicating a meaningful decline in engagement.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"DMARC is set to monitoring, so it does not protect the domain from spoofing. Monitoring is the right stage for now; enforcement is the step that follows.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]}]}",
+  "detail": null,
+  "input_tokens": 4876,
+  "output_tokens": 144,
+  "cost_usd": 0.0005596,
+  "latency_ms": 2737,
+  "recorded_at": "2026-11-19T19:10:50+00:00"
+}

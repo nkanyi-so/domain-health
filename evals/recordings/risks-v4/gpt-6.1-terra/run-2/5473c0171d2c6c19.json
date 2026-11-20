@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "5473c0171d2c6c197f793a5c9e293d3a825312f91af87bab557b678bf62eaff8",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"spf_weak_all\",\"title\":\"SPF has a neutral ending\",\"why\":\"The SPF record does not signal failure for unauthorized senders, and DMARC is not enforcing a policy to reject them.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.all_qualifier\",\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\"]},{\"type\":\"dmarc_policy_none\",\"title\":\"DMARC is monitoring only\",\"why\":\"The DMARC policy monitors authentication failures but does not protect the domain from spoofing.\",\"evidence\":[\"checks.dmarc.present\",\"checks.dmarc.valid\",\"checks.dmarc.policy\",\"sources.domain_age_days\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5480,
+  "output_tokens": 162,
+  "cost_usd": 0.00629,
+  "latency_ms": 3398,
+  "recorded_at": "2026-11-19T21:45:09+00:00"
+}

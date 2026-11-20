@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v4",
+  "prompt_sha256": "e052ad673a4049fcfce79e0b16a7407f288731f414bac944512bbc6396e20c9e",
+  "model": "gpt-6.1-terra",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "f683697e8407ac8db240b4f068e457a3dbd86852bace03e51c56fd58f4d04de2",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"spf_near_lookup_limit\",\"title\":\"SPF is near the lookup limit\",\"why\":\"The SPF record has little lookup capacity left, so an additional lookup could cause authentication failures.\",\"evidence\":[\"checks.spf.record_count\",\"checks.spf.valid\",\"checks.spf.lookup_count\",\"fixes\"]}]}",
+  "detail": null,
+  "input_tokens": 5530,
+  "output_tokens": 76,
+  "cost_usd": 0.00591,
+  "latency_ms": 2543,
+  "recorded_at": "2026-11-19T21:45:42+00:00"
+}

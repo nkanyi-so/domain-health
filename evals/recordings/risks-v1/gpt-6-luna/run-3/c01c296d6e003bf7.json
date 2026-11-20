@@ -1,0 +1,16 @@
+{
+  "prompt_version": "risks-v1",
+  "prompt_sha256": "3fddf3229020014a8e3074159933592d013283c24b053a18b023cdf12a180203",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "none",
+  "temperature": 0.0,
+  "input_hash": "c01c296d6e003bf7eb625060e31c74d2d2c9ba7a1634e64f0f291512d7da5c75",
+  "status": "completed",
+  "output_text": "{\"risks\":[{\"type\":\"reputation_declining\",\"title\":\"Reputation is declining\",\"why\":\"The mailbox-provider grade has worsened since the previous reading, indicating a downward trend.\",\"evidence\":[\"sources.reputation.grade\",\"sources.reputation.previous_grade\"]},{\"type\":\"reputation_poor\",\"title\":\"Reputation is poor\",\"why\":\"The current grade is in the bottom range, which can make inbox placement less reliable.\",\"evidence\":[\"sources.reputation.grade\"]},{\"type\":\"engagement_declining\",\"title\":\"Open rates are falling\",\"why\":\"Opens have lost a substantial share of their earlier level while sending volume remains meaningful.\",\"evidence\":[\"sources.open_rate_pct\",\"sources.open_rate_prev_pct\",\"sources.volume_7d\"]}]}",
+  "detail": null,
+  "input_tokens": 3618,
+  "output_tokens": 158,
+  "cost_usd": 0.00044080000000000004,
+  "latency_ms": 2948,
+  "recorded_at": "2026-11-19T18:52:19+00:00"
+}
