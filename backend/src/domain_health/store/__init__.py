@@ -14,6 +14,7 @@ list stored in a snapshot is what the daily write and the last click on that day
 import re
 from collections.abc import Mapping
 from datetime import UTC, date, datetime, timedelta
+from enum import StrEnum
 from typing import Literal, Protocol
 
 from pydantic import AwareDatetime, Field, field_validator
@@ -26,11 +27,19 @@ SUPPRESS_DAYS = 30
 VISIBLE_CAP = 5
 SANDBOX_LIFE = timedelta(days=1)
 LIVE_CHECK_LIFE = timedelta(minutes=10)
+# The limits on the live check: this many per address in one window, this many a day in all.
+LIVE_PER_ADDRESS = 5
+LIVE_WINDOW = timedelta(minutes=10)
+LIVE_PER_DAY = 200
+# A per-address counter is of no use after its window; Firestore's TTL policy deletes it later.
+COUNTER_LIFE = timedelta(days=1)
 
 # What may be a document's name: a client's id, a visitor's session id.
 _CLIENT_ID = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 _SESSION_ID = re.compile(r"[A-Za-z0-9_-]{16,128}")
 _HOST_NAME = re.compile(r"[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+")
+
+_ADDRESS_KEY = re.compile(r"[0-9a-f]{16,64}")
 
 RisksStatus = Literal["ranked", "unavailable"]
 ModelSource = Literal["recorded"]
@@ -46,6 +55,14 @@ class NoSnapshotError(StoreError):
 
 class UnknownRiskError(StoreError):
     """The risk named is not one of that day's ranked risks."""
+
+
+class Slot(StrEnum):
+    """What asking for one live check gave."""
+
+    TAKEN = "taken"
+    ADDRESS_LIMIT = "rate_limited"
+    DAILY_CAP = "daily_cap"
 
 
 class StoreBusyError(StoreError):
@@ -157,6 +174,45 @@ class SandboxState(Frozen):
     expires_at: AwareDatetime
 
 
+class ClientRecord(Frozen):
+    """The fields of `clients/{client}` that `make seed` writes. The handled marks are beside
+    them in the same document and are not this record's."""
+
+    id: str
+    name: str
+    domain: str
+    seeded: bool = True
+
+    @field_validator("id")
+    @classmethod
+    def a_document_name(cls, client_id: str) -> str:
+        return checked_client_id(client_id)
+
+
+def day_counter(now: datetime) -> str:
+    """The name of the document that counts one UTC day's live checks."""
+    return f"live-{now.astimezone(UTC).date().isoformat()}"
+
+
+def address_counter(address_key: str, now: datetime) -> str:
+    """The name of the document that counts one address's live checks in one ten-minute window.
+    The key is a hash made by the caller: an address is never stored."""
+    if not _ADDRESS_KEY.fullmatch(address_key):
+        raise StoreError("not an address key")
+    window = int(now.timestamp()) // int(LIVE_WINDOW.total_seconds())
+    return f"ip-{address_key}-{window}"
+
+
+def slot(day_count: int, address_count: int) -> Slot:
+    """Whether one more live check may be made, given the two counts before it. The address is
+    asked first, so a visitor over their own limit is told that and not that the day is full."""
+    if address_count >= LIVE_PER_ADDRESS:
+        return Slot.ADDRESS_LIMIT
+    if day_count >= LIVE_PER_DAY:
+        return Slot.DAILY_CAP
+    return Slot.TAKEN
+
+
 class LiveCheck(Frozen):
     """The stored document `live_checks/{domain}`: a typed-domain check, kept for ten minutes."""
 
@@ -266,6 +322,19 @@ class SnapshotStore(Protocol):
         self, scope: Scope, client_id: str, day: date, now: datetime
     ) -> ClientDay | None:
         """The day as this scope sees it, or None when there is no snapshot for it."""
+        ...
+
+    async def take_live_check_slot(self, address_key: str, now: datetime) -> Slot:
+        """Count one live check for this address and this day, in one transaction, or refuse it
+        and count nothing. Ten asked at once from one address give at most five."""
+        ...
+
+    async def seed_clients(self, clients: list[ClientRecord]) -> None:
+        """Write each client's name and domain. Handled marks already there are left alone."""
+        ...
+
+    async def list_clients(self) -> list[ClientRecord]:
+        """Every seeded client, in the order of its id."""
         ...
 
     async def save_live_check(self, check: LiveCheck) -> None: ...

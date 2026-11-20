@@ -21,21 +21,28 @@ from google.cloud.firestore import (
 )
 
 from domain_health.store import (
+    COUNTER_LIFE,
+    LIVE_WINDOW,
     ClientDay,
+    ClientRecord,
     DayResult,
     HandledMark,
     LiveCheck,
     SandboxState,
     Scope,
+    Slot,
     Snapshot,
     StoreBusyError,
+    address_counter,
     alive,
     changed,
     checked_client_id,
     checked_domain,
+    day_counter,
     found,
     sandbox_state,
     seen,
+    slot,
     stored,
     with_view,
 )
@@ -182,6 +189,40 @@ class FirestoreStore:
             return seen(snapshot, _marks(await self._read(self._client(client_id))))
         state = alive(await self._read_sandbox(session, client_id), now)
         return seen(snapshot, state.handled if state else {})
+
+    async def take_live_check_slot(self, address_key: str, now: datetime) -> Slot:
+        day_ref = self.db.document("counters", day_counter(now))
+        address_ref = self.db.document("counters", address_counter(address_key, now))
+
+        async def take(transaction: AsyncTransaction) -> Slot:
+            day_count = int((await self._read(day_ref, transaction) or {}).get("count", 0))
+            address_count = int((await self._read(address_ref, transaction) or {}).get("count", 0))
+            given = slot(day_count, address_count)
+            if given is Slot.TAKEN:
+                transaction.set(day_ref, {"count": day_count + 1})
+                transaction.set(
+                    address_ref,
+                    {"count": address_count + 1, _TTL_FIELD: now + LIVE_WINDOW + COUNTER_LIFE},
+                )
+            return given
+
+        return await self._transact(take)
+
+    async def seed_clients(self, clients: list[ClientRecord]) -> None:
+        for client in clients:
+            fields = client.model_dump(mode="json", exclude={"id"})
+            # Only these fields: a client's handled marks are in the same document.
+            await self._client(client.id).set(fields, merge=True)
+
+    async def list_clients(self) -> list[ClientRecord]:
+        found = []
+        async for document in self.db.collection("clients").stream():
+            fields = document.to_dict() or {}
+            if "name" not in fields:
+                continue  # a document a click made before the client was seeded
+            fields.pop("handled", None)
+            found.append(ClientRecord(id=document.id, **fields))
+        return sorted(found, key=lambda client: client.id)
 
     async def save_live_check(self, check: LiveCheck) -> None:
         await self.db.document("live_checks", check.domain).set(_document(check))

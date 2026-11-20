@@ -6,8 +6,12 @@ requires-python = ">=3.14"
 dependencies = [
     "dnspython>=2.9.2",
     "fastapi>=0.165.0",
+    "google-auth>=2.62.2",
     "google-cloud-firestore>=2.34.1",
+    "google-cloud-tasks>=2.26.0",
+    "httpx2>=2.16.2",
     "pydantic>=2.14.4",
+    "pydantic-settings>=2.16.3",
     "uvicorn>=0.54.0",
 ]
 

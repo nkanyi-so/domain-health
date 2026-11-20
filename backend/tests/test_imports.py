@@ -25,6 +25,9 @@ ALLOWED: dict[str, set[str]] = {
     "src/domain_health/resolver/live.py": {"dns"},
     "src/domain_health/risks/openai_model.py": {"openai"},
     "src/domain_health/store/firestore.py": {"google"},
+    "src/domain_health/machine_auth.py": {"google", "httpx2"},
+    "src/domain_health/cloud_tasks.py": {"google"},
+    "src/domain_health/slack.py": {"httpx2"},
 }
 
 

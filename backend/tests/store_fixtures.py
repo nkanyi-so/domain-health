@@ -1,17 +1,23 @@
 """Days to store, and the behaviours every store must show. The memory store's tests and the
 emulator's run the same scenarios, so the two cannot drift apart."""
 
+import asyncio
 from datetime import UTC, date, datetime, timedelta
 from uuid import uuid4
 
 from domain_health.risks import Risk, risk_id
 from domain_health.seeded import checked, load_clients
 from domain_health.store import (
+    LIVE_PER_ADDRESS,
+    LIVE_PER_DAY,
     SHARED,
+    ClientRecord,
     DayResult,
     NoSnapshotError,
     Scope,
+    Slot,
     SnapshotStore,
+    StoreError,
     UnknownRiskError,
     live_check,
     sandbox,
@@ -263,3 +269,66 @@ async def a_preview_writes_nothing(store: SnapshotStore) -> None:
 
     assert ids(preview.visible) == ids(result.ranked)[:5]
     assert await store.read_day(SHARED, client_id, DAY0, noon(DAY0)) is None
+
+
+ADDRESS = "ab" * 16
+
+
+async def ten_live_checks_at_once_give_at_most_five(store: SnapshotStore) -> list[Slot]:
+    key = uuid4().hex
+    given = await asyncio.gather(*(store.take_live_check_slot(key, noon(DAY0)) for _ in range(10)))
+    assert sorted(given) == [Slot.ADDRESS_LIMIT] * 5 + [Slot.TAKEN] * 5
+    # A sixth, later in the same window, is still refused; the next window is open again.
+    assert (
+        await store.take_live_check_slot(key, noon(DAY0) + timedelta(minutes=9))
+        is Slot.ADDRESS_LIMIT
+    )
+    assert await store.take_live_check_slot(key, noon(DAY0) + timedelta(minutes=10)) is Slot.TAKEN
+    # Another address has its own count.
+    assert await store.take_live_check_slot(uuid4().hex, noon(DAY0)) is Slot.TAKEN
+    return list(given)
+
+
+async def the_201st_live_check_of_a_day_is_refused(store: SnapshotStore, day: date) -> None:
+    """`day` must be a day no other test counts on."""
+    at = noon(day)
+    for _ in range(LIVE_PER_DAY // LIVE_PER_ADDRESS):
+        key = uuid4().hex
+        given = await asyncio.gather(
+            *(store.take_live_check_slot(key, at) for _ in range(LIVE_PER_ADDRESS))
+        )
+        assert set(given) == {Slot.TAKEN}
+
+    assert await store.take_live_check_slot(uuid4().hex, at) is Slot.DAILY_CAP
+    assert await store.take_live_check_slot(uuid4().hex, at + timedelta(hours=11)) is Slot.DAILY_CAP
+    # A refused check counts nothing, and the next UTC day starts again.
+    assert await store.take_live_check_slot(uuid4().hex, at + timedelta(days=1)) is Slot.TAKEN
+
+
+async def an_address_key_that_is_not_a_hash_is_refused(store: SnapshotStore) -> None:
+    for key in ("", "203.0.113.7", "a/b" * 8, "AB" * 16, "g" * 32):
+        try:
+            await store.take_live_check_slot(key, noon(DAY0))
+        except StoreError:
+            continue
+        raise AssertionError(f"{key!r} was used as a document name")
+
+
+async def seeded_clients_are_listed_and_keep_their_marks(store: SnapshotStore) -> None:
+    """Needs a store nobody else has seeded."""
+    client_id = "b-client"
+    result = await day_result(client_id)
+    records = [
+        ClientRecord(id=client_id, name="B Client", domain=result.domain),
+        ClientRecord(id="a-client", name="A Client", domain="a-client.example"),
+    ]
+    await store.seed_clients(records)
+    await store.write_daily(result)
+    await store.mark(SHARED, client_id, DAY0, result.ranked[0].id, noon(DAY0))
+
+    await store.seed_clients(records)
+
+    assert [client.id for client in await store.list_clients()] == ["a-client", client_id]
+    seen = await store.read_day(SHARED, client_id, DAY0, noon(DAY0))
+    assert seen is not None
+    assert set(seen.handled) == {result.ranked[0].id}
