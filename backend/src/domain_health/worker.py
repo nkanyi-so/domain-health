@@ -82,11 +82,18 @@ async def run_client(
         started_at=started_at,
         finished_at=clock.now(),
     )
-    if alerter is not None:
-        await _alert(alerter, store, result, clock, dry_run=dry_run)
     if dry_run:
+        if alerter is not None:
+            await _alert(alerter, store, result, clock, dry_run=True)
         return await store.preview_daily(result)
-    return await store.write_daily(result)
+    # The alert goes out once per client and day: after the snapshot is saved, and only on the
+    # run that saved it first. A run that fails before the write is retried by the queue, and a
+    # rerun of a saved day overwrites; neither sends the message again.
+    first = await store.read_day(SHARED, client.id, on, clock.now()) is None
+    written = await store.write_daily(result)
+    if alerter is not None and first:
+        await _alert(alerter, store, result, clock, dry_run=False)
+    return written
 
 
 async def _alert(

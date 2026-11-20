@@ -1,7 +1,7 @@
 """What the deployed service reads from its environment. Nothing here is a model key: the
 service is built with recorded model output only."""
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,7 +16,8 @@ class Settings(BaseSettings):
     # The service account Scheduler and Tasks call as.
     invoker_email: str
     tasks_queue: str = "domain-health-daily"
-    # Shared with the frontend's server routes. From Secret Manager.
-    proxy_secret: SecretStr
+    # Shared with the frontend's server routes. From Secret Manager. Never short or empty: an
+    # empty secret would equal an absent header and open every route.
+    proxy_secret: SecretStr = Field(min_length=32)
     # Optional. Empty on the hosted demo, which then sends no alert.
     slack_webhook_url: SecretStr | None = None

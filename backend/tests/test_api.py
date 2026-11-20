@@ -1,11 +1,15 @@
 """`/api/*`: what the frontend's server may ask, and everything that is refused."""
 
 import asyncio
+import dataclasses
 from datetime import timedelta
 
 import pytest
+from pydantic import ValidationError
 
+from domain_health.app import create_app
 from domain_health.domain_name import Refusal
+from domain_health.settings import Settings
 from domain_health.store import LIVE_PER_DAY, SHARED, day_counter
 from domain_health.store.memory import MemoryStore
 from tests.app_fixtures import (
@@ -376,3 +380,30 @@ def test_shared_state_is_only_changed_by_the_admin_actor() -> None:
     assert shared is not None
     assert shared.handled == {}
     assert SESSION in VISITOR["X-Actor"]
+
+
+def test_the_app_is_not_built_with_an_empty_proxy_secret() -> None:
+    """An empty secret would equal an absent header and let every call through."""
+    deps = dataclasses.replace(build().deps, proxy_secret="")
+
+    with pytest.raises(ValueError, match="proxy secret"):
+        create_app(deps)
+
+
+@pytest.mark.parametrize("secret", ["", "short", "x" * 31])
+def test_the_service_does_not_start_with_a_short_proxy_secret(
+    monkeypatch: pytest.MonkeyPatch, secret: str
+) -> None:
+    for name, value in {
+        "GCP_PROJECT_ID": "demo-project",
+        "SERVICE_URL": "https://service.example",
+        "INVOKER_EMAIL": "invoker@demo-project.example",
+        "PROXY_SECRET": secret,
+    }.items():
+        monkeypatch.setenv(name, value)
+
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+    monkeypatch.setenv("PROXY_SECRET", "x" * 32)
+    assert Settings(_env_file=None).proxy_secret.get_secret_value() == "x" * 32

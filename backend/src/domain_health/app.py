@@ -150,6 +150,9 @@ def address_key(address: str) -> str:
 
 
 def create_app(deps: Deps) -> FastAPI:
+    if not deps.proxy_secret:
+        # An empty secret equals an absent header, which would let every call through.
+        raise ValueError("the proxy secret is empty")
     app = FastAPI(title="domain-health", docs_url=None, redoc_url=None, openapi_url=None)
     by_id = {client.id: client for client in deps.clients}
 

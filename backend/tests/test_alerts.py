@@ -11,7 +11,7 @@ from domain_health.clock import FixedClock
 from domain_health.risks.model import FixtureRiskModel
 from domain_health.seeded import SeededClient, load_clients
 from domain_health.slack import SlackWebhookAlerter
-from domain_health.store import SHARED, stored
+from domain_health.store import SHARED, DayResult, Snapshot, StoreBusyError, stored
 from domain_health.store.memory import MemoryStore
 from domain_health.worker import ModelFacts, run_client
 from tests.dns_fixtures import run
@@ -141,6 +141,43 @@ def test_changes_name_fields_and_fixes_in_plain_lines() -> None:
     assert changes(stored(before, {}), before) == []
     assert changes(None, before) == []
     assert message(after, lines).count("\n") == len(lines)
+
+
+def test_a_rerun_of_a_saved_day_does_not_send_the_message_again() -> None:
+    client, day = a_client_whose_checks_change()
+    store, alerter = MemoryStore(), FakeAlerter()
+    run_day(client, day - timedelta(days=1), store, alerter)
+    run_day(client, day, store, alerter)
+
+    run_day(client, day, store, alerter)
+
+    assert len(alerter.sent) == 1
+
+
+def test_a_run_whose_write_fails_sends_nothing() -> None:
+    """The queue tries a failed run again, up to five times: the message waits for the write."""
+
+    class BusyStore(MemoryStore):
+        failing = False
+
+        async def write_daily(self, result: DayResult) -> Snapshot:
+            if self.failing:
+                raise StoreBusyError("busy")
+            return await super().write_daily(result)
+
+    client, day = a_client_whose_checks_change()
+    store, alerter = BusyStore(), FakeAlerter()
+    run_day(client, day - timedelta(days=1), store, alerter)
+    store.failing = True
+
+    for _ in range(4):
+        with pytest.raises(StoreBusyError):
+            run_day(client, day, store, alerter)
+    assert alerter.sent == []
+
+    store.failing = False
+    run_day(client, day, store, alerter)
+    assert len(alerter.sent) == 1
 
 
 def test_the_null_alerter_does_nothing() -> None:

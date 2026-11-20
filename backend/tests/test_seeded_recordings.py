@@ -15,7 +15,13 @@ from domain_health.models import SnapshotInput
 from domain_health.risks.model import ModelCall, RisksUnavailableError, input_hash, risks_from
 from domain_health.risks.prompt import Prompt
 from domain_health.seeded.record import still_to_record
-from domain_health.seeded.recording_report import RATE_LINES, false_wording, lines, report
+from domain_health.seeded.recording_report import (
+    LINES,
+    false_wording,
+    lines,
+    off_the_line,
+    report,
+)
 from domain_health.seeded.recordings import (
     RUNS,
     State,
@@ -135,32 +141,49 @@ def test_the_report_counts_what_the_bands_call_acceptable_and_wrong(prompt: Prom
     assert "1 of a type the bands call merely acceptable, 1 wrong" in printed
 
 
-def low_rate_state(kind: RiskType) -> State:
-    field, line = RATE_LINES[kind]
+def state_off_the_line(kind: RiskType) -> State:
+    """A seeded state on the side of this type's line where the rubric does not list it."""
     for state in STATES:
-        if float(getattr(state.snapshot.sources, field)) < line:
+        if off_the_line(kind, state.snapshot) is not None:
             return state
-    raise AssertionError("no seeded state is under the line")
+    raise AssertionError(f"no seeded state is off the line of {kind.value}")
 
 
-@pytest.mark.parametrize("kind", list(RATE_LINES))
-@pytest.mark.parametrize(
-    ("why", "flagged"),
-    [
-        ("The rate is above the level mailbox providers recommend.", True),
-        ("Complaints are elevated.", True),
-        ("The rate exceeds what receivers accept.", True),
-        ("Too many recipients object.", True),
-        ("Worth watching while the list is new.", False),
-    ],
-)
-def test_text_that_says_a_rate_is_elevated_under_the_rubrics_line_is_flagged(
-    prompt: Prompt, kind: RiskType, why: str, flagged: bool
-) -> None:
-    state = low_rate_state(kind)
-    text = json.dumps(
+def one_risk(kind: RiskType, why: str) -> str:
+    return json.dumps(
         {"risks": [{"type": kind.value, "title": "A title", "why": why, "evidence": ["fixes"]}]}
     )
+
+
+@pytest.mark.parametrize(
+    ("kind", "why", "flagged"),
+    [
+        (RiskType.COMPLAINT_RATE_ELEVATED, "The rate is above the recommended level.", True),
+        (RiskType.COMPLAINT_RATE_ELEVATED, "Complaints are elevated.", True),
+        (RiskType.COMPLAINT_RATE_ELEVATED, "Too many recipients object.", True),
+        (RiskType.COMPLAINT_RATE_ELEVATED, "Worth watching while the list is new.", False),
+        (RiskType.BOUNCE_RATE_ELEVATED, "The rate exceeds what receivers accept.", True),
+        (RiskType.BOUNCE_RATE_ELEVATED, "Bounces are high.", True),
+        (RiskType.BOUNCE_RATE_ELEVATED, "Worth a look at list hygiene.", False),
+        (RiskType.VOLUME_SPIKE, "Volume has spiked this week.", True),
+        (RiskType.VOLUME_SPIKE, "A sharp rise in sending.", True),
+        (RiskType.VOLUME_SPIKE, "Sending is steady week on week.", False),
+        (RiskType.ENGAGEMENT_DECLINING, "The open rate is sharply down.", True),
+        (RiskType.ENGAGEMENT_DECLINING, "Opens have fallen.", True),
+        (RiskType.ENGAGEMENT_DECLINING, "Opens are about where they were.", False),
+        (RiskType.SPF_NEAR_LOOKUP_LIMIT, "The record is near the lookup limit.", True),
+        (RiskType.SPF_NEAR_LOOKUP_LIMIT, "The record is approaching ten lookups.", True),
+        (RiskType.SPF_NEAR_LOOKUP_LIMIT, "The record has room to grow.", False),
+        (RiskType.NEW_DOMAIN_VOLUME, "A new domain sending in bulk.", True),
+        (RiskType.NEW_DOMAIN_VOLUME, "The domain was registered recently.", True),
+        (RiskType.NEW_DOMAIN_VOLUME, "Sending is in bulk.", False),
+    ],
+)
+def test_text_that_says_a_value_is_over_a_rubric_line_it_is_not_over_is_flagged(
+    prompt: Prompt, kind: RiskType, why: str, flagged: bool
+) -> None:
+    state = state_off_the_line(kind)
+    text = one_risk(kind, why)
     risks = risks_from(state.snapshot, recorded_call(prompt, state.snapshot, text))
 
     assert bool(false_wording(state.snapshot, risks)) is flagged
@@ -168,34 +191,52 @@ def test_text_that_says_a_rate_is_elevated_under_the_rubrics_line_is_flagged(
     assert bool(found.false_wording) is flagged
 
 
-def test_the_same_words_at_a_rate_over_the_line_are_not_flagged(prompt: Prompt) -> None:
-    for kind, (field, line) in RATE_LINES.items():
-        over = [s for s in STATES if float(getattr(s.snapshot.sources, field)) >= line]
-        assert over, kind
-        text = json.dumps(
-            {
-                "risks": [
-                    {
-                        "type": kind.value,
-                        "title": "A title",
-                        "why": "The rate is elevated.",
-                        "evidence": ["fixes"],
-                    }
-                ]
-            }
-        )
-        risks = risks_from(over[0].snapshot, recorded_call(prompt, over[0].snapshot, text))
-        assert false_wording(over[0].snapshot, risks) == []
+SAID = {
+    RiskType.COMPLAINT_RATE_ELEVATED: "The rate is elevated.",
+    RiskType.BOUNCE_RATE_ELEVATED: "The rate is elevated.",
+    RiskType.VOLUME_SPIKE: "Volume has spiked.",
+    RiskType.ENGAGEMENT_DECLINING: "Opens have fallen.",
+    RiskType.SPF_NEAR_LOOKUP_LIMIT: "Near the limit.",
+    RiskType.NEW_DOMAIN_VOLUME: "A new domain.",
+}
 
 
-def test_each_rate_line_is_where_the_rubrics_bands_start_to_list_the_type() -> None:
-    """The lines are written here and not read from the rubric's table, so this ties them to
-    it: among the seeded states, a rate under the line is never expected or acceptable."""
-    for kind, (field, line) in RATE_LINES.items():
-        for state in STATES:
+def test_the_same_words_on_the_listed_side_of_the_line_are_not_flagged(prompt: Prompt) -> None:
+    assert set(SAID) == set(LINES)
+    for kind, why in SAID.items():
+        listed = [
+            s
+            for s in STATES
+            if off_the_line(kind, s.snapshot) is None
+            and kind in table_label(s.snapshot).expected + table_label(s.snapshot).acceptable
+        ]
+        assert listed, kind
+        text = one_risk(kind, why)
+        risks = risks_from(listed[0].snapshot, recorded_call(prompt, listed[0].snapshot, text))
+        assert false_wording(listed[0].snapshot, risks) == []
+
+
+def test_each_line_is_where_the_rubrics_bands_start_to_list_the_type() -> None:
+    """The lines are written in the report and not read from the rubric's table, so this ties
+    them to it: among the seeded states, an input off the line is never expected or acceptable
+    for that type, and every type has a seeded state on each side."""
+    for kind in LINES:
+        off = [s for s in STATES if off_the_line(kind, s.snapshot) is not None]
+        assert off, kind
+        for state in off:
             label = table_label(state.snapshot)
-            if float(getattr(state.snapshot.sources, field)) < line:
-                assert kind not in label.expected + label.acceptable, state.client_id
+            assert kind not in label.expected + label.acceptable, (kind, state.client_id)
+
+
+def test_every_risk_type_whose_bands_turn_on_a_number_has_a_line() -> None:
+    assert set(LINES) == {
+        RiskType.COMPLAINT_RATE_ELEVATED,
+        RiskType.BOUNCE_RATE_ELEVATED,
+        RiskType.VOLUME_SPIKE,
+        RiskType.ENGAGEMENT_DECLINING,
+        RiskType.SPF_NEAR_LOOKUP_LIMIT,
+        RiskType.NEW_DOMAIN_VOLUME,
+    }
 
 
 def test_only_what_the_model_has_not_answered_is_still_to_record(
