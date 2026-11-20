@@ -5,9 +5,10 @@ Everything that decides what a document holds is here, as pure functions, and bo
 one transaction. `visible_risks` is the only place the visible list is computed.
 
 Two scopes run the same code. The shared scope is what an admin changes: its handled marks are on
-the client's document and its visible list is in the day's snapshot. A sandbox is one visitor's:
-its handled marks and its visible list are in the visitor's own document, which expires after a
-day, and the shared snapshot is never written from it.
+the client's document. A sandbox is one visitor's: its marks are in the visitor's own document,
+which expires after a day, and nothing shared is ever written from it. In either scope a read
+writes nothing and computes what is visible from the day's ranked risks and the scope's marks; the
+list stored in a snapshot is what the daily write and the last click on that day left.
 """
 
 import re

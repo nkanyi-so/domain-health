@@ -2052,7 +2052,7 @@ challenger-verdict: change needed @ c6f7f0e
 **Risks seen at the start.**
 
 - The emulator may not behave like Firestore when two transactions overlap. The race test asserts on the stored documents after both writers finish, and also that the daily write landed, so a test that passes because one writer never ran would fail.
-- The architecture gives a sandbox a stored visible list, and the worker cannot keep it current. Decided and listed in `docs/DECISIONS_TO_REVIEW.md`: it is refreshed on the visitor's next read.
+- The architecture gives a sandbox a stored visible list, and the worker cannot keep it current. Decided and listed in `docs/DECISIONS_TO_REVIEW.md`: it is refreshed on the visitor's next read. (Replaced after the first review: the list is not stored at all and is computed at each read. See below.)
 - **A stop that can be seen from here.** CI's `eval` job is red on every commit, by design, since Phase 2 missed the harmful bar. The merge gate refuses a pull request with any red job, so it will leave this phase and every later one for the owner unless the owner changes that. Nothing in this phase's work depends on the answer, so the phase is built, reviewed and verified first and the question is asked once, at the merge.
 
 **Verifier and challenger.** The verifier is needed: there are tests to run against the emulator and a dry-run command. The challenger is needed, though this phase produces no new eval result and does not touch the claim or the measure: the owner asked that it cover the Phase 2 commits after `c6f7f0e` (`9577d57`, `9b517e2`, `8021907`), which changed the results file and the report code, in this phase's pass.
@@ -2103,6 +2103,14 @@ What was done about each:
 5. `Scope` checks its session ID itself, so it cannot be built around the check; `LiveCheck` and `read_live_check` refuse a domain that is not a lower-case host name. Tests for both.
 
 `docs/ARCHITECTURE.md` and the first Phase 3 entry in `docs/DECISIONS_TO_REVIEW.md` say what the store now does. `make check-backend` then passed three runs in a row: 825 tests outside the emulator, 26 inside.
+
+**Review, second run, on `10aa0d0`: no blocking findings.** "All five first-round findings are fixed", each checked in the code and the tests. Its own `make check` at that commit exited 0. Three items, not blocking, as reported:
+
+1. "The gate evidence is still not in the phase log." It goes in below, from the run on the final commit.
+2. "The store's module docstring is now wrong": it still said a sandbox stores its visible list. Corrected.
+3. "The phase log contradicts itself": the risk noted at the start said the sandbox's list "is refreshed on the visitor's next read". A note now says that was replaced.
+
+The docstring is code, so the review is run a third and last time on the commit that holds it.
 
 ---
 
