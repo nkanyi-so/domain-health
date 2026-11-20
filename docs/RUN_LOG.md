@@ -95,3 +95,5 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:23:44Z	4	review	no blocking findings, on e343425 and 1aa64b4 only @ 8d56481	2.27
 2026-11-20T10:24:58Z	4	gate-refused	exit=2 reason=checkout pr=#12: the local checkout is not the pull request's head commit (8d56481ec68fa2a8a56de4ad288e2b7d84d630ea). Push, or check out the branch	2.27
 2026-11-20T10:25:32Z	4	gate-refused	exit=2 reason=spend pr=#12: docs/PLAN.md must have exactly one 'Spend: $X of ...' line	2.27
+2026-11-20T10:30:08Z	4	gate-merged	pr=#12 phase-4-schedule-worker-api-deploy 50bd25cb11f4234c566a9d4ee904b74a33910b91 into main	2.27
+2026-11-20T10:30:41Z	5	phase-started	5: the screens	2.27

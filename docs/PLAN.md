@@ -12,8 +12,8 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | in review | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
-| 5: the screens | not started | |
+| 4: schedule, worker, API, first backend deploy | merged | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
+| 5: the screens | building | |
 | 6: report, README, release checks | not started | |
 
 States: `not started`, `building`, `in review`, `waiting on you`, `merged`, `merged, checked live`. Mark a checkpoint phase with "(checkpoint)" after its name. On the default branch the newest merged phase still reads `in review`, because its row was written before the merge; the next phase's first commit corrects it, and after the last phase a row left at `in review` means merged.
