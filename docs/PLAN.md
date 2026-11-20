@@ -11,8 +11,8 @@ Kept current by the build at every change of state, so progress can be read here
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
-| 3: snapshots and the handled loop | in review | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | not started | |
+| 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
+| 4: schedule, worker, API, first backend deploy | building | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
