@@ -6,7 +6,9 @@ it is the newest version file. Other versions recorded on the same model are rep
 Free: it reads recordings and makes no call. Until a prompt exists there is nothing to measure,
 and that is said and is not a failure. Once a prompt file exists this must score it or fail: it
 never reports "nothing to measure" for a prompt it cannot score. With `--strict` a missed bar is
-a failure too.
+a failure too. With `--expected-misses <file>` the failure is any difference between the bars
+missed and the bars that file names: CI runs it this way, so a miss the owner has accepted leaves
+CI green and any other miss, or a named bar that is now met, turns it red.
 """
 
 import argparse
@@ -54,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--prompts", type=Path, required=True, help="the folder of prompt versions")
     parser.add_argument("--evals", type=Path, help="the folder of cases, bars and recordings")
     parser.add_argument("--strict", action="store_true", help="exit non-zero on a missed bar")
+    parser.add_argument(
+        "--expected-misses",
+        type=Path,
+        help="exit non-zero unless the bars missed are exactly the ones this file names",
+    )
     parser.add_argument("--version", help="score this prompt version, not the one in use")
     parser.add_argument("--model", help="score this model's recordings, not the settings file's")
     parser.add_argument(
@@ -114,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
         (args.evals / "results.json").write_text(
             results.model_dump_json(indent=2) + "\n", encoding="utf-8"
         )
-    if not args.strict:
+    if not args.strict and args.expected_misses is None:
         return 0
     # Strict also holds every other version file to its recordings: a version edited after it was
     # run no longer has any that match it.
@@ -126,7 +133,37 @@ def main(argv: list[str] | None = None) -> int:
     if unmatched:
         print(f"no recordings match the prompt text of: {', '.join(unmatched)}", file=sys.stderr)
         return 1
-    return 0 if results.all_bars_met else 1
+    if args.strict and not results.all_bars_met:
+        return 1
+    if args.expected_misses is None:
+        return 0
+    missed = {name for name, result in results.measures.items() if not result.met}
+    return _against_expected(missed, args.expected_misses, set(bars))
+
+
+def _against_expected(missed: set[str], path: Path, bars: set[str]) -> int:
+    """0 when the bars missed are exactly the ones the file names. It says what differs."""
+    try:
+        named = tomllib.loads(path.read_text(encoding="utf-8"))["missed"]
+    except (OSError, KeyError, tomllib.TOMLDecodeError) as error:
+        print(f"the expected misses were not read from {path.name}: {error!r}", file=sys.stderr)
+        return 1
+    if not isinstance(named, list) or not set(named) <= bars or len(set(named)) != len(named):
+        print(f"{path.name}: `missed` is a list of bar names, each once", file=sys.stderr)
+        return 1
+    expected = set(named)
+    if missed == expected:
+        print(f"expected misses: exactly as {path.name} names them ({_names(expected)})")
+        return 0
+    for name in sorted(missed - expected):
+        print(f"{name} is missed and {path.name} does not name it", file=sys.stderr)
+    for name in sorted(expected - missed):
+        print(f"{name} is met and {path.name} still names it as missed", file=sys.stderr)
+    return 1
+
+
+def _names(bars: set[str]) -> str:
+    return ", ".join(sorted(bars)) or "none"
 
 
 if __name__ == "__main__":

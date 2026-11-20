@@ -360,6 +360,89 @@ def test_the_settings_file_names_the_prompt_in_use_and_the_others_are_reported_b
     assert written["sets"]["table"]["band_wrong_returned"] == 1
 
 
+def _with_one_harmful_answer(tmp_path: Path) -> list[str]:
+    evals = evals_folder(tmp_path)
+    prompt = write_prompt(tmp_path / "prompts")
+    record_as_labelled(evals / "recordings", prompt, ALL)
+    case = ALL[TABLE_CASE]
+    put_call(
+        run_folder(evals / "recordings", prompt.version, MODEL, 1),
+        recorded_call(prompt, case.input, output_text(*case.label.expected, case.label.wrong[0])),
+    )
+    return ["--prompts", str(tmp_path / "prompts"), "--evals", str(evals)]
+
+
+def _expecting(tmp_path: Path, text: str) -> list[str]:
+    path = tmp_path / "expected-misses.toml"
+    path.write_text(text, encoding="utf-8")
+    return ["--expected-misses", str(path)]
+
+
+def test_a_miss_the_file_names_passes_and_strict_still_fails_on_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    arguments = _with_one_harmful_answer(tmp_path)
+    expecting = _expecting(tmp_path, 'missed = ["harmful"]\n')
+
+    assert main([*arguments, *expecting]) == 0
+    assert "exactly as expected-misses.toml names them (harmful)" in capsys.readouterr().out
+    assert main([*arguments, "--strict"]) == 1
+    assert main([*arguments, "--strict", *expecting]) == 1
+
+
+@pytest.mark.parametrize(
+    ("text", "said"),
+    [
+        ("missed = []\n", "harmful is missed and expected-misses.toml does not name it"),
+        (
+            'missed = ["harmful", "coverage"]\n',
+            "coverage is met and expected-misses.toml still names it as missed",
+        ),
+        ('missed = ["coverage"]\n', "harmful is missed"),
+        ('missed = ["harmfull"]\n', "a list of bar names"),
+        ('missed = ["harmful", "harmful"]\n', "a list of bar names"),
+        ('missed = "harmful"\n', "a list of bar names"),
+        ("other = 1\n", "were not read"),
+        ("not toml [", "were not read"),
+    ],
+)
+def test_any_difference_from_the_file_fails(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], text: str, said: str
+) -> None:
+    arguments = _with_one_harmful_answer(tmp_path)
+
+    assert main([*arguments, *_expecting(tmp_path, text)]) == 1
+    assert said in capsys.readouterr().err
+
+
+def test_a_bar_the_file_names_that_is_now_met_fails(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    evals = evals_folder(tmp_path)
+    record_as_labelled(evals / "recordings", write_prompt(tmp_path / "prompts"), ALL)
+    arguments = ["--prompts", str(tmp_path / "prompts"), "--evals", str(evals)]
+
+    assert main([*arguments, *_expecting(tmp_path, "missed = []\n")]) == 0
+    assert main([*arguments, *_expecting(tmp_path, 'missed = ["harmful"]\n')]) == 1
+    assert "harmful is met" in capsys.readouterr().err
+
+
+def test_a_missing_file_of_expected_misses_fails(tmp_path: Path) -> None:
+    arguments = _with_one_harmful_answer(tmp_path)
+
+    assert main([*arguments, "--expected-misses", str(tmp_path / "nowhere.toml")]) == 1
+
+
+def test_the_committed_expected_misses_are_the_bars_the_committed_results_miss() -> None:
+    import tomllib
+
+    named = tomllib.loads((EVALS / "expected-misses.toml").read_text(encoding="utf-8"))["missed"]
+    written = json.loads((EVALS / "results.json").read_text(encoding="utf-8"))
+
+    missed = sorted(name for name, result in written["measures"].items() if not result["met"])
+    assert sorted(named) == missed == ["harmful"]
+
+
 def test_the_committed_results_are_for_the_prompt_the_settings_name() -> None:
     import tomllib
 

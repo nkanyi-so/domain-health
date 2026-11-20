@@ -28,7 +28,7 @@ endif
 	eval-live record seed infra deploy-backend fallback screens check-domain
 
 help:
-	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] | check-domain DOMAIN=<name>"
+	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
 	@echo "paid: eval-live [MODEL=<name>] [PROBE=1]"
 	@echo "not built yet: record seed infra deploy-backend fallback screens"
 
@@ -71,8 +71,10 @@ format:
 	@bash scripts/format-one.sh "$(FILE)"
 
 # Free. Scores the committed recordings; before any prompt exists there is nothing to measure.
+# STRICT=1 exits non-zero on any missed bar. EXPECTED=1 (CI's `eval` job) exits non-zero unless the
+# bars missed are exactly the ones evals/expected-misses.toml names.
 eval:
-	@cd backend && uv run --frozen python -m domain_health.evals --prompts ../prompts --evals ../evals $(if $(STRICT),--strict,) $(if $(TABLE),--table-report,)
+	@cd backend && uv run --frozen python -m domain_health.evals --prompts ../prompts --evals ../evals $(if $(STRICT),--strict,) $(if $(EXPECTED),--expected-misses ../evals/expected-misses.toml,) $(if $(TABLE),--table-report,)
 
 # Paid. Three live runs of every eval case through the model in evals/settings.toml (or MODEL=),
 # behind the spend ledger; writes the recordings and the results file. PROBE=1 makes one call

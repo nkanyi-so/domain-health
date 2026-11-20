@@ -71,3 +71,13 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-19T22:04:29Z	2	stop-opened	issue=#8 questions=6 asked: Phase 2 checkpoint again: the one further attempt missed two bars; six questions, none paid	1.85
 2026-11-19T22:07:38Z	2	stop-closed	issue=#8 opened=2026-11-19T22:04:28Z	1.85
 2026-11-19T22:18:25Z	2	review	blocking findings (two) @ 9b517e2	1.85
+2026-11-20T03:58:29Z	2	merged	pr=#6 merged by nkanyi-so at 2026-11-20T03:58:04Z	1.85
+2026-11-20T03:58:58Z	3	phase-started	snapshots and the handled loop	1.85
+2026-11-20T04:29:20Z	3	review	change needed, two blocking @ bddf159	1.85
+2026-11-20T04:33:36Z	3	review	no blocking findings, three non-blocking @ 10aa0d0	1.85
+2026-11-20T04:35:24Z	3	review	no blocking findings @ c425242	1.85
+2026-11-20T04:37:59Z	3	verify	pass @ c425242	1.85
+2026-11-20T04:39:24Z	3	challenge	change needed @ c425242	1.85
+2026-11-20T04:41:12Z	3	stop-opened	issue=#10 questions=6 asked: Phase 3 is ready to merge; six questions from the challenge of Phase 2's wording and the red eval job	1.85
+2026-11-20T04:57:49Z	3	stop-closed	issue=#10 opened=2026-11-20T04:41:12Z	1.85
+2026-11-20T05:01:35Z	3	review	no blocking findings, the one pass on the owner's answers @ 59c9371	1.85

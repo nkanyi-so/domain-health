@@ -24,9 +24,7 @@ OUTSIDE_SYSTEMS = (
 ALLOWED: dict[str, set[str]] = {
     "src/domain_health/resolver/live.py": {"dns"},
     "src/domain_health/risks/openai_model.py": {"openai"},
-    # Talks to the Firestore emulator on localhost with the standard library, until Phase 3
-    # replaces it with the store's own emulator tests.
-    "tests/test_emulator_smoke.py": {"urllib.request"},
+    "src/domain_health/store/firestore.py": {"google"},
 }
 
 
