@@ -11,7 +11,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 0: scaffold, process layer and the measure | merged | [#1](https://github.com/nkanyi-so/domain-health/pull/1) |
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
-| 3: snapshots and the handled loop | building | |
+| 3: snapshots and the handled loop | waiting on you | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
 | 4: schedule, worker, API, first backend deploy | not started | |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
@@ -37,7 +37,29 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-Nothing.
+**Phase 3 is built, reviewed and verified, and it waits for you to merge it.** Pull request: [#9](https://github.com/nkanyi-so/domain-health/pull/9). Two things stop the run from merging it itself, and neither is about Phase 3's code.
+
+- The challenger, covering the three Phase 2 commits it had not seen, came back "change needed". Its list is about Phase 2's wording in the plan and the spec, and about two files the guards do not cover.
+- CI's `eval` job is red on every commit, by design, since Phase 2 missed the harmful bar. The merge gate refuses any pull request with a red job, so as things stand it will leave every remaining phase for you.
+
+Phase 3 itself: the reviewer found nothing blocking on its third and last run, and the verifier passed all fourteen checks, with `make check` green twice. The first review found two real faults, both fixed: a risk handled on yesterday's page could show again on today's, and a visitor's read could write to the database.
+
+Six questions. "Recommended for all" is a complete answer.
+
+1. **CI's red `eval` job against "CI is green on `main`".** The spec's "Done when" and the Phase 6 gate both ask for green CI, and the same gate asks that `make eval STRICT=1` exit non-zero, which is the command the `eval` job runs. Both cannot hold.
+   - **A (recommended).** The `eval` job passes when the results miss exactly the bars a committed file names (today: harmful), and fails on any other miss and on a pass the file does not expect. CI can then be green, a new miss still turns it red, and the merge gate can merge Phases 4 to 6. Cost: a change to CI and one small file, so you merge the phase that holds it. I would add it to this pull request.
+   - **B.** Leave the job red. "CI is green" is reworded to "`check` and `secrets` are green and `eval` is red only on the bars the README names". You merge every remaining phase yourself.
+2. **The Phase 6 line "writes harmful as '0 in 144 case-runs'".** Followed literally it puts a false number in the README. Recommended: reword it to "writes harmful as a count in 144 case-runs, the figure in the results file (9 in 144)". The other option is to leave it and let Phase 6 stop on it.
+3. **The Phase 6 line "says the risk wording shown was false in the harmful answers".** That is true of version 4's twelve and not of version 3's nine, whose wording is accurate: their fault is raising the risk at all. Recommended: tie the sentence to version 4, and have the README say of version 3 that the wording was accurate and the call was wrong.
+4. **The limit sentence beside the claim.** The challenger says it is not false but overstates: on the eighteen open cases the model found one more expected risk than the table (18 of 25 against 17), and the table wins there on wrong answers (none against nine), not on coverage. Its wording: "...it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases the model found one more expected risk than the table and returned nine wrong ones to its none)".
+   - **A (recommended).** Take that wording, in the spec and in the Phase 5 line. It is one sentence, and the README now leads with this finding, so it should be exact.
+   - **B.** Keep the sentence as it passed.
+5. **Two files the guards do not cover.** `evals/settings.toml` chooses which prompt version the results file, the README and the seeded recordings use, and `backend/src/domain_health/evals/scoring.py` defines the four measures. Neither is in `.claude/hooks/measure-paths.txt`, so a phase could change either and still be merged by the run. Recommended: add both. Cost: a guard change, merged by you with this pull request.
+6. **Checks in code the challenger suggests.** Recommended: three of the four. In Phase 4, a test that flags a seeded recording whose text says "above" or "elevated" of a value below the rubric's line, and a count per seeded state of risk types the bands call merely acceptable, shown to you before the recordings are kept. In Phase 6, a test that every "N in 144" in the README equals the results file. Not the fourth (a script that diffs the pasted eval output against a fresh run): the challenger does that by hand each phase and it matched.
+
+It also notes, for you to know and with nothing to decide: Phase 4's recording test checks only types the bands call wrong, so it cannot catch the kind of harm version 3 showed on the open cases (item 6's count is the nearest thing code can do); and the three runs agree so closely that they are near one sample, so the stability figure says little about other days. A repeat on another day would cost about $0.78 and would not change any pass or fail. I do not recommend it.
+
+Once answered: I make the edits you approve on this pull request's branch (the plan and spec lines, the guard file, the CI job), run one reviewer pass on them, and tell you it is ready. Your merge is the answer to the stop. Phase 4 starts after it.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -2111,6 +2133,57 @@ What was done about each:
 3. "The phase log contradicts itself": the risk noted at the start said the sandbox's list "is refreshed on the visitor's next read". A note now says that was replaced.
 
 The docstring is code, so the review is run a third and last time on the commit that holds it.
+
+**Review, third and last run, on `c425242`: no blocking findings.** The docstring "is accurate. I checked each sentence against" the two stores. Round two's items: the docstring and the log note fixed, the evidence "still to come from the verifier's run on this commit". One item, not blocking: the Status table still read `building`; it is set with this entry.
+
+**Verify, on `c425242`: pass.** The verifier's table, as reported:
+
+| # | Check | What happened | Result |
+|---|---|---|---|
+| 1 | `make check`, run 1 | Exit 0. Backend: `825 passed, 26 deselected in 6.24s`. Emulator tests: `26 passed, 825 deselected in 36.80s`. Frontend: build compiled, `Tests 1 passed`. | pass |
+| 2 | `make check`, run 2 | Exit 0. Counts identical: 825 passed, then 26 emulator tests passed in 40.90s. No intermittent failure in either run. | pass |
+| 3 | Race test (both runs) | `race, shared scope: the click was kept and the risk hidden 50 of 50` and `race, sandbox scope: the click was kept and the risk hidden 50 of 50` | pass |
+| 4 | Day 29 / day 30 (both runs) | `handled on day 0, day 29: hidden` and `handled on day 0, day 30: visible` | pass |
+| 5 | Worker run twice | `worker run twice for 2026-03-01: documents in the database: ['clients/brindle-and-oak/snapshots/2026-03-01']`, exactly one document | pass |
+| 6 | Dry run leaves 0 documents | `dry run: documents in the database: 0` | pass |
+| 7 | Worker command, valid client | Exit 0. "risks unavailable for brindle-and-oak on 2026-11-20: no recording for this input, prompt version and model", then "dry run: nothing was written." and the document. SPF with 11 lookups, `fixes` has `spf_too_many_lookups`, `risks_status` is `unavailable`. Expected until Phase 4. | pass |
+| 8 | Worker command, `--date 2026-03-01` | Exit 0, the day is 2026-03-01. | pass |
+| 9 | Worker command, unknown client | Exit 2 with "no seeded client 'nosuch'. One of: ..." and the 12 ids. | pass |
+| 10 | Worker command, bad date | Exit 2 with "argument --date: invalid fromisoformat value: '2026-13-45'". | pass |
+| 11 | `make eval` | Exit 0. `evals/results.json` unchanged afterwards. `risks-v3 ... on gpt-6.1-terra`; coverage 0.896, precision 0.962, stability 0.979 meet their bars; harmful `9 in 144 case-runs  bar == 0  missed`. | pass |
+| 12 | Version 4 reported as not in use | The report line and the `not_in_use` array hold risks-v4; the top-level `prompt_version` is risks-v3. | pass |
+| 13 | `make eval STRICT=1` | Exit 2 because of the missed harmful bar. | pass |
+| 14 | Tests from the Phase 2 commits run in `make check` | 33 pass across `test_eval_report.py` and `test_eval_live.py`; the 825 include them. | pass |
+
+Not exercised, in its words: no browser or screen work (the gate names none); no paid or cloud command; "the 'run twice leaves 1 document' claim rests on the emulator test output, not on a CLI run", because the command is a dry run only.
+
+**Gate evidence.** Rows 1 to 6 of the verifier's table, on `c425242`, are the gate: `make check` exit 0 with the emulator tests, twice; the race 50 of 50 (the shared scope's is the contention result: see the first review, item 3); hidden on day 29 and visible on day 30; the worker run twice leaving exactly one snapshot document; the dry run leaving 0. The second reviewer's own `make check` at `10aa0d0` printed the same lines. The gate is ticked on that.
+
+**Challenge, on `c425242`, covering the Phase 2 commits `9577d57`, `9b517e2` and `8021907`: change needed.** In the challenger's words.
+
+*Phase 3 and the measure.* "Phase 3 does not touch the claim or the measure (confirmed)": no change to `evals/`, `prompts/`, `docs/SPEC.md`, `docs/CLAIM.md`, anything in `measure-paths.txt`, or the eval and risk code. "It produces no new eval result."
+
+*The bars.* For `risks-v3` on `gpt-6.1-terra`, 3 runs of 48 cases: coverage 0.896, met; precision 0.962, met; harmful 9 in 144 (3, 3, 3), "**missed**"; stability 0.979 (47 of 48), met. "`make eval STRICT=1` exits 2." "My `make eval` output matches the block under '`make eval` on this phase's code' line for line", the results file "is byte-identical to what the code writes", and the `not_in_use` entry for version 4 "is what `other_version` in `report.py` produces". Phase 3's own gate bars it marked "**not shown**": it ran before the verifier's evidence above was in the log, and was told not to start the emulator. "Only the shared-scope test can stand behind 'the race test ... 50 of 50'."
+
+*1. Is the claim true as an absolute?* "It is true as written. Its widest reading is not, and two documents now say things the evidence does not back." The widest reading, that the model's judgment calls are good and the evals show it, "is false: harmful is 9 in 144 on the prompt in use, and the model did not beat the rules-only baseline on the open set. The SPEC limit sentence and the advisory paragraph are the right fix for this." What the check cannot see:
+
+- The wording a reader sees. Version 4's 12 harmful answers "are all `complaint_rate_elevated`"; the 2 on the open set "are on a complaint rate of 0.02, so they are false as worded. That confirms the open-set part of 'false in all twelve'". Version 3's 9, the prompt in use: "the wording is factually accurate ... The harm is in raising the risk, not in false wording." So the Phase 6 checklist line "says the risk wording shown was false in the harmful answers", sitting right after "names version 3 as the prompt in use", "would put a false sentence in the README. It must be tied to version 4 only."
+- The seeded clients' states. Phase 4's recording test checks band-wrong types only, and "all 9 of version 3's harmful answers are open-set written calls with band-wrong 0 ... so that test cannot catch this kind of harm on the hosted page."
+- The limit sentence's "does better on the risk list". On the 18 open cases "the model found 18 of 25 expected risks and the table 17 of 25"; the table does better there on harmful (0 against 9) and precision, not on coverage, and its open-set coverage of 0.68 "would itself miss the 0.80 bar". "The sentence is not false ... But read widely it overstates." Wording it gives as true: "...it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases the model found one more expected risk than the table and returned nine wrong ones to its none)". "This wording has already passed review, so this is the owner's call."
+- "'CI is green on `main`' cannot be met." It is in the spec's "Done when" and the Phase 6 gate, while the same gate wants `make eval STRICT=1` to exit non-zero and CI's `eval` job runs exactly that command. "The rewording in 9b517e2 created this conflict. As written, the gate cannot be met."
+- "The Phase 6 README line still says to write harmful as '0 in 144 case-runs'. Followed literally, that puts a false number in the README; the true result is 9 in 144."
+
+*2. Is the measurement too noisy at this number of runs?* "Not for the bar verdicts." Coverage did not move between runs and stands 6 found items above its line; precision moved 0.001 with about 0.16 to spare; harmful is "a fixed miss, not a near one"; stability has 3 cases to spare. Two limits: "agreeing runs are close to one sample", so stability 0.979 "says little about stability across days or model updates"; and "0 band-wrong on the table set" bounds a rare fault only loosely (below about 3% per call). "More runs would not change any pass or fail." A three-run repeat on another day would cost about $0.78 and "would be worth it only if the owner wants the stability figure to mean stable across days".
+
+*3. Could what a judge or a person caught be checked in code?* Version 4's false complaint wording: yes, by comparing the fields a risk cites with the band line and flagging "above" or "elevated" on a value below it. Version 3's nine: no, "these are written calls that depart from the bands, so code cannot judge them. Code can count them on seeded states." Pasted eval output drifting from the code: yes, a gate-time diff. The results file matching the prompt in use: "yes, done". A stale "0 in 144" in the README: yes, a test on every "N in 144". And: "`evals/settings.toml` (its `prompt =` line chooses which version the results file, the README and the seeded recordings use) and `backend/src/domain_health/evals/scoring.py` (which defines the four measures) are not in `.claude/hooks/measure-paths.txt`. A phase could change either without the owner merging it."
+
+*Its list.* "Bars missed or not shown: 1. Harmful: 9 in 144 against a bar of 0, still missed. The owner chose to ship it in Phase 2; it is listed because it is missed. 2. Phase 3 gate: no evidence at c425242 ..." (the evidence is above, from the verifier's run that finished after the challenger started). "Changes I would make: 1. Resolve 'CI is green on `main`' against the red `eval` job. 2. Remove or correct 'writes harmful as 0 in 144 case-runs' in the Phase 6 README line. 3. Tie 'the risk wording shown was false in the harmful answers' to version 4. 4. Optional, owner's call: make the limit sentence say 'over the forty-eight cases', and that on the open cases the model found one more expected risk than the table, with nine wrong ones to its none. 5. Add `evals/settings.toml` and `backend/src/domain_health/evals/scoring.py` to `.claude/hooks/measure-paths.txt`. 6. Optional code checks: a wording-against-band check over recordings; for seeded recordings in Phase 4, a count of types the bands call merely acceptable; a gate-time diff of the pasted `make eval` block against a fresh run; a README test that checks each 'N in 144' against the results file."
+
+None of the changes is made here: the verdict is a stop, the list goes to the owner under "Waiting on you" with a recommendation on each, and the owner merges this phase. Every item on the list is about Phase 2's text or the guards; none is about Phase 3's code.
+
+reviewer-verdict: no blocking findings @ c425242
+verifier-verdict: pass @ c425242
+challenger-verdict: change needed @ c425242
 
 ---
 
