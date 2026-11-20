@@ -12,7 +12,7 @@ Kept current by the build at every change of state, so progress can be read here
 | 1: checks and rules | merged | [#5](https://github.com/nkanyi-so/domain-health/pull/5) |
 | 2: the model and the evals (checkpoint) | merged | [#6](https://github.com/nkanyi-so/domain-health/pull/6) |
 | 3: snapshots and the handled loop | merged | [#9](https://github.com/nkanyi-so/domain-health/pull/9) |
-| 4: schedule, worker, API, first backend deploy | waiting on you | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
+| 4: schedule, worker, API, first backend deploy | building | [#12](https://github.com/nkanyi-so/domain-health/pull/12) |
 | 5: the screens | not started | |
 | 6: report, README, release checks | not started | |
 
@@ -37,31 +37,7 @@ Estimated total: under $7 (it was under $3.50 before the set went from twenty ca
 
 ## Waiting on you
 
-**Phase 4 is built, deployed and verified, and it has used its three reviews.** Pull request: [#12](https://github.com/nkanyi-so/domain-health/pull/12). Your rule is that a phase needing more than three review rounds stops for you, so this is that stop. Nothing is known to be failing.
-
-What is still open: the third review had one blocking finding, and the two commits that came after it have not been reviewed.
-
-- The finding: the service's own instance ceiling read 20 beside the revision's 1. Fixed: `make deploy-backend` now sets both to 1, and the deployed service shows 1 and 1.
-- The first verifier run then failed: `make dev` did not start the backend. Fixed, with tests; the second verifier run passed all 23 checks on the final commit, `make dev` among them.
-- So commits `e343425` (the instance ceiling, and how a visitor's address is counted) and `1aa64b4` (the `make dev` fix) are verified and unreviewed. CI is green.
-
-One question.
-
-1. **How does #12 get merged?**
-   - **A (recommended). One more reviewer pass, on those two commits only.** If it finds nothing blocking, the phase goes through the merge gate and Phase 5 starts. If it finds something, I stop again and you merge or decide. Costs about ten minutes.
-   - **B. You merge #12 as it stands.** The verdict line for the reviewer says truthfully that the last fix was not reviewed.
-
-For you to know, with nothing to decide:
-
-- The service is open at the platform level as you decided (decision 0014). Without credentials every route but `/health` answers the app's own 401.
-- Two faults showed only on the deployed service or under `make dev`, and both are fixed with tests: the first scheduled run answered 500 (the task client was made outside the server's event loop), and `make dev` crashed at start-up for a related reason.
-- The reviews also led to: the false-wording check on the recordings now covers all six risk types with a numeric line, not two; the change alert is sent once, after the snapshot is saved; a short or empty proxy secret stops the service from starting; a visitor's address must be one IP address.
-- Left as it is, in `docs/DECISIONS_TO_REVIEW.md`: the five-per-address limit counts in fixed ten-minute windows, so one address can make ten checks across a window boundary. The 200-a-day cap still holds.
-- An earlier message of mine said the merge gate would refuse this phase because of `Makefile` and `evals/ledger.jsonl`. That was wrong: neither is on the guard list.
-- For Phase 5's state "a handled risk with the next one moved up", which needs six risks: I will use the design document's render-only flag, not a new seeded state. A seeded state would need a new paid recording whose three answers must agree on six risks, which is neither cheap nor reliable. It will be recorded in Phase 5.
-- Spend: $2.27 of $10.
-
-Once answered: with A, the reviewer pass, then the merge gate, then Phase 5. With B, Phase 5 starts after your merge.
+Nothing.
 
 <!-- When the build stops, "Nothing." is replaced by one block, everything it needs at once:
 what stopped and why, in plain words; each question numbered, with the options, what each costs,
@@ -3070,6 +3046,38 @@ The phase has had its three reviews. The third's blocking finding is fixed and t
 reviewer-verdict: blocking findings, one, fixed after the pass and not reviewed again @ c502bc9
 verifier-verdict: pass @ 1aa64b4
 challenger-verdict: not needed @ c502bc9
+
+### 2026-11-20: the stop after the third review (issue #13) and the owner's answer
+
+The block as it stood under "Waiting on you":
+
+> **Phase 4 is built, deployed and verified, and it has used its three reviews.** Pull request: [#12](https://github.com/nkanyi-so/domain-health/pull/12). Your rule is that a phase needing more than three review rounds stops for you, so this is that stop. Nothing is known to be failing.
+>
+> What is still open: the third review had one blocking finding, and the two commits that came after it have not been reviewed.
+>
+> - The finding: the service's own instance ceiling read 20 beside the revision's 1. Fixed: `make deploy-backend` now sets both to 1, and the deployed service shows 1 and 1.
+> - The first verifier run then failed: `make dev` did not start the backend. Fixed, with tests; the second verifier run passed all 23 checks on the final commit, `make dev` among them.
+> - So commits `e343425` (the instance ceiling, and how a visitor's address is counted) and `1aa64b4` (the `make dev` fix) are verified and unreviewed. CI is green.
+>
+> One question.
+>
+> 1. **How does #12 get merged?**
+>    - **A (recommended). One more reviewer pass, on those two commits only.** If it finds nothing blocking, the phase goes through the merge gate and Phase 5 starts. If it finds something, I stop again and you merge or decide. Costs about ten minutes.
+>    - **B. You merge #12 as it stands.** The verdict line for the reviewer says truthfully that the last fix was not reviewed.
+>
+> For you to know, with nothing to decide:
+>
+> - The service is open at the platform level as you decided (decision 0014). Without credentials every route but `/health` answers the app's own 401.
+> - Two faults showed only on the deployed service or under `make dev`, and both are fixed with tests: the first scheduled run answered 500 (the task client was made outside the server's event loop), and `make dev` crashed at start-up for a related reason.
+> - The reviews also led to: the false-wording check on the recordings now covers all six risk types with a numeric line, not two; the change alert is sent once, after the snapshot is saved; a short or empty proxy secret stops the service from starting; a visitor's address must be one IP address.
+> - Left as it is, in `docs/DECISIONS_TO_REVIEW.md`: the five-per-address limit counts in fixed ten-minute windows, so one address can make ten checks across a window boundary. The 200-a-day cap still holds.
+> - An earlier message of mine said the merge gate would refuse this phase because of `Makefile` and `evals/ledger.jsonl`. That was wrong: neither is on the guard list.
+> - For Phase 5's state "a handled risk with the next one moved up", which needs six risks: I will use the design document's render-only flag, not a new seeded state. A seeded state would need a new paid recording whose three answers must agree on six risks, which is neither cheap nor reliable. It will be recorded in Phase 5.
+> - Spend: $2.27 of $10.
+>
+> Once answered: with A, the reviewer pass, then the merge gate, then Phase 5. With B, Phase 5 starts after your merge.
+
+**The owner's answer (in the session, 2026-11-20).** "A. One reviewer pass on e343425 and 1aa64b4 only. If nothing is blocking, take #12 through the merge gate and carry on into Phase 5 without stopping. The render-only flag for the six-risk state is fine, and so is leaving the ten-minute window as it is."
 
 ---
 

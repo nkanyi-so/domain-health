@@ -91,3 +91,4 @@ Tab-separated: UTC time, phase, event, detail, spend so far in USD. Events: `pha
 2026-11-20T10:00:37Z	4	verify	fail, make dev did not start the backend @ fc6d3ee	2.27
 2026-11-20T10:13:55Z	4	verify	pass @ 1aa64b4	2.27
 2026-11-20T10:15:17Z	4	stop-opened	issue=#13 questions=1 asked: Phase 4: one more review pass, or your merge of #12	2.27
+2026-11-20T10:19:22Z	4	stop-closed	issue=#13 opened=2026-11-20T10:15:16Z	2.27
