@@ -37,9 +37,9 @@ RESULTS = REPO / "evals" / "results.json"
 RUN_LOG = REPO / "docs" / "RUN_LOG.md"
 LEDGER = REPO / "evals" / "ledger.jsonl"
 
-# The phases whose rows are finished. Phase 6 writes the README, so its own row would change
-# under it: it is left out, and the README says so.
-FINISHED_PHASES = (0, 1, 2, 3, 4, 5)
+# The phases whose rows are finished: all of them, now that Phase 6 and its closing pull request
+# are merged. While Phase 6 was writing the README its own row was left out.
+FINISHED_PHASES = (0, 1, 2, 3, 4, 5, 6)
 
 # Version 4's wording, boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` lists it: the risk
 # type, the rubric's line it pins, and a few words from each sentence that does the pinning. The
@@ -391,7 +391,7 @@ def build_numbers(text: str) -> str:
     by_gate = sum(row["merged"] == "the merge gate" for row in counts.values())
     by_owner = sum(row["merged"] == "the owner" for row in counts.values())
     lines.append(
-        f"| **Phases 0 to 5** | {totals} | the merge gate {by_gate}, the owner {by_owner} |"
+        f"| **Phases 0 to 6** | {totals} | the merge gate {by_gate}, the owner {by_owner} |"
     )
     return "\n".join(lines)
 

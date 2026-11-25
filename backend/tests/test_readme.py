@@ -204,11 +204,11 @@ LOG = "\n".join(
 )
 
 
-def test_the_run_log_is_counted_by_phase_and_phase_6_is_left_out() -> None:
+def test_the_run_log_is_counted_by_phase_and_phase_6_is_counted_too() -> None:
     counts = run_log_counts(LOG)
 
     assert sorted(counts) == list(FINISHED_PHASES)
-    assert 6 not in counts
+    assert counts[6]["review"] == 1
     assert counts[0] == {
         "review": 2,
         "verify": 1,
