@@ -31,7 +31,7 @@ Sections: [1 Run it](#1-run-it) · [2 Before](#2-before) · [3 Decisions](#3-dec
 
 The quickest way is the hosted demo above. Type a domain to run the real DNS checks. Open a client and mark a risk handled: a visitor's ticks go to a sandbox of their own that expires after a day. The eval table is at `/evals`.
 
-Each client page has an "Open report" button: a four-section report (authentication, reputation, sending, actions) as a page to print, with a Markdown download, for example [`/clients/northwind-cycles/report`](https://domain-health-rose.vercel.app/clients/northwind-cycles/report) after Phase 6 is merged. In it, as on the page, the fixes come first and the model's risks follow, marked advisory and unproven.
+Each client page has an "Open report" button: a four-section report (authentication, reputation, sending, actions) as a page to print, with a Markdown download, for example [`/clients/northwind-cycles/report`](https://domain-health-rose.vercel.app/clients/northwind-cycles/report). In it, as on the page, the fixes come first and the model's risks follow, marked advisory and unproven.
 
 To run it locally you need `uv`, `pnpm`, Node 24 and, for the Firestore emulator, a JDK of 21 or later. No key is needed for any command below.
 
@@ -378,7 +378,7 @@ This was built by an AI coding agent (Claude Code) inside a harness, in phases, 
 - the **verifier** runs the software the way a user would;
 - the **challenger** reads the claim against the way it is measured.
 
-**The numbers**, counted from `docs/RUN_LOG.md` by `make readme`, for Phases 0 to 5. Phase 6 is the phase that adds the client report, this README, the security review and the release checks. Its row is still being written when this file is, so it is not counted here.
+**The numbers**, counted from `docs/RUN_LOG.md` by `make readme`, for Phases 0 to 6. Phase 6 is the phase that adds the client report, this README, the security review and the release checks. Its row counts both of its pull requests: #16 and the closing one, #17.
 
 <!-- build-numbers:start -->
 | Phase | Reviewer runs | Verifier runs | Challenger runs | Stops for the owner | Merge-gate refusals | Merged by |
@@ -389,10 +389,11 @@ This was built by an AI coding agent (Claude Code) inside a harness, in phases, 
 | 3 | 4 | 1 | 1 | 1 | 0 | the owner |
 | 4 | 4 | 2 | 0 | 2 | 2 | the merge gate |
 | 5 | 4 | 2 | 1 | 1 | 0 | the owner |
-| **Phases 0 to 5** | 47 | 11 | 10 | 9 | 2 | the merge gate 2, the owner 4 |
+| 6 | 4 | 4 | 0 | 0 | 0 | the merge gate |
+| **Phases 0 to 6** | 51 | 15 | 10 | 9 | 2 | the merge gate 3, the owner 4 |
 <!-- build-numbers:end -->
 
-**Who merged what.** The merge gate merged Phases 1 and 4. The owner merged Phases 0, 2, 3 and 5:
+**Who merged what.** The merge gate merged Phases 1, 4 and 6. The owner merged Phases 0, 2, 3 and 5:
 
 - Phase 0 carries the guards and the whole measure, so it is always the owner's.
 - Phase 2 was the checkpoint the owner set, and its gate was not met.
@@ -422,9 +423,9 @@ The two gate refusals in Phase 4 were not about the phase. One came seconds afte
 - A fix in Phase 5 was tried on the development server only and did not work in the production build. The next review caught it.
 - Phase 1 took twelve review rounds. Most rounds found one more case of the same family, a malformed DNS record read as valid, where the class should have been fixed once.
 
-**Cost of the process.** From Phase 3 on, the owner capped a phase at three review rounds before it stops. The first run-log line is 2026-11-19 14:05 UTC and Phase 5 merged on 2026-11-20 at 13:00 UTC.
+**Cost of the process.** From Phase 3 on, the owner capped a phase at three review rounds before it stops. The first run-log line is 2026-11-19 14:05 UTC and the last pull request, #17, merged on 2026-11-20 at 14:32 UTC.
 
-**Spend.** $2.27 of the $10 cap, as of the Phase 6 pull request (the "Spend:" line in `docs/PLAN.md`). All of it is model calls in the ledger: the five eval attempts and one probe call on 2026-11-19, and the seeded clients' recordings on 2026-11-20. The ledger stops a paid command before a call that could pass the cap.
+**Spend.** $2.27 of the $10 cap, as of the last pull request, #17 (the "Spend:" line in `docs/PLAN.md`). All of it is model calls in the ledger: the five eval attempts and one probe call on 2026-11-19, and the seeded clients' recordings on 2026-11-20. The ledger stops a paid command before a call that could pass the cap.
 
 ## 7. What I'd do next
 
