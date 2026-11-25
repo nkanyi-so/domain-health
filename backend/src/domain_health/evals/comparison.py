@@ -1,4 +1,4 @@
-"""The model against the rules-only baseline on the open cases (docs/SPEC.md, decision 0010).
+"""The model against the rules-only baseline on the open cases (docs/EVALS.md, decision 0010).
 
 Reported as evidence, not a bar. The table cases cannot tell a model from a table of
 thresholds, and the open cases were meant to. A test shows that no table which also returns the

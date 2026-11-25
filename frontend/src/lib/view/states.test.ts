@@ -1,4 +1,4 @@
-// The seventeen states in docs/DESIGN.md, each reached from what the backend answers (or, where
+// The seventeen states of the interface, each reached from what the backend answers (or, where
 // the design says so, from its `?demo=` flag), and each mapped to the view its screen draws.
 
 import { describe, expect, it } from "vitest";

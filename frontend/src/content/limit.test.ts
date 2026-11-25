@@ -3,10 +3,10 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { LIMIT } from "./limit";
 
-// The sentence in docs/SPEC.md starts lower case, inside a longer sentence, and ends where the
-// note about who added it begins.
+// The sentence in docs/EVALS.md starts lower case, inside a longer sentence, and ends at its
+// closing bracket.
 function limitInSpec(): string[] {
-  const text = readFileSync(resolve(__dirname, "../../../docs/SPEC.md"), "utf8");
+  const text = readFileSync(resolve(__dirname, "../../../docs/EVALS.md"), "utf8");
   const found = [
     ...text.matchAll(/(on this project's evals a table of rules does better[^\n]*?to its none\))/g),
   ];
@@ -14,7 +14,7 @@ function limitInSpec(): string[] {
 }
 
 describe("the limit beside the claim", () => {
-  it("is the sentence under Claim in docs/SPEC.md, word for word", () => {
+  it("is the sentence beside the claim in docs/EVALS.md, word for word", () => {
     const inSpec = limitInSpec();
     expect(inSpec).toHaveLength(1);
     expect(LIMIT.charAt(0)).toBe("O");

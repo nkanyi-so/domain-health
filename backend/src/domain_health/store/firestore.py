@@ -258,7 +258,7 @@ class FirestoreStore:
 
 def connect_with_token(project: str, token: str) -> FirestoreStore:
     """A store on this project's database, as whoever the short-lived access token belongs to.
-    For commands run from the owner's machine; the deployed service uses `connect`."""
+    For commands run from a developer's machine; the deployed service uses `connect`."""
     return FirestoreStore(AsyncClient(project=project, credentials=Credentials(token=token)))  # type: ignore[no-untyped-call]
 
 

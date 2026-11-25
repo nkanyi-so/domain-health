@@ -2,7 +2,7 @@
 
 A "table" case's label must be exactly what the bands give. An "open" case's label must differ
 from the bands somewhere, or it is not open. Every case's fix list must be what the fix table
-gives. Part of the measure: the owner changes this file.
+gives. Part of the measure.
 """
 
 import pytest
@@ -68,11 +68,11 @@ def test_a_previous_open_rate_of_zero_gives_no_fall_to_read() -> None:
 
 
 def test_no_open_call_takes_away_what_the_bands_expect() -> None:
-    """Keeps a sentence in docs/SPEC.md true: the baseline's precision on the open set is 1.00.
+    """Keeps a sentence in docs/EVALS.md true: the baseline's precision on the open set is 1.00.
 
     The baseline returns what the bands expect. If an open label moved such a type to wrong or
     to noise, the baseline would lose precision there and the comparison's rule would need to
-    be looked at again by the owner.
+    be looked at again.
     """
     for name, case in CASES_BY_NAME.items():
         if case.set == "open":

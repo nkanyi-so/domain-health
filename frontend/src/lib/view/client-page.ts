@@ -5,7 +5,7 @@ import type { ClientPage, HandledMark, Risk } from "../api-types";
 import { type AdvisoryChip, advisoryChip } from "./clients";
 import { addDays, formatDayShort, utcDay } from "./format";
 
-/** The states a snapshot can show (docs/DESIGN.md, states 2 to 8). */
+/** The states a snapshot can show (states 2 to 8 of the 17). */
 export type SnapshotState =
   | "healthy"
   | "fixes-only"

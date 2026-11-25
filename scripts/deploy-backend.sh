@@ -6,8 +6,8 @@
 # The service is open at the platform level, because the frontend cannot mint Google tokens, and
 # every route refuses at the app level: the proxy secret on /api/*, a Google-signed machine token
 # on /internal/*. The project's organisation policy refuses the usual grant (`allUsers` as
-# invoker), so the service is opened by turning off Cloud Run's invoker check instead: the owner's
-# decision, docs/decisions/0014. The only secret the service gets is the proxy secret. No model
+# invoker), so the service is opened by turning off Cloud Run's invoker check instead:
+# docs/decisions/0014. The only secret the service gets is the proxy secret. No model
 # key is set, and the image has no model library.
 set -euo pipefail
 cd "$(dirname "$0")/.."

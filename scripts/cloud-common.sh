@@ -20,7 +20,7 @@ die() { printf 'stopped: %s\n' "$*" >&2; exit 1; }
 
 PROJECT="$(gcloud config get-value project 2>/dev/null)"
 [ -n "$PROJECT" ] || die "the domain-health gcloud configuration names no project"
-# The project the owner put in .env must be the one the configuration points at: nothing is
+# The project named in .env must be the one the configuration points at: nothing is
 # ever written to a project that only one of the two names.
 [ -n "${GCP_PROJECT_ID:-}" ] || die "GCP_PROJECT_ID is not set: put it in .env (see .env.example)"
 [ "$GCP_PROJECT_ID" = "$PROJECT" ] || die "GCP_PROJECT_ID and the domain-health configuration name different projects"

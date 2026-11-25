@@ -61,7 +61,7 @@ class LiveResolver:
         resolver: DnsResolver | None = None,
     ) -> None:
         self._query_seconds = query_seconds
-        # UDP by default; TCP is the fallback if a host does not let UDP out (decision 0006).
+        # UDP by default; TCP is the fallback if a host does not let UDP out.
         self._tcp = tcp
         self._resolver: DnsResolver = resolver or dns.asyncresolver.Resolver()
 

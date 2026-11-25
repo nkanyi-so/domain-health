@@ -1,4 +1,4 @@
-"""What a prompt version may not hold (docs/SPEC.md, "Rules for the paid runs"): the rubric's
+"""What a prompt version may not hold (docs/EVALS.md, "What the prompt says"): the rubric's
 numbers, its band lines, or anything taken from an eval case. Every version file is checked."""
 
 from pathlib import Path
@@ -107,7 +107,7 @@ def test_wording_that_places_a_line_relative_to_a_figure_is_listed_not_judged() 
     assert problems_with(text) == []
 
 
-def test_version_three_is_listed_for_the_wording_the_challenger_named() -> None:
+def test_version_three_is_listed_for_the_wording_a_challenge_named() -> None:
     v3 = load_prompt(PROMPTS / "risks-v3.md").text
 
     listed = " ".join(prompt_rules.relative_wording(v3))

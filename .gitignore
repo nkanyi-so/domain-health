@@ -31,3 +31,6 @@ ui-debug.log
 
 # Held while a paid eval run is in progress; removed when it ends.
 evals/.eval-live.lock
+
+# What `make screens` writes. Four shots are kept in docs/screens/.
+/screenshots/

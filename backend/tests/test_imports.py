@@ -1,4 +1,4 @@
-"""Rule 1 in CLAUDE.md: every outside system sits behind its one interface, so nothing outside
+"""Every outside system sits behind its one interface, so nothing outside
 the implementation modules imports a DNS, model, Google Cloud or HTTP client library."""
 
 import ast

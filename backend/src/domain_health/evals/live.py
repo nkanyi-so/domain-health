@@ -20,7 +20,7 @@ from domain_health.evals import __main__ as free
 from domain_health.evals.cases import EvalCase, load_cases
 from domain_health.evals.report import RUNS, run_folder
 from domain_health.models import SnapshotInput
-from domain_health.risks.ledger import Ledger, SpendCapError, standing_cap
+from domain_health.risks.ledger import Ledger, SpendCapError, spend_cap
 from domain_health.risks.model import (
     ModelCall,
     RecordingExistsError,
@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="make eval-live")
     parser.add_argument("--prompts", type=Path, required=True)
     parser.add_argument("--evals", type=Path, required=True)
-    parser.add_argument("--standing", type=Path, required=True)
+    parser.add_argument("--spend-cap", type=Path, required=True)
     parser.add_argument("--model", help="call this model, not the settings file's")
     parser.add_argument("--probe", action="store_true", help="one call: is temperature accepted")
     args = parser.parse_args(argv)
@@ -189,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     if not _key_is_set():
         print("OPENAI_API_KEY is not set: put it in .env (see .env.example)", file=sys.stderr)
         return 1
-    ledger = Ledger(args.evals / "ledger.jsonl", standing_cap(args.standing))
+    ledger = Ledger(args.evals / "ledger.jsonl", spend_cap(args.spend_cap))
     # Imported here: only the paid commands ever load the live model's module.
     from domain_health.risks.openai_model import (
         BAD_REQUEST_ERROR,

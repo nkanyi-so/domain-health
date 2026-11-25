@@ -4,12 +4,12 @@ import { describe, expect, it } from "vitest";
 import { CLAIM } from "./claim";
 
 function claimInDocs(): string[] {
-  const text = readFileSync(resolve(__dirname, "../../../docs/CLAIM.md"), "utf8");
+  const text = readFileSync(resolve(__dirname, "../../../docs/EVALS.md"), "utf8");
   return [...text.matchAll(/^> (.+)$/gm)].map((match) => match[1].trim());
 }
 
 describe("the claim on the page", () => {
-  it("is the one quoted line in docs/CLAIM.md", () => {
+  it("is the one quoted line in docs/EVALS.md", () => {
     expect(claimInDocs()).toEqual([CLAIM]);
   });
 });

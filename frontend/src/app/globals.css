@@ -176,7 +176,7 @@ body {
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Everything below is built from the tokens above, as docs/DESIGN.md describes each part.
+   Everything below is built from the tokens above.
    Component heights (40, 44, 56 ...) live here, so class names in the markup only ever use the
    eight spacing steps.
    --------------------------------------------------------------------------------------------- */

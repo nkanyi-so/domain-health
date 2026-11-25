@@ -7,7 +7,7 @@ Free: it reads recordings and makes no call. Until a prompt exists there is noth
 and that is said and is not a failure. Once a prompt file exists this must score it or fail: it
 never reports "nothing to measure" for a prompt it cannot score. With `--strict` a missed bar is
 a failure too. With `--expected-misses <file>` the failure is any difference between the bars
-missed and the bars that file names: CI runs it this way, so a miss the owner has accepted leaves
+missed and the bars that file names: CI runs it this way, so a miss that has been accepted leaves
 CI green and any other miss, or a named bar that is now met, turns it red.
 """
 

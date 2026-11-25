@@ -1,5 +1,5 @@
-# The bars the committed results are known to miss, and the owner has chosen to ship (the Phase 2
-# result in docs/SPEC.md). The owner's: a phase does not edit this file.
+# The bars the committed results are known to miss, shipped as misses by choice (docs/EVALS.md,
+# "What is missed, in plain words").
 #
 # CI's `eval` job (`make eval EXPECTED=1`) passes only when the results miss exactly these bars:
 # a miss that is not named here fails it, and so does a bar named here that is now met, so that

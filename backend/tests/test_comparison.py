@@ -1,6 +1,6 @@
 """The comparison with the rules-only baseline, and what is and is not proved about it.
 
-Part of the measure: the owner changes this file.
+Part of the measure.
 """
 
 import tomllib
@@ -69,7 +69,7 @@ def test_a_table_with_one_number_moved_does_beat_the_baseline() -> None:
 
     The baseline, raising `volume_spike` from a ratio of 1.3 at 1,000 messages a week or more,
     passes the comparison with no model. If this ever fails, the cases changed and the
-    sentences in docs/SPEC.md and decision 0012 that quote it need the owner.
+    sentences in docs/EVALS.md and decision 0012 that quote it are no longer true.
     """
     run: dict[str, list[RiskType]] = {}
     for name, case in OPEN.items():
@@ -188,7 +188,7 @@ def test_every_note_names_the_types_its_call_moves() -> None:
                 )
 
 
-# --- what the four bars do and do not show (docs/SPEC.md, "What the comparison does not show") ---
+# --- what the four bars do and do not show (docs/EVALS.md, "Limits") ---
 
 ALL = load_cases(CASES)
 BARS_FILE = tomllib.loads(BARS.read_text(encoding="utf-8"))

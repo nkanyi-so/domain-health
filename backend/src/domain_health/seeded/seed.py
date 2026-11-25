@@ -1,6 +1,6 @@
 """`make seed`: the twelve seeded clients' documents in the project's Firestore.
 
-Run from the owner's machine. It is given a short-lived access token in its environment (the
+Run from a developer's machine. It is given a short-lived access token in its environment (the
 `make` target takes it from the `domain-health` gcloud configuration) and uses it for this one
 run. With `--count <day>` it writes nothing and prints how many snapshot documents that day has.
 """

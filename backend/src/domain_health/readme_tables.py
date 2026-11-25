@@ -1,8 +1,10 @@
-"""`make readme`: the parts of `README.md` that are numbers, written from the files that hold them.
+"""`make readme`: the parts of `README.md` and `docs/EVALS.md` that are numbers, written from the
+files that hold them.
 
-The README's eval tables may not be typed by hand. Each generated part sits between two HTML
-comments, `<!-- name:start -->` and `<!-- name:end -->`, and this command rewrites what is between
-them. A backend test fails when the README and what this module makes differ.
+The eval tables may not be typed by hand. Each generated part sits between two HTML comments,
+`<!-- name:start -->` and `<!-- name:end -->`, and this command rewrites what is between them.
+The README holds the headline table; `docs/EVALS.md` holds that table and every other part. A
+backend test fails when either file and what this module makes differ.
 
 Where each part comes from:
 
@@ -12,7 +14,6 @@ Where each part comes from:
   summary's own code, as they are for the page.
 - `eval-attempts`: every prompt version and model that has committed recordings, scored again
   with the harness, and the cost of each from the spend ledger.
-- `build-numbers`: `docs/RUN_LOG.md`, counted by phase.
 
 Totals only: no eval case is named or printed. Free, and it reaches nothing outside this
 repository. The deployed service never imports this module.
@@ -34,14 +35,21 @@ from domain_health.seeded.recordings import REPO
 
 README = REPO / "README.md"
 RESULTS = REPO / "evals" / "results.json"
-RUN_LOG = REPO / "docs" / "RUN_LOG.md"
+EVALS = REPO / "docs" / "EVALS.md"
 LEDGER = REPO / "evals" / "ledger.jsonl"
 
-# The phases whose rows are finished: all of them, now that Phase 6 and its closing pull request
-# are merged. While Phase 6 was writing the README its own row was left out.
-FINISHED_PHASES = (0, 1, 2, 3, 4, 5, 6)
+# Which generated parts each file holds.
+README_PARTS: tuple[str, ...] = ("eval-table",)
+EVALS_PARTS: tuple[str, ...] = (
+    "eval-table",
+    "eval-sets",
+    "eval-attempts",
+    "prompt-wording",
+    "v4-boundaries",
+    "v4-wording",
+)
 
-# Version 4's wording, boundary by boundary, as `docs/DECISIONS_TO_REVIEW.md` lists it: the risk
+# Version 4's wording, boundary by boundary: the risk
 # type, the rubric's line it pins, and a few words from each sentence that does the pinning. The
 # sentences themselves are taken from the results file's `not_in_use` list.
 BOUNDARIES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
@@ -91,7 +99,7 @@ BOUNDARIES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
 
 
 class ReadmeError(Exception):
-    """The README or a file it is written from is not in the shape this command expects."""
+    """A written file or a file it is written from is not in the shape this command expects."""
 
 
 def _three(value: float | None) -> str:
@@ -125,7 +133,7 @@ def _row(
     runs = case_runs // cases
     harmful_text = f"{harmful} in {case_runs} case-runs"
     if harmful == 0:
-        # The spec's wording for a zero: it bounds a rate, and runs that agree are one sample.
+        # The wording for a zero: it bounds a rate, and runs that agree are one sample.
         harmful_text += f" ({cases} cases, {runs} runs whose first five agreed on {stable})"
     texts = {
         "coverage": _three(values["coverage"]),
@@ -198,7 +206,7 @@ def _listed(values: Sequence[object]) -> str:
 
 def eval_sets(results: Mapping[str, Any], open_runs: Sequence[Mapping[str, Any]]) -> str:
     """Each set by itself, with no bar: the model, the baseline, and the model's list with only
-    the bands' expected types kept; then the counts the README's limits quote."""
+    the bands' expected types kept; then the counts the limits quote."""
     table, opened = results["sets"]["table"], results["sets"]["open"]
     version = str(results["prompt_version"])
     expected = _listed([run["expected"] for run in open_runs])
@@ -222,8 +230,8 @@ def eval_sets(results: Mapping[str, Any], open_runs: Sequence[Mapping[str, Any]]
             f"{_listed([run['rules_found'] for run in open_runs])}. Harmful answers per run: "
             f"the model {_listed([run['harmful'] for run in open_runs])}, the baseline "
             f"{_listed([run['rules_harmful'] for run in open_runs])}.",
-            f"- Better than the rules-only baseline on the open set, by the four-part rule in "
-            f"`docs/SPEC.md`: **{better}**.",
+            f"- Better than the rules-only baseline on the open set, by the four-part rule "
+            f"below: **{better}**.",
             f"- Coverage by risk type, found/expected over the {results['runs']} runs: {by_type}.",
         ]
     )
@@ -352,52 +360,8 @@ def eval_attempts(rows: Sequence[Mapping[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-EVENTS = ("review", "verify", "challenge", "stop-opened", "gate-refused")
-_MERGED_BY = re.compile(r"merged by \S+")
-
-
-def run_log_counts(text: str) -> dict[int, dict[str, Any]]:
-    """The run log's events for each finished phase: how many of each, and who merged it."""
-    counts: dict[int, dict[str, Any]] = {
-        phase: {**dict.fromkeys(EVENTS, 0), "merged": ""} for phase in FINISHED_PHASES
-    }
-    for line in text.splitlines():
-        parts = line.split("\t")
-        if len(parts) != 5 or not parts[1].isdigit() or int(parts[1]) not in counts:
-            continue
-        phase, event, detail = int(parts[1]), parts[2], parts[3]
-        if event in EVENTS:
-            counts[phase][event] += 1
-        elif event == "gate-merged":
-            counts[phase]["merged"] = "the merge gate"
-        elif event == "merged" and _MERGED_BY.search(detail):
-            counts[phase]["merged"] = "the owner"
-    return counts
-
-
-def build_numbers(text: str) -> str:
-    counts = run_log_counts(text)
-    lines = [
-        "| Phase | Reviewer runs | Verifier runs | Challenger runs | Stops for the owner "
-        "| Merge-gate refusals | Merged by |",
-        "|---|---|---|---|---|---|---|",
-    ]
-    for phase, row in counts.items():
-        if not row["merged"]:
-            raise ReadmeError(f"the run log does not say who merged phase {phase}")
-        cells = " | ".join(str(row[event]) for event in EVENTS)
-        lines.append(f"| {phase} | {cells} | {row['merged']} |")
-    totals = " | ".join(str(sum(row[event] for row in counts.values())) for event in EVENTS)
-    by_gate = sum(row["merged"] == "the merge gate" for row in counts.values())
-    by_owner = sum(row["merged"] == "the owner" for row in counts.values())
-    lines.append(
-        f"| **Phases 0 to 6** | {totals} | the merge gate {by_gate}, the owner {by_owner} |"
-    )
-    return "\n".join(lines)
-
-
 def blocks() -> dict[str, str]:
-    """Every generated part of the README, by its marker's name."""
+    """Every generated part, by its marker's name."""
     results: dict[str, Any] = json.loads(RESULTS.read_text(encoding="utf-8"))
     scored = summary(results)
     return {
@@ -407,24 +371,23 @@ def blocks() -> dict[str, str]:
         "prompt-wording": prompt_wording(results),
         "v4-boundaries": v4_boundaries(results),
         "v4-wording": v4_wording(results),
-        "build-numbers": build_numbers(RUN_LOG.read_text(encoding="utf-8")),
     }
 
 
 def in_readme(text: str, name: str) -> str:
-    """What the README holds between one pair of markers. Each pair must be there exactly once."""
+    """What a file holds between one pair of markers. Each pair must be there exactly once."""
     found = re.findall(
         rf"<!-- {re.escape(name)}:start -->\n(.*?)\n<!-- {re.escape(name)}:end -->",
         text,
         re.DOTALL,
     )
     if len(found) != 1:
-        raise ReadmeError(f"the README holds the markers for `{name}` {len(found)} times, not once")
+        raise ReadmeError(f"the file holds the markers for `{name}` {len(found)} times, not once")
     return str(found[0])
 
 
 def render(text: str, parts: Mapping[str, str]) -> str:
-    """The README with every generated part written in again."""
+    """The text with each of these generated parts written in again."""
     for name, part in parts.items():
         old = in_readme(text, name)
         start, end = f"<!-- {name}:start -->\n", f"\n<!-- {name}:end -->"
@@ -432,11 +395,13 @@ def render(text: str, parts: Mapping[str, str]) -> str:
     return text
 
 
-def main(path: Path = README) -> int:
-    before = path.read_text(encoding="utf-8")
-    after = render(before, blocks())
-    path.write_text(after, encoding="utf-8")
-    print(f"{path.name}: {'rewritten' if after != before else 'already current'}")
+def main(readme: Path = README, evals: Path = EVALS) -> int:
+    made = blocks()
+    for path, names in ((readme, README_PARTS), (evals, EVALS_PARTS)):
+        before = path.read_text(encoding="utf-8")
+        after = render(before, {name: made[name] for name in names})
+        path.write_text(after, encoding="utf-8")
+        print(f"{path.name}: {'rewritten' if after != before else 'already current'}")
     return 0
 
 

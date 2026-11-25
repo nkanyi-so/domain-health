@@ -1,5 +1,5 @@
-# The four bars from docs/SPEC.md ("The measures"). Each is measured over three live runs of all
-# the cases. The owner's: a phase does not edit them.
+# The four bars (docs/EVALS.md, "The measures"). Each is measured over three live runs of all
+# the cases.
 
 [coverage]
 # Expected risks found in the first five returned, divided by expected risks, summed over the

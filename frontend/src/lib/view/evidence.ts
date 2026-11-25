@@ -1,4 +1,4 @@
-// The fields a risk says it is based on, in plain words (docs/DESIGN.md, "Risk item, in full").
+// The fields a risk says it is based on, in plain words.
 
 import type { RiskEvidence } from "../api-types";
 

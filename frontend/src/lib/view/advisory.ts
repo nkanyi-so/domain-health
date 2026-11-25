@@ -1,5 +1,5 @@
 // The words that mark the model's risks, kept in one place so the client page and the report
-// cannot drift apart (docs/DESIGN.md, "The product rule, as layout").
+// cannot drift apart.
 
 export const ADVISORY_HEADING = "Advisory risks";
 export const ADVISORY_MARK = "Advisory, unproven.";

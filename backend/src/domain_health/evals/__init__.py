@@ -1,1 +1,1 @@
-"""The eval harness. Phase 0 holds the case shape and its loader; scoring arrives in Phase 2."""
+"""The eval harness: the case shape and its loader, the scoring, the baseline and the report."""

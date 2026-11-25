@@ -1,6 +1,6 @@
 """The worker's core: one seeded client, one day. Checks, rules, model, snapshot.
 
-A function, so the scheduled endpoint (Phase 4) and a test run the same thing. Run twice for one
+A function, so the scheduled endpoint and a test run the same thing. Run twice for one
 day it writes the same document twice. With `dry_run` it does everything and writes nothing.
 
 `python -m domain_health.worker <client-id>` is a dry run from the command line: it prints the

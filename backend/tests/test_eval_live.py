@@ -108,7 +108,7 @@ def arguments(tmp_path: Path) -> list[str]:
     return [
         "--prompts", str(tmp_path / "prompts"),
         "--evals", str(EVALS),
-        "--standing", str(REPO / "docs" / "STANDING.md"),
+        "--spend-cap", str(REPO / "evals" / "spend-cap.txt"),
     ]  # fmt: skip
 
 
@@ -178,7 +178,7 @@ def test_a_prompt_edited_after_it_was_run_is_refused_and_nothing_is_overwritten(
     command = [
         "--prompts", str(tmp_path / "prompts"),
         "--evals", str(evals),
-        "--standing", str(REPO / "docs" / "STANDING.md"),
+        "--spend-cap", str(REPO / "evals" / "spend-cap.txt"),
     ]  # fmt: skip
 
     assert live.main(command) == 1
@@ -266,7 +266,7 @@ def test_the_command_takes_the_lock_before_anything_that_can_spend(
     command = [
         "--prompts", str(tmp_path / "prompts"),
         "--evals", str(evals),
-        "--standing", str(REPO / "docs" / "STANDING.md"),
+        "--spend-cap", str(REPO / "evals" / "spend-cap.txt"),
     ]  # fmt: skip
 
     assert live.main(command) == 1
@@ -295,7 +295,7 @@ def test_the_command_refuses_a_copied_prompt_before_any_call(
     command = [
         "--prompts", str(tmp_path / "prompts"),
         "--evals", str(evals),
-        "--standing", str(REPO / "docs" / "STANDING.md"),
+        "--spend-cap", str(REPO / "evals" / "spend-cap.txt"),
     ]  # fmt: skip
 
     assert live.main(command) == 1

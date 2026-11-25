@@ -1,8 +1,8 @@
 # 0011: six objections to the rubric that were not taken
 
-**Status:** accepted by the owner, 2026-11-19 ("as drafted", answers to the Phase 0 stop, issue #2)
+**Status:** accepted, 2026-11-19 ("as drafted")
 
-**Context.** In Phase 0 a second reader labelled every case independently and, apart from checking the labels, raised objections to the rubric "as a deliverability specialist would". Two were taken and changed `spf_weak_all` (see `docs/DECISIONS_TO_REVIEW.md`). Six were not. The owner signed the rubric off as drafted and asked that the six be recorded here and named in the README's limits.
+**Context.** When the measure was written, a second reader labelled every case independently and, apart from checking the labels, raised objections to the rubric "as a deliverability specialist would". Two were taken and changed `spf_weak_all`. Six were not. I signed the rubric off as drafted; the six are recorded here and named in the limits in [docs/EVALS.md](../EVALS.md).
 
 **Decision.** The rubric stays as drafted on these six points. Each is a known limit of the measure.
 
@@ -13,4 +13,4 @@
 5. **`volume_spike` and `new_domain_volume` can both be expected for one fact.** A new domain that ramps fast is counted twice.
 6. **A DKIM key found in DNS is treated as a key in use.** A key that answers at a selector is not proof that it signs mail. The rubric allows for this only by making a mix of key sizes "acceptable" rather than "expected".
 
-**Consequence.** A model that reasons like a specialist on these points can lose coverage or precision against the labels, and the scores should be read with that in mind. The README names all six under its limits. Revisit any of them if a deliverability specialist reviews the rubric, or if a miss in Phase 2 traces back to one of them: that would be a change to the measure, and the owner's.
+**Consequence.** A model that reasons like a specialist on these points can lose coverage or precision against the labels, and the scores should be read with that in mind. `docs/EVALS.md` names all six under its limits. Revisit any of them if a deliverability specialist reviews the rubric, or if a miss on the paid eval runs traces back to one of them: that would be a change to the measure.

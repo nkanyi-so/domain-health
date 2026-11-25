@@ -1,4 +1,4 @@
-"""The four measures, as `docs/SPEC.md` defines them. Every score is computed here from risk
+"""The four measures, as `docs/EVALS.md` defines them. Every score is computed here from risk
 types: there is no judge, and nothing here knows a threshold except the bars file it is given.
 
 A run is what one pass over the cases returned: for each case the risk types in the order
@@ -155,7 +155,7 @@ MEASURES = ("coverage", "precision", "harmful", "stability")
 
 
 def load_bars(path: Path) -> dict[str, Bar]:
-    """The owner's bars. All four must be there; the code holds none of its own."""
+    """The bars. All four must be there; the code holds none of its own."""
     raw = tomllib.loads(path.read_text(encoding="utf-8"))
     if sorted(raw) != sorted(MEASURES):
         raise ValueError(f"{path.name} must hold exactly the four bars: {', '.join(MEASURES)}")
