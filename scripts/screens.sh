@@ -3,10 +3,12 @@
 # development settings, takes the 68 screenshots with their three checks
 # (frontend/scripts/screens.mjs), then stops everything it started, whether or not that worked.
 # Backend on http://127.0.0.1:8000, frontend on http://localhost:3000, as `make dev` has them, so
-# it cannot run beside `make dev`.
+# it cannot run beside `make dev`. `make browser-test` uses the same servers for its one journey:
+# the second argument names the script in frontend/scripts to run instead.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 project="${1:-demo-domain-health}"
+script="${2:-screens.mjs}"
 
 if [ "${SCREENS_INSIDE_EMULATOR:-}" != "1" ]; then
   for port in 3000 8000; do
@@ -17,7 +19,7 @@ if [ "${SCREENS_INSIDE_EMULATOR:-}" != "1" ]; then
   done
   cd "$ROOT/emulator"
   SCREENS_INSIDE_EMULATOR=1 exec pnpm exec firebase emulators:exec --only firestore --project "$project" \
-    "bash '$ROOT/scripts/screens.sh' '$project'"
+    "bash '$ROOT/scripts/screens.sh' '$project' '$script'"
 fi
 
 logs="$(mktemp -d)"
@@ -76,4 +78,4 @@ wait_for http://127.0.0.1:8000/health
 wait_for http://localhost:3000/about
 
 cd "$ROOT/frontend"
-node scripts/screens.mjs
+node "scripts/$script"
