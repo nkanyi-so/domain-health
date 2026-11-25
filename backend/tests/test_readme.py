@@ -1,8 +1,8 @@
 """The numbers in the README and in docs/EVALS.md are the result files' numbers.
 
 Their generated parts equal what `make readme` makes today, every "N in 144" in them is the count
-the results file holds for whoever the sentence is about, and the claim and its limit stand in the
-README word for word.
+the results file holds for whoever the sentence is about, the claim and its limit stand word for
+word in docs/EVALS.md and on the page, and the README opens with the finding.
 """
 
 import json
@@ -297,7 +297,7 @@ def test_the_count_check_sees_a_wrong_count_and_a_count_about_no_one() -> None:
     )
 
 
-# (c) The claim and its limit, word for word.
+# (c) The claim and its limit, word for word, and the finding the README opens with.
 
 
 def claim() -> str:
@@ -319,24 +319,38 @@ def limit() -> str:
     return found[0]
 
 
-def test_the_readme_states_the_claim_word_for_word() -> None:
-    assert claim() in shown(readme())
+FINDING = (
+    "I built the eval before the prompt. It showed that a plain table of rules beats the model at "
+    "choosing which risks to raise, so the product ships the rules for the action list and shows "
+    "the model's picks beside it, marked advisory. Knowing when not to use a model was the result."
+)
+FRONTEND_CLAIM = REPO / "frontend" / "src" / "content" / "claim.ts"
+FRONTEND_LIMIT = REPO / "frontend" / "src" / "content" / "limit.ts"
 
 
-def test_the_readme_states_the_limit_word_for_word_beside_the_claim() -> None:
-    text, sentence = shown(readme()), limit()
+def test_the_evals_doc_states_the_limit_beside_the_claim() -> None:
+    """The claim and its limit stand together in docs/EVALS.md: the limit once, after the claim
+    and before the next section."""
+    text, sentence = evals_doc(), limit()
+
+    assert text.count(claim()) == 1
+    after_claim = text[text.index(claim()) + len(claim()) :]
+    assert sentence in after_claim[: after_claim.index("\n## ")]
+
+
+def test_the_page_states_the_claim_and_its_limit_word_for_word() -> None:
+    sentence = limit()
     as_a_sentence = sentence[0].upper() + sentence[1:] + "."
 
-    assert text.count(as_a_sentence) == 1
-    between = text[text.index(claim()) + len(claim()) : text.index(as_a_sentence)]
-    assert len(between) < 40, "the limit does not stand beside the claim"
+    assert claim() in shown(FRONTEND_CLAIM.read_text(encoding="utf-8"))
+    assert shown(FRONTEND_LIMIT.read_text(encoding="utf-8")).count(as_a_sentence) == 1
 
 
-def test_the_claim_and_its_limit_come_before_the_first_section() -> None:
+def test_the_readme_opens_with_the_finding_before_the_first_section() -> None:
     text = shown(readme())
 
-    assert text.index(claim()) < text.index(shown(SECTIONS[0]))
-    assert text.index("I built the eval before the prompt.") < text.index(claim())
+    assert text.count(FINDING) == 1
+    assert text.index(FINDING) < text.index(shown(SECTIONS[0]))
 
 
 # The sections.

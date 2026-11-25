@@ -8,7 +8,6 @@ from pathlib import Path
 from tests.paths import BACKEND, REPO
 
 CLAIM_FILE = REPO / "docs" / "EVALS.md"
-README = REPO / "README.md"
 FRONTEND_CLAIM = REPO / "frontend" / "src" / "content" / "claim.ts"
 REPORT_TEMPLATES = BACKEND / "src" / "domain_health" / "report" / "templates"
 
@@ -32,11 +31,6 @@ def test_the_claim_is_one_sentence() -> None:
 
     assert sentence.endswith(".")
     assert len(sentence) > 60
-
-
-def test_the_readme_states_the_claim_once_it_exists() -> None:
-    if README.exists():
-        assert claim() in shown(README)
 
 
 def test_the_page_states_the_claim_once_it_exists() -> None:
