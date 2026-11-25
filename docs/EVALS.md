@@ -6,7 +6,7 @@
 
 > A daily email-domain health check for many clients: clear-cut fixes from rules, judgment-call risks picked by a model from a closed list and scored against a written rubric, a human handled loop, and an eval harness for the model's list.
 
-That sentence is the claim, and tests pin it wherever it is shown (the README, the page, the report). Wherever a reader is shown it, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none).
+That sentence is the claim, and tests pin it wherever it is shown (here, the page, the report). Wherever a reader is shown it, its limit stands beside it in one plain sentence: on this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none).
 
 The claim first said "judgment-call risks from a model". It was changed to say what is measured ([decision 0012](decisions/0012-the-claim-says-what-is-measured.md)).
 

@@ -4,20 +4,9 @@ A daily health check for the email-sending domains of many clients.
 
 I built the eval before the prompt. It showed that a plain table of rules beats the model at choosing which risks to raise, so the product ships the rules for the action list and shows the model's picks beside it, marked advisory. Knowing when not to use a model was the result.
 
-> **The claim.** A daily email-domain health check for many clients: clear-cut fixes from rules, judgment-call risks picked by a model from a closed list and scored against a written rubric, a human handled loop, and an eval harness for the model's list.
->
-> **Its limit.** On this project's evals a table of rules does better on the risk list than the model: it meets all four bars over the forty-eight cases and no prompt version did (on the thirty table cases the labels are that table's own output; on the eighteen open cases, in each of the three runs, the model found one more expected risk than the table, 18 of 25 against 17, and returned three wrong ones to its none).
-
 **Live demo:** <https://domain-health-rose.vercel.app>, a rebuild on synthetic data.
 
 ![A client page](docs/screens/05-both-light-1440.png)
-
-| Real | Seeded |
-|---|---|
-| The DNS checks (SPF, DKIM, DMARC) on any domain a visitor types: real lookups, TXT records only. | The twelve clients. They are invented companies on `.example` domains. |
-| The schedule: Cloud Scheduler calls the service once a day, one Cloud Task runs per client, and each writes that day's snapshot to Firestore. | Their figures: reputation grade, complaint and bounce rates, sending volume, open rate, blocklist status, domain age. They would come from accounts the demo does not have. |
-| The deployed services: the backend on Cloud Run, the frontend on Vercel. | Their DNS answers, which come from zone files in the repository through a fixture resolver. |
-| The eval runs: five paid runs of a live model, 144 calls each, with every answer committed. | Their model output on the hosted demo. It was recorded from real model runs (`risks-v3` on `gpt-6.1-terra`, recorded 2026-11-20) and is replayed. Production holds no model key and makes no model call. |
 
 ## The point
 
@@ -29,17 +18,27 @@ Rules produce the fixes. The model's risks were scored beside a plain table of t
 
 ```mermaid
 flowchart LR
-  A[Scheduler] --> B[Tasks]
-  B --> C[Checks]
-  C --> D[Rules: fixes]
-  C --> E[Model: risks]
-  D --> F[Snapshot]
+  A["Scheduler<br/>daily"] --> B["Tasks<br/>one per client"]
+  B --> C["Checks"]
+  C --> D["Rules: fixes"]
+  C --> E["Model: advisory risks"]
+  D --> F["Snapshot"]
   E --> F
+  F -- "handled: hidden thirty days" --> F
 ```
 
-1. Cloud Scheduler queues one Cloud Task per client each day.
-2. Each task runs the checks. Rules produce the fixes, and a model picks risks from a closed list.
-3. The snapshot goes to Firestore, where a person can mark a risk handled.
+1. Cloud Scheduler runs once a day and queues one Cloud Task per client.
+2. Each task runs the SPF, DKIM and DMARC checks and reads the reputation and sending figures.
+3. Rules turn those into the fix list.
+4. A model picks risks from a closed list, and code validates its output.
+5. The snapshot goes to Firestore. A person marks a risk handled, and it stays hidden for thirty days.
+
+| Real | Seeded |
+|---|---|
+| The DNS checks (SPF, DKIM, DMARC) on any domain a visitor types: real lookups, TXT records only. | The twelve clients. They are invented companies on `.example` domains. |
+| The schedule: Cloud Scheduler calls the service once a day, one Cloud Task runs per client, and each writes that day's snapshot to Firestore. | Their figures: reputation grade, complaint and bounce rates, sending volume, open rate, blocklist status, domain age. They would come from accounts the demo does not have. |
+| The deployed services: the backend on Cloud Run, the frontend on Vercel. | Their DNS answers, which come from zone files in the repository through a fixture resolver. |
+| The eval runs: five paid runs of a live model, 144 calls each, with every answer committed. | Their model output on the hosted demo. It was recorded from real model runs (`risks-v3` on `gpt-6.1-terra`, recorded 2026-11-20) and is replayed. Production holds no model key and makes no model call. |
 
 More: [ARCHITECTURE.md](docs/ARCHITECTURE.md), [decisions/](docs/decisions/).
 
@@ -55,26 +54,29 @@ Prompt in use: `risks-v3` (sha256 `11e24baa36aa`). Model: `gpt-6.1-terra`, reaso
 | Model, not in use: `risks-v4`, same model | 0.881, met | 0.940, met | **12 in 144 case-runs, missed** | **0.812 (39 of 48 cases), missed** | **no: harmful and stability missed** |
 <!-- eval-table:end -->
 
-These are 48 cases. The labels were not reviewed by a deliverability specialist. Detail: [docs/EVALS.md](docs/EVALS.md).
+These are 48 cases, scored in code with no judge. The labels were not written or reviewed by a deliverability specialist. Detail: [docs/EVALS.md](docs/EVALS.md).
 
 ## Run it
 
 Needs `uv`, `pnpm`, Node 24 and JDK 21. No key.
 
 ```bash
-make setup
-make dev
-make check
-make eval
+make setup     # install both toolchains
+make dev       # backend on the Firestore emulator, frontend on :3000
+make check     # format, lint, types, tests
+make eval      # free: scores the committed recordings
 ```
 
 ## Production notes
 
-- **Spend:** production holds no model key and makes no model call.
-- **Auth:** Google OIDC on the machine routes, a proxy secret on the API.
-- **Failure handling:** tasks retry with backoff, and the frontend falls back to bundled snapshots.
-- The scheduler, queue, auth and sandbox are deliberately production-shaped for a seeded demo.
-- **Known limit:** no check reads the wording of a risk.
+- **Retries:** a task is tried at most five times, with ten seconds to five minutes between tries.
+- **Idempotent writes:** a snapshot's document ID is its date, so a rerun overwrites.
+- **Spend:** Cloud Run is capped at one instance, and production holds no model key and makes no model call.
+- **Live-check limits:** five checks per address per ten minutes, 200 a day, and at most forty DNS queries per check.
+- **Auth:** the machine routes accept only a Google-signed OIDC token.
+- **Fallback:** if the backend is down, the frontend serves bundled snapshots with a notice.
+
+The scheduler, queue, auth and sandbox are deliberately production-shaped for a seeded demo.
 
 ## How it was built
 
@@ -83,5 +85,5 @@ Built with AI assistance (Claude Code) under checks I set: a plan reviewed befor
 ## Next
 
 - Labels from a deliverability specialist, on real domains.
-- Inputs a table cannot key on, such as free text.
+- Inputs a table cannot key on, such as free text or history.
 - More cases, not more runs.
