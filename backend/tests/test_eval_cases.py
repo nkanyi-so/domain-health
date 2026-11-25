@@ -1,6 +1,6 @@
-"""The cases load in the documented shape and have the mix the plan and the spec ask for.
+"""The cases load in the documented shape and have the mix docs/EVALS.md describes.
 
-Nothing here judges a label: whether a label is right is the rubric's and the owner's call.
+Nothing here judges a label: whether a label is right is the rubric's call.
 """
 
 import json

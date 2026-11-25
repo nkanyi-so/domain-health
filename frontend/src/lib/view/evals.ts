@@ -133,8 +133,8 @@ export function notInUseMissed(entry: NotInUse, summary: EvalSummary): MeasureNa
 
 /**
  * "Prompt version 4, the final attempt, missed two bars: harmful and stability." The versions
- * not in use are listed newest last, and the newest was the final attempt (docs/SPEC.md, "The
- * Phase 2 result").
+ * not in use are listed newest last, and the newest was the final attempt (docs/EVALS.md, "The
+ * five attempts").
  */
 export function notInUseSentence(entry: NotInUse, summary: EvalSummary): string {
   const last = summary.not_in_use[summary.not_in_use.length - 1];

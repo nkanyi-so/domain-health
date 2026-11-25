@@ -1,4 +1,4 @@
-"""What a prompt version may not hold (docs/SPEC.md, "Rules for the paid runs"): the rubric's
+"""What a prompt version may not hold (docs/EVALS.md, "What the prompt says"): the rubric's
 numbers, its band lines, or anything taken from an eval case.
 
 The same check runs in two places: as a test on every version file, and in the paid command
@@ -81,8 +81,8 @@ _RELATIVE = re.compile(
 
 def relative_wording(prompt_text: str) -> list[str]:
     """The sentences of a prompt that place a line relative to a figure the model is asked to
-    recall, a field's name or a span of time. The owner ruled wording relative to a public figure
-    allowed (2026-11-19) as long as it is shown; the rest is listed for the owner to rule on. This
+    recall, a field's name or a span of time. Wording relative to a public figure is
+    allowed (2026-11-19) as long as it is shown; the rest is listed so that it can be judged. This
     lists it for a reader, and nothing passes or fails on it. The list is by words, so it can
     include a sentence that is not a threshold and miss one phrased another way."""
     # Not split at a colon: a term and the sentence that defines it stay together.

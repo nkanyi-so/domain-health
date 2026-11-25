@@ -12,8 +12,8 @@ function Screen({ demo }: { demo: string | null }): ReactElement {
       <div className="flex max-w-field flex-col gap-4">
         <h1 className="t-title">Admin sign-in</h1>
         <p>
-          For the owner. Signing in lets handled and reopen change the shared list. Visitors do not
-          need to sign in.
+          For the site admin. Signing in lets handled and reopen change the shared list. Visitors do
+          not need to sign in.
         </p>
         <SignInForm key={demo ?? "live"} initial={demo ? "refused" : "idle"} demo={demo !== null} />
       </div>

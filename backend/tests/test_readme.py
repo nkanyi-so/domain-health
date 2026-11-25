@@ -1,8 +1,8 @@
-"""The README's numbers are the result files' numbers.
+"""The numbers in the README and in docs/EVALS.md are the result files' numbers.
 
-Its generated parts equal what `make readme` makes today, every "N in 144" in it is the count the
-results file holds for whoever the sentence is about, and the claim and its limit stand in it word
-for word.
+Their generated parts equal what `make readme` makes today, every "N in 144" in them is the count
+the results file holds for whoever the sentence is about, and the claim and its limit stand in the
+README word for word.
 """
 
 import json
@@ -13,34 +13,33 @@ import pytest
 
 from domain_health.readme_tables import (
     BOUNDARIES,
-    FINISHED_PHASES,
+    EVALS,
+    EVALS_PARTS,
     README,
+    README_PARTS,
     RESULTS,
     ReadmeError,
     attempts,
     blocks,
-    build_numbers,
     eval_table,
     in_readme,
     main,
     render,
-    run_log_counts,
     v4_boundaries,
 )
 from tests.paths import REPO
 
-SPEC = REPO / "docs" / "SPEC.md"
-CLAIM_FILE = REPO / "docs" / "CLAIM.md"
-PLAN = REPO / "docs" / "PLAN.md"
+# The claim's quoted line and its limit are kept in docs/EVALS.md.
+CLAIM_FILE = EVALS
 
 SECTIONS = (
-    "## 1. Run it",
-    "## 2. Before",
-    "## 3. Decisions",
-    "## 4. Evals",
-    "## 5. Surviving production",
-    "## 6. How this was built",
-    "## 7. What I'd do next",
+    "## The point",
+    "## How it works",
+    "## Results",
+    "## Run it",
+    "## Production notes",
+    "## How it was built",
+    "## Next",
 )
 
 
@@ -53,6 +52,12 @@ def readme() -> str:
     assert README == REPO / "README.md"
     assert README.exists(), "README.md is missing"
     return README.read_text(encoding="utf-8")
+
+
+def evals_doc() -> str:
+    assert EVALS == REPO / "docs" / "EVALS.md"
+    assert EVALS.exists(), "docs/EVALS.md is missing"
+    return EVALS.read_text(encoding="utf-8")
 
 
 def shown(text: str) -> str:
@@ -68,11 +73,10 @@ def made() -> dict[str, str]:
 # (a) The generated parts and the files they are written from cannot differ.
 
 
-def test_every_generated_part_of_the_readme_is_current(made: dict[str, str]) -> None:
-    text = readme()
-
+def test_every_generated_part_of_the_readme_and_the_evals_doc_is_current(
+    made: dict[str, str],
+) -> None:
     assert sorted(made) == [
-        "build-numbers",
         "eval-attempts",
         "eval-sets",
         "eval-table",
@@ -80,11 +84,17 @@ def test_every_generated_part_of_the_readme_is_current(made: dict[str, str]) -> 
         "v4-boundaries",
         "v4-wording",
     ]
-    for name, part in made.items():
-        assert in_readme(text, name) == part, (
-            f"README.md's `{name}` part is out of date: run `make readme` and commit the file"
-        )
-    assert render(text, made) == text
+    assert README_PARTS == ("eval-table",)
+    assert sorted(EVALS_PARTS) == sorted(made)
+    for path, text, names in (
+        ("README.md", readme(), README_PARTS),
+        ("docs/EVALS.md", evals_doc(), EVALS_PARTS),
+    ):
+        for name in names:
+            assert in_readme(text, name) == made[name], (
+                f"{path}'s `{name}` part is out of date: run `make readme` and commit the file"
+            )
+        assert render(text, {name: made[name] for name in names}) == text
 
 
 def test_the_table_names_the_prompt_the_model_and_the_date_of_the_results_file(
@@ -185,57 +195,20 @@ def test_a_boundary_the_results_file_no_longer_holds_stops_the_command() -> None
         v4_boundaries(source)
 
 
-LOG = "\n".join(
-    [
-        "2026-11-19T14:05:13Z\t0\tphase-started\tone\t0.00",
-        "2026-11-19T14:33:08Z\t0\treview\tone blocking finding @ aaaaaaa\t0.00",
-        "2026-11-19T14:43:48Z\t0\treview\tno blocking findings @ bbbbbbb\t0.00",
-        "2026-11-19T14:49:01Z\t0\tverify\tpass @ bbbbbbb\t0.00",
-        "2026-11-19T14:49:01Z\t0\tchallenge\tchange needed @ bbbbbbb\t0.00",
-        "2026-11-19T14:51:06Z\t0\tstop-opened\tissue=#2\t0.00",
-        "2026-11-19T15:02:58Z\t0\tstop-closed\tissue=#2\t0.00",
-        "2026-11-19T17:05:38Z\t0\tmerged\tpr=#1 merged by someone at 2026-11-19T17:02:18Z\t0.00",
-        "2026-11-19T18:28:22Z\t1\treview\tno blocking findings @ ccccccc\t0.00",
-        "2026-11-19T18:30:00Z\t1\tgate-refused\texit=2 reason=checkout\t0.00",
-        "2026-11-19T18:34:09Z\t1\tgate-merged\tpr=#5 into main\t0.00",
-        "2026-11-20T13:10:00Z\t6\treview\tno blocking findings @ ddddddd\t2.27",
-        "not a line of the log",
-    ]
-)
-
-
-def test_the_run_log_is_counted_by_phase_and_phase_6_is_counted_too() -> None:
-    counts = run_log_counts(LOG)
-
-    assert sorted(counts) == list(FINISHED_PHASES)
-    assert counts[6]["review"] == 1
-    assert counts[0] == {
-        "review": 2,
-        "verify": 1,
-        "challenge": 1,
-        "stop-opened": 1,
-        "gate-refused": 0,
-        "merged": "the owner",
-    }
-    assert counts[1]["review"] == 1
-    assert counts[1]["gate-refused"] == 1
-    assert counts[1]["merged"] == "the merge gate"
-    assert counts[2]["merged"] == ""
-
-
-def test_a_finished_phase_the_run_log_does_not_show_as_merged_stops_the_command() -> None:
-    with pytest.raises(ReadmeError, match="who merged phase 2"):
-        build_numbers(LOG)
-
-
 def test_the_command_rewrites_only_what_is_between_the_markers(tmp_path: Any) -> None:
-    target = tmp_path / "README.md"
+    target, also = tmp_path / "README.md", tmp_path / "EVALS.md"
     stale = re.sub(r"\b9 in 144 case-runs, missed", "0 in 144 case-runs, missed", readme())
+    stale_evals = re.sub(
+        r"\b9 in 144 case-runs, missed", "0 in 144 case-runs, missed", evals_doc(), count=1
+    )
     assert stale != readme()
+    assert stale_evals != evals_doc()
     target.write_text(stale, encoding="utf-8")
+    also.write_text(stale_evals, encoding="utf-8")
 
-    assert main(target) == 0
+    assert main(target, also) == 0
     assert target.read_text(encoding="utf-8") == readme()
+    assert also.read_text(encoding="utf-8") == evals_doc()
 
 
 def test_a_missing_or_repeated_marker_stops_the_command() -> None:
@@ -296,11 +269,12 @@ def wrong_counts(text: str, source: dict[str, Any]) -> list[str]:
     return problems
 
 
-def test_every_n_in_144_in_the_readme_is_the_results_files_count() -> None:
-    text, source = readme(), results()
+def test_every_n_in_144_in_the_readme_and_the_evals_doc_is_the_results_files_count() -> None:
+    source = results()
 
-    assert len(re.findall(rf"\b\d+ in {source['case_runs']}\b", text)) >= 5
-    assert wrong_counts(text, source) == []
+    for text, at_least in ((readme(), 3), (evals_doc(), 5)):
+        assert len(re.findall(rf"\b\d+ in {source['case_runs']}\b", text)) >= at_least
+        assert wrong_counts(text, source) == []
 
 
 def test_the_count_check_sees_a_wrong_count_and_a_count_about_no_one() -> None:
@@ -335,11 +309,11 @@ def claim() -> str:
 
 
 def limit() -> str:
-    """The limit as docs/SPEC.md has it under "Claim": it starts lower case, inside a longer
-    sentence, and ends where the note about who added it begins."""
+    """The limit as docs/EVALS.md has it beside the claim: it starts lower case, inside a longer
+    sentence, and ends at its closing bracket."""
     found: list[str] = re.findall(
         r"(on this project's evals a table of rules does better[^\n]*?to its none\))",
-        SPEC.read_text(encoding="utf-8"),
+        evals_doc(),
     )
     assert len(found) == 1
     return found[0]
@@ -362,23 +336,13 @@ def test_the_claim_and_its_limit_come_before_the_first_section() -> None:
     text = shown(readme())
 
     assert text.index(claim()) < text.index(shown(SECTIONS[0]))
-    assert text.index("The eval was built before the prompt.") < text.index(claim())
+    assert text.index("I built the eval before the prompt.") < text.index(claim())
 
 
-# The spine, and the spend.
+# The sections.
 
 
-def test_the_seven_sections_are_there_in_the_profiles_order() -> None:
+def test_the_seven_sections_are_there_in_order() -> None:
     headings = [line for line in readme().splitlines() if line.startswith("## ")]
 
     assert headings == list(SECTIONS)
-
-
-def test_the_spend_the_readme_states_is_the_plans() -> None:
-    lines = re.findall(
-        r"^Spend: \$([\d.]+) of \$(\d+) cap$", PLAN.read_text(encoding="utf-8"), re.MULTILINE
-    )
-    assert len(lines) == 1
-    spent, cap = lines[0]
-
-    assert f"${spent} of the ${cap} cap" in readme()

@@ -1,6 +1,6 @@
 """What the seeded recordings say, read against the rubric. Free.
 
-`python -m domain_health.seeded.recording_report` prints the report the owner is shown before
+`python -m domain_health.seeded.recording_report` prints the report read before
 the recordings are kept: per state, whether the three answers agreed, how many returned types
 the rubric's bands call merely acceptable, any they call wrong, and any wording that says a value
 is over a rubric line it is not over (a rate elevated, volume spiked, a domain new).

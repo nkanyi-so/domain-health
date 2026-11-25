@@ -24,7 +24,7 @@ from domain_health.evals.live import (
     refuse_an_edited_prompt,
 )
 from domain_health.models import SnapshotInput
-from domain_health.risks.ledger import Ledger, standing_cap
+from domain_health.risks.ledger import Ledger, spend_cap
 from domain_health.risks.model import input_hash, load_calls
 from domain_health.risks.prompt import Prompt
 from domain_health.risks.prompt_rules import problems_with
@@ -61,7 +61,7 @@ def still_to_record(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="make record")
-    parser.add_argument("--standing", type=Path, default=REPO / "docs" / "STANDING.md")
+    parser.add_argument("--spend-cap", type=Path, default=REPO / "evals" / "spend-cap.txt")
     parser.add_argument("--recordings", type=Path, default=RECORDINGS)
     args = parser.parse_args(argv)
 
@@ -84,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
         if not _key_is_set():
             print("OPENAI_API_KEY is not set: put it in .env (see .env.example)", file=sys.stderr)
             return 1
-        ledger = Ledger(evals / "ledger.jsonl", standing_cap(args.standing))
+        ledger = Ledger(evals / "ledger.jsonl", spend_cap(args.spend_cap))
         # Imported here: only the paid commands ever load the live model's module.
         from domain_health.risks.openai_model import OpenAIRiskModel, client_from_environment
 

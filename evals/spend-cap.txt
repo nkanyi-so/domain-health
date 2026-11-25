@@ -1,0 +1,3 @@
+# The most the paid commands (`make eval-live`, `make record`) may spend in total, in US dollars.
+# The ledger (evals/ledger.jsonl) refuses a call that could take the total past this line.
+spend-cap-usd: 10

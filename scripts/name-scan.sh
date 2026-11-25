@@ -1,7 +1,7 @@
 #!/bin/bash
-# The name scan: looks for every entry of the owner's name list in the working tree, in every
-# commit's changes and message on every branch, and in the branch names. The list is the owner's
-# and lives outside the repository; this script never prints an entry, only its line number in
+# The name scan: looks for every entry of a private name list in the working tree, in every
+# commit's changes and message on every branch, and in the branch names. The list
+# lives outside the repository; this script never prints an entry, only its line number in
 # the list and how many times it was found. Free, local, read-only.
 #
 #   bash scripts/name-scan.sh [path to the list]      default: ~/.config/domain-health/names.txt
@@ -15,7 +15,7 @@ LIST="${1:-$HOME/.config/domain-health/names.txt}"
 
 history="$(mktemp)"; trap 'rm -f "$history"' EXIT
 # Every commit reachable from any branch or tag: its subject, body and changed lines. Authors'
-# own names and addresses are not part of what is scanned: they are the owner's signature.
+# own names and addresses are not part of what is scanned: they are the author's signature.
 git log --all -p --no-color --format='commit %H%n%s%n%b' > "$history"
 branches="$(git for-each-ref --format='%(refname:short)' refs/heads refs/remotes refs/tags)"
 

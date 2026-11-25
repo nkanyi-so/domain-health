@@ -1,4 +1,4 @@
-// The fixed views behind the `?demo=<name>` flag (docs/DESIGN.md, "The 17 states"). Each is
+// The fixed views behind the `?demo=<name>` flag, one for each of the 17 states. Each is
 // built from the bundled seeded snapshots, typed as the API types them, so a screenshot of a
 // state is the same on any day. A demo view is only drawn: nothing here is saved or sent.
 //
@@ -51,8 +51,8 @@ function borrowed(from: string, type: Risk["type"], domain: string): Risk {
 }
 
 /**
- * State 6 needs six ranked risks, and no seeded client has more than four on any day. The owner
- * agreed it is shown through this flag only. The view is Oakhaven Outfitters' page with its own
+ * State 6 needs six ranked risks, and no seeded client has more than four on any day. It is
+ * shown through this flag only. The view is Oakhaven Outfitters' page with its own
  * two risks followed by four recorded for other seeded clients, so the list is six long; the
  * four borrowed wordings do not describe Oakhaven's figures.
  */

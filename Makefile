@@ -42,7 +42,7 @@ setup:
 	@command -v gitleaks >/dev/null 2>&1 || echo "WARNING: gitleaks is not installed, so commits are not scanned for secrets before they are made."
 	@bash scripts/toolchain-check.sh || true
 
-# Node and JDK as this Makefile finds them. The preflight reads this.
+# Node and JDK as this Makefile finds them.
 toolchain:
 	@bash scripts/toolchain-check.sh
 
@@ -68,7 +68,7 @@ check-frontend:
 	cd frontend && pnpm run test
 	cd frontend && pnpm run build
 
-# Formats the one file passed as FILE=. The edit hook calls this. Files no formatter owns
+# Formats the one file passed as FILE=. Files no formatter owns
 # (docs, eval cases, shell) are left as written.
 format:
 	@test -n "$(FILE)" || { echo "usage: make format FILE=<path>" >&2; exit 1; }
@@ -87,11 +87,10 @@ eval:
 eval-live:
 	@cd backend && set -a && { [ ! -f ../.env ] || . ../.env; } && set +a && \
 		uv run --frozen python -m domain_health.evals.live --prompts ../prompts --evals ../evals \
-		--standing ../docs/STANDING.md $(if $(MODEL),--model $(MODEL),) $(if $(PROBE),--probe,)
+		--spend-cap ../evals/spend-cap.txt $(if $(MODEL),--model $(MODEL),) $(if $(PROBE),--probe,)
 
 # Paid, or writes to Google Cloud. Each must be the only goal on the command line, so that it can
-# never ride along behind an allowed command such as `make eval record`. Keep this guard when a
-# phase builds the target.
+# never ride along behind a free command such as `make eval record`.
 GUARDED := eval-live record seed infra deploy-backend
 ifneq ($(filter $(GUARDED),$(MAKECMDGOALS)),)
 ifneq ($(words $(MAKECMDGOALS)),1)
@@ -118,7 +117,7 @@ record:
 record-report:
 	@cd backend && uv run --frozen python -m domain_health.seeded.recording_report
 
-# These three write to the owner's Google Cloud project, always through the `domain-health`
+# These three write to the Google Cloud project, always through the `domain-health`
 # gcloud configuration (scripts/cloud-common.sh). The project's ID comes from the shell or .env.
 # Only the project's ID and the region are passed on from .env: no key reaches these scripts.
 infra:
@@ -149,17 +148,16 @@ api-types:
 eval-summary:
 	@cd backend && uv run --frozen python -m domain_health.eval_summary
 
-# Free. Rewrites the generated parts of README.md, each between a pair of HTML comments: the eval
-# tables and the prompt wording from evals/results.json, every attempt scored again from its
-# committed recordings, and the build's numbers from docs/RUN_LOG.md. Nothing else in the README
-# is touched. A backend test fails when the README is stale, so run this after `make eval` changes
-# the results.
+# Free. Rewrites the generated parts of README.md and docs/EVALS.md, each between a pair of HTML
+# comments: the eval tables and the prompt wording from evals/results.json, and every attempt
+# scored again from its committed recordings. Nothing else in either file is touched. A backend
+# test fails when either is stale, so run this after `make eval` changes the results.
 readme:
 	@cd backend && uv run --frozen python -m domain_health.readme_tables
 
-# Free. 68 screenshots into docs/screens/: the 17 states of docs/DESIGN.md, light and dark, 1440
-# and 390 wide, with three checks computed on each (text contrast, no sideways scroll, a focus
-# style on every control) and written to docs/screens/README.md. Starts the backend on the
+# Free. 68 screenshots into screenshots/ (not committed): the 17 states of the interface, light
+# and dark, 1440 and 390 wide, with three checks computed on each (text contrast, no sideways
+# scroll, a focus style on every control) and written to screenshots/README.md. Starts the backend on the
 # emulator and the frontend itself and stops them after; exits non-zero if a check fails. Needs
 # the Chromium build that the pinned playwright-core expects in Playwright's cache; downloads
 # nothing. Not part of `make check`.

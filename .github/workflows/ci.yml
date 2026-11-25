@@ -58,9 +58,9 @@ jobs:
       - run: '"$RUNNER_TEMP/gitleaks/gitleaks" git --redact --no-banner .'
 
   # Free: scores the committed recordings against the bars. Red unless the bars missed are exactly
-  # the ones evals/expected-misses.toml names (the owner's file: a miss the owner chose to ship).
-  # Any other miss is red, and so is a named bar that is now met. (The owner, 2026-11-20; it ran
-  # `make eval STRICT=1`, which is red on any miss and so was red on every commit.)
+  # the ones evals/expected-misses.toml names: a miss that was chosen and is shipped as a miss.
+  # Any other miss is red, and so is a named bar that is now met. (`make eval STRICT=1` is red
+  # on any miss, so it would be red on every commit.)
   eval:
     runs-on: ubuntu-latest
     steps:

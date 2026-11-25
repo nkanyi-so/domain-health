@@ -1,5 +1,5 @@
 #!/bin/bash
-# `make infra`: everything the service runs on, in the owner's Google Cloud project. Safe to run
+# `make infra`: everything the service runs on, in the Google Cloud project. Safe to run
 # again: each thing is created only if it is not there, and settings are set to the same values.
 #
 # Firestore (Native, us-central1) with its TTL policies; the Cloud Tasks queue with its retry
@@ -59,7 +59,7 @@ for secret in $SECRETS; do
       --replication-policy=automatic --data-file=- --quiet >/dev/null
   fi
 done
-# The service reads only the proxy secret. The other two are the frontend's (Phase 5).
+# The service reads only the proxy secret. The other two are the frontend's.
 gcloud secrets add-iam-policy-binding proxy-secret --member="serviceAccount:$RUNTIME_EMAIL" \
   --role=roles/secretmanager.secretAccessor --quiet >/dev/null
 

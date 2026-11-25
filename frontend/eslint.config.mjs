@@ -8,7 +8,7 @@ const eslintConfig = defineConfig([
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
-      // Exported functions and props say their types out loud (CLAUDE.md, Style).
+      // Exported functions and props say their types out loud.
       "@typescript-eslint/explicit-module-boundary-types": "error",
     },
   },

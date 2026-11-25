@@ -1,6 +1,6 @@
 """The spend ledger: every paid call is checked before it is made and written down after.
 
-The check is at the most the call could cost, against the cap in `docs/STANDING.md`. A call that
+The check is at the most the call could cost, against the cap in `evals/spend-cap.txt`. A call that
 could take the total past the cap is not made. The ledger is a committed file, so spend carries
 from one session to the next.
 """
@@ -45,11 +45,11 @@ def most_tokens(text: str) -> int:
     return len(text.encode("utf-8"))
 
 
-def standing_cap(standing: Path) -> float:
-    """The owner's cap, from the `spend-cap-usd:` line. No line, no spend."""
-    found = _CAP_LINE.search(standing.read_text(encoding="utf-8"))
+def spend_cap(path: Path) -> float:
+    """The cap, from the `spend-cap-usd:` line. No line, no spend."""
+    found = _CAP_LINE.search(path.read_text(encoding="utf-8"))
     if not found:
-        raise SpendCapError(f"no spend-cap-usd line in {standing.name}, so nothing may be spent")
+        raise SpendCapError(f"no spend-cap-usd line in {path.name}, so nothing may be spent")
     return float(found.group(1))
 
 

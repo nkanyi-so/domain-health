@@ -1,6 +1,5 @@
-"""Pins the claim. The sentence lives in docs/CLAIM.md; every place that shows it must match.
-
-This file is part of the measure (`.claude/hooks/measure-paths.txt`): the owner changes it.
+"""Pins the claim. The sentence lives in docs/EVALS.md as its one quoted line; every place that
+shows it must match.
 """
 
 import re
@@ -8,19 +7,18 @@ from pathlib import Path
 
 from tests.paths import BACKEND, REPO
 
-CLAIM_FILE = REPO / "docs" / "CLAIM.md"
-SPEC = REPO / "docs" / "SPEC.md"
+CLAIM_FILE = REPO / "docs" / "EVALS.md"
 README = REPO / "README.md"
 FRONTEND_CLAIM = REPO / "frontend" / "src" / "content" / "claim.ts"
 REPORT_TEMPLATES = BACKEND / "src" / "domain_health" / "report" / "templates"
 
 
 def claim() -> str:
-    """The one quoted line in docs/CLAIM.md."""
+    """The one quoted line in docs/EVALS.md."""
     quoted: list[str] = re.findall(
         r"^> (.+)$", CLAIM_FILE.read_text(encoding="utf-8"), re.MULTILINE
     )
-    assert len(quoted) == 1, "docs/CLAIM.md must hold exactly one quoted line: the claim"
+    assert len(quoted) == 1, "docs/EVALS.md must hold exactly one quoted line: the claim"
     return quoted[0].strip()
 
 
@@ -34,10 +32,6 @@ def test_the_claim_is_one_sentence() -> None:
 
     assert sentence.endswith(".")
     assert len(sentence) > 60
-
-
-def test_the_spec_states_the_same_claim() -> None:
-    assert claim() in shown(SPEC)
 
 
 def test_the_readme_states_the_claim_once_it_exists() -> None:

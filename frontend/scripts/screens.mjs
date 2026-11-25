@@ -1,6 +1,6 @@
-// `make screens`: a screenshot of each of the 17 states in docs/DESIGN.md, in both themes, at
-// 1440 and 390 wide (68 files in docs/screens/), and three checks on every one of them that the
-// Phase 5 gate names: text contrast, no sideways scroll, a focus style on every control.
+// `make screens`: a screenshot of each of the 17 states of the interface, in both themes, at
+// 1440 and 390 wide (68 files in screenshots/, which is not committed), and three checks on
+// every one of them: text contrast, no sideways scroll, a focus style on every control.
 //
 // It is started by scripts/screens.sh, which runs the backend and the frontend first. It drives
 // a Chromium build that is already in Playwright's cache and never downloads one.
@@ -13,12 +13,12 @@ import { chromium } from "playwright-core";
 const BASE = process.env.SCREENS_BASE_URL ?? "http://localhost:3000";
 // The passphrase `make dev` accepts (src/lib/server/env.ts). It works nowhere else.
 const PASSPHRASE = process.env.ADMIN_PASSPHRASE ?? "dev-only-passphrase";
-const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../docs/screens");
+const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../screenshots");
 
 const ADVISORY = ["Advisory risks", "Advisory, unproven.", "See the eval result"];
 
 /**
- * The 17 states. `path` is the address in DESIGN.md's table; `must` is wording the state has to
+ * The 17 states. `path` is the state's address; `must` is wording the state has to
  * show, so a state that silently draws something else fails the run instead of being shot.
  */
 const STATES = [
@@ -188,7 +188,7 @@ const WIDTHS = [
   { width: 1440, height: 900 },
   { width: 390, height: 844 },
 ];
-// The page ground in each theme (docs/DESIGN.md, `page`): how the script knows the theme took.
+// The page ground in each theme (the `page` token): how the script knows the theme took.
 const PAGE_GROUND = { light: "rgb(241, 244, 242)", dark: "rgb(19, 28, 26)" };
 
 // Nothing moves in a shot. The development server's own badge is not part of the page.
@@ -452,7 +452,7 @@ async function shoot(browser, state, theme, size, storageState) {
     ? `${String(state.n).padStart(2, "0")}-${state.slug}-${theme}-${size.width}.png`
     : `${state.slug} (${theme}, ${size.width})`;
   // The app follows the system's theme unless its switch has saved a choice, so the system's
-  // preference is what is set, with nothing saved (docs/DESIGN.md, "How the themes switch").
+  // preference is what is set, with nothing saved.
   const context = await browser.newContext({
     viewport: size,
     deviceScaleFactor: 1,
@@ -483,7 +483,7 @@ async function shoot(browser, state, theme, size, storageState) {
       problems.push(`the tab title is "${title}"`);
     }
 
-    // A state's shot goes in docs/screens. The other screens are only kept when asked for.
+    // A state's shot goes in the output folder. The other screens are only kept when asked for.
     const file = state.n
       ? path.join(OUT, name)
       : process.env.SCREENS_ALSO_DIR
@@ -533,7 +533,7 @@ function readme(shots, also) {
     "",
     "Written by `make screens`. Do not edit by hand: run the command again.",
     "",
-    `${shots.length} screenshots: the 17 states in \`docs/DESIGN.md\`, each in the light and the dark theme, at 1440 and at 390 wide, full page.`,
+    `${shots.length} screenshots: the 17 states of the interface, each in the light and the dark theme, at 1440 and at 390 wide, full page.`,
     "",
     "States 1 to 15 and 17 are drawn from the `?demo=` address in the design document's table, so they are the same on any day. State 16 is real: the script signs in on the local servers with the development passphrase, marks one of Oakhaven Outfitters' risks handled and opens that client's page, so its snapshot day and its handled dates are the day the command was run.",
     "",

@@ -9,7 +9,7 @@ from domain_health.risks.ledger import (
     SpendCapError,
     cost_usd,
     most_tokens,
-    standing_cap,
+    spend_cap,
 )
 from tests.paths import REPO
 
@@ -43,13 +43,13 @@ def test_the_token_bound_is_never_under_the_real_count() -> None:
     assert most_tokens("é") == 2
 
 
-def test_the_cap_is_the_owners_line_in_the_standing_answers(tmp_path: Path) -> None:
-    assert standing_cap(REPO / "docs" / "STANDING.md") == 10.0
+def test_the_cap_is_the_line_in_the_spend_cap_file(tmp_path: Path) -> None:
+    assert spend_cap(REPO / "evals" / "spend-cap.txt") == 10.0
 
-    other = tmp_path / "STANDING.md"
+    other = tmp_path / "spend-cap.txt"
     other.write_text("mode: gated\n", encoding="utf-8")
     with pytest.raises(SpendCapError, match="nothing may be spent"):
-        standing_cap(other)
+        spend_cap(other)
 
 
 def test_a_call_under_the_cap_is_reserved_and_then_written_down(tmp_path: Path) -> None:

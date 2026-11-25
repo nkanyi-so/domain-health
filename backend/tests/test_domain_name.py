@@ -2,8 +2,8 @@ import pytest
 
 from domain_health.domain_name import DomainRefusedError, Refusal, public_domain
 
-# The eight refusals of the live-check input in docs/SPEC.md ("What must be refused"), one line
-# each. The other two refusals there, the rate limit and the daily cap, arrive with the API.
+# The eight refusals of the live-check input , one line
+# each. The other two refusals, the rate limit and the daily cap, are tested with the API.
 THE_EIGHT_REFUSALS = [
     pytest.param("192.0.2.10", Refusal.IP_ADDRESS, id="1 an IP address"),
     pytest.param("localserver", Refusal.SINGLE_LABEL, id="2 a single label"),
