@@ -34,3 +34,6 @@ evals/.eval-live.lock
 
 # What `make screens` writes. Four shots are kept in docs/screens/.
 /screenshots/
+
+# Written by `next dev` (Next.js agent rules). Generated, not ours.
+frontend/AGENTS.md
