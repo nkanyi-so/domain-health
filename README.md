@@ -65,6 +65,7 @@ make setup     # install both toolchains
 make dev       # backend on the Firestore emulator, frontend on :3000
 make check     # format, lint, types, tests
 make eval      # free: scores the committed recordings
+make browser-test   # end-to-end, in Chromium
 ```
 
 ## Production notes

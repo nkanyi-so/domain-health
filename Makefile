@@ -26,7 +26,7 @@ endif
 
 .PHONY: help setup dev check check-backend check-frontend format eval toolchain \
 	eval-live record record-report seed infra deploy-backend fallback api-types eval-summary \
-	screens check-domain readme
+	screens browser-test check-domain readme
 
 help:
 	@echo "make setup | dev | check | format FILE=<path> | eval [STRICT=1] [EXPECTED=1] | check-domain DOMAIN=<name>"
@@ -163,3 +163,9 @@ readme:
 # nothing. Not part of `make check`.
 screens:
 	@bash scripts/screens.sh $(EMULATOR_PROJECT)
+
+# Free. One journey in a real Chromium on the same local servers, as a visitor: the home page
+# lists twelve clients, a client page shows fixes above advisory risks, and a risk marked handled
+# is still hidden after a reload. CI's `browser` job runs it. Not part of `make check`.
+browser-test:
+	@bash scripts/screens.sh $(EMULATOR_PROJECT) browser-test.mjs
